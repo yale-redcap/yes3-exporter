@@ -1,0 +1,865 @@
+
+html {
+
+    --yes3-padding: 5px;
+    --yes3-margin: 5px;
+    --yes3-border-color: gray;
+    --yes3-border: 2px solid gray;
+ 
+    --yes3-button-color: darkslategray;
+    --yes3-button-background-color: transparent;
+    --yes3-button-border-color: darkslategray;
+    --yes3-button-hover-color: white;
+    --yes3-button-hover-background-color: indianred;
+    --yes3-button-font-weight: 600;
+    --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+ 
+    --yes3-description-color: cadetblue;
+ 
+    --yes3-input-border-color: lightgrey;
+    --yes3-input-font-weight: 600;
+    --yes3-input-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-input-font-size: 13px;
+    --yes3-input-color: darkred;
+    --yes3-input-background-color: white;
+    --yes3-select-color: steelblue;
+ 
+    --yes3-alert-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-alert-color: darkred;
+ 
+    --yes3-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-message-color: indianred;
+    --yes3-message-link-color: darkslategray;
+ 
+    --yes3-block-height: 50px;
+    --yes3-item-description-width: 175px;
+    --yes3-item-gutter-width: 30px;
+ 
+    --yes3-color-balloon-input: darkslategrey;
+ 
+    --yes3-panel-color: darkslategrey;
+    --yes3-panel-hover-color: black;
+    --yes3-panel-subtitle-color: darkcyan;
+ 
+    --yes3-panel-message-color: darkslategray;
+    --yes3-panel-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+ 
+    --yes3-panel-background-color: white;
+    --yes3-panel-header-highlight-color: white;
+    --yes3-panel-form-button-color: darkslategray;
+    --yes3-panel-form-button-background-color: white;
+ 
+    --yes3-table-label-color: slategray;
+    --yes3-table-value-color: darkgreen;
+ 
+    --yes3-highlight-color: darkslategray;
+ 
+    --yes3-title-color: rgb(64, 64, 64);
+    --yes3-subtitle-color: darkcyan;
+ 
+    --yes3-td-color: darkslategrey;
+    --yes3-th-color: black;
+    --yes3-td-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+
+    --yes3-contextmenu-font-size: 14px;
+    --yes3-contextmenu-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+
+ }
+ 
+ .vartester {
+    color: #483d8b;
+ }
+ 
+ /*
+  * when displayed, grays and blocks UI (for modal dialogs)
+  */
+ div#yes3-screen-cover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 5000;
+    width: 100%;
+    height: 100%;
+    display: none;
+ }
+ 
+ .yes3-flex-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: flex-start;
+    border: 1px solid lightgrey;
+ }
+ 
+ .yes3-flex-item {
+    border: 1px solid lightgrey;
+    padding: var(--yes3-padding);
+    margin: var(--yes3-margin);
+ }
+ 
+ .yes3-highlight {
+    color: var(--yes3-highlight-color);
+ }
+ 
+ .yes3-config-panel {
+    /*   margin-bottom: calc( 2*var(--yes3-margin) ); */
+    min-width: 400px;
+ }
+ 
+ .yes3-config-panel-small {
+    max-width: 500px;
+ }
+ 
+ .yes3-config-panel-row {
+    float: left;
+    width: 100%;
+    height: var(--yes3-block-height);
+    line-height: var(--yes3-block-height);
+    /*margin-bottom: calc(4*var(--yes3-margin));*/
+ }
+ 
+ .yes3-config-panel-row-left {
+    float: left;
+    margin-right: var(--yes3-margin);
+    height: var(--yes3-block-height);
+    line-height: var(--yes3-block-height);
+ }
+ 
+ .yes3-config-panel-row-right {
+    float: right;
+    margin-left: var(--yes3-margin);
+    height: var(--yes3-block-height);
+    line-height: var(--yes3-block-height);
+ }
+ 
+ .yes3-config-panel-title {
+    width: 100%;
+    font-size: 1.2rem;
+    font-weight: 600;
+ }
+ 
+ .yes3-config-panel-description {
+    width: 100%;
+    color: var(--yes3-description-color);
+    font-weight: 800;
+    font-style: italic;
+    margin-top: var(--yes3-margin);
+ }
+ 
+ table.yes3-config-table {
+    width: 100%;
+    border: var(--yes3-border);
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-top: var(--yes3-margin);
+ }
+ 
+ .yes3-look-out-below {
+    margin-bottom: calc(4 * var(--yes3-margin));
+ }
+ 
+ table.yes3-config-table tr:first-child td {
+    padding: var(--yes3-padding);
+ }
+ 
+ table.yes3-config-table tr:not(:first-child) td {
+    padding-top: 0;
+    padding-bottom: var(--yes3-padding);
+    padding-left: var(--yes3-padding);
+    padding-right: var(--yes3-padding);
+ }
+ 
+ table.yes3-config-table td.yes3-gutter-left {
+    width: var(--yes3-item-gutter-width);
+    text-align: left;
+    vertical-align: top;
+ }
+ 
+ table.yes3-config-table td.yes3-gutter-right {
+    width: var(--yes3-item-gutter-width);
+    text-align: right;
+    vertical-align: top;
+ }
+ 
+ table.yes3-config-table td.yes3-config-table-item-description {
+    width: var(--yes3-item-description-width);
+    vertical-align: center;
+ }
+ 
+ td.yes3-divider {
+    padding-top: var(--yes3-padding);
+    padding-bottom: 0 !important;
+ }
+ 
+ hr.yes3-divider {
+    border-top: 2px solid lightgrey;
+    height: 2px;
+    margin: 0;
+ }
+ 
+ div.yes3-vertical-option {
+    width: 100%;
+ }
+ 
+ div.yes3-halfwidth {
+    width: 50%;
+ }
+ 
+ td.yes3-config-table-item-value input[type=text] {
+    display: inline-block;
+ }
+ 
+ td.yes3-config-table-item-value span {
+    display: inline-block;
+    font-style: italic;
+ }
+ 
+ .yes3-config-table-item-value input[type=radio], .yes3-config-table-item-value input[type=checkbox] {
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    margin: 0;
+    vertical-align: bottom;
+    position: relative;
+    top: -2px;
+    margin-right: 2px;
+    *overflow: hidden;
+ }
+ 
+ .yes3-config-table-item-value label {
+    margin-bottom: 0;
+ }
+ 
+ td.yes3-config-table-third {
+    width: calc(0.5 * (100% - var(--yes3-item-description-width) - var(--yes3-item-gutter-width)));
+ }
+ 
+ td.yes3-config-table-third:not(.yes3-bottom-row) {
+    padding-bottom: 0 !important;
+ }
+ 
+ .yes3-config-panel input[type=text], .yes3-config-panel select {
+    padding: var(--yes3-padding);
+    border: 1px solid var(--yes3-input-border-color);
+    color: var(--yes3-input-color);
+    font-family: var(--yes3-input-font-family);
+    font-weight: var(--yes3-input-font-weight);
+    border-radius: 4px;
+ }
+ 
+ .yes3-config-table-item-value input.yes3-input-large, tbody#yes3-trk-table-body input[type=text] {
+    width: 100%;
+ }
+ 
+ .yes3-config-table-item-value-text-readonly {
+    padding: var(--yes3-padding);
+    border: 1px solid transparent;
+    color: var(--yes3-input-color);
+    font-family: var(--yes3-input-font-family);
+    font-weight: var(--yes3-input-font-weight);
+    width: 100%;
+ }
+ 
+ .yes3-config-table-item-value input.yes3-input-small {
+    width: 50px;
+    margin-right: var(--yes3-margin);
+ }
+ 
+ .yes3-config-table-item-value input.yes3-input-medium {
+    width: 100px;
+    margin-right: var(--yes3-margin);
+ }
+ 
+ .yes3-config-panel select {
+    width: 100%;
+ }
+ 
+ .yes3-sortable .yes3-config-table-item-description:hover {
+    cursor: move;
+ }
+ 
+ .yes3-config-table-header td {
+ 
+ }
+ 
+ .yes3-config-table-collapse {
+    float: left;
+    vertical-align: top;
+    margin-right: calc(2 * var(--yes3-margin));
+ }
+ 
+ .yes3-config-table-remove {
+    float: right;
+    vertical-align: top;
+ }
+ 
+ .yes3-config-table-add {
+    float: left;
+    padding: var(--yes3-padding);
+    border: 1px solid transparent;
+ }
+ 
+ table.yes3-config-table i, div.yes3-config-table-add i {
+    opacity: 0.4;
+ }
+ 
+ table.yes3-config-table, div.yes3-config-table-add i:hover {
+    opacity: 1.0;
+ }
+ 
+ a:focus, i:focus, a:hover, i:hover {
+    outline: none !important;
+ }
+
+ .yes3-block {
+     height: var(--yes3-block-height);
+     line-height: var(--yes3-block-height);
+ }
+ 
+ input[type=button].yes3-large-button {
+    float: left;
+    margin: 0;
+    color: var(--yes3-button-color);
+    font-family: var(--yes3-input-font-family);
+    font-weight: var(--yes3-button-font-weight);
+    background-color: var(--yes3-button-background-color);
+    padding-left: calc(6 * var(--yes3-padding));
+    padding-right: calc(6 * var(--yes3-padding));
+    padding-top: 0;
+    padding-bottom: 0;
+    height: var(--yes3-block-height);
+    border: 2px solid var(--yes3-border-color);
+    border-radius: calc(0.5 * var(--yes3-block-height));
+    width: 100%;
+ }
+ 
+ input[type=button].yes3-small-button {
+    float: left;
+    color: var(--yes3-button-color);
+    background-color: var(--yes3-button-background-color);
+    /*
+    padding-left: calc(3 * var(--yes3-padding));
+    padding-right: calc(3 * var(--yes3-padding));
+     */
+    padding-top: 0;
+    padding-bottom: 0;
+    height: calc(0.8 * var(--yes3-block-height));
+    margin-top: calc(0.1 * var(--yes3-block-height));
+    margin-bottom: calc(0.1 * var(--yes3-block-height));
+    line-height: calc(0.8 * var(--yes3-block-height));
+    border: 1px solid var(--yes3-border-color);
+    border-radius: calc(0.4 * var(--yes3-block-height));
+    /*width: 100%;*/
+    /*max-width: 240px;*/
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+ }
+ 
+ input[type=button].yes3-large-button:hover,
+ input[type=button].yes3-small-button:hover {
+    color: var(--yes3-button-hover-color);
+    background-color: var(--yes3-button-hover-background-color);
+    border-color: var(--yes3-button-hover-background-color);
+    cursor: pointer;
+ }
+ 
+ div.yes3-authenticated, div.yes3-not-authenticated {
+    display:none;
+ }
+ 
+ table#yes3-project-settings {
+    width: 100%;
+ }
+ 
+ table#yes3-project-settings td {
+    font-size: 0.8rem;
+    height: 0.9rem;
+    line-height: 0.9rem;
+    vertical-align: top;
+ }
+ 
+ td.yes3-settings-label {
+    min-width: 150px;
+    max-width: 150px;
+    width: 150px;
+    color: var(--yes3-table-label-color);
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+ }
+ 
+ td.yes3-settings-value {
+    color: var(--yes3-table-value-color);
+ }
+ 
+ div#yes3-config-save-message {
+ }
+ 
+ div#yes3-message {
+    display: none;
+    color: var(--yes3-message-color);
+    font-family: var(--yes3-message-font-family);
+    font-weight: 800;
+ }
+ 
+ div#yes3-message a {
+    text-decoration: underline;
+    color: var(--yes3-message-color);
+    font-family: var(--yes3-message-font-family);
+ }
+ 
+ span.yes3-required {
+    color: var(--yes3-alert-color);
+    font-family: var(--yes3-alert-font-family);
+ }
+ 
+ .yes3-alert {
+     color: var(--yes3-alert-color);
+ }
+ 
+ .yes3-config-italicized-subdued {
+    font-style: italic;
+    opacity: 0.75;
+ }
+ 
+ .yes3-bold {
+    font-weight: 800;
+ }
+ 
+ .yes3-multisite-only {
+    display: none;
+ }
+ 
+ /* --- PANELS --- */
+
+ 
+.yes3-row-selected {
+    background-color: rgba(211, 211, 211, 0.233);
+}
+
+ div#yes3-contextmenu-panel {
+    display: none;
+    color: var(--yes3-panel-color);
+    background-color: var(--yes3-panel-background-color);
+    padding-left: calc(4*var(--yes3-padding));
+    padding-right: calc(4*var(--yes3-padding));
+    padding-top: calc(2*var(--yes3-padding));
+    padding-bottom: calc(2*var(--yes3-padding));
+    position: relative;
+    border: 1px solid lightgrey;
+    border-radius: 0;
+    box-shadow: 0 0 8px 1px rgb(175, 175, 175);
+ }
+
+ div#yes3-contextmenu-panel-title {
+    font-family: inherit;
+    font-size: var(--yes3-contextmenu-font-size);
+    color: var(--yes3-panel-color);
+    float: left;
+    clear: both;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: var(--yes3-margin);
+    cursor: move;
+    height: var(--yes3-contextmenu-font-size);
+    line-height: var(--yes3-contextmenu-font-size);
+ }
+
+ div#yes3-contextmenu-panel div {
+    font-size: var(--yes3-contextmenu-font-size) !important;
+    font-family: var(--yes3-contextmenu-font-family) !important;
+ }
+ 
+ .yes3-panel {
+    display: none;
+    color: var(--yes3-panel-color);
+    background-color: var(--yes3-panel-background-color);
+    padding-top: calc( 4 * var(--yes3-padding) );
+    padding-bottom: calc( 2 * var(--yes3-padding) );
+    padding-left: calc( 4 * var(--yes3-padding) );
+    padding-right: calc( 4 * var(--yes3-padding) );
+    border: 1px solid black;
+    min-height: 100px;
+    min-width: 360px;
+    max-width: 1600px;
+    position: relative;
+    border-radius: 0;
+    -webkit-box-shadow: 0 0 16px 1px rgba(100, 100, 100, 1.0);
+    -moz-box-shadow: 0 0 16px 1px rgba(100, 100, 100, 1.0);
+ }
+ 
+ .yes3-panel p {
+    margin-top: 0;
+    margin-bottom: 8px;
+ }
+ 
+ .yes3-panel a {
+    color: var(--yes3-panel-color) !important;
+ }
+ 
+ .yes3-panel a:hover {
+    outline: none !important;
+    color: var(--yes3-panel-hover-color) !important;
+ }
+ 
+ .yes3-panel-header-row {
+    font-family: inherit;
+    font-size: 26px;
+    color: var(--yes3-panel-color);
+    font-weight: 200;
+    float: left;
+    clear: both;
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: var(--yes3-margin);
+    cursor: move;
+    height: 26px;
+    line-height: 26px;
+ }
+ 
+ .yes3-panel-header-highlight {
+    color: var(--yes3-panel-header-highlight-color);
+    font-weight: 200;
+ }
+ 
+ .yes3-panel-subtitle {
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--yes3-panel-subtitle-color);
+    font-weight: 500;
+    font-style: italic;
+ }
+ 
+ .yes3-panel-footer {
+    float: left;
+    clear: both;
+    width: 100%;
+    cursor: move;
+ }
+ 
+ .yes3-panel-close-link-block {
+    display: inline-block;
+    vertical-align: top;
+ }
+ 
+ .yes3-panel-content {
+    font-family: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-weight: 400;
+    float: left;
+    clear: both;
+    width: 100%;
+    /* margin-top: 1em; */
+    margin-bottom: 12px;
+    /*overflow-y: scroll;*/
+ }
+ 
+ .yes3-panel-row,
+ .yes3-panel-top-row,
+ .yes3-panel-bottom-row,
+ .yes3-panel-message {
+    font-family: inherit;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    float: left;
+    clear: both;
+    width: 100%;
+ }
+ 
+ .yes3-panel-row {
+    margin-top: var(--yes3-margin);
+    margin-bottom: var(--yes3-margin);
+ }
+ 
+ .yes3-panel-top-row {
+    margin-top: 0;
+    margin-bottom: var(--yes3-margin);
+ }
+ 
+ .yes3-panel-bottom-row {
+    margin-top: var(--yes3-margin);
+    margin-bottom: 0;
+ }
+ 
+ .yes3-panel-message {
+    color: var(--yes3-panel-message-color);
+    margin-top: calc( 3 * var(--yes3-margin) );
+    margin-bottom: var(--yes3-margin);
+    font-family: var(--yes3-panel-message-font-family);
+ }
+ 
+ div.yes3-panel-row-left {
+    float: left;
+    margin-right: var(--yes3-margin);
+    height: 100%;
+ }
+ 
+ div.yes3-panel-row-left + div.yes3-panel-row-left {
+    margin-left: 24px;
+    margin-left: var(--yes3-margin);
+    vertical-align: middle;
+ }
+ 
+ .yes3-panel-row-right {
+    float: right;
+    height: 100%;
+    vertical-align: middle;
+ }
+ 
+ .yes3-panel-row-middle {
+    text-align: center;
+ }
+ 
+ .yes3-panel-row a {
+    font-family: inherit;
+    color: inherit;
+    font-size: inherit;
+    font-weight: 600;
+ }
+ 
+ .yes3-panel label {
+    font-weight: 500;
+    font-style: italic;
+ }
+ 
+ div.yes3-panel ul ul {
+    font-weight: 600;
+    opacity: 85%;
+ }
+ 
+ .yes3-panel form input[type=text], .yes3-panel form input[type=password] {
+    border: 1px solid var(--yes3-input-border-color);
+    color: var(--yes3-input-color);
+    padding: 6px;
+    border-radius: 4px;
+    width: 300px;
+ }
+ 
+ input[type=text].yes3-number {
+    color: var(--yes3-input-color);
+    padding: 6px;
+    border: 1px solid var(--yes3-input-border-color);
+    border-radius: 4px;
+    width: 50px;
+ }
+ 
+ .yes3-panel form button, .yes3-panel input[type=button], button[type=submit].yes3 {
+    height: 30px;
+    width: min-150px;
+    padding-left: calc(2*var(--yes3-padding));
+    padding-right: calc(2*var(--yes3-padding));
+    color: var(--yes3-panel-form-button-color);
+    background-color: var(--yes3-panel-form-button-background-color);
+    border: 1px solid var(--yes3-panel-form-button-color);
+    border-radius: 16px;
+    outline: none;
+ }
+ 
+ .yes3-panel form button:hover, .yes3-panel input[type=button]:hover, button[type=submit].yes3:hover {
+    background-color: var(--yes3-panel-form-button-color);;
+    color: var(--yes3-panel-form-button-background-color);
+    border: 1px solid var(--yes3-panel-form-button-color);
+    cursor: pointer;
+ }
+ 
+ input[type=button].yes3-button {
+    float: left;
+    margin-right: 10px;
+    border-radius: 20px;
+    height: 40px;
+    width: auto !important;
+    padding-left: 20px;
+    padding-right: 20px;
+    color: var(--yes3-button-color);
+    background-color: var(--yes3-button-background-color);
+    border-color: var(--yes3-button-border-color);
+    font-family: var(--yes3-button-font-family);
+ }
+ 
+ input[type=button].yes3-button:hover {
+    color: var(--yes3-button-hover-color);
+    background-color: var(--yes3-button-hover-background-color);
+    border-color: var(--yes3-button-hover-background-color);
+    cursor: pointer;
+ }
+ 
+ .yes3-panel td, .yes3-panel th {
+    vertical-align: middle;
+    padding: 5px;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    font-family: var(--yes3-td-font-family);
+ }
+ 
+ .yes3-panel td {
+    color: var(--yes3-td-color);
+    background-color: transparent;
+ }
+ 
+ .yes3-panel th {
+    color: var(--yes3-th-color);
+    background-color: transparent;
+ }
+ 
+ .yes3-alert-message {
+    font-family: var(--yes3-alert-font-family);
+    color: var(--yes3-alert-color);
+ }
+ 
+ 
+ /* RADIO BALLOONS  */
+ 
+ input[type=radio].balloon, input[type=checkbox].balloon {
+    /* Hide original inputs */
+    visibility: hidden;
+    position: absolute;
+ }
+ 
+ input[type=radio].balloon + label:before, input[type=checkbox].balloon + label:before {
+    height: 14px;
+    width: 14px;
+    margin-right: 3px;
+    content: " ";
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid var(--yes3-color-balloon-input);
+ }
+ 
+ input[type=radio].balloon + label + input[type=radio].balloon + label:before, input[type=checkbox].balloon + label + input[type=checkbox].balloon + label:before {
+    margin-left: 6px;
+ }
+ 
+ input[type=radio].balloon:checked + label:before, input[type=checkbox].balloon:checked + label:before {
+    background: var(--yes3-color-balloon-input);
+    border-color: var(--yes3-color-balloon-input);
+ }
+ 
+ input[type=radio].balloon:hover + label:before, input[type=checkbox].balloon:hover + label:before {
+    border: 2px solid var(--yes3-color-balloon-input);
+    cursor: pointer;
+ }
+ 
+ input[type=radio].balloon + label:before {
+    border-radius: 50%;
+    margin-bottom: 2px;
+ }
+ 
+ input[type=checkbox].balloon + label:before {
+    border-radius: 50%;
+    margin-bottom: 2px;
+ }
+ 
+ .yes3-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--yes3-title-color);
+ }
+ 
+ .yes3-subtitle {
+    font-size: 2rem;
+    font-weight: 100;
+    letter-spacing: -1px;
+    word-spacing: -3px;
+    color: var(--yes3-title-color);
+ }
+ 
+ .yes3-inline-parent {
+    display: block;
+    width: 100%;
+    margin-bottom: calc(2 * var(--yes3-margin));
+ }
+ 
+ .yes3-inline-element {
+    vertical-align: middle;
+    display: inline-block;
+ }
+ 
+ .yes3-inline-element-right {
+    vertical-align: middle;
+    text-align: right;
+    display: inline-block;
+ }
+ 
+ div#niayes3-study-info {
+    max-width: 500px;
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+ }
+ 
+ .yes3-ellipsis {
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+ }
+ 
+ div.yes3-float-left {
+    float: left;
+    margin-right: calc( 2 * var(--yes3-margin) );
+ }
+ 
+ th label {
+    opacity: 0.75 !important;
+ }
+
+ /* === SCROLLABLE TABLE === */
+  
+ table.yes3-scrollable {
+    table-layout: fixed;
+    border-collapse: collapse;
+    border: 1px solid var(--yes3-border-color);
+    margin-top: var(--yes3-margin);
+ }
+ 
+ table.yes3-scrollable thead {
+    background-color: var(--yes3-panel-color);
+    width: 100%;
+ }
+ 
+ table.yes3-scrollable thead tr {
+    display: block;
+ }
+ 
+ table.yes3-scrollable tbody {
+    display: block;
+    overflow: auto;
+    height: 600px;
+    width: 100%;
+    background-color: var(--yes3-panel-background-color);
+ }
+ 
+ table.yes3-scrollable th, table.yes3-scrollable td {
+    padding: var(--yes3-padding);
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+ }
+ 
+ table.yes3-scrollable th {
+    color: var(--yes3-panel-background-color);
+    background-color: transparent;
+ }
+ 
+ table.yes3-scrollable td {
+    color: var(--yes3-panel-color);
+    background-color: transparent;
+    border-bottom: 1px solid var(--yes3-input-border-color);
+ }
+
+ .yes3-when-loaded {
+     display: none;
+ }

@@ -1,0 +1,718 @@
+{
+    "description": "Field mapping specs for the POA biostatistics dev project",
+    "version": "0.0.1",
+    "version_date": "2022-01-09",
+    "change_log": "Whatever you think is important for posterity...",
+    "specifications": [
+      {
+        "name": "Consort",
+        "description": "Consort diagram worktable fields and values",
+        "data_elements": [
+          {
+            "name": "study_site",
+            "description": "Data collection site (coded string)",
+            "type": "string"
+          },
+          {
+            "name": "screened",
+            "description": "A (1,0) indicator for whether the eligibility screen was administered",
+            "type": "integer"
+          },
+          {
+            "name": "screened_eligible",
+            "description": "A (1,0) indicator for whether the study subject passed the eligibility screen",
+            "type": "integer"
+          },
+          {
+            "name": "screen_failure_reason",
+            "description": "Reason for failing the eligibility screen (coded string)",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "Table1",
+        "description": "Table1 worktable fields and values",
+        "data_elements": [
+          {
+            "name": "study_site",
+            "description": "Data collection site (coded string)",
+            "type": "string"
+          },
+          {
+            "name": "age_at_enrollment",
+            "description": "Age at enrollment",
+            "type": "float",
+            "format": "7.2"
+          },
+          {
+            "name": "sex_at_birth",
+            "description": "A person's classification as male or female based on biological distinctions, at birth.",
+            "type": "integer",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "1",
+                "label": "Female"
+              },
+              {
+                "value": "2",
+                "label": "Intersex"
+              },
+              {
+                "value": "3",
+                "label": "Male"
+              },
+              {
+                "value": "4",
+                "label": "None of these describe me"
+              },
+              {
+                "value": "91",
+                "label": "Prefer not to answer"
+              },
+              {
+                "value": "92",
+                "label": "Not Reported"
+              },
+              {
+                "value": "93",
+                "label": "Unknown"
+              }
+            ]
+          },
+          {
+            "name": "Race",
+            "description": "Participant self-identification of race(s) as defined by the United States Office of Management and Budget (OMB).",
+            "type": "integer",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "1",
+                "label": "American Indian or Alaska Native"
+              },
+              {
+                "value": "2",
+                "label": "Asian"
+              },
+              {
+                "value": "3",
+                "label": "Black or African American"
+              },
+              {
+                "value": "4",
+                "label": "Native Hawaiian or Other Pacific Islander"
+              },
+              {
+                "value": "5",
+                "label": "White"
+              },
+              {
+                "value": "6",
+                "label": "More than one race"
+              },
+              {
+                "value": "7",
+                "label": "Other"
+              },
+              {
+                "value": "92",
+                "label": "Not Reported"
+              },
+              {
+                "value": "93",
+                "label": "Unknown"
+              }
+            ]
+          },
+          {
+            "name": "SexAtBirth",
+            "index": 24,
+            "type": "string",
+            "description": "A person's classification as male or female based on biological distinctions, at birth.",
+            "required": 1,
+            "format": "valueSet",
+            "valueSet": [
+              {
+                "value": "Female",
+                "label": "Female"
+              },
+              {
+                "value": "Intersex",
+                "label": "Intersex"
+              },
+              {
+                "value": "Male",
+                "label": "Male"
+              },
+              {
+                "value": "None of these describe me",
+                "label": "None of these describe me"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Prefer not to answer",
+                "label": "Prefer not to answer"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "NIACROMS Enrollment Record",
+        "description": "An example of a complete mapping specification, based on NIACROMS",
+        "data_elements": [
+          {
+            "name": "AgeAtTimeOfEnrollment",
+            "type": "integer",
+            "description": "The age at the time of enrollment (in years).",
+            "format": "int32"
+          },
+          {
+            "name": "CognitiveStatus",
+            "type": "string",
+            "description": "Indicates the participant's cognitive status at the start of the study.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "AD/ADRD",
+                "label": "AD/ADRD"
+              },
+              {
+                "value": "MCI",
+                "label": "MCI"
+              },
+              {
+                "value": "Normal Cognition",
+                "label": "Normal Cognition"
+              },
+              {
+                "value": "Normal Cognition at Risk",
+                "label": "Normal Cognition at Risk"
+              },
+              {
+                "value": "Normal Cognition with subjective cognitive decline",
+                "label": "Normal Cognition with subjective cognitive decline"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Undetermined",
+                "label": "Undetermined"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              }
+            ]
+          },
+          {
+            "name": "CurrentMaritalStatus",
+            "type": "string",
+            "description": "Indicates the participant's current marital status at the start of the study."
+          },
+          {
+            "name": "EducationLevel",
+            "type": "string",
+            "description": "Indicates the participant's highest level of education attained."
+          },
+          {
+            "name": "Ethnicity",
+            "type": "string",
+            "description": "Participant self-identification of ethnicity as defined by the United States Office of Management and Budget (OMB). ",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "Hispanic or Latino",
+                "label": "Hispanic or Latino"
+              },
+              {
+                "value": "Not Hispanic or Latino",
+                "label": "Not Hispanic or Latino"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              }
+            ]
+          },
+          {
+            "name": "GenderChoice1",
+            "type": "string",
+            "description": "One's concept of self as male, female, both, or neither. It describes how individuals perceive themselves and what they call themselves.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "Man",
+                "label": "Man"
+              },
+              {
+                "value": "Non-binary",
+                "label": "Non-binary"
+              },
+              {
+                "value": "None of these describe me",
+                "label": "None of these describe me"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Prefer Not to answer",
+                "label": "Prefer Not to answer"
+              },
+              {
+                "value": "Transgender",
+                "label": "Transgender"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              },
+              {
+                "value": "Woman",
+                "label": "Woman"
+              }
+            ]
+          },
+          {
+            "name": "GenderChoice2",
+            "type": "string",
+            "description": "One's concept of self as male, female, both, or neither. It describes how individuals perceive themselves and what they call themselves.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "Man",
+                "label": "Man"
+              },
+              {
+                "value": "Non-binary",
+                "label": "Non-binary"
+              },
+              {
+                "value": "None of these describe me",
+                "label": "None of these describe me"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Prefer Not to answer",
+                "label": "Prefer Not to answer"
+              },
+              {
+                "value": "Transgender",
+                "label": "Transgender"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              },
+              {
+                "value": "Woman",
+                "label": "Woman"
+              }
+            ]
+          },
+          {
+            "name": "HouseholdIncomeLevel",
+            "type": "string",
+            "description": "Indicates current household income level of the participant."
+          },
+          {
+            "name": "PrimaryParticipantIDAssociatedToCoParticipant",
+            "type": "string",
+            "description": "APPLICABLE ONLY FOR CO-PARTICIPANT RECORDS IN SPECIAL STUDIES (e.g., DYAD studies). The identifier of the primary participant (e.g., Person with Dementia) to which the co-participant (e.g., caregiver) is associated."
+          },
+          {
+            "name": "InsuranceStatus",
+            "type": "string",
+            "description": "Indicates if the participant has insurance."
+          },
+          {
+            "name": "LivingSituation",
+            "type": "string",
+            "description": "Indicates the care setting / living situation of the participant."
+          },
+          {
+            "name": "OccupationCategory",
+            "type": "string",
+            "description": "Identifies the highest occupation attained."
+          },
+          {
+            "name": "ParticipantID",
+            "type": "string",
+            "description": "A unique identifier assigned to each participant in a study."
+          },
+          {
+            "name": "ParticipantInterventionStartDate",
+            "type": "string",
+            "description": "The date when the participant started on intervention for the first time.",
+            "format": "date-time"
+          },
+          {
+            "name": "ParticipantPermanentlyOffInterventionDate",
+            "type": "string",
+            "description": "The date when the participant permanently stopped all study interventions.",
+            "format": "date-time"
+          },
+          {
+            "name": "ParticipantPermanentlyOffInterventionReason",
+            "type": "string",
+            "description": "The reason for the participant being permanently off all study interventions.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "30",
+                "label": "Death"
+              },
+              {
+                "value": "51",
+                "label": "Adverse events"
+              },
+              {
+                "value": "52",
+                "label": "Pregnancy"
+              },
+              {
+                "value": "70",
+                "label": "Does not want to take number and/or volume of medication and/or mode of administration has problems with the timing of the intervention or Does not like the intervention (e.g., taste of medication)"
+              },
+              {
+                "value": "71",
+                "label": "No longer believes treatment is helping"
+              },
+              {
+                "value": "74",
+                "label": "Participant declined continuation in the study"
+              },
+              {
+                "value": "76",
+                "label": "Physician decision"
+              },
+              {
+                "value": "77",
+                "label": "Willing but unable to tolerate intervention when administered"
+              },
+              {
+                "value": "78",
+                "label": "Lack of efficacy"
+              },
+              {
+                "value": "81",
+                "label": "Protocol violation"
+              },
+              {
+                "value": "82",
+                "label": "Lost to follow up"
+              },
+              {
+                "value": "83",
+                "label": "Completed treatment as defined by the protocol"
+              },
+              {
+                "value": "99",
+                "label": "Specify other reason(s) why Participant is off study intervention"
+              },
+              {
+                "value": "84",
+                "label": "Physician/clinician/investigator request, not in best interest of the Participant to continue"
+              },
+              {
+                "value": "86",
+                "label": "Study partner/guardian/caregiver withdraws consent and all further study contact prior to completion of the protocol-defined study evaluations"
+              },
+              {
+                "value": "85",
+                "label": "Unexpected closure of entire study or any of its components; completed study requirements up to the time of unexpected closure"
+              }
+            ]
+          },
+          {
+            "name": "ParticipantPermanentlyOffInterventionReasonOtherText",
+            "type": "string",
+            "description": "The reason for the participant being permanently off all study interventions. Use this element if the reason selected in the standard list is 'Specify other reason(s) why participant is off study intervention'."
+          },
+          {
+            "name": "ParticipantPermanentlyOffStudyDate",
+            "type": "string",
+            "description": "Indicates the date the participant permanently went off study and is no longer participating in the study.",
+            "format": "date-time"
+          },
+          {
+            "name": "ParticipantPermanentlyOffStudyReason",
+            "type": "string",
+            "description": "The reason why the participant went off study permanently.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "10",
+                "label": "Completed the study as defined by the study protocol"
+              },
+              {
+                "value": "20",
+                "label": "Inadvertent enrollment"
+              },
+              {
+                "value": "32",
+                "label": "Eligibility"
+              },
+              {
+                "value": "40",
+                "label": "Death"
+              },
+              {
+                "value": "41",
+                "label": "Severe debilitation or has confounding medical conditions, Participant is unable to continue on study"
+              },
+              {
+                "value": "42",
+                "label": "Participant/guardian/caregiver not able to get to clinic"
+              },
+              {
+                "value": "43",
+                "label": "Site is closing"
+              },
+              {
+                "value": "50",
+                "label": "Participant withdraws consent and all further study contact prior to completion of the protocol-defined study evaluations"
+              },
+              {
+                "value": "51",
+                "label": "Participant/guardian/caregiver is not willing to maintain adherence with the study requirements"
+              },
+              {
+                "value": "60",
+                "label": "Lost to follow up"
+              },
+              {
+                "value": "99",
+                "label": "Specify other reason(s) why Participant is off study"
+              },
+              {
+                "value": "61",
+                "label": "Adverse Events"
+              },
+              {
+                "value": "62",
+                "label": "Investigator decision"
+              },
+              {
+                "value": "63",
+                "label": "No longer believes treatment is helping"
+              },
+              {
+                "value": "64",
+                "label": "Physician/clinician/investigator request, not in best interest of the Participant to continue"
+              },
+              {
+                "value": "66",
+                "label": "Study partner/guardian/caregiver withdraws consent and all further study contact prior to completion of the protocol-defined study evaluations"
+              },
+              {
+                "value": "65",
+                "label": "Protocol violation"
+              },
+              {
+                "value": "67",
+                "label": "Unexpected closure of entire study or any of its components; completed study requirements up to the time of unexpected closure"
+              }
+            ]
+          },
+          {
+            "name": "ParticipantPermanentlyOffStudyReasonOtherText",
+            "type": "string",
+            "description": "The reason the participant permanently went off study. Use this element if the reason selected in the standard list is 'Specify other reason(s) why participant is off study'."
+          },
+          {
+            "name": "ParticipantType",
+            "type": "string",
+            "description": "Indicates the role of the person involved in the study. For example, primary participant, co-participant (e.g., caregiver), care provider.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "Primary Participant",
+                "label": "Primary Participant"
+              },
+              {
+                "value": "Co-Participant",
+                "label": "Co-Participant"
+              },
+              {
+                "value": "Care Provider",
+                "label": "Care Provider"
+              },
+              {
+                "value": "Other",
+                "label": "Other"
+              },
+              {
+                "value": "Accepts Healthy Volunteers?",
+                "label": "Accepts Healthy Volunteers?"
+              },
+              {
+                "value": "Sex/Gender",
+                "label": "Sex/Gender"
+              }
+            ]
+          },
+          {
+            "name": "PrimaryLanguageSpoken",
+            "type": "string",
+            "description": "The primary language spoken by the participant."
+          },
+          {
+            "name": "Race",
+            "type": "string",
+            "description": "Participant self-identification of race(s) as defined by the United States Office of Management and Budget (OMB).",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "American Indian or Alaska Native",
+                "label": "American Indian or Alaska Native"
+              },
+              {
+                "value": "Asian",
+                "label": "Asian"
+              },
+              {
+                "value": "Black or African American",
+                "label": "Black or African American"
+              },
+              {
+                "value": "More than one race",
+                "label": "More than one race"
+              },
+              {
+                "value": "Native Hawaiian or Other Pacific Islander",
+                "label": "Native Hawaiian or Other Pacific Islander"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Other",
+                "label": "Other"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              },
+              {
+                "value": "White",
+                "label": "White"
+              }
+            ]
+          },
+          {
+            "name": "SexAtBirth",
+            "type": "string",
+            "description": "A person's classification as male or female based on biological distinctions, at birth.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "Female",
+                "label": "Female"
+              },
+              {
+                "value": "Intersex",
+                "label": "Intersex"
+              },
+              {
+                "value": "Male",
+                "label": "Male"
+              },
+              {
+                "value": "None of these describe me",
+                "label": "None of these describe me"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Prefer not to answer",
+                "label": "Prefer not to answer"
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              }
+            ]
+          },
+          {
+            "name": "SexualOrientation",
+            "type": "string",
+            "description": "An emotional, romantic, or sexual attraction to other people. To obtain a self-report of a person's romantic attraction to other people, be it gay, lesbian, straight, bisexual, or something else.",
+            "format": "valueset",
+            "valueset": [
+              {
+                "value": "Bisexual",
+                "label": "Bisexual"
+              },
+              {
+                "value": "Gay",
+                "label": "Gay"
+              },
+              {
+                "value": "Lesbian",
+                "label": "Lesbian"
+              },
+              {
+                "value": "None of these describe me",
+                "label": "None of these describe me"
+              },
+              {
+                "value": "Not Reported",
+                "label": "Not Reported"
+              },
+              {
+                "value": "Prefer Not to answer",
+                "label": "Prefer Not to answer"
+              },
+              {
+                "value": "Straight; that is, not gay or lesbian, etc.",
+                "label": "Straight; that is, not gay or lesbian, etc."
+              },
+              {
+                "value": "Unknown",
+                "label": "Unknown"
+              }
+            ]
+          },
+          {
+            "name": "StudyDesign_GroupCohortIdentifier",
+            "type": "string",
+            "description": "Indicates the label association with a 'Cohort', 'Group', etc., to which the participant is assigned. This is not the blinded arm to which the participant is assigned."
+          },
+          {
+            "name": "StudyEnrollmentDate",
+            "type": "string",
+            "description": "Date on which the participant enrolled in the study.",
+            "format": "date-time"
+          },
+          {
+            "name": "ZipCode",
+            "type": "string",
+            "description": "Participant's zip code."
+          }
+        ]
+      }
+    ]
+  }

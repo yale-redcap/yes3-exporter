@@ -1,0 +1,130 @@
+{
+  "name": "Yes3 Field Mapper",
+
+  "namespace": "Yale\\Yes3FieldMapper",
+
+  "description": "YES3 Field Mapper",
+
+  "authors": [
+    {
+      "name": "Peter Charpentier",
+      "email": "peter.charpentier@criwebtools.com",
+      "institution": "CRI Web Tools LLC"
+      }
+  ],
+
+  "versions": [
+    {
+      "number": "0.0.1",
+      "date": "2021-12-29",
+      "description": "and away we go",
+      "comments": ""
+      }
+    ],
+
+  "permissions": [
+    "redcap_module_link_check_display"
+  ],
+
+  "links": {
+    "project": [
+      {
+        "name": "YES3 Field Mapper",
+        "icon": "fab fa-connectdevelop",
+        "url":  "plugins/yes3_fieldmapper.php"
+      }
+    ]
+  },
+
+  "system-settings": [
+  ],
+
+    "project-settings": [
+        {
+            "key": "header-specifications-section",
+            "type": "descriptive",
+            "name": "<div style='color: white; background-color: steelblue; font-weight: 800;  width:100%; padding: 10px;'>SPECIFICATIONS</div>"
+        },
+        {
+            "key": "specification",
+            "type": "sub_settings",
+            "name": "Specification",
+            "repeatable": true,
+            "required": true,
+            "sub_settings":[
+                {
+                    "key": "specification-key",
+                    "type": "text",
+                    "name": "Unique specification key (DO NOT CHANGE AFTER MAPPINGS HAVE BEEN SAVED)"        
+                },
+                {
+                    "key": "specification-name",
+                    "type": "text",
+                    "name": "Specification name"        
+                },
+                {
+                    "key": "specification-description",
+                    "type": "text",
+                    "name": "Specification description"        
+                },
+                {
+                    "key": "specification-data-elements",
+                    "name": "Predefined data elements (optional; JSON string)",
+                    "type": "textarea",
+                    "required": false
+                },
+                {
+                    "key": "specification-field-mappings",
+                    "name": "Field mappings (READ ONLY)",
+                    "type": "textarea",
+                    "required": false
+                }
+
+            ]
+        },
+        {
+            "key": "header-events-section",
+            "type": "descriptive",
+            "name": "<div style='color: white; background-color: steelblue; font-weight: 800; width:100%; padding: 10px;'>EVENT ABBREVIATIONS</div>"
+        },
+        {
+            "key": "event-abbreviations",
+            "name": "Event abbreviation",
+            "type": "sub_settings",
+            "required": false,
+            "repeatable": true,
+            "sub_settings": [
+                {
+                    "key": "event-id",
+                    "name": "Event",
+                    "type": "event-list"     
+                },
+                {
+                    "key": "event-abbreviation",
+                    "type": "text",
+                    "name": "Abbreviation (suggest 4 characters or less)"
+                }
+            ]
+        },
+        {
+            "key":  "specifications-json",
+            "name": "Specifications JSON string",
+            "required": false,
+            "type": "textarea"
+        }
+    ],
+
+  "crons":[
+  ],
+
+  "no-auth-pages": [
+  ],
+
+  "compatibility": {
+    "php-version-min": "7.2",
+    "redcap-version-min": "10.0.0"
+  },
+
+  "framework-version": 5
+
+}
