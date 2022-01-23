@@ -113,17 +113,18 @@ function save_field_mappings()
     global $module;
 
     $specification_index = (int) $_POST['specification_index'];
-    $field_mappings = $_POST['field_mappings'];
 
-    if ( !$field_mappings_json = json_encode($field_mappings) ) {
-        return "Mappings NOT saved: json error '" . json_last_error_msg() . "' reported.";
-    }
+    $field_mappings_json = $_POST['field_mappings_json'];
+
+    //if ( !$field_mappings_json = json_encode($field_mappings) ) {
+    //    return "Fail: Mappings NOT saved: json error '" . json_last_error_msg() . "' reported.";
+    //}
 
     if ( !$key = Yes3::normalized_string($module->getProjectSetting('specification-key')[$specification_index]) ) {
-        return "Mappings NOT saved: no specification key provided.";        
+        return "Fail: Mappings NOT saved: no specification key provided.";        
     }
 
-    $logMsg = "Field map '{$key}' saved.";
+    $logMsg = "Success: Field map '{$key}' saved.";
 
     $logId = $module->log(
         $logMsg,
@@ -143,7 +144,7 @@ function save_field_mappings()
 
     }
 
-    return "Fiddlesticks. Mappings NOT saved due to some unknowable error.";
+    return "Fiddlesticks: Mappings NOT saved due to some unknowable error.";
 }
 
 function save_field_mappings_legacy()
@@ -171,8 +172,13 @@ function get_field_mappings()
 {
     global $module;
 
+    $specification_index = (int) $_POST['specification_index'];
+
     $log_id = (int) $_POST['log_id'];
-    $key = "niacroms_enrollment";
+
+    if ( !$key = Yes3::normalized_string($module->getProjectSetting('specification-key')[$specification_index]) ) {
+        return "Mappings NOT saved: no specification key provided.";        
+    }
 
     $fields = "log_id, message, user, timestamp, map_label, field_mappings";
 
@@ -205,7 +211,7 @@ function get_field_mappings()
 
 function escHtml( $s )
 {
-    return \REDCap::escapeHtml( $s );
+    return Yes3::escapeHtml( $s );
 }
 
 function get_project_settings():string 
@@ -223,8 +229,50 @@ function get_project_settings():string
         'field_autoselect_source' => $field_metadata_structures['field_autoselect_source'],
         'form_metadata' => get_form_metadata(),
         'event_metadata' => get_event_metadata(),
-        'default_event_id' => get_first_event_id()
+        'default_event_id' => get_first_event_id(),
+        'specification_settings' => get_specification_settings(),
+        'event_abbreviations_settings' => get_event_abbreviation_settings()
     ] );
+}
+
+function get_specification_settings()
+{
+    global $module;
+
+    $specification_keys = $module->getProjectSetting('specification-key');
+    $specification_names = $module->getProjectSetting('specification-name');
+    $specification_descriptions = $module->getProjectSetting('specification-description');
+
+    $x = [];
+
+    for ( $i=0; $i<count($specification_keys); $i++ ){
+        $x[] = [
+            'specification_key' => Yes3::escapeHtml($specification_keys[$i]),
+            'specification_name' => Yes3::escapeHtml($specification_names[$i]),
+            'specification_description' => Yes3::escapeHtml($specification_descriptions[$i])
+        ];
+    }
+    
+    return $x;
+}
+
+function get_event_abbreviation_settings()
+{
+    global $module;
+
+    $event_ids = $module->getProjectSetting('event-id');
+    $event_abbreviations = $module->getProjectSetting('event-abbreviation');
+
+    $x = [];
+
+    for ( $i=0; $i<count($event_ids); $i++ ){
+        $x[] = [
+            'event_id' => Yes3::escapeHtml($event_ids[$i]),
+            'event_abbreviation' => Yes3::escapeHtml($event_abbreviations[$i])
+        ];
+    }
+    
+    return $x;
 }
 
 function get_fields():array
@@ -248,13 +296,13 @@ ORDER BY m.`field_order`
          foreach ( $vv as $value => $label) {
             $choices[] = [
                'value' => $value,
-               'label' => \REDCap::escapeHtml(strip_tags($label))
+               'label' => Yes3::escapeHtml(strip_tags($label))
             ];
          }
       }
       $xx[] = [
          'field_name' => $field['field_name'],
-         'field_label' => \REDCap::escapeHtml(strip_tags($field['element_label'])),
+         'field_label' => Yes3::escapeHtml(strip_tags($field['element_label'])),
          'field_type' => $field['element_type'],
          'field_choices' => $choices
       ];
@@ -310,19 +358,19 @@ function get_field_metadata_structures(): array
            foreach ( $vv as $value => $label) {
               $valueset[] = [
                  'value' => (string)$value,
-                 'label' => \REDCap::escapeHtml(strip_tags($label))
+                 'label' => Yes3::escapeHtml(strip_tags($label))
               ];
            }
         }
   
         $events = [48 =>'baseline', 49 => 'screen'];
 
-        $field_label = ellipsis( \REDCap::escapeHtml($field['element_label']) );
+        $field_label = ellipsis( Yes3::escapeHtml($field['element_label']) );
 
         $field_metadata[] = [
 
             'field_name'      => $field['field_name'],
-            'form_name'       => \REDCap::escapeHtml($field['form_name']),
+            'form_name'       => Yes3::escapeHtml($field['form_name']),
             'field_label'     => $field_label,
             'field_valueset'  => $valueset
 
@@ -371,8 +419,8 @@ ORDER BY e.day_offset
     $event_metadata = [];
 
     foreach ($ee as $e){
-        $event_metadata[$e['event_id']] = [
-            'event_label' => \REDCap::escapeHtml($e['event_label'])
+        $event_metadata[(string)$e['event_id']] = [
+            'event_label' => Yes3::escapeHtml($e['event_label'])
         ];
     }
 
@@ -433,15 +481,15 @@ function get_form_metadata():array
             foreach( $ee as $e ){
 
                 $events[] = [ 
-                    'event_id' => $e['event_id'],
-                    'descrip' => \REDCap::escapeHtml($e['descrip'])
+                    'event_id' => (string)$e['event_id'],
+                    'descrip' => Yes3::escapeHtml($e['descrip'])
                 ];
         
             }
         }
 
         $form_metadata[$m['form_name']] = [
-            'form_label' => \REDCap::escapeHtml($m['form_menu_description']),
+            'form_label' => Yes3::escapeHtml($m['form_menu_description']),
             'form_events' => $events
         ];
     }

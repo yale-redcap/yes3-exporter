@@ -98,9 +98,9 @@ String.prototype.truncateAt = function( n ){
  jQuery.fn.center = function (dx, dy) {
     this.css("position","absolute");
     this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
-       $(window).scrollTop()) + "px");
+       $(window).scrollTop() - dy/2) + "px");
     this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
-       $(window).scrollLeft()) + "px");
+       $(window).scrollLeft() - dx/2) + "px");
     return this;
 };
  
@@ -176,20 +176,30 @@ YES3.contextmenu = function(content, x, y, fn) {
 };
  
  // opens panel in screen center, with a random diddle
- YES3.openPanel = function(panelName, nonmodal, x, y) {
+ YES3.openPanel = function(panelName, nonmodal, x, y) 
+ {
     nonmodal = nonmodal || false;
     x = x || 0;
     y = y || 0;
+    
     let panel = $('#'+panelName);
+   
+    let theParent = $('#'+panelName).parent();
+
     YES3.maxZ += 1;
+
     if ( !nonmodal ) $('#yes3-screen-cover').css({'z-index':YES3.maxZ-1}).show(); // places the full-screen overlay just below the panel -->
+    
     if ( x || y ) {
        panel.situate( x, y );
    } else {
-       panel.center(0, 0);
+       panel.center(theParent.offset().left, theParent.offset().top);
    }
+
     panel.css({'z-index': YES3.maxZ}).show();
-    hideOnClickOutside(panel);
+    if ( nonmodal ) {
+        hideOnClickOutside(panel);
+    }
 };
  
  YES3.closePanel = function(panelName) {
@@ -204,7 +214,7 @@ function hideOnClickOutside(selector) {
       if (!$target.closest(selector).length && $(selector).is(':visible')) {
           $(selector).hide();
           removeClickListener();
-          $('.yes3-row-selected').removeClass('yes3-row-selected');
+          $('.yes3-row-focused').removeClass('yes3-row-focused');
         }
     }
   

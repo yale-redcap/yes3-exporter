@@ -1,8 +1,13 @@
 
 let FMAPR = {
-    maxZ: 1000,
     specification_index: 0,
     maxRawREDCapDataElementNumber: 0,
+    dirty: false,
+    buildInProgress: false,
+    mapperLoaded: false,
+    specificationElements: [],
+    insertionElements: [],
+    insertionRowId: "",
     specifications: []
 }
  
@@ -53,13 +58,41 @@ let FMAPR = {
     return x;
  
  }
+
+ FMAPR.displayHelpPanel = function()
+ {
+     YES3.hello("Sorry bud, you're on your own.");
+ }
  
  
- FMAPR.postMessage = function( msg ){
-    if ( $('div#yes3-message') ) {
-       $('#yes3-message').html(msg).show();
+ FMAPR.postMessage = function( msg, urgent ){
+
+    urgent = urgent || false;
+
+    let msgDiv = $('div#yes3-message');
+    
+    if ( msgDiv ) {
+
+        let msgClass = ["yes3-fmapr-msgclass-normal", "yes3-fmapr-msgclass-urgent"];
+
+        let msgClassIndex = (urgent) ? 1 : 0;
+
+        if ( !msgDiv.hasClass( msgClass[msgClassIndex]) ) {
+
+            msgDiv.removeClass( msgClass[1-msgClassIndex] ).addClass( msgClass[msgClassIndex] );
+
+        }
+
+        msgDiv.html(msg).show();
+
     } else {
        alert(msg);
+    }
+ }
+
+ FMAPR.clearMessage = function(){
+    if ( $('div#yes3-message') ) {
+       $('#yes3-message').html("").show();
     }
  }
  
@@ -80,6 +113,8 @@ let FMAPR = {
     console.log( 'getProjectSettingsCallback', response );
 
     FMAPR.settings = response;
+
+    FMAPR.displayActionIcons();
  
     // handler must defined in plugin JS
     $(document).trigger('yes3-fmapr.settings');
@@ -193,6 +228,89 @@ FMAPR.dataElementRowId = function(data_element_name)
 {
     return `yes3_fmapr_data_element-${FMAPR.specification_index}-${data_element_name}`;
 }
+
+FMAPR.markAsClean = function()
+{
+    if ( FMAPR.dirty ) {
+        FMAPR.dirty = false;
+        FMAPR.displayActionIcons();
+    }
+}
+
+FMAPR.markAsDirty = function()
+{
+    if ( FMAPR.buildInProgress ){
+        return true;
+    }
+    
+    if ( !FMAPR.dirty ) {
+        FMAPR.dirty = true;
+        FMAPR.displayActionIcons();
+        FMAPR.postMessage("Be sure to save your changes.", true);
+    }
+
+    FMAPR.reportStatus();
+}
+
+FMAPR.markAsBuildInProgress = function()
+{
+    FMAPR.buildInProgress = true;
+    FMAPR.markAsClean();
+    FMAPR.clearMessage();
+}
+
+FMAPR.markAsBuildCompleted = function()
+{
+    FMAPR.buildInProgress = false;
+    FMAPR.mapperLoaded = true;
+    FMAPR.displayActionIcons();
+}
+
+FMAPR.displayActionIcons = function()
+{
+    if ( !FMAPR.mapperLoaded ){
+        $('i.yes3-fmapr-loaded').addClass('yes3-action-disabled');
+    }
+    else {
+
+        $('i.yes3-fmapr-action-icon:not(.yes3-fmapr-clean)').removeClass('yes3-action-disabled');
+
+        if ( FMAPR.dirty ){
+            $('i.yes3-fmapr-clean').addClass('yes3-action-disabled');
+            $('i#yes3-fmapr-save-control').addClass('yes3-fmapr-dirty');
+        }
+        else {
+            $('i.yes3-fmapr-clean').removeClass('yes3-action-disabled');
+            $('i#yes3-fmapr-save-control').removeClass('yes3-fmapr-dirty');
+        }
+    }
+
+    FMAPR.setActionIconListeners();
+
+    FMAPR.reportStatus();
+}
+
+FMAPR.executeAction = function( action )
+{
+    if ( typeof FMAPR[action] === "function" ) {
+        FMAPR[action].apply();
+    }
+    else {
+        YES3.hello(`No can do: the feature '${action}' has not been implemented yet.`);
+    }
+}
+
+FMAPR.setActionIconListeners = function()
+{
+    actionIcons = $("i.yes3-fmapr-action-icon");
+
+    $("i.yes3-fmapr-action-icon").off();
+
+    $("i.yes3-fmapr-action-icon:not(.yes3-action-disabled)").on("click", function(){
+
+        FMAPR.executeAction( $(this).attr("action") );
+    })
+}
   
  FMAPR.buildFieldMapperTable = function() 
  {
@@ -212,6 +330,8 @@ FMAPR.dataElementRowId = function(data_element_name)
     let bodyId = FMAPR.specificationTableBodyId( FMAPR.specification_index );
 
     let rowId = "";
+
+    FMAPR.markAsBuildInProgress();
 
     FMAPR.specificationValuesets = {};
 
@@ -291,11 +411,13 @@ FMAPR.dataElementRowId = function(data_element_name)
 
     $('.yes3-fmapr-table-open').css('visibility', 'visible');
  
-    FMAPR.setFieldAutoselectInputs();
+    //FMAPR.setFieldAutoselectInputs();
+
     FMAPR.setLovTogglePriorities();
+
     FMAPR.setLovInputListeners();
 
-    FMAPR.resizeFieldMapperTable();
+    //FMAPR.resizeFieldMapperTable();
 
     FMAPR.makeSortable( $(`tbody#${bodyId}`));
 
@@ -314,9 +436,15 @@ FMAPR.populateFieldMapperTable = function() {
 
 FMAPR.populateFieldMapperTableCallback = function( response ) {
 
-    console.log('getFieldMappingsCallback', response);
+    //console.log('populateFieldMapperTableCallback', response);
+
+    if ( response.field_mappings === null ){
+        FMAPR.doFieldMapperTableHousekeeping( true );
+        return false;
+    }
 
     if ( typeof response.field_mappings.elements === 'undefined' ){
+        FMAPR.doFieldMapperTableHousekeeping( true );
         return false;
     }
 
@@ -332,7 +460,7 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
             
             yes3_fmapr_data_element_name = FMAPR.addRawREDCapField( true );
 
-            console.log('populateFieldMapperTableCallback:raw', yes3_fmapr_data_element_name);
+            //console.log('populateFieldMapperTableCallback:raw', yes3_fmapr_data_element_name);
 
         }
         else {
@@ -355,7 +483,7 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
 
     }
 
-    FMAPR.doFieldMapperTableHousekeeping();
+    FMAPR.doFieldMapperTableHousekeeping( true );
 }
 
 FMAPR.rowsToMove = [];
@@ -430,10 +558,10 @@ FMAPR.addRawREDCapField = function( appendOnly )
     let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
 
     let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" id="yes3_fmapr_data_element-${specification_index}-${yes3_fmapr_data_element_name}" data-required="0" data-element_origin="redcap">`;
-    html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-redcap-element'>REDCap&nbsp;field&nbsp;&nbsp;options</span></td>`;
+    html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-fmapr-redcap-element'>options</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
-    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt'></i></td>`;
+    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
     html += "</tr>";
 
     fmaprBody.append(html);
@@ -444,22 +572,40 @@ FMAPR.addRawREDCapField = function( appendOnly )
 
         FMAPR.scrollFieldMapperTableToBottom();
 
+        //FMAPR.markAsDirty();
+
         $('input#'+FMAPR.elementInputId( yes3_fmapr_data_element_name )).focus();
     
     }
 
+
     return yes3_fmapr_data_element_name;
 }
 
-FMAPR.doFieldMapperTableHousekeeping = function()
+FMAPR.doFieldMapperTableHousekeeping = function( isClean )
 {
+    isClean = isClean || false;
+
     FMAPR.resizeFieldMapperTable();
 
     FMAPR.setFieldAutoselectInputs();
+
+    FMAPR.setEventSelectListeners();
         
     FMAPR.setContextMenuListeners();
 
     FMAPR.setREDCapElementListeners();
+
+    if ( isClean ){
+        FMAPR.markAsClean();
+        FMAPR.markAsBuildCompleted();
+    }
+}
+
+FMAPR.removeDataElement = function(element_name)
+{
+    $(`tr[data-yes3_fmapr_data_element_name='${element_name}']`).remove();
+    FMAPR.markAsDirty();
 }
 
 FMAPR.scrollFieldMapperTableToBottom = function()
@@ -672,9 +818,10 @@ FMAPR.resizeFieldMapperTable = function()
                    $(`div#${pickerWrapperId} input[type=checkbox][value=${values[i]}]`).prop('checked', true);
                 }
              }
+
+             FMAPR.markAsDirty();
  
              FMAPR.setLovTogglePriorities(yes3_fmapr_data_element_name);
- 
           }
  
           //console.log('LovInputListener', yes3_fmapr_data_element_name, value );
@@ -684,18 +831,659 @@ FMAPR.resizeFieldMapperTable = function()
 
 FMAPR.setContextMenuListeners = function()
 {
-    $('tr.yes3-fmapr-redcap-field').off().on("contextmenu", function(e){
-        console.log( e );
+    $('tr.yes3-fmapr-redcap-field')
+        .off()
+        .on("contextmenu", function(e){
+            //console.log( 'contextmenu', e );
 
-        FMAPR.REDCapFieldContextMenu($(this), e);
+            FMAPR.REDCapFieldContextMenu($(this), e);
 
-        return false;
+            return false;
+        })
+        .on("click", function(e){
+            //console.log( 'click', e );
+
+            if ( e.shiftKey ){
+
+                //FMAPR.toggleSelected( $(this) );
+
+                if ( FMAPR.isSelectionRangeStart($(this)) && FMAPR.isSelectionRangeEnd($(this)) ) {
+
+                    FMAPR.clearSelectionRange( true );
+                }
+                else {
+
+                    FMAPR.markRowSelected( $(this) );
+                    
+                    if ( !FMAPR.selectionRangeStartDefined() ){
+                        FMAPR.markSelectionRangeStart( $(this) );
+                    }
+                    else {
+                        FMAPR.markSelectionRangeEnd( $(this) );
+                    }
+
+                    FMAPR.markSelectionRange();
+                }
+
+                e.stopPropagation();
+            }
+            else if ( e.ctrlKey ){
+
+                FMAPR.toggleSelected( $(this), true );
+
+                e.stopPropagation();
+            }
+
+            return false;
+        })
+    ;
+}
+
+FMAPR.markSelectionRange = function()
+{
+
+    // start by clearing the range while preserving boundaries
+    FMAPR.clearSelectionRange();
+
+    let allRows = $('tr.yes3-fmapr-redcap-field');
+
+    let startRow = $('tr.yes3-selection-range-start').first();
+    let endRow = $('tr.yes3-selection-range-end').first();
+
+    if ( !startRow.length || !endRow.length ) {
+        return 0;
+    }
+    
+    let inRange = false;
+    let endOfRange = false;
+    let row = null;
+
+    for (i=0; i<allRows.length; i++) {
+ 
+        row = $(allRows[i]);
+
+        if ( FMAPR.isSelectionRangeBoundary(row) ){
+            if ( !inRange ) {
+                inRange = true;
+                if ( FMAPR.isSelectionRangeStart(row) && FMAPR.isSelectionRangeEnd(row) ) {
+                    endOfRange = true;
+                }
+            }
+            else {
+                endOfRange = true;
+            }
+        }
+
+        if ( inRange ){
+            FMAPR.markRowSelected( row );
+        }
+
+        if ( endOfRange ){
+            break;
+        }
+       
+    }
+
+    return FMAPR.selectedRowCount();
+}
+
+FMAPR.clearSelectionRange = function( boundariesToo )
+{
+    boundariesToo = boundariesToo || false;
+
+    let theSelector = "tr.yes3-row-selected:not(.yes3-row-sticky)";
+
+    if ( !boundariesToo ){
+        theSelector += ":not(.yes3-selection-range-start):not(.yes3-selection-range-end)";
+    }
+
+    $(theSelector).removeClass('yes3-row-selected');
+
+    if ( boundariesToo ){
+        $('tr.yes3-selection-range-start').removeClass('yes3-selection-range-start');
+        $('tr.yes3-selection-range-end').removeClass('yes3-selection-range-end');
+    }
+    //else {
+    //    FMAPR.markRowSelected( $('tr.yes3-selection-range-start') );
+    //    FMAPR.markRowSelected( $('tr.yes3-selection-range-end') );
+    //}
+}
+
+
+FMAPR.selectionRangeStartDefined = function()
+{
+    return $('tr.yes3-selection-range-start').length;
+}
+
+FMAPR.selectionRangeEndDefined = function()
+{
+    return $('tr.yes3-selection-range-end').length;
+}
+
+FMAPR.isSelectionRangeBoundary = function( ele )
+{
+    return ( FMAPR.isSelectionRangeStart( ele ) || FMAPR.isSelectionRangeEnd( ele ) );
+}
+
+FMAPR.isSelectionRangeStart = function( ele )
+{
+    return ( ele.hasClass("yes3-selection-range-start") );
+}
+
+FMAPR.isSelectionRangeEnd = function( ele )
+{
+    return ( ele.hasClass("yes3-selection-range-end") );
+}
+
+FMAPR.removeSelectionRangeBoundaryMark = function( ele )
+{
+    if ( ele.hasClass("yes3-selection-range-start") ) {
+        ele.removeClass("yes3-selection-range-start")
+    }
+    if ( ele.hasClass("yes3-selection-range-end") ) {
+        ele.removeClass("yes3-selection-range-end")
+    }
+}
+
+FMAPR.markSelectionRangeStart = function( ele )
+{
+    $("tr.yes3-selection-range-start").removeClass("yes3-selection-range-start");
+
+    ele.addClass("yes3-selection-range-start");
+
+    console.log('markSelectionRangeStart', ele);
+}
+
+FMAPR.markSelectionRangeEnd = function( ele )
+{
+    $("tr.yes3-selection-range-end").removeClass("yes3-selection-range-end");
+
+    ele.addClass("yes3-selection-range-end");
+
+    console.log('markSelectionRangeEnd', ele);
+}
+
+FMAPR.toggleSelected = function( ele, sticky )
+{
+    sticky = sticky || false;
+
+    if ( FMAPR.rowIsSelected( ele ) ){
+
+        FMAPR.markRowUnSelected( ele, sticky );
+    }
+    else {
+
+        FMAPR.markRowSelected( ele, sticky );
+    }
+}
+
+FMAPR.rowIsSticky = function( ele )
+{
+    return ele.hasClass( 'yes3-row-sticky' );
+}
+
+FMAPR.rowIsSelected = function( ele )
+{
+    return ele.hasClass( 'yes3-row-selected' );
+}
+
+FMAPR.markRowSelected = function( ele, sticky )
+{
+    sticky = sticky || false;
+
+    ele.addClass( 'yes3-row-selected' );
+
+    if ( sticky ){
+        ele.addClass( 'yes3-row-sticky' );
+    }
+}
+
+FMAPR.markRowUnSelected = function( ele, sticky )
+{
+    sticky = sticky || false;
+
+    FMAPR.removeSelectionRangeBoundaryMark( ele );
+
+    if ( !FMAPR.rowIsSticky( ele ) || sticky ) {
+
+        ele.removeClass('yes3-row-selected');
+        ele.removeClass('yes3-row-sticky');
+    }
+}
+
+/**
+ * (x,y) is location arrow points to
+ * @param {*} x 
+ * @param {*} y 
+ */
+FMAPR.showRedPointer = function(x, y)
+{
+    let thePointer = $('div#yes3-fmapr-red-pointer');
+
+    x = x - thePointer.outerWidth() - 1;
+    y = y - thePointer.outerHeight()/2;
+
+    thePointer.css({top: y, left: x}).show();
+}
+
+FMAPR.hideRedPointer = function(x, y)
+{
+    $('div#yes3-fmapr-red-pointer').hide();
+}
+
+/**
+ * sets: FMAPR.insertionRowId
+ * 
+ * @param {*} rowId 
+ * @param {*} field_name 
+ * @param {*} event_name
+ */
+FMAPR.fieldInsertionOpenPanel = function(rowId, field_name, event_name)
+{
+    rowId = rowId || "";
+    field_name = field_name || "";
+    event_name = event_name || "";
+    
+    let thePanel = $("div#yes3-fmapr-fieldinsertion-panel");
+    let theParent = thePanel.parent();
+    let theRow = null;
+
+    /**
+     * if called with no params, set up for append
+     */
+    if ( !rowId ){
+        theRow = $('tr.yes3-fmapr-data-element').last();
+        FMAPR.insertionRowId = theRow.attr('id');
+        field_name = theRow.find('input.yes3-fmapr-input-element').first().val();
+        let theEvent = theRow.find('select.yes3-fmapr-event-select').first();
+        event_name = theEvent.find("option:selected").text();
+        FMAPR.scrollFieldMapperTableToBottom();
+    }
+    else {
+        FMAPR.insertionRowId = rowId;
+        theRow = $(`tr#${rowId}`);
+    }
+
+    let x = theRow.offset().left - theParent.offset().left;
+    let y = theRow.offset().top - theParent.offset().top;
+
+    let py = theRow.outerHeight() + y - 2;
+
+    FMAPR.showRedPointer(x, py);
+
+    if ( y > $(window).innerHeight()/2 ) {
+        y = y - thePanel.outerHeight();
+    }
+    else {
+        y = y + theRow.outerHeight();
+    }
+    
+    //console.log('fieldInsertionOpenPanel', rowId, field_name, event_name, x, y);
+
+    YES3.closePanel("yes3-contextmenu-panel");
+
+    YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false, x, y);
+
+    FMAPR.fieldInsertionReady(rowId, field_name, event_name);
+}
+
+FMAPR.fieldInsertionClosePanel = function()
+{
+    YES3.closePanel('yes3-fmapr-fieldinsertion-panel');
+    FMAPR.hideRedPointer();
+}
+
+FMAPR.fieldInsertionReady = function(rowId, field_name, event_name)
+{
+    $("div#yes3-fmapr-fieldinsertion-direction").html(`[${field_name}, ${event_name}]`);
+
+    $("input[type=radio][name='yes3-fmapr-fieldinsertion-org']")
+        .off()
+        .on("click", function(){
+
+            let orgBlock = $('tr#yes3-fmapr-fieldinsertion-org-block');
+ 
+            let formBlock = $('tr#yes3-fmapr-fieldinsertion-form-block');
+            
+            let eventBlock = $('tr#yes3-fmapr-fieldinsertion-event-block');
+            
+            let org = $("input[type=radio][name='yes3-fmapr-fieldinsertion-org']:checked").val();
+
+            let formSelector = $("select#yes3-fmapr-fieldinsertion-form");
+
+            let eventSelector = $("select#yes3-fmapr-fieldinsertion-event");
+            
+            if ( org==="form"){
+                formBlock.insertAfter( orgBlock );
+                eventBlock.insertAfter( formBlock );
+                formSelector.empty().append( FMAPR.getFormOptionsHtml() );
+                eventSelector.empty().off();
+                FMAPR.fieldInsertionSetFormSelectListener();
+                formSelector.trigger('change');
+            }
+            else {
+                eventBlock.insertAfter( orgBlock );                
+                formBlock.insertAfter( eventBlock );
+                eventSelector.empty().append( FMAPR.getEventOptionsHtml() );
+                formSelector.off().empty();
+                FMAPR.fieldInsertionSetEventSelectListener();
+                eventSelector.trigger('change');
+             }
+
+             FMAPR.fieldInsertionSetCounterListeners();
+             FMAPR.fieldInsertionReportCounts();
+        })
+    ;
+
+    $('input[type=radio]#yes3-fmapr-fieldinsertion-org-form').trigger("click");
+}
+
+FMAPR.fieldInsertionExecute = function()
+{
+    let theRowBefore = $(`tr#${FMAPR.insertionRowId}`); // set by fieldInsertionOpenPanel
+
+    let theRow = null;
+    let theRowId = "";
+    
+    for ( let i=0; i<FMAPR.insertionElements.length; i++){
+
+        yes3_fmapr_data_element_name = FMAPR.addRawREDCapField( true );
+
+        FMAPR.insertionElements[i].element_name = yes3_fmapr_data_element_name;
+
+    }
+
+    FMAPR.fieldInsertionClosePanel();
+
+    FMAPR.doFieldMapperTableHousekeeping( true );
+
+    FMAPR.markAsDirty();
+
+        
+    for ( let i=0; i<FMAPR.insertionElements.length; i++){
+
+        theRowId = FMAPR.dataElementRowId(FMAPR.insertionElements[i].element_name);
+
+        theRow = $(`tr#${theRowId}`);
+
+        theRow.find('input.yes3-fmapr-input-element').first().val(FMAPR.insertionElements[i].field_name).trigger('change');
+
+        theRow.find('select.yes3-fmapr-event-select').first().val(FMAPR.insertionElements[i].event_id);
+    }
+
+
+
+}
+
+FMAPR.fieldInsertionSetCounterListeners = function()
+{
+    $('select#yes3-fmapr-fieldinsertion-form, select#yes3-fmapr-fieldinsertion-event').on("change", function(){
+       
+        FMAPR.fieldInsertionReportCounts();
     });
+}
+
+FMAPR.fieldInsertionReportCounts = function()
+{
+    let form_name = $('select#yes3-fmapr-fieldinsertion-form').val();
+    let event_id = $('select#yes3-fmapr-fieldinsertion-event').val();
+    let statusDiv = $('div#yes3-fmapr-fieldinsertion-counts');
+
+    let counts = FMAPR.enumerateInsertionElements(form_name, event_id);
+
+    if ( !counts.fields ){
+
+        statusDiv.html('');
+    }
+    else {
+
+        statusDiv.html(`${counts.fields} fields, ${counts.columns} export columns`);
+    }
+}
+
+FMAPR.fieldInsertionSetFormSelectListener = function()
+{
+    $('select#yes3-fmapr-fieldinsertion-form').off().on("change", function(){
+
+        $("select#yes3-fmapr-fieldinsertion-event").empty().append( FMAPR.getEventOptionsHtml($(this).val()) );
+    });
+}
+
+FMAPR.fieldInsertionSetEventSelectListener = function()
+{
+    $('select#yes3-fmapr-fieldinsertion-event').off().on("change", function(){
+
+        $("select#yes3-fmapr-fieldinsertion-form").empty().append( FMAPR.getFormOptionsHtml($(this).val()) );
+    });    
+}
+
+FMAPR.enumerateInsertionElements = function(form_name, event_id)
+{
+    if ( !form_name || !event_id ) {
+        return {'fields':0, 'columns':0};
+    }
+
+    let fields = 0;
+    let columns = 0;
+    let this_field_name = "";
+    let this_event_id = "";
+    let this_form_name = "";
+    let element_events = [];
+    let element_event_id = "";
+
+    FMAPR.insertionElements = [];
+
+    for (let i=0; i<FMAPR.settings.field_metadata.length; i++){
+
+        this_field_name = FMAPR.settings.field_metadata[i].field_name;
+        this_form_name = FMAPR.settings.field_metadata[i].form_name;
+
+        if ( form_name === this_form_name || form_name === "all" ){
+
+            element_events = [];
+
+            for (j=0; j<FMAPR.settings.form_metadata[this_form_name].form_events.length; j++){
+
+                this_event_id = FMAPR.settings.form_metadata[this_form_name].form_events[j].event_id;
+
+                if ( event_id === this_event_id || event_id === "all" ){
+
+                    element_events.push(this_event_id);
+                }
+            }
+
+            if ( element_events.length ){
+
+                /**
+                 * if there is only one event for this field, 'all' is not allowed
+                 */
+                element_event_id = ( element_events.length===1 ) ? element_events[0] : event_id;
+
+                if ( !FMAPR.isSpecificationElement(this_field_name, element_event_id) ){
+
+                    fields++;
+
+                    columns += element_events.length;
+
+                    FMAPR.insertionElements.push({
+                        field_name: this_field_name,
+                        event_id: element_event_id,
+                        events: element_events
+                    });
+                }
+            }
+        }
+    }
+
+    return {'fields': fields, 'columns': columns};
+}
+
+FMAPR.isSpecificationElement = function(field_name, event_id)
+{
+    for (let i=0; i<FMAPR.specificationElements.length; i++){
+
+        if ( FMAPR.specificationElements[i].field_name === field_name
+                && FMAPR.specificationElements[i].event_id === event_id ){
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+FMAPR.enumerateSpecificationElements = function()
+{
+    let allRows = $("tr.yes3-fmapr-data-element");
+
+    let element_events = [];
+    let columns = 0;
+
+    let data_element_name = "";
+    let field_name = "";
+    let event_id = "";
+    let form_name = "";
+
+    let j = 0;
+
+    FMAPR.specificationElements = [];
+
+    for (let i=0; i<allRows.length; i++){
+
+        data_element_name = allRows.eq(i).data("yes3_fmapr_data_element_name");
+
+        data_element_origin = ( FMAPR.isRawREDCapDataElement(data_element_name) ) ? "redcap" : "specification";
+
+        field_name = allRows.eq(i).find('input.yes3-fmapr-input-element').first().val();
+
+        event_id = allRows.eq(i).find('select.yes3-fmapr-event-select').first().val();
+
+        element_events = [];
+
+        if ( field_name && event_id ){
+
+            if ( typeof FMAPR.settings.field_index[field_name] === "number" ){
+
+                form_name = FMAPR.settings.field_metadata[FMAPR.settings.field_index[field_name]].form_name;
+
+                for (j=0; j<FMAPR.settings.form_metadata[form_name].form_events.length; j++){
+
+                    if ( event_id === "all" || event_id === FMAPR.settings.form_metadata[form_name].form_events[j].event_id ){
+                    
+                        element_events.push( FMAPR.settings.form_metadata[form_name].form_events[j].event_id );
+                    }
+                }
+
+                if ( element_events.length ){
+
+                    FMAPR.specificationElements.push({
+
+                        data_element_name: data_element_name,
+                        data_element_origin: data_element_origin,
+                        field_name: field_name,
+                        event_id: event_id,
+                        events: element_events
+                    });
+
+                    columns += element_events.length;
+                }
+            }
+        }
+    }
+
+    return {
+        'columns': columns,
+        'elements': FMAPR.specificationElements.length
+    }
+}
+
+FMAPR.reportStatus = function()
+{
+    let s = "";
+
+    if ( FMAPR.mapperLoaded ){
+
+        let counts = FMAPR.enumerateSpecificationElements();
+
+        s+= `[${FMAPR.settings.specification_settings[FMAPR.specification_index].specification_key}]:`;
+
+        s += ` ${counts.elements} data elements, ${counts.columns} export columns.`;
+    }
+
+    $('div#yes3-fmapr-status').html(s);
+}
+
+FMAPR.getFormOptionsHtml = function(event_id)
+{
+    event_id = event_id || 'all';
+
+    //console.log('getFormOptionsHtml', 'event_id='+event_id)
+
+    let formNames = Object.getOwnPropertyNames( FMAPR.settings.form_metadata );
+    let allowed = true;
+    let j = 0;
+
+    let optionHtml = "\n<option value='all'>all forms</option>";
+
+    for (let i=0; i<formNames.length; i++){
+
+        allowed = ( event_id==="all" );
+
+        if ( !allowed ){
+ 
+            for (j=0; j<FMAPR.settings.form_metadata[formNames[i]].form_events.length; j++){
+
+                //console.log('getFormOptionsHtml', formNames[i], FMAPR.settings.form_metadata[formNames[i]].form_events[j]);
+
+                if ( FMAPR.settings.form_metadata[formNames[i]].form_events[j].event_id==event_id ){
+                    allowed = true;
+                    //break;
+                }
+            }
+        }
+
+        if ( allowed ){
+            optionHtml += `\n<option value='${formNames[i]}'>${FMAPR.settings.form_metadata[formNames[i]].form_label}</option>`;
+        }
+    }
+
+    return optionHtml;
+}
+
+FMAPR.getEventOptionsHtml = function(form_name)
+{
+    form_name = form_name || 'all';
+
+    let optionHtml = "<option value='all'>all events</option>";
+
+    if ( form_name==="all" ) {
+
+        let eventIDs = Object.getOwnPropertyNames( FMAPR.settings.event_metadata );
+        
+        for (let i=0; i<eventIDs.length; i++){
+    
+            optionHtml += `\n<option value='${eventIDs[i]}'>${FMAPR.settings.event_metadata[eventIDs[i]].event_label}</option>`;
+    
+        }
+    }
+    else {
+
+        if ( FMAPR.settings.form_metadata[form_name].form_events.length < 2 ){
+            optionHtml = "";
+        }
+
+        for (let i=0; i<FMAPR.settings.form_metadata[form_name].form_events.length; i++){
+
+            optionHtml += `\n<option value='${FMAPR.settings.form_metadata[form_name].form_events[i].event_id}'>${FMAPR.settings.form_metadata[form_name].form_events[i].descrip}</option>`;
+        }
+    }
+
+    return optionHtml;
 }
 
 FMAPR.setREDCapElementListeners = function()
 {
-    $('span.yes3-redcap-element').on("click", function(e){
+    $('span.yes3-fmapr-redcap-element').on("click", function(e){
         e.stopPropagation();
         FMAPR.REDCapFieldContextMenu($(this), e);
     })
@@ -705,38 +1493,128 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
 {
     console.log( e );
 
-    let panelParentOffset = $('div#yes3-contextmenu-panel').parent().offset();
+    let theMenuPanel = $('div#yes3-contextmenu-panel');
 
-    let field_name = element.closest('tr').find('input.yes3-fmapr-input-element').first().val();
+    let theParent = theMenuPanel.parent();
+    let theParentOffset = theParent.offset();
+    let theParentWidth = theParent.width();
+
+    let thisRow = element.closest('tr');
+
+    let theMenu = $('div#yes3-contextmenu-content');
+
+    let field_name = thisRow.find('input.yes3-fmapr-input-element').first().val();
+
+    let event_name = thisRow.find('select.yes3-fmapr-event-select option:selected').first().text();
+
+    let rowSelected = thisRow.hasClass('yes3-row-selected');
 
     let html = "";
 
-    html = field_name
-        + "<br>"
-        + "<br>insert form fields above"
-        + "<br>insert form fields below"
-        + "<br>"
-        + "<br>insert all remaining fields above"
-        + "<br>insert all remaining fields below"
-    ;
+    //$('tr.yes3-row-focused').removeClass('yes3-row-focused');
+    //thisRow.addClass('yes3-row-focused');
 
-    $('tr.yes3-row-selected').removeClass('yes3-row-selected');
-
-    element.closest('tr').addClass('yes3-row-selected');
-
-    //console.log( panelParentOffset );
+    //console.log( theParentOffset );
 
     e.preventDefault();
 
-    $('div#yes3-contextmenu-content').html(html);
+    html = FMAPR.REDCapFieldContextMenuContent( thisRow.prop('id'), field_name, event_name, rowSelected );
 
-    YES3.openPanel("yes3-contextmenu-panel", true
-        , e.pageX - panelParentOffset.left + 10
-        , e.pageY - panelParentOffset.top - $('div#yes3-contextmenu-panel').outerHeight() - 10
-    );
+    theMenuPanel.css({'top': 0, 'left': 0});
+
+    theMenu.html(html);
+
+    let h = theMenuPanel.outerHeight();
+    let w = theMenuPanel.outerWidth();
+    let x = e.pageX - theParentOffset.left + 10; // just to the right of the cursor
+    let y = e.pageY - theParentOffset.top - h - 3; // just above the cursor
+
+    console.log('contextmenu: h=' + h + '; w=' + w);
+
+    if ( x+w > theParentWidth ) {
+        x = theParentWidth - w - 10; // right-justified
+    }
+
+    if ( y < h ) {
+        y = e.pageY - theParentOffset.top + 3; // just below the cursor
+    }
+
+    YES3.openPanel("yes3-contextmenu-panel", true, x, y );
 
     return false;
+}
 
+FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, event_name, rowSelected )
+{
+    let k = FMAPR.selectedRowCount();
+
+    let html = "";
+
+    html += "<div id='yes3-contextmenu-panel-title' class='yes3-contextmenu-panel-row yes3-drag-handle'>";
+
+    html += "<div class='yes3-float-left'>" + field_name + "</div><div class='yes3-float-right yes3-ellipsis' style='max-width: 150px'>" + event_name + "</div>";
+
+    html += "</div>";
+
+    html += "<div class='yes3-contextmenu-panel-row'>";
+
+    html += "<table><tbody>";
+
+    html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+
+    if ( rowSelected){
+
+        html += "<tr><td>unselect field</td><td>ctrl+click</td></tr>";
+    }
+    else {
+
+        html += "<tr><td>select field</td><td>ctrl+click</td></tr>";
+    }
+
+    if ( FMAPR.selectionRangeStartDefined() ) {
+        html += "<tr><td>select field range end</td><td>shift+click</td></tr>";
+    }
+    else {
+        html += "<tr><td>select field range start</td><td>shift+click</td></tr>";
+    }
+
+    if ( k > 0 ){
+
+
+        if ( !rowSelected ){
+
+            html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+            html += `<tr><td>move ${k} selected field(s) above</td><td>&nbsp;</td></tr>`;
+            html += `<tr><td>move ${k} selected field(s) below</td><td>&nbsp;</td></tr>`;
+         
+            //html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+            //html += `<tr><td>remove ${k} selected field(s)</td><td>&nbsp;</td></tr>`;
+        }
+
+        html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+        html += `<tr><td>clear ${k} field selection(s)</td><td>&nbsp;</td></tr>`;
+    }
+    else {
+
+        if ( !rowSelected ){
+
+            html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+            //html += `<tr><td><a href="javascript:FMAPR.fieldInsertionOpenPanel('${rowId}', '${field_name}', '${event_name}', 'above');">insert form fields above</a></td><td>&nbsp;</td></tr>`;
+            html += `<tr><td><a href="javascript:FMAPR.fieldInsertionOpenPanel('${rowId}', '${field_name}', '${event_name}', 'below');">insert form fields</a></td><td>&nbsp;</td></tr>`;
+
+        }
+    }
+
+    html += "</tbody></table>";
+
+    html += "</div>";
+
+    return html;   
+}
+
+FMAPR.selectedRowCount = function()
+{
+    return $('tr.yes3-row-selected').length;
 }
 
  FMAPR.setValuePickers = function( yes3_fmapr_data_element_name, redcap_field_name ) {
@@ -841,7 +1719,13 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
        ;
  
     })
- 
+ }
+
+ FMAPR.setEventSelectListeners = function()
+ {
+     $('select.yes3-fmapr-event-select').on("change", function(){
+         FMAPR.markAsDirty();
+     })
  }
 
  FMAPR.REDCapFieldOnChange = function( fld )
@@ -862,7 +1746,7 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
     let raw = FMAPR.isRawREDCapDataElement(yes3_fmapr_data_element_name);
 
     if ( raw && formEvents.length > 1 ){
-        optionsHtml += '<option value="0">all events</option>';
+        optionsHtml += '<option value="all">all events</option>';
     }
 
     for ( let e=0; e<formEvents.length; e++ ){
@@ -874,6 +1758,8 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
     }
 
     fld.parent().parent().find('select.yes3-fmapr-event-select').append(optionsHtml);
+
+    FMAPR.markAsDirty();
  }
  
  FMAPR.setLovTogglePriorities = function(yes3_fmapr_data_element_name) {
@@ -937,6 +1823,8 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
        }
  
     })
+
+    FMAPR.markAsDirty();
  
     FMAPR.params.parentCtl.val( `constant: '${FMAPR.params.lov_value}'` );
  
@@ -998,17 +1886,26 @@ FMAPR.saveFieldMappings = function() {
     }) // elementRows
  
     //console.log( 'saveFieldMappings', specification );
+
+    let field_mappings_json = JSON.stringify(specification);
+
+    console.log('saveFieldMappings: JSON string length = ' + field_mappings_json.length);
  
     FMAPR.requestService( { 
         "request": "save_field_mappings", 
         "specification_index": FMAPR.specification_index,
-        "field_mappings": specification 
+        "field_mappings_json": field_mappings_json
     }, FMAPR.saveFieldMappingsCallback, false );
  }
  
  FMAPR.saveFieldMappingsCallback = function( response ){
     console.log( 'saveFieldMappingsCallback', response );
+
     FMAPR.postMessage( response );
+
+    if ( response.indexOf('Success') > -1 ){
+        FMAPR.markAsClean();
+    }
  }
  
  $(document).on('yes3-fmapr.settings', function () {

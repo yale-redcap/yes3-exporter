@@ -48,6 +48,7 @@ html {
     --yes3-panel-header-highlight-color: white;
     --yes3-panel-form-button-color: darkslategray;
     --yes3-panel-form-button-background-color: white;
+    --yes3-panel-border-color: gray;
  
     --yes3-table-label-color: slategray;
     --yes3-table-value-color: darkgreen;
@@ -63,6 +64,7 @@ html {
 
     --yes3-contextmenu-font-size: 14px;
     --yes3-contextmenu-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-contextmenu-title-color: darkcyan;
 
  }
  
@@ -347,14 +349,15 @@ html {
      */
     padding-top: 0;
     padding-bottom: 0;
-    height: calc(0.8 * var(--yes3-block-height));
-    margin-top: calc(0.1 * var(--yes3-block-height));
-    margin-bottom: calc(0.1 * var(--yes3-block-height));
-    line-height: calc(0.8 * var(--yes3-block-height));
+    height: calc(0.9 * var(--yes3-block-height));
+    margin-top: calc(0.05 * var(--yes3-block-height));
+    margin-bottom: calc(0.05 * var(--yes3-block-height));
+    /*line-height: calc(0.9 * var(--yes3-block-height));*/
     border: 1px solid var(--yes3-border-color);
     border-radius: calc(0.4 * var(--yes3-block-height));
     /*width: 100%;*/
-    /*max-width: 240px;*/
+    max-width: 240px;
+    min-width: 120px;
     white-space: nowrap;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -444,6 +447,10 @@ html {
     background-color: rgba(211, 211, 211, 0.233);
 }
 
+.yes3-drag-handle:hover {
+    cursor: move;
+}
+
  div#yes3-contextmenu-panel {
     display: none;
     color: var(--yes3-panel-color);
@@ -453,28 +460,26 @@ html {
     padding-top: calc(2*var(--yes3-padding));
     padding-bottom: calc(2*var(--yes3-padding));
     position: relative;
+    max-width: 400px;
     border: 1px solid lightgrey;
     border-radius: 0;
     box-shadow: 0 0 8px 1px rgb(175, 175, 175);
  }
 
  div#yes3-contextmenu-panel-title {
-    font-family: inherit;
-    font-size: var(--yes3-contextmenu-font-size);
-    color: var(--yes3-panel-color);
+    color: var(--yes3-contextmenu-title-color);
+ }
+
+ div.yes3-contextmenu-panel-row {
+    font-size: var(--yes3-contextmenu-font-size) !important;
+    font-family: var(--yes3-contextmenu-font-family) !important;
     float: left;
     clear: both;
     width: 100%;
-    margin-top: 0;
-    margin-bottom: var(--yes3-margin);
-    cursor: move;
-    height: var(--yes3-contextmenu-font-size);
-    line-height: var(--yes3-contextmenu-font-size);
  }
 
- div#yes3-contextmenu-panel div {
-    font-size: var(--yes3-contextmenu-font-size) !important;
-    font-family: var(--yes3-contextmenu-font-family) !important;
+ div#yes3-contextmenu-content > table > tbody > tr > td:first-child {
+     padding-right: 20px;
  }
  
  .yes3-panel {
@@ -493,6 +498,11 @@ html {
     border-radius: 0;
     -webkit-box-shadow: 0 0 16px 1px rgba(100, 100, 100, 1.0);
     -moz-box-shadow: 0 0 16px 1px rgba(100, 100, 100, 1.0);
+ }
+
+ #yes3-hello-panel, #yes3-yesno-panel {
+     width: 60% !important;
+     max-width: 800px !important;
  }
  
  .yes3-panel p {
@@ -623,7 +633,10 @@ html {
     font-family: inherit;
     color: inherit;
     font-size: inherit;
-    font-weight: 600;
+ }
+
+ .yes3-panel-row a:hover {
+     color: var(--yes3-alert-color);
  }
  
  .yes3-panel label {
@@ -653,14 +666,14 @@ html {
  }
  
  .yes3-panel form button, .yes3-panel input[type=button], button[type=submit].yes3 {
-    height: 30px;
-    width: min-150px;
+    height: calc(0.8* var(--yes3-block-height));
+    min-width: 120px;
     padding-left: calc(2*var(--yes3-padding));
     padding-right: calc(2*var(--yes3-padding));
     color: var(--yes3-panel-form-button-color);
     background-color: var(--yes3-panel-form-button-background-color);
     border: 1px solid var(--yes3-panel-form-button-color);
-    border-radius: 16px;
+    border-radius: 4px;
     outline: none;
  }
  
@@ -719,6 +732,10 @@ html {
  
  
  /* RADIO BALLOONS  */
+
+ label {
+     margin: 0 !important;
+ }
  
  input[type=radio].balloon, input[type=checkbox].balloon {
     /* Hide original inputs */
@@ -807,8 +824,15 @@ html {
  }
  
  div.yes3-float-left {
-    float: left;
+    float: left !important;
+    width: auto !important;
     margin-right: calc( 2 * var(--yes3-margin) );
+ }
+
+ div.yes3-float-right {
+    float: right !important;
+    width: auto !important;
+    margin-left: calc( 2 * var(--yes3-margin) );
  }
  
  th label {

@@ -1,43 +1,43 @@
 {
-  "name": "Yes3 Field Mapper",
+    "name": "Yes3 Exporter",
 
-  "namespace": "Yale\\Yes3FieldMapper",
+    "namespace": "Yale\\Yes3FieldMapper",
 
-  "description": "YES3 Field Mapper",
+    "description": "YES3 Field Mapper",
 
-  "authors": [
+    "authors": [
     {
-      "name": "Peter Charpentier",
-      "email": "peter.charpentier@criwebtools.com",
-      "institution": "CRI Web Tools LLC"
-      }
-  ],
-
-  "versions": [
-    {
-      "number": "0.0.1",
-      "date": "2021-12-29",
-      "description": "and away we go",
-      "comments": ""
-      }
+        "name": "Peter Charpentier",
+        "email": "peter.charpentier@criwebtools.com",
+        "institution": "CRI Web Tools LLC"
+        }
     ],
 
-  "permissions": [
-    "redcap_module_link_check_display"
-  ],
+    "versions": [
+    {
+        "number": "0.0.1",
+        "date": "2021-12-29",
+        "description": "and away we go",
+        "comments": ""
+        }
+    ],
 
-  "links": {
+    "permissions": [
+        "redcap_module_link_check_display"
+    ],
+
+    "links": {
     "project": [
-      {
+        {
         "name": "YES3 Field Mapper",
         "icon": "fab fa-connectdevelop",
         "url":  "plugins/yes3_fieldmapper.php"
-      }
+        }
     ]
-  },
+    },
 
-  "system-settings": [
-  ],
+    "system-settings": [
+    ],
 
     "project-settings": [
         {
@@ -66,6 +66,22 @@
                     "key": "specification-description",
                     "type": "text",
                     "name": "Specification description"        
+                },
+                {
+                    "key": "specification-export-layout",
+                    "name": "Export layout",
+                    "type": "radio",
+                    "required": true,
+                    "choices":[
+                        {
+                            "value":"H",
+                            "name":"Horizontal<br>(one row per recordid, one column per field per event)"
+                        },
+                        {
+                            "value":"V",
+                            "name":"Vertical<br>(one row per recordid per event, one column per field)"
+                        }
+                    ]
                 },
                 {
                     "key": "specification-data-elements",
@@ -114,17 +130,16 @@
         }
     ],
 
-  "crons":[
-  ],
+    "crons":[
+    ],
 
-  "no-auth-pages": [
-  ],
+    "no-auth-pages": [
+    ],
 
-  "compatibility": {
+    "compatibility": {
     "php-version-min": "7.2",
     "redcap-version-min": "10.0.0"
-  },
+    },
 
-  "framework-version": 5
-
+    "framework-version": 5
 }
