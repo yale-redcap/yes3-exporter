@@ -21,6 +21,8 @@ define('YES3_FORM_NAME', "yes3");
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
     public $project_id = 0;
+    public $RecordIdField = "";
+    public $isLongitudinal = "";
     public $username = "";
     public $serviceUrl = "";
     public $specifications = [];
@@ -36,6 +38,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $this->username = USERID;
             $this->serviceUrl = $this->getUrl('services/yes3_fieldmapper_services.php');
+
+            $this->RecordIdField = \REDCap::getRecordIdField();
+            $this->isLongitudinal = \REDCap::isLongitudinal();
 
             $this->token = "this-should-be-private";
 

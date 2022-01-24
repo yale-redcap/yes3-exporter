@@ -204,6 +204,26 @@ function get_field_mappings()
 
     $map_record['field_mappings'] = json_decode( $map_record['field_mappings'], true );
 
+    // insert the record id if this is a new mapping
+    if ( !$map_record['field_mappings'] ){
+
+        $map_record['field_mappings'] = [
+            'specification_index' => (string) $specification_index,
+            "elements" => []
+        ];
+    }
+    if ( !$map_record['field_mappings']['elements'] ){
+
+        $map_record['field_mappings']['elements'] = [
+            [
+                'yes3_fmapr_data_element_name' => "redcap_field_1",
+                'redcap_field_name' => REDCap::getRecordIdField(),
+                'redcap_event_id' => $module->getFirstEventId(),
+                'values' => []
+            ]
+        ];
+    }
+
     //Yes3::logDebugMessage($module->project_id, print_r($map_record, true), "get_field_mappings");
 
     return Yes3::json_encode_pretty( $map_record );

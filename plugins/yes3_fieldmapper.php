@@ -49,7 +49,7 @@ foreach( $module->specifications as $specification ){
          YES3 FIELD INJECTOR
       </div>
       <div class="yes3-panel-row-right">
-         <a href="javascript: FMAPR.fieldInsertionClosePanel()"><i class="fas fa-times fa-2x"></i></a>
+         <a href="javascript: FMAPR.closeFieldInsertionForm()"><i class="fas fa-times fa-2x"></i></a>
       </div>
    </div>
 
@@ -121,7 +121,7 @@ foreach( $module->specifications as $specification ){
          <input type="button" value="make it so" onClick="FMAPR.fieldInsertionExecute();" class="yes3-panel-button" />
       </div>
       <div style='float:right'>
-         <input type="button" value="nah" onClick="FMAPR.fieldInsertionClosePanel();" class="yes3-panel-button" />
+         <input type="button" value="nah" onClick="FMAPR.closeFieldInsertionForm();" class="yes3-panel-button" />
       </div>
    </div>
 
@@ -155,7 +155,7 @@ foreach( $module->specifications as $specification ){
             <!--input type="button" class="yes3-when-loaded" value="SAVE MAPPINGS" id="yes3-fmapr-save-specification" onclick="FMAPR.saveFieldMappings()"-->
 
             <i class="fas fa-plus yes3-fmapr-action-icon yes3-fmapr-loaded" action="addRawREDCapField" title="add a single REDCap field to the specification"></i>
-            <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="fieldInsertionOpenPanel" title="add multiple REDCap fields to the specification"></i>
+            <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="add multiple REDCap fields to the specification"></i>
             <i class="far fa-save yes3-fmapr-action-icon yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="save the specification"></i>
             <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="restoreSpecification" title="restore the specification from a stored backup"></i>
             <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="printSpecification" title="print the specifications"></i>
