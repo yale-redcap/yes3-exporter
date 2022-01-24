@@ -29,7 +29,7 @@
     "links": {
     "project": [
         {
-        "name": "YES3 Field Mapper",
+        "name": "YES3 Export Specs",
         "icon": "fab fa-connectdevelop",
         "url":  "plugins/yes3_fieldmapper.php"
         }
