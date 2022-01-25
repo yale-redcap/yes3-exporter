@@ -33,14 +33,39 @@ if ( !$module->specifications ){
 $specOptionHtml = "";
 $specNum = 0;
 foreach( $module->specifications as $specification ){
-    $specName = $specification['name'];
+    $specName = $specification['name'] . " (" . $specification['export_layout'] . ")";
     $specOptionHtml .= "<option value='{$specNum}'>{$specName}</option>";
     $specNum++;
 }
 
 ?>
 
-<div id="yes3-fmapr-red-pointer">&#9654;</div>
+<div id="yes3-fmapr-wayback-panel" class="yes3-panel yes3-draggable" style="display:none">
+
+   <div class="yes3-panel-header-row">
+      <div class="yes3-panel-row-left" id="yes3-fmapr-wayback-panel-title">
+         Wayback Machine
+      </div>
+      <div class="yes3-panel-row-right">
+         <a href="javascript: FMAPR.Wayback_closeForm()"><i class="fas fa-times fa-2x"></i></a>
+      </div>
+   </div>
+
+   <div class="yes3-panel-row yes3-block" style="margin-top: 20px !important">
+        <select id="yes3-fmapr-wayback-select"></select>
+   </div>
+
+   <div class="yes3-panel-row">
+      <div style='float:left'>
+         <input type="button" value="make it so" onClick="FMAPR.Wayback_Execute();" class="yes3-panel-button" />
+      </div>
+      <div style='float:right'>
+         <input type="button" value="nah" onClick="FMAPR.Wayback_closeForm();" class="yes3-panel-button" />
+      </div>
+   </div>
+
+</div>
+
 
 <div id="yes3-fmapr-fieldinsertion-panel" class="yes3-panel yes3-draggable" style="display:none">
 
@@ -67,7 +92,7 @@ foreach( $module->specifications as $specification ){
                 </td>
             </tr>
 
-            <tr id='yes3-fmapr-fieldinsertion-org-block'>
+            <tr id='yes3-fmapr-fieldinsertion-org-block' class="yes3-fmapr-horizontal-only">
                 <td>
                     Organize by:
                 </td>
@@ -92,7 +117,7 @@ foreach( $module->specifications as $specification ){
                 </td>
             </tr>
 
-            <tr id='yes3-fmapr-fieldinsertion-event-block' class='yes3-fmapr-fieldinsertion-block'>
+            <tr id='yes3-fmapr-fieldinsertion-event-block' class='yes3-fmapr-fieldinsertion-block yes3-fmapr-horizontal-only'>
                 <td>
                     Event(s):
                 </td>
@@ -157,7 +182,7 @@ foreach( $module->specifications as $specification ){
             <i class="fas fa-plus yes3-fmapr-action-icon yes3-fmapr-loaded" action="addRawREDCapField" title="add a single REDCap field to the specification"></i>
             <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="add multiple REDCap fields to the specification"></i>
             <i class="far fa-save yes3-fmapr-action-icon yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="save the specification"></i>
-            <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="restoreSpecification" title="restore the specification from a stored backup"></i>
+            <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="Wayback_openForm" title="restore the specification from a stored backup"></i>
             <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="printSpecification" title="print the specifications"></i>
             <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="exportData" title="export a csv file based on this specification"></i>
             <i class="fas fa-question yes3-fmapr-action-icon" action="displayHelpPanel" title="get some help"></i>

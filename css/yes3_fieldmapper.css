@@ -61,19 +61,6 @@ table.yes3-scrollable td {
 
 /* === FIELD INSERTION === */
 
-div#yes3-fmapr-red-pointer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: var(--yes3-alert-color);
-    font-size: 20px;
-    height: 24px;
-    line-height: 24px;
-    display: none;
-    padding: 0;
-    margin: 0;
-}
-
 div#yes3-fmapr-fieldinsertion-panel select {
     width: 100% !important;
     padding: 10px;
@@ -156,6 +143,12 @@ td.yes3-fmapr-fieldinsertion-td-right {
 div#yes3-fmapr-footer {
      width: 100%;
      margin-top: 1rem;
+}
+
+div#yes3-fmapr-status {
+    color: gray;
+    font-size: 11px;
+    line-height: 13px;
 }
 
  a.yes3-fmapr-value-picker-toggler, a.yes3-fmapr-lov-toggler {

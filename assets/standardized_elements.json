@@ -12,20 +12,20 @@
     "format": "valueset",
     "valueset": [
       {
-        "value": "Hispanic or Latino",
-        "label": "1"
+        "value": "1",
+        "label": "Hispanic or Latino"
       },
       {
-        "value": "Not Hispanic or Latino",
-        "label": "2"
+        "value": "2",
+        "label": "Not Hispanic or Latino"
       },
       {
-        "value": "97",
-        "label": "Prefer not to answer"
+        "value": "Prefer not to answer",
+        "label": "97"
       },
       {
-        "value": "98",
-        "label": "Unknown"
+        "value": "Unknown",
+        "label": "98"
       }
     ]
   },

@@ -110,6 +110,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $specification = $this->getProjectSetting('specification');
         $specification_name = $this->getProjectSetting('specification-name');
         $specification_description = $this->getProjectSetting('specification-description');
+        $specification_export_layout = $this->getProjectSetting('specification-export-layout');
         $specification_data_elements_json = $this->getProjectSetting('specification-data-elements');
 
         for ($i=0; $i<count($specification); $i++){
@@ -119,6 +120,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->specifications[$i] = [
                 'name' => Yes3::alphaNumericString($specification_name[$i]),
                 'description' => Yes3::escapeHtml($specification_description[$i]),
+                'export_layout' => ($specification_export_layout[$i]) ? $specification_export_layout[$i]:"H",
                 'data_elements' => $this->validated_data_elements( $specification_data_elements )
             ];
         }

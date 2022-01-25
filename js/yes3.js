@@ -134,25 +134,55 @@ String.prototype.truncateAt = function( n ){
    }
 };
 
-YES3.contextmenu = function(content, x, y, fn) {
-    if ( fn ) {
-       YES3.contextmenuFunction = fn;
-   } else {
-       YES3.contextmenuFunction = null;
-   }
-    $('#yes3-contextmenu-content').html(content);
+YES3.getContextMenuElement = function()
+{
+    return $("div#yes3-contextmenu-panel");
+}
+
+YES3.getContextMenuContentElement = function()
+{
+    return $("div#yes3-contextmenu-content");
+}
+ 
+YES3.contextMenuOpen = function(x, y) 
+{
+    x = x || 0;
+    y = y || 0;
+
     YES3.openPanel('yes3-contextmenu-panel', true, x, y);
 };
  
- YES3.contextmenuClose = function() {
+YES3.contextMenuClose = function( Fn ) 
+{
     YES3.closePanel('yes3-contextmenu-panel');
-    if ( typeof YES3.contextmenuFunction == "function" ) {
+    YES3.hideRedPointer();
+
+    if ( typeof Fn === "function" ) {
        //console.log("contextmenu: executing function");
-       YES3.contextmenuFunction();
-   }
+       Fn();
+    }
 };
+
+YES3.showRedPointer = function( theRow )
+{
+     //let theContainer = $("div#yes3-fmapr-container").parent();
  
- YES3.YesNo = function(question, fnYes, fnNo) {
+     let thePointer = $('div#yes3-red-pointer');
+ 
+     let theContainer = thePointer.parent();
+ 
+     let x = theRow.offset().left - theContainer.offset().left - thePointer.outerWidth() - 1;
+     let y = theRow.offset().top - theContainer.offset().top + theRow.outerHeight() - thePointer.outerHeight()/2 - 2;
+ 
+     thePointer.css({top: y, left: x}).show();
+}
+ 
+YES3.hideRedPointer = function(x, y)
+{
+    $('div#yes3-red-pointer').hide();
+}
+ 
+YES3.YesNo = function(question, fnYes, fnNo) {
     YES3.yesFunction = fnYes;
     YES3.noFunction = fnNo;
     $('#yes3-yesno-message').html(question);
@@ -197,34 +227,33 @@ YES3.contextmenu = function(content, x, y, fn) {
    }
 
     panel.css({'z-index': YES3.maxZ}).show();
-    if ( nonmodal ) {
-        hideOnClickOutside(panel);
-    }
+    //if ( nonmodal ) {
+    //    hideOnClickOutside(panel);
+    //}
 };
  
- YES3.closePanel = function(panelName) {
+YES3.closePanel = function(panelName) {
     $(`#${panelName}`).hide();
     $('#yes3-screen-cover').hide();
 };
 
-// https://stackoverflow.com/questions/152975/how-do-i-detect-a-click-outside-an-element/3028037#3028037
-function hideOnClickOutside(selector) {
-    const outsideClickListener = (event) => {
-      const $target = $(event.target);
-      if (!$target.closest(selector).length && $(selector).is(':visible')) {
-          $(selector).hide();
-          removeClickListener();
-          $('.yes3-row-focused').removeClass('yes3-row-focused');
-        }
-    }
-  
-    const removeClickListener = () => {
-      document.removeEventListener('click', outsideClickListener)
-    }
-  
-    document.addEventListener('click', outsideClickListener)
-  }
+YES3.hideContextMenuOnClickOutside = function()
+{
 
+    $(window).on("click", function(e){
+
+        if ( $('div#yes3-contextmenu-panel').is(":visible") ) {
+
+            let p = $(e.target).closest("div#yes3-contextmenu-panel");
+
+            if ( !p.length ){
+                YES3.contextmenuClose();
+            }
+
+            //console.log('hideContextMenuOnClickOutside:', e, p);
+        }
+    })
+}
 
  /*
  * the approved alternative to $(document).ready()
@@ -240,6 +269,36 @@ $( function () {
     });
  
     $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});
- 
+
 })
+
+function listAllEventListeners() {
+    const allElements = Array.prototype.slice.call(document.querySelectorAll('*'));
+    allElements.push(document);
+    allElements.push(window);
+  
+    const types = [];
+  
+    for (let ev in window) {
+      if (/^on/.test(ev)) types[types.length] = ev;
+    }
+  
+    let elements = [];
+    for (let i = 0; i < allElements.length; i++) {
+      const currentElement = allElements[i];
+      for (let j = 0; j < types.length; j++) {
+        if (typeof currentElement[types[j]] === 'function') {
+          elements.push({
+            "node": currentElement,
+            "type": types[j],
+            "func": currentElement[types[j]].toString(),
+          });
+        }
+      }
+    }
+  
+    return elements.sort(function(a,b) {
+      return a.type.localeCompare(b.type);
+    });
+  }
 

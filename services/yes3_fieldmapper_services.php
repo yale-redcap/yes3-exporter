@@ -99,6 +99,39 @@ function hello_world(): string
     return "Message received serverside: " . htmlentities($message, ENT_QUOTES);
 }
 
+function get_wayback_html()
+{
+    global $module;
+
+    $specification_key = Yes3::normalized_string($_POST['specification_key']);
+    
+    $fields = "log_id, message, user, timestamp, map_label, field_mappings";
+
+    $pSql = "
+        SELECT {$fields}
+        WHERE project_id=? AND setting='field-map' AND specification_key=?
+        ORDER BY timestamp DESC
+    ";
+
+    $params = [$module->project_id, $specification_key];
+
+    $result = $module->queryLogs($pSql, $params);
+
+    $html = "";
+
+    while( $x = $result->fetch_assoc() ){
+
+        $log_id = $x['log_id'];
+        $bytes = str_pad( strval(strlen($x['field_mappings'])), 6, " ", STR_PAD_LEFT);
+        $user = Yes3::escapeHtml($x['user']);
+        $time = date("D m/d/Y g:i a",  strtotime($x['timestamp']) );
+
+        $html .= "\n<option value='{$log_id}'>{$time}{$bytes} bytes ({$user})</option>";
+    }
+
+    return $html;
+}
+
 /**
  * Saves field mappings to the EM log
  * 
@@ -177,17 +210,14 @@ function get_field_mappings()
     $log_id = (int) $_POST['log_id'];
 
     if ( !$key = Yes3::normalized_string($module->getProjectSetting('specification-key')[$specification_index]) ) {
-        return "Mappings NOT saved: no specification key provided.";        
+        return "Mappings NOT retrieved: no specification key provided.";        
     }
 
-    $fields = "log_id, message, user, timestamp, map_label, field_mappings";
+    $fields = "log_id, message, user, timestamp, map_label, specification_key, field_mappings";
 
     if ( $log_id ){
 
-        $pSql = "
-            SELECT {$fields}
-            WHERE log_id=?
-        ";
+        $pSql = "SELECT {$fields} WHERE log_id=?";
         $params = [$log_id];
     }
     else {
@@ -202,7 +232,14 @@ function get_field_mappings()
 
     $map_record = $module->queryLogs($pSql, $params)->fetch_assoc();
 
+    $msg = "log_id=" . $map_record['log_id'] . ", bytes=" . strlen($map_record['field_mappings']);
+
+    //Yes3::logDebugMessage($module->project_id, $pSql, "get_field_mappings:pSql");
+    //Yes3::logDebugMessage($module->project_id, $msg, "get_field_mappings:result");
+
     $map_record['field_mappings'] = json_decode( $map_record['field_mappings'], true );
+
+    $map_record['formatted_time'] = date("D m/d/Y g:i a",  strtotime($map_record['timestamp']) );
 
     // insert the record id if this is a new mapping
     if ( !$map_record['field_mappings'] ){

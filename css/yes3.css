@@ -67,6 +67,21 @@ html {
     --yes3-contextmenu-title-color: darkcyan;
 
  }
+
+div#yes3-red-pointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--yes3-alert-color);
+    font-size: 20px;
+    height: 24px;
+    line-height: 24px;
+    display: none;
+    padding: 0;
+    margin: 0;
+}
+
+
  
  .vartester {
     color: #483d8b;
@@ -478,7 +493,7 @@ html {
     width: 100%;
  }
 
- div#yes3-contextmenu-content > table > tbody > tr > td:first-child {
+ div#yes3-contextmenu-content > div.yes3-contextmenu-panel-row > table > tbody > tr > td:first-child {
      padding-right: 20px;
  }
  
