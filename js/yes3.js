@@ -95,12 +95,21 @@ String.prototype.truncateAt = function( n ){
     );
  
  // centers an element on screen
- jQuery.fn.center = function (dx, dy) {
+ jQuery.fn.center = function (dx, dy, atTheTop, toTheLeft) 
+ {
+    atTheTop = atTheTop || false;
+    toTheLeft = toTheLeft || false;
+
+    let x = ( toTheLeft ) ? 10 : Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft() - dx/2);
+
+    let y = ( atTheTop ) ? 10 : Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop() - dy/2);
+
     this.css("position","absolute");
-    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
-       $(window).scrollTop() - dy/2) + "px");
-    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
-       $(window).scrollLeft() - dx/2) + "px");
+
+    this.css("top", y + "px");
+
+    this.css("left", x + "px");
+
     return this;
 };
  
@@ -113,8 +122,45 @@ String.prototype.truncateAt = function( n ){
        $(window).scrollLeft()) + "px");
     return this;
 };
+// === POPUP ============================================================================================
 
- // === PANEL FUNCTIONS ==================================================================================
+// based on stackOverflow window centering threads
+YES3.openPopupWindow = function(url, w, h, windowNamePrefix) {
+
+    w = w || 1160;
+    h = h || 700;
+    windowNamePrefix = windowNamePrefix || "YES3Window";
+
+    YES3.windowNumber++;
+
+    let windowName = windowNamePrefix+YES3.windowNumber;
+
+    console.log(url,windowName);
+
+    // Fixes dual-screen position                         Most browsers      Firefox
+    let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+    let dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+
+    let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    let left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    let top = ((height / 2) - (h / 2)) + dualScreenTop;
+    let newWindow = window.open(url, windowName, 'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left);
+
+    if(!newWindow || newWindow.closed || typeof newWindow.closed=='undefined')   {
+        YES3.hello("It looks like popups from REDCap are blocked on your computer.<br />Please call the data management team to enable REDCap popups.")
+    }
+
+    // Puts focus on the newWindow
+    if (window.focus) {
+        //newWindow.focus();
+    }
+
+    //return false;
+};
+
+// === PANEL FUNCTIONS ==================================================================================
  
  YES3.hello = function(msg, fn, nonmodal) {
     if ( fn ) {
@@ -171,8 +217,8 @@ YES3.showRedPointer = function( theRow )
  
      let theContainer = thePointer.parent();
  
-     let x = theRow.offset().left - theContainer.offset().left - thePointer.outerWidth() - 1;
-     let y = theRow.offset().top - theContainer.offset().top + theRow.outerHeight() - thePointer.outerHeight()/2 - 2;
+     let x = theRow.offset().left - theContainer.offset().left - thePointer.outerWidth() - 2;
+     let y = theRow.offset().top - theContainer.offset().top + theRow.outerHeight() - thePointer.outerHeight()/2;
  
      thePointer.css({top: y, left: x}).show();
 }
@@ -205,9 +251,18 @@ YES3.YesNo = function(question, fnYes, fnNo) {
    }
 };
  
- // opens panel in screen center, with a random diddle
- YES3.openPanel = function(panelName, nonmodal, x, y) 
+ /**
+  * 
+  * @param {*} panelName 
+  * @param {*} nonmodal 
+  * @param {*} x 
+  * @param {*} y 
+  */
+ YES3.openPanel = function(panelName, nonmodal, x, y, atTheTop, toTheLeft) 
  {
+    atTheTop = atTheTop || false;
+    toTheLeft = toTheLeft || false;
+    
     nonmodal = nonmodal || false;
     x = x || 0;
     y = y || 0;
@@ -223,7 +278,7 @@ YES3.YesNo = function(question, fnYes, fnNo) {
     if ( x || y ) {
        panel.situate( x, y );
    } else {
-       panel.center(theParent.offset().left, theParent.offset().top);
+       panel.center(theParent.offset().left, theParent.offset().top, atTheTop, toTheLeft);
    }
 
     panel.css({'z-index': YES3.maxZ}).show();
@@ -240,14 +295,14 @@ YES3.closePanel = function(panelName) {
 YES3.hideContextMenuOnClickOutside = function()
 {
 
-    $(window).on("click", function(e){
+    $(document).on("click", function(e){
 
         if ( $('div#yes3-contextmenu-panel').is(":visible") ) {
 
             let p = $(e.target).closest("div#yes3-contextmenu-panel");
 
             if ( !p.length ){
-                YES3.contextmenuClose();
+                YES3.contextMenuClose();
             }
 
             //console.log('hideContextMenuOnClickOutside:', e, p);

@@ -40,6 +40,89 @@ foreach( $module->specifications as $specification ){
 
 ?>
 
+<div id="yes3-fmapr-help-panel" class="yes3-panel yes3-draggable" style="display:none">
+
+   <div class="yes3-panel-header-row">
+      <div class="yes3-panel-row-left" id="yes3-fmapr-help-panel-title">
+         Here's some help
+      </div>
+      <div class="yes3-panel-row-right">
+         <a href="javascript: FMAPR.Help_closePanel()"><i class="fas fa-times fa-2x"></i></a>
+      </div>
+   </div>
+
+   <div class="yes3-panel-row" style="margin-top: 20px !important">
+        <table>
+            <tbody>
+
+                <tr>
+                    <td>
+                        <i class="fas fa-plus yes3-fmapr-action-icon"></i>
+                    </td>
+                    <td>
+                        Add a single REDCap field to the specification.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-plus-square yes3-fmapr-action-icon"></i>
+                    </td>
+                    <td>
+                        Add multiple REDCap fields to the specification.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="far fa-save yes3-fmapr-action-icon"></i>
+                    </td>
+                    <td>
+                        Save the specification.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-undo yes3-fmapr-action-icon"></i>
+                    </td>
+                    <td>
+                        Restore the specification to a prior version (undo).
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-print yes3-fmapr-action-icon"></i>
+                    </td>
+                    <td>
+                        Print the specification.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-download yes3-fmapr-action-icon"></i>
+                    </td>
+                    <td>
+                        Export a csv file based on this specification.
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+   </div>
+
+   <div class='yes3-panel-row'>
+       Click <a href="javascript:FMAPR.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
+   </div>
+
+   <div class='yes3-panel-row'>
+       You may leave this help panel open as you use the Yes3 Exporter. Grab it on the top row to drag it out of the way.
+   </div>
+   
+</div>
+
 <div id="yes3-fmapr-wayback-panel" class="yes3-panel yes3-draggable" style="display:none">
 
    <div class="yes3-panel-header-row">
@@ -179,13 +262,13 @@ foreach( $module->specifications as $specification ){
 
             <!--input type="button" class="yes3-when-loaded" value="SAVE MAPPINGS" id="yes3-fmapr-save-specification" onclick="FMAPR.saveFieldMappings()"-->
 
-            <i class="fas fa-plus yes3-fmapr-action-icon yes3-fmapr-loaded" action="addRawREDCapField" title="add a single REDCap field to the specification"></i>
-            <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="add multiple REDCap fields to the specification"></i>
-            <i class="far fa-save yes3-fmapr-action-icon yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="save the specification"></i>
-            <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="Wayback_openForm" title="restore the specification from a stored backup"></i>
-            <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="printSpecification" title="print the specifications"></i>
-            <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="exportData" title="export a csv file based on this specification"></i>
-            <i class="fas fa-question yes3-fmapr-action-icon" action="displayHelpPanel" title="get some help"></i>
+            <i class="fas fa-plus yes3-fmapr-action-icon yes3-fmapr-loaded" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
+            <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
+            <i class="far fa-save yes3-fmapr-action-icon yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="Save the specification."></i>
+            <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
+            <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="printSpecification" title="Print the specification."></i>
+            <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="exportData" title="Export a csv file based on this specification."></i>
+            <i class="fas fa-question yes3-fmapr-action-icon" action="Help_openPanel" title="get some help"></i>
     
         </div>
 

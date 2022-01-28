@@ -25,6 +25,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $isLongitudinal = "";
     public $username = "";
     public $serviceUrl = "";
+    public $documentationUrl = "";
     public $specifications = [];
     private $token = "";
 
@@ -36,8 +37,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $this->project_id = Yes3::getREDCapProjectId();
 
-            $this->username = USERID;
+            $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/yes3_fieldmapper_services.php');
+            $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php');
 
             $this->RecordIdField = \REDCap::getRecordIdField();
             $this->isLongitudinal = \REDCap::isLongitudinal();

@@ -233,6 +233,7 @@ FMAPR.dataElementRowId = function(data_element_name)
 FMAPR.markAsClean = function()
 {
     if ( FMAPR.dirty ) {
+
         FMAPR.dirty = false;
         FMAPR.displayActionIcons();
     }
@@ -523,11 +524,12 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
         }
     }
 
+    FMAPR.doFieldMapperTableHousekeeping( true );
+
     if ( $("div#yes3-fmapr-wayback-panel").is(":visible") ){
         FMAPR.Wayback_closeForm();
+        FMAPR.markAsDirty();
     }
-
-    FMAPR.doFieldMapperTableHousekeeping( true );
 }
 
 FMAPR.rowsToMove = [];
@@ -912,9 +914,11 @@ FMAPR.setContextMenuListeners = function()
         })
         .on("click", function(e){
 
-            console.log( 'click', e );
+            //console.log( 'click', e );
 
             if ( e.shiftKey ){
+
+                e.preventDefault();
 
                 //FMAPR.toggleSelected( $(this) );
 
@@ -938,11 +942,17 @@ FMAPR.setContextMenuListeners = function()
 
                 e.stopPropagation();
 
+                YES3.contextMenuClose();
+
                 return false;
             }
             else if ( e.ctrlKey ){
 
+                e.preventDefault();
+
                 FMAPR.toggleSelected( $(this), true );
+
+                YES3.contextMenuClose();
 
                 e.stopPropagation();
 
@@ -1023,6 +1033,11 @@ FMAPR.clearSelectionRange = function( boundariesToo )
     //    FMAPR.markRowSelected( $('tr.yes3-selection-range-start') );
     //    FMAPR.markRowSelected( $('tr.yes3-selection-range-end') );
     //}
+}
+
+FMAPR.removeSelections = function( stickyToo )
+{
+    $("tr.yes3-row-selected").off().remove();  
 }
 
 FMAPR.clearSelections = function( stickyToo )
@@ -1742,6 +1757,8 @@ FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, event_name, r
         }
 
         html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+        html += `<tr><td><a href="javascript:FMAPR.contextMenuRemoveRowSelections();">remove ${k} field selection(s)</a></td><td>&nbsp;</td></tr>`;
+        html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
         html += `<tr><td><a href="javascript:FMAPR.contextMenuClearRowSelections();">clear ${k} field selection(s)</a></td><td>&nbsp;</td></tr>`;
     }
     else {
@@ -1781,6 +1798,17 @@ FMAPR.contextMenuMoveRowSelections = function(rowId)
     FMAPR.clearSelectionRangeBoundaries();
 
     //console.log('contextMenuMoveRowSelections', theRows);
+
+    YES3.contextMenuClose();
+}
+
+FMAPR.contextMenuRemoveRowSelections = function()
+{
+    FMAPR.removeSelections();
+
+    FMAPR.enumerateSpecificationElements();
+
+    FMAPR.reportStatus();
 
     YES3.contextMenuClose();
 }
@@ -1854,6 +1882,8 @@ FMAPR.deSelectRow = function( theRow )
 
         theRow.addClass('yes3-row-sticky');
     }
+
+    YES3.contextMenuClose();
 }
 
 FMAPR.selectedRowCount = function()
@@ -2213,6 +2243,23 @@ $(document).on('yes3-fmapr.settings', function () {
  
 })
 
+/*** HELP ***/
+
+FMAPR.Help_openPanel = function()
+{
+    YES3.openPanel('yes3-fmapr-help-panel', true)
+}
+
+FMAPR.Help_closePanel = function()
+{
+    YES3.closePanel('yes3-fmapr-help-panel');
+}
+
+FMAPR.Help_openReadMe = function()
+{
+    YES3.openPopupWindow( yes3ModuleProperties.documentationUrl ); 
+}
+
 /*** WAYBACK ***/
 
 FMAPR.Wayback_openForm = function()
@@ -2269,6 +2316,10 @@ FMAPR.Wayback_openFormCallback = function( response )
 FMAPR.Wayback_Execute = function()
 {
     let log_id = $("select#yes3-fmapr-wayback-select").val();
+
+    FMAPR.specificationElements = [];
+    FMAPR.insertionElements = [];
+    FMAPR.markAsBuildInProgress();
 
     FMAPR.requestService(
         {

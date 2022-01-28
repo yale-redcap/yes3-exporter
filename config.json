@@ -28,12 +28,12 @@
 
     "links": {
     "project": [
-        {
-        "name": "YES3 Export Specs",
-        "icon": "fab fa-connectdevelop",
-        "url":  "plugins/yes3_fieldmapper.php"
-        }
-    ]
+            {
+                "name": "YES3 Export Specs",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_fieldmapper.php"
+            }
+        ]
     },
 
     "system-settings": [

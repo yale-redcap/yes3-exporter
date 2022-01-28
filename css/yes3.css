@@ -505,14 +505,15 @@ div#yes3-red-pointer {
     padding-bottom: calc( 2 * var(--yes3-padding) );
     padding-left: calc( 4 * var(--yes3-padding) );
     padding-right: calc( 4 * var(--yes3-padding) );
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     min-height: 100px;
     min-width: 360px;
     max-width: 1600px;
     position: relative;
     border-radius: 0;
-    -webkit-box-shadow: 0 0 16px 1px rgba(100, 100, 100, 1.0);
-    -moz-box-shadow: 0 0 16px 1px rgba(100, 100, 100, 1.0);
+    box-shadow: 0 0 6px 1px rgba(100, 100, 100, 1.0);
+    -webkit-box-shadow: 0 0 6px 1px rgba(100, 100, 100, 1.0);
+    -moz-box-shadow: 0 0 6px 1px rgba(100, 100, 100, 1.0);
  }
 
  #yes3-hello-panel, #yes3-yesno-panel {

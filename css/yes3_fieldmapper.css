@@ -88,6 +88,15 @@ td.yes3-fmapr-fieldinsertion-td-right {
 
 /* === MAPPER === */
 
+div#yes3-fmapr-help-panel {
+    max-width: 500px !important;
+    background-color: ghostwhite;
+}
+
+div#yes3-fmapr-help-panel td {
+    border: 1px solid transparent;
+}
+
 .yes3-fmapr-msgclass-normal {
     color: var(--yes3-fmapr-message-color-normal) !important;
     font-weight: normal !important;
