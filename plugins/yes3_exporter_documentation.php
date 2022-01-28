@@ -58,19 +58,90 @@ $html = $md->text( $markdown );
                 padding: 15px;
             }
         }
+
+        /*Simple css to style toggle switch*/
+        .theme-switch-wrapper {
+
+            display: flex;
+            align-items: center;
+
+        }
+
+        .theme-switch-wrapper em {
+            font-size: 1rem;
+            margin-left: 15px
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display:none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+        }
+
+        input:checked + .slider {
+            background-color: #66bb6a;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
     </style>
 
     <article class="markdown-body">
+
+        <div class="theme-switch-wrapper">
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider round"></div>
+            </label>
+            <em></em>
+        </div>
         
         <?= $html ?>
-
-        <label id="theme-switch" class="theme-switch" for="checkbox_theme">
-            <input type="checkbox" id="checkbox_theme">&nbsp;toggle theme
-        </label>
 
     </article>
 
     <script>
+
+        /*
+         * https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
+         */
 
         //determines if the user has a set theme
         function detectColorScheme(){
@@ -99,28 +170,38 @@ $html = $md->text( $markdown );
 
         detectColorScheme();
 
-        //identify the toggle switch HTML element
-        const toggleSwitch = document.querySelector('#theme-switch input[type="checkbox"]');
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 
-        //function that changes the theme, and sets a localStorage variable to track the theme between page loads
         function switchTheme(e) {
             if (e.target.checked) {
-                localStorage.setItem('theme', 'dark');
                 document.documentElement.setAttribute('data-theme', 'dark');
-                toggleSwitch.checked = true;
-            } else {
-                localStorage.setItem('theme', 'light');
+            }
+            else {
                 document.documentElement.setAttribute('data-theme', 'light');
-                toggleSwitch.checked = false;
             }    
         }
 
-        //listener for changing themes
         toggleSwitch.addEventListener('change', switchTheme, false);
 
-        //pre-check the dark-theme checkbox if dark-theme is set
-        if (document.documentElement.getAttribute("data-theme") == "dark"){
-            toggleSwitch.checked = true;
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark'); //add this
+            }
+            else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light'); //add this
+            }    
+        }
+
+        const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+
+            if (currentTheme === 'dark') {
+                toggleSwitch.checked = true;
+            }
         }
 
     </script>
