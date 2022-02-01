@@ -134,8 +134,8 @@ foreach( $module->specifications as $specification ){
       </div>
    </div>
 
-   <div class="yes3-panel-row yes3-block" style="margin-top: 20px !important">
-        <select id="yes3-fmapr-wayback-select"></select>
+   <div class="yes3-panel-row" style="margin-top: 20px !important">
+        <select id="yes3-fmapr-wayback-select" class="yes3-select"></select>
    </div>
 
    <div class="yes3-panel-row">
@@ -194,7 +194,7 @@ foreach( $module->specifications as $specification ){
                     Form(s):
                 </td>
                 <td>
-                    <select id="yes3-fmapr-fieldinsertion-form">
+                    <select id="yes3-fmapr-fieldinsertion-form" class="yes3-select">
                         <option value="">&nbsp;</option>
                     </select>
                 </td>
@@ -205,7 +205,7 @@ foreach( $module->specifications as $specification ){
                     Event(s):
                 </td>
                 <td>
-                    <select id="yes3-fmapr-fieldinsertion-event">
+                    <select id="yes3-fmapr-fieldinsertion-event" class="yes3-select">
                         <option value="">&nbsp;</option>
                     </select>
                 </td>
@@ -237,9 +237,9 @@ foreach( $module->specifications as $specification ){
 
 <div class="container" id="yes3-fmapr-container">
 
-    <div class="row">
+    <div class="row yes3-fmapr-controls">
 
-        <div class="col-md-4 yes3-block">
+        <div class="col-md-4 yes3-flex-vcenter-hleft">
 
             <div>
                 <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Exporter</span>
@@ -247,7 +247,7 @@ foreach( $module->specifications as $specification ){
 
         </div>
 
-        <div class="col-md-4 yes3-block">
+        <div class="col-md-4  yes3-flex-vcenter-hcenter">
 
             <select id="yes3-fmapr-specification" onchange="FMAPR.specificationSelect()">
                 
@@ -258,9 +258,7 @@ foreach( $module->specifications as $specification ){
 
         </div>
 
-        <div class="col-md-4 yes3-block">
-
-            <!--input type="button" class="yes3-when-loaded" value="SAVE MAPPINGS" id="yes3-fmapr-save-specification" onclick="FMAPR.saveFieldMappings()"-->
+        <div class="col-md-4  yes3-flex-vcenter-hright">
 
             <i class="fas fa-plus yes3-fmapr-action-icon yes3-fmapr-loaded" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
             <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
@@ -269,7 +267,12 @@ foreach( $module->specifications as $specification ){
             <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="printSpecification" title="Print the specification."></i>
             <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="exportData" title="Export a csv file based on this specification."></i>
             <i class="fas fa-question yes3-fmapr-action-icon" action="Help_openPanel" title="get some help"></i>
-    
+
+            <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
+                <input type="checkbox" id="yes3-theme-checkbox" />
+                <div class="yes3-theme-slider round yes3-override"></div>
+            </label>
+
         </div>
 
     </div>

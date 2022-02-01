@@ -1,72 +1,221 @@
 
 html {
+    --yes3-font-size: 14px;
+    --yes3-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+    --yes3-font-weight: 400;
 
     --yes3-padding: 5px;
     --yes3-margin: 5px;
-    --yes3-border-color: gray;
-    --yes3-border: 2px solid gray;
- 
+
+    --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-button-font-weight: 600;
+
+    --yes3-input-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+    --yes3-input-font-size: 1rem;
+    --yes3-input-font-weight: 400;
+
+    --yes3-alert-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+
+    --yes3-td-font-weight: 400;
+     
+    --yes3-block-height: 50px;
+
+    --yes3-item-description-width: 175px;
+    --yes3-item-gutter-width: 30px;
+
+    --yes3-contextmenu-font-size: 14px;
+}
+
+[data-theme="light"] {
+    color-scheme: light;
+
+    --yes3-font-color: darkslategray;
+    --yes3-border-color: #000000;
+    --yes3-background-color: white;
+    --yes3-divider-color: cadetblue;
+
+    --yes3-input-color: black;
+    --yes3-input-background-color: transparent;
+    --yes3-input-border-color: grey;
+
     --yes3-button-color: darkslategray;
     --yes3-button-background-color: transparent;
     --yes3-button-border-color: darkslategray;
-    --yes3-button-hover-color: white;
+    --yes3-button-hover-color: black;
     --yes3-button-hover-background-color: indianred;
-    --yes3-button-font-weight: 600;
-    --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+
+    --yes3-color-balloon-input: silver;
+    --yes3-project-title-color: black;
  
-    --yes3-description-color: cadetblue;
+    --yes3-dashboard-header-color: black;
+    --yes3-dashboard-header-background-color: ghostwhite;
+    --yes3-dashboard-row-selected-background-color: lightgrey;
  
-    --yes3-input-border-color: lightgrey;
-    --yes3-input-font-weight: 600;
-    --yes3-input-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-input-font-size: 13px;
-    --yes3-input-color: darkred;
-    --yes3-input-background-color: white;
-    --yes3-select-color: steelblue;
- 
-    --yes3-alert-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-alert-color: darkred;
- 
-    --yes3-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-message-color: indianred;
-    --yes3-message-link-color: darkslategray;
- 
-    --yes3-block-height: 50px;
-    --yes3-item-description-width: 175px;
-    --yes3-item-gutter-width: 30px;
- 
-    --yes3-color-balloon-input: darkslategrey;
- 
-    --yes3-panel-color: darkslategrey;
+    --yes3-panel-color: slategrey;
     --yes3-panel-hover-color: black;
     --yes3-panel-subtitle-color: darkcyan;
- 
     --yes3-panel-message-color: darkslategray;
-    --yes3-panel-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
- 
     --yes3-panel-background-color: white;
+ 
+    --yes3-link-color-alert: indianred;
+    --yes3-link-color-warning: darkorange;
+    --yes3-link-color-passive: gray;
+    --yes3-link-color-clickme: seagreen;
+    --yes3-link-color-normal: darkslategray;
+    --yes3-link-color-nominal: mediumseagreen;
+    --yes3-dag-color: cadetblue;
+ 
+    --yes3-inspector-event-color: darkslategray;
+    --yes3-inspector-form-color: darkcyan;
+ 
+    --yes3-message-dcc-color: dodgerblue;
+    --yes3-message-staff-color: cadetblue;
+    --yes3-message-log-color: slategray;
+
+    /* -------------------------------------------------------*/
+
+    --yes3-message-color: indianred;
+    --yes3-message-link-color: darkslategray;
+
+    --yes3-border: 2px solid gray;
+
+    --yes3-description-color: cadetblue;
+ 
+    --yes3-select-color: steelblue;
+ 
+    --yes3-alert-color: darkred;
+
     --yes3-panel-header-highlight-color: white;
     --yes3-panel-form-button-color: darkslategray;
     --yes3-panel-form-button-background-color: white;
+    --yes3-panel-form-button-border-color: darkslategrey;
     --yes3-panel-border-color: gray;
+ 
+    --yes3-table-border-color: rgb(7, 55, 65);
+    --yes3-table-background-color: transparent;
  
     --yes3-table-label-color: slategray;
     --yes3-table-value-color: darkgreen;
- 
+    --yes3-td-color: darkslategrey;
+    --yes3-th-color: white;
+    --yes3-th-background-color: rgb(7, 55, 65);
+    --yes3-th-border-color: rgb(7, 55, 65);
+
     --yes3-highlight-color: darkslategray;
  
     --yes3-title-color: rgb(64, 64, 64);
     --yes3-subtitle-color: darkcyan;
  
-    --yes3-td-color: darkslategrey;
-    --yes3-th-color: black;
-    --yes3-td-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-
-    --yes3-contextmenu-font-size: 14px;
-    --yes3-contextmenu-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
     --yes3-contextmenu-title-color: darkcyan;
+}
 
- }
+[data-theme="dark"] {
+    color-scheme: dark;
+
+    --yes3-font-color: powderblue;
+    --yes3-border-color: silver;
+    --yes3-background-color: rgb(24, 24, 24);
+    --yes3-divider-color: silver;
+
+    --yes3-input-color: powderblue;
+    --yes3-input-background-color: rgb(24, 24, 24);;
+    --yes3-input-border-color: rgb(64, 64, 64);
+
+    --yes3-button-color: silver;
+    --yes3-button-background-color: transparent;
+    --yes3-button-border-color: silver;
+    --yes3-button-hover-color: white;
+    --yes3-button-hover-background-color: silver;
+    --yes3-color-balloon-input: silver;
+    --yes3-project-title-color: white;
+ 
+    --yes3-dashboard-header-color: linen;
+    --yes3-dashboard-header-background-color: black;
+    --yes3-dashboard-row-selected-background-color: #193435;
+ 
+    --yes3-panel-color: silver;
+    --yes3-panel-hover-color: white;
+    --yes3-panel-subtitle-color: cyan;
+    --yes3-panel-message-color: antiquewhite;
+    --yes3-panel-background-color: rgba(8, 8, 8, 1.00);
+ 
+    --yes3-link-color-alert: indianred;
+    --yes3-link-color-warning: darkorange;
+    --yes3-link-color-passive: gray;
+    --yes3-link-color-clickme: lightseagreen;
+    --yes3-link-color-normal: powderblue;
+    --yes3-link-color-nominal: mediumseagreen;
+
+    --yes3-dag-color: darkturquoise;
+ 
+    --yes3-inspector-event-color: salmon;
+    --yes3-inspector-form-color: darkturquoise;
+ 
+    --yes3-message-dcc-color: darkturquoise;
+    --yes3-message-staff-color: lightsalmon;
+    --yes3-message-log-color: silver;
+
+    /* -------------------------------------------------------*/
+
+    --yes3-message-color: lightsalmon;
+    --yes3-message-link-color: darkturquoise;
+
+    --yes3-border: 2px solid silver;
+
+    --yes3-description-color: silver;
+ 
+    --yes3-select-color: skyblue;
+ 
+    --yes3-alert-color: orangered;
+
+    --yes3-panel-header-highlight-color: white;
+    --yes3-panel-form-button-color: silver;
+    --yes3-panel-form-button-background-color: black;
+    --yes3-panel-form-button-border-color: rgb(64, 64, 64);
+    --yes3-panel-border-color: silver;
+ 
+    --yes3-table-border-color: rgb(64, 64, 64);
+    --yes3-table-background-color: transparent;
+
+    --yes3-table-label-color: darksalmon;
+    --yes3-table-value-color: darkturquoise;
+    --yes3-td-color: silver;
+    --yes3-th-color: linen;
+    --yes3-th-background-color: black;
+    --yes3-th-border-color: linen;
+
+    --yes3-highlight-color: darkorange;
+ 
+    --yes3-title-color: white;
+    --yes3-subtitle-color: lightgray;
+ 
+    --yes3-contextmenu-title-color: darkcyan;
+}
+
+html {
+
+    font-family: var(--yes3-font-family) !important;
+    font-size: var(--yes3-font-size) !important;
+}
+
+label:not(.yes3-override) {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+::placeholder {
+    font-size: 0.9rem;
+    opacity: 0.65;
+}
+
+.yes3-row-selected {
+    background-color:var(--yes3-fmapr-row-selected-color) !important;
+}
+
+.yes3-row-focused {
+    background-color: rgba(65, 25, 7, 0.1) !important;
+}
 
 div#yes3-red-pointer {
     position: absolute;
@@ -81,9 +230,7 @@ div#yes3-red-pointer {
     margin: 0;
 }
 
-
- 
- .vartester {
+.vartester {
     color: #483d8b;
  }
  
@@ -299,10 +446,6 @@ div#yes3-red-pointer {
     cursor: move;
  }
  
- .yes3-config-table-header td {
- 
- }
- 
  .yes3-config-table-collapse {
     float: left;
     vertical-align: top;
@@ -331,6 +474,24 @@ div#yes3-red-pointer {
  a:focus, i:focus, a:hover, i:hover {
     outline: none !important;
  }
+
+ .yes3-flex-vcenter-hleft {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.yes3-flex-vcenter-hright {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.yes3-flex-vcenter-hcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
  .yes3-block {
      height: var(--yes3-block-height);
@@ -386,7 +547,21 @@ div#yes3-red-pointer {
     border-color: var(--yes3-button-hover-background-color);
     cursor: pointer;
  }
- 
+
+ select.yes3-select {
+    font-size: 1rem;
+    color: var(--yes3-input-color);
+    background-color: var(--yes3-input-background-color);
+    border: 1px solid var(--yes3-input-border-color);
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-radius: 4px;
+    width: 100%;
+    line-height: 0 !important;
+}
+
  div.yes3-authenticated, div.yes3-not-authenticated {
     display:none;
  }
@@ -537,7 +712,7 @@ div#yes3-red-pointer {
  
  .yes3-panel-header-row {
     font-family: inherit;
-    font-size: 26px;
+    font-size: 2rem;
     color: var(--yes3-panel-color);
     font-weight: 200;
     float: left;
@@ -546,8 +721,8 @@ div#yes3-red-pointer {
     margin-top: 0;
     margin-bottom: var(--yes3-margin);
     cursor: move;
-    height: 26px;
-    line-height: 26px;
+    height: 2rem;
+    line-height: 2rem;
  }
  
  .yes3-panel-header-highlight {
@@ -557,7 +732,7 @@ div#yes3-red-pointer {
  
  .yes3-panel-subtitle {
     font-family: inherit;
-    font-size: 15px;
+    font-size: 1.2rem;
     color: var(--yes3-panel-subtitle-color);
     font-weight: 500;
     font-style: italic;
@@ -594,7 +769,7 @@ div#yes3-red-pointer {
  .yes3-panel-message {
     font-family: inherit;
     color: inherit;
-    font-size: 14px;
+    font-size: 1rem;
     font-weight: 400;
     float: left;
     clear: both;
@@ -649,6 +824,7 @@ div#yes3-red-pointer {
     font-family: inherit;
     color: inherit;
     font-size: inherit;
+    text-decoration: underline;
  }
 
  .yes3-panel-row a:hover {
@@ -688,7 +864,7 @@ div#yes3-red-pointer {
     padding-right: calc(2*var(--yes3-padding));
     color: var(--yes3-panel-form-button-color);
     background-color: var(--yes3-panel-form-button-background-color);
-    border: 1px solid var(--yes3-panel-form-button-color);
+    border: 1px solid var(--yes3-panel-form-button-border-color);
     border-radius: 4px;
     outline: none;
  }
@@ -724,10 +900,10 @@ div#yes3-red-pointer {
  .yes3-panel td, .yes3-panel th {
     vertical-align: middle;
     padding: 5px;
-    border-top: 1px solid white;
-    border-bottom: 1px solid white;
-    border-left: 1px solid white;
-    border-right: 1px solid white;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     font-family: var(--yes3-td-font-family);
  }
  
@@ -748,10 +924,6 @@ div#yes3-red-pointer {
  
  
  /* RADIO BALLOONS  */
-
- label {
-     margin: 0 !important;
- }
  
  input[type=radio].balloon, input[type=checkbox].balloon {
     /* Hide original inputs */
@@ -839,16 +1011,16 @@ div#yes3-red-pointer {
     overflow: hidden;
  }
  
- div.yes3-float-left {
+ .yes3-float-left {
     float: left !important;
     width: auto !important;
-    margin-right: calc( 2 * var(--yes3-margin) );
+    margin-right: var(--yes3-margin);
  }
 
- div.yes3-float-right {
+ .yes3-float-right {
     float: right !important;
     width: auto !important;
-    margin-left: calc( 2 * var(--yes3-margin) );
+    margin-left: var(--yes3-margin);
  }
  
  th label {
@@ -858,14 +1030,19 @@ div#yes3-red-pointer {
  /* === SCROLLABLE TABLE === */
   
  table.yes3-scrollable {
+    width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
-    border: 1px solid var(--yes3-border-color);
+    /*border: 1px solid var(--yes3-table-border-color);*/
     margin-top: var(--yes3-margin);
  }
  
  table.yes3-scrollable thead {
-    background-color: var(--yes3-panel-color);
+    background-color: var(--yes3-th-background-color);
+    border-top: 1px solid var(--yes3-th-border-color);
+    border-bottom: 1px solid var(--yes3-th-border-color);
+    border-left: 0;
+    border-right: 0;
     width: 100%;
  }
  
@@ -878,7 +1055,7 @@ div#yes3-red-pointer {
     overflow: auto;
     height: 600px;
     width: 100%;
-    background-color: var(--yes3-panel-background-color);
+    background-color: var(--yes3-table-background-color);
  }
  
  table.yes3-scrollable th, table.yes3-scrollable td {
@@ -890,14 +1067,36 @@ div#yes3-red-pointer {
  }
  
  table.yes3-scrollable th {
-    color: var(--yes3-panel-background-color);
+    color: var(--yes3-th-color);
+    font-size: 1rem;
+    font-weight: 400;
     background-color: transparent;
  }
  
  table.yes3-scrollable td {
-    color: var(--yes3-panel-color);
-    background-color: transparent;
-    border-bottom: 1px solid var(--yes3-input-border-color);
+    color: var(--yes3-td-color);
+    background-color: var(--yes3-table-background-color);
+    font-size: 1rem;
+    font-weight: 400;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--yes3-table-border-color);
+ }
+
+ table.yes3-scrollable td input[type=text], table.yes3-scrollable td select {
+    font-family: var(--yes3-input-font-family);
+    font-size: var(--yes3-input-font-size);
+    font-weight: var(--yes3-input-font-weight);
+    color: var(--yes3-input-color);
+    background-color: var(--yes3-input-background-color);
+    border: 1px solid var(--yes3-input-border-color);
+    border-radius: 4px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    width: 100%;
  }
 
  .yes3-when-loaded {

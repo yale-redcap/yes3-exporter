@@ -310,11 +310,80 @@ YES3.hideContextMenuOnClickOutside = function()
     })
 }
 
+
+/*
+    * https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
+    */
+
+//determines if the user has a set theme
+function detectColorScheme(){
+    var theme="light";    //default to light
+
+    //local storage is used to override OS theme settings
+    if(localStorage.getItem("theme")){
+        if(localStorage.getItem("theme") == "dark"){
+            var theme = "dark";
+        }
+    } else if(!window.matchMedia) {
+        //matchMedia method not supported
+        return false;
+    } else if(window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        //OS theme setting detected as dark
+        var theme = "dark";
+    }
+
+    //dark theme preferred, set document with a `data-theme` attribute
+    if (theme=="dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+        document.documentElement.setAttribute("data-theme", "light");
+    }
+}
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }    
+}
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark'); //add this
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light'); //add this
+    }
+
+    $(document).trigger("theme-switch");
+}
+
+
  /*
  * the approved alternative to $(document).ready()
  */
 $( function () {
- 
+
+    detectColorScheme();
+
+    const toggleSwitch = document.querySelector('.yes3-theme-switch input[type="checkbox"]');
+
+    toggleSwitch.addEventListener('change', switchTheme, false);
+
+    const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+
+    if (currentTheme) {
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        if (currentTheme === 'dark') {
+            toggleSwitch.checked = true;
+        }
+    }
+
     /*
     attach the csrf token to every AJAX request
     https://stackoverflow.com/questions/22063612/adding-csrftoken-to-ajax-request

@@ -348,7 +348,7 @@ FMAPR.setActionIconListeners = function()
 
     FMAPR.specificationValuesets = {};
 
-    html += `<table class='yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-scrollable' data-specification_index='${FMAPR.specification_index}' id='${tableId}'>`;
+    html += `<table class='yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-scrollable yes3-dashboard' data-specification_index='${FMAPR.specification_index}' id='${tableId}'>`;
     
     html += "<thead>";
 
@@ -2376,6 +2376,11 @@ $( function () {
 
     FMAPR.getProjectSettings();
 
+    $(document).on("theme-switch", function() {
+        $("#yes3-fmapr-container").parent().css("background-color", $("#yes3-fmapr-container").css("background-color"));
+    })
+
+    $(document).trigger("theme-switch");
 })
 
 
