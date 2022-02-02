@@ -38,6 +38,7 @@ foreach( $module->specifications as $specification ){
 
 ?>
 
+
 <div id="yes3-fmapr-help-panel" class="yes3-panel yes3-draggable" style="display:none">
 
    <div class="yes3-panel-header-row">
