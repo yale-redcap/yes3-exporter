@@ -15,12 +15,12 @@ $HtmlPage->ProjectHeader();
  *   (1) output html tags and code for js and css libraries named [param1]
  *   (2) if [param2] is true, output /html/yes3.html (yes3 dialog panels)
  *   (3) output js code to build the global yes3ModuleProperties object
- *       (all non-private properties)
- */
-$module->getCodeFor("yes3_fieldmapper", true);
-/*
+ *       
+ * $module->getCodeFor("yes3_fieldmapper", true);
+ *
  * bail if EM not set up
  */
+
 if ( !$module->specifications ){
    exit("ERROR: The specifications are missing or fargled.");
 }
