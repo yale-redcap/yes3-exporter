@@ -4,6 +4,12 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
+/**
+ * REDCap constants referenced in this file.
+ * We conditionally define them here to keep code checkers happy.
+ */
+defined('APP_PATH_WEBROOT_FULL') or define('APP_PATH_WEBROOT_FULL', '');
+
 use Yale\Yes3\Yes3;
 
 $module = new \Yale\Yes3FieldMapper\Yes3FieldMapper();

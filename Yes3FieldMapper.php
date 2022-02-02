@@ -11,12 +11,14 @@ error_reporting(E_ALL);
  */
 require "autoload.php";
 
+/**
+ * defines and enums
+ */
+require "defines/yes3_defines.php";
+
 use Exception;
 use REDCap;
 use Yale\Yes3\Yes3;
-
-define('ONE_DAY', 24*60*60);
-define('YES3_FORM_NAME', "yes3");
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
