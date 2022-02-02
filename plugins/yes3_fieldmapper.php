@@ -18,7 +18,6 @@ $HtmlPage->ProjectHeader();
  *       (all non-private properties)
  */
 $module->getCodeFor("yes3_fieldmapper", true);
-
 /*
  * bail if EM not set up
  */
