@@ -17,10 +17,6 @@
         <directory name="services" />
         <directory name="html" />
         <directory name="js" />
-        <directory name="/var/www/redcap.internal/redcap_v11.3.4/Classes" />
-        <directory name="/var/www/redcap.internal/redcap_v11.3.4/Config" />
-        <directory name="/var/www/redcap.internal/redcap_v11.3.4/Libraries" />
-        <directory name="/var/www/redcap.internal/redcap_v11.3.4/ExternalModules/classes" />
         <ignoreFiles>
             <directory name="vendor" />
         </ignoreFiles>
