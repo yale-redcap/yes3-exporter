@@ -23,7 +23,7 @@
         </UndefinedFunction>
 
         <UndefinedClass>
-            <errorLevel type="info">
+            <errorLevel type="error">
                 <referencedClass name="ExternalModules\AbstractExternalModule" />
                 <referencedClass name="ExternalModules\ExternalModules" />
                 <referencedClass name="Parsedown" />
