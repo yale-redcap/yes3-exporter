@@ -6,7 +6,21 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
->
+
+    <issueHandlers>
+
+        <MissingPropertyType errorLevel="suppress" />
+
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <referencedClass name="ExternalModules\AbstractExternalModule" />
+                <referencedClass name="Parsedown" />
+                <referencedClass name="REDCap" />
+            </errorLevel>
+        </UndefinedClass>
+
+    </issueHandlers>
+
     <projectFiles>
         <file name="autoload.php" />
         <file name="Yes3FieldMapper.php" />
