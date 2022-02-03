@@ -12,6 +12,10 @@
 
         <MissingPropertyType errorLevel="suppress" />
 
+        <MissingDependency errorLevel="info" />
+
+        <UndefinedConstant errorLevel="info" />
+
         <UndefinedFunction>
             <errorLevel type="suppress">
                 <referencedFunction name="Yale\Yes3\db_real_escape_string" />
@@ -21,7 +25,7 @@
         <UndefinedClass>
             <errorLevel type="suppress">
                 <referencedClass name="ExternalModules\AbstractExternalModule" />
-                <referencedClass name="ExternalModules\ExternalModule" />
+                <referencedClass name="ExternalModules\ExternalModules" />
                 <referencedClass name="Parsedown" />
                 <referencedClass name="REDCap" />
                 <referencedClass name="HtmlPage" />
