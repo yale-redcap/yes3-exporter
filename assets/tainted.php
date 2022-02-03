@@ -57,11 +57,6 @@ class InputFilter {
 
         return null;
     }
-
-    prodected function foo( $bar )
-    {
-        return strfatime("%F %T");
-    }
 }
 
 echo (new InputFilter("hello"))->getArg("get", "string");
