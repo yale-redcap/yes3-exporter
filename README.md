@@ -1,5 +1,7 @@
 # YES3 Exporter
 
+![GitHub Repo stars](https://img.shields.io/github/stars/yale-redcap/yes3-exporter?style=for-the-badge)
+
 Version 1.1.2   
 October 2021  
 Pete Charpentier and the REDCap@Yale team  
