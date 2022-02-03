@@ -1,4 +1,4 @@
-name: Psalm Static analysis
+name: Psalm Security Scan
 
 on: [push, pull_request]
 
