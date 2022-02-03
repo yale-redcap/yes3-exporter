@@ -1,6 +1,6 @@
 <?PHP
 
-$foo = bar();
+//$foo = bar();
 
 
 ?>
