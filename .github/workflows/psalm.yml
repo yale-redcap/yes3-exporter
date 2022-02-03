@@ -12,5 +12,3 @@ jobs:
 
       - name: Psalm
         uses: docker://vimeo/psalm-github-actions
-        with:
-          security_analysis: true
