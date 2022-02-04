@@ -1,6 +1,6 @@
 <?PHP
 
-$foo = weBad();
+//$foo = weBad();
 
 
 ?>
