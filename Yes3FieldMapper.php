@@ -29,6 +29,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $serviceUrl = "";
     public $documentationUrl = "";
     public $specifications = [];
+    public $eventPrefixes = [];
     private $token = "";
 
     public function __construct() {
@@ -49,6 +50,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->token = "this-should-be-private";
 
             $this->getSpecificationsFromSettings();
+
+            $this->setEventPrefixes();
         }
     }
 
@@ -160,7 +163,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
              * some properties can't be json-encoded...
              */
             if ( $json===false ){
-                $props[$propKey] = "json encoding failed for this property: " . json_last_error_msg();
+                $props[$propKey] = "json encoding failed for {$propKey}: " . json_last_error_msg();
             }
             else {
                 $props[$propKey] = $this->$propKey;
@@ -183,10 +186,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $css = "";
 
         $js .= file_get_contents( $this->getModulePath()."js/yes3.js" );  
+        $js .= file_get_contents( $this->getModulePath()."js/yes3_fieldmapper_common.js" );  
         $js .= file_get_contents( $this->getModulePath()."js/{$libname}.js" );
 
-        //$css .= file_get_contents( $this->getModulePath()."css/yes3_dark.css" );
         $css .= file_get_contents( $this->getModulePath()."css/yes3.css" );
+        $css .= file_get_contents( $this->getModulePath()."css/yes3_fieldmapper_common.css" );
         $css .= file_get_contents( $this->getModulePath()."css/{$libname}.css" );
 
         if ( $js ) $s .= "\n<script>{$js}</script>";
@@ -202,4 +206,111 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return $s;
     }
 
+    /* ==== HOOKS ==== */
+
+    public function redcap_module_link_check_display( $project_id, $link )
+    {
+        return $link; // noop for now
+    }
+
+    public function redcap_module_save_configuration($project_id)
+    {
+        $this->updateEventPrefixes( true );
+    }
+
+    public function updateEventPrefixes( $force=false )
+    {        
+        $events = REDCap::getEventNames(true);
+
+        $maxUniquePrefixLen = 8;
+        $uniquePrefixLen = 0;
+        $k = 1;
+        while ( $k <= $maxUniquePrefixLen && !$uniquePrefixLen ){
+            $prefixes = [];
+            $uniquePrefixLen = $k;
+            foreach ( $events as $event_id=>$event_name ){
+                $event_name = str_replace("_", "", $event_name);
+                if ( !ctype_lower($event_name[0]) ){
+                    $event_name = "e" . $event_name;
+                }
+                $prefix = substr($event_name, 0, $uniquePrefixLen);
+                if ( in_array($prefix, $prefixes, true) ){
+                    $uniquePrefixLen = 0;
+                    break;
+                }
+                $prefixes[$event_id] = $prefix;
+            }
+            $k++;
+        }
+
+        $event_prefixes = [];
+
+        foreach( $events as $event_id => $event_name ){
+
+            $strEventId = (string) $event_id;
+
+            if ( isset($this->eventPrefixes[$strEventId]['event_prefix']) && !$force ){
+
+                $prefix = $this->eventPrefixes[$strEventId]['event_prefix'];
+            }
+            else {
+
+                if ( $uniquePrefixLen ){
+                    $prefix = $prefixes[$event_id];
+                }
+                else {
+                    $prefix = "e" . $strEventId;
+                }
+            }
+
+            $event_prefixes[$strEventId] = ['event_id'=>$strEventId, 'event_name'=>$event_name, 'event_prefix'=>$prefix];        
+        }
+
+        return $this->saveEventPrefixes( $event_prefixes );
+    }
+
+    public function saveEventPrefixes( $event_prefixes )
+    {
+        Yes3::logDebugMessage($this->project_id, print_r($event_prefixes, true), "saveEventPrefixes");
+
+        $logId = $this->log(
+            "Event prefixes saved",
+            [
+                "setting" => "event-prefixes",
+                "user" => $this->username,
+                "event_prefixes" => json_encode( $event_prefixes )
+            ]
+        );
+
+        if ( $logId ){
+            $this->setEventPrefixes();
+        }
+    }
+
+    public function getEventPrefixesRecord()
+    {    
+        $fields = "log_id, message, user, timestamp, event_prefixes";
+
+        $pSql = "
+            SELECT {$fields}
+            WHERE project_id=? AND setting='event-prefixes'
+            ORDER BY timestamp DESC
+        ";
+
+        $params = [$this->project_id];
+
+        return $this->queryLogs($pSql, $params)->fetch_assoc();
+    }
+
+    private function setEventPrefixes()
+    {
+        if ( $eventPrefixesRecord = $this->getEventPrefixesRecord() ){
+
+            $this->eventPrefixes = json_decode( $eventPrefixesRecord['event_prefixes'], true);
+        }
+        else {
+
+            $this->eventPrefixes = [];
+        }
+    }
 }

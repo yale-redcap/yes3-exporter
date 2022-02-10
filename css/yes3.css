@@ -52,7 +52,7 @@ html {
     --yes3-dashboard-header-background-color: ghostwhite;
     --yes3-dashboard-row-selected-background-color: lightgrey;
  
-    --yes3-panel-color: slategrey;
+    --yes3-panel-color: darkslategrey;
     --yes3-panel-hover-color: black;
     --yes3-panel-subtitle-color: darkcyan;
     --yes3-panel-message-color: darkslategray;
@@ -80,7 +80,11 @@ html {
 
     --yes3-border: 2px solid gray;
 
-    --yes3-description-color: cadetblue;
+    --yes3-description-color: darkslategray;
+    
+    --yes3-information-color: darkslategray;
+    
+    --yes3-information-em-color: black;
  
     --yes3-select-color: steelblue;
  
@@ -164,7 +168,11 @@ html {
     --yes3-border: 2px solid silver;
 
     --yes3-description-color: silver;
- 
+
+    --yes3-information-color: silver;
+    
+    --yes3-information-em-color: linen;
+  
     --yes3-select-color: skyblue;
  
     --yes3-alert-color: orangered;
@@ -202,6 +210,10 @@ html {
 label:not(.yes3-override) {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+}
+
+p {
+    font-size: 1rem;
 }
 
 ::placeholder {
@@ -595,11 +607,54 @@ div#yes3-red-pointer {
  div#yes3-config-save-message {
  }
  
+div.yes3-information {
+    width: 100%;
+    color: var(--yes3-information-color);
+    font-family: var(--yes3-font-family);
+    font-size: var(--yes3-font-size);
+    font-weight: var(--yes3-font-weight);
+    margin-top: calc( 2*var(--yes3-margin));
+}
+
+div.yes3-information h1 {
+    color: var(--yes3-information-color);
+    font-family: var(--yes3-font-family);
+    font-weight: 600;
+    font-size: var(--yes3-font-size);
+}
+
+div.yes3-information p {
+    color: var(--yes3-information-color);
+    font-family: var(--yes3-font-family);
+    font-weight: 400;
+    font-size: var(--yes3-font-size);
+}
+
+.yes3-information-em {
+    color: var(--yes3-information-em-color);
+    font-family: var(--yes3-message-font-family) !important;
+}
+
+.yes3-information a {
+    color: var(--yes3-information-em-color);
+    font-family: var(--yes3-font-family);
+    font-style: italic;
+    text-decoration: none;
+}
+
+.yes3-information a:hover {
+    color: var(--yes3-alert-color);
+    font-family: var(--yes3-font-family);
+    font-style: italic;
+    text-decoration: underline;
+}
+
  div#yes3-message {
     display: none;
     color: var(--yes3-message-color);
     font-family: var(--yes3-message-font-family);
-    font-weight: 800;
+    font-size: 1rem;
+    width: 100%;
  }
  
  div#yes3-message a {
@@ -1027,17 +1082,20 @@ div#yes3-red-pointer {
     opacity: 0.75 !important;
  }
 
- /* === SCROLLABLE TABLE === */
+ /* === DASHBOARD TABLE === */
   
- table.yes3-scrollable {
+ table.yes3-dashboard {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
-    /*border: 1px solid var(--yes3-table-border-color);*/
     margin-top: var(--yes3-margin);
  }
+  
+ table.yes3-scrollable {
+    table-layout: fixed;
+ }
  
- table.yes3-scrollable thead {
+ table.yes3-dashboard thead {
     background-color: var(--yes3-th-background-color);
     border-top: 1px solid var(--yes3-th-border-color);
     border-bottom: 1px solid var(--yes3-th-border-color);
@@ -1050,15 +1108,18 @@ div#yes3-red-pointer {
     display: block;
  }
  
+ table.yes3-dashboard tbody {
+    width: 100%;
+    background-color: var(--yes3-table-background-color);
+ }
+
  table.yes3-scrollable tbody {
     display: block;
     overflow: auto;
     height: 600px;
-    width: 100%;
-    background-color: var(--yes3-table-background-color);
  }
  
- table.yes3-scrollable th, table.yes3-scrollable td {
+ table.yes3-dashboard th, table.yes3-dashboard td {
     padding: var(--yes3-padding);
     white-space: nowrap;
     -ms-text-overflow: ellipsis;
@@ -1066,14 +1127,14 @@ div#yes3-red-pointer {
     overflow: hidden;
  }
  
- table.yes3-scrollable th {
+ table.yes3-dashboard th {
     color: var(--yes3-th-color);
     font-size: 1rem;
     font-weight: 400;
     background-color: transparent;
  }
  
- table.yes3-scrollable td {
+ table.yes3-dashboard td {
     color: var(--yes3-td-color);
     background-color: var(--yes3-table-background-color);
     font-size: 1rem;
@@ -1084,7 +1145,7 @@ div#yes3-red-pointer {
     border-bottom: 1px solid var(--yes3-table-border-color);
  }
 
- table.yes3-scrollable td input[type=text], table.yes3-scrollable td select {
+ table.yes3-dashboard td input[type=text], table.yes3-dashboard td select {
     font-family: var(--yes3-input-font-family);
     font-size: var(--yes3-input-font-size);
     font-weight: var(--yes3-input-font-weight);

@@ -1,0 +1,49 @@
+
+.yes3-fmapr-setup-settings {
+    min-width: 400px;
+}
+
+/* this hides the action icon for the last item, so it can't be executed */
+i.yes3-fmapr-spec-lastrow-item {
+    visibility: hidden;
+}
+
+.yes3-fmapr-hidden {
+    display: none;
+    
+}
+
+table.yes3-fmapr-export-specification {
+    width: 100%;
+    float: left;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    margin-top: 1rem;
+    border-collapse: collapse;
+}
+
+td.yes3-fmapr-export-specification {
+    border: 0 !important;
+    /*
+    color: antiquewhite !important;
+    font-style: normal !important;
+    */
+}
+
+.yes3-fmapr-gutter-icon {
+    font-size: 1.25rem;
+    color: var(--yes3-fmapr-color);
+    margin: 0;
+}
+
+div#yes3-fmapr-settings-templates {
+    width: 100%;
+    float: left;
+    display: none;
+}
+
+.yes3-fmapr-export-uuid {
+    font-weight: 400 !important;
+    opacity: 0.3 !important;
+}

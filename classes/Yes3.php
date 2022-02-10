@@ -218,11 +218,14 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
     */
    public static function getREDCapDataForRecord(string $REDCapRecordId, array $fields, int $event_id=0, string $return_format='array'): array
    {
+
       $params = [
+
          'project_id'=>self::getREDCapProjectId(),
          'records'=>$REDCapRecordId,
          'return_format'=>$return_format,
          'fields'=>$fields
+
       ];
 
       if ( $event_id ){
@@ -244,18 +247,17 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
       if ( !$event_id && \REDCap::isLongitudinal() ){
          $event_id = self::getFirstREDCapEventId();
       }
-
-      $data = [
-         $REDCapRecordId=>[
-            $event_id => $x
-         ]
-      ];
       
-      $params = [
+       $params = [
+
          'project_id'=>self::getREDCapProjectId(),
          'records'=>$REDCapRecordId,
          'dataFormat'=>'array',
-         'data'=>$data,
+         'data'=>[
+            $REDCapRecordId=>[
+                $event_id => $x
+            ]    
+         ],
          'overwritebehavior'=>'overwrite',
          'dataLogging'=>TRUE,
          'commitData'=>TRUE
@@ -287,10 +289,14 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
     * 
     * @param string $s
     * 
-    * @return void
+    * @return string
     */
     public static function normalized_string( string $s )
     {
+
+       /**
+        * @psalm-suppress InvalidReturnStatement
+        */
        return preg_replace("/[^a-z0-9_]+/", "", strtolower(str_replace(' ', '_', $s)));
     }
 

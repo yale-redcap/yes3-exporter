@@ -12,9 +12,15 @@
 
         <MissingPropertyType errorLevel="suppress" />
 
+        <MissingReturnType errorLevel="suppress" />
+
+        <MissingParamType errorLevel="suppress" />
+
         <MissingDependency errorLevel="info" />
 
         <UndefinedConstant errorLevel="info" />
+
+        <UnusedVariable errorLevel="info" />
 
         <UndefinedFunction>
             <errorLevel type="suppress">
@@ -23,7 +29,7 @@
         </UndefinedFunction>
 
         <UndefinedClass>
-            <errorLevel type="info">
+            <errorLevel type="suppress">
                 <referencedClass name="ExternalModules\AbstractExternalModule" />
                 <referencedClass name="ExternalModules\ExternalModules" />
                 <referencedClass name="Parsedown" />

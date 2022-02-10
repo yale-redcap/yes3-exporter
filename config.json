@@ -23,11 +23,17 @@
     ],
 
     "permissions": [
-        "redcap_module_link_check_display"
+        "redcap_module_link_check_display",
+        "redcap_module_save_configuration"
     ],
 
     "links": {
-    "project": [
+        "project": [
+            {
+                "name": "YES3 Export Settings",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_fieldmapper_setup.php"
+            },
             {
                 "name": "YES3 Export Specs",
                 "icon": "fab fa-connectdevelop",
@@ -43,7 +49,7 @@
         {
             "key": "header-specifications-section",
             "type": "descriptive",
-            "name": "<div style='color: white; background-color: steelblue; font-weight: 800;  width:100%; padding: 10px;'>SPECIFICATIONS</div>"
+            "name": "SPECIFICATIONS"
         },
         {
             "key": "specification",
@@ -88,12 +94,6 @@
                     "name": "Predefined data elements (optional; JSON string)",
                     "type": "textarea",
                     "required": false
-                },
-                {
-                    "key": "specification-field-mappings",
-                    "name": "Field mappings (READ ONLY)",
-                    "type": "textarea",
-                    "required": false
                 }
 
             ]
@@ -101,7 +101,7 @@
         {
             "key": "header-events-section",
             "type": "descriptive",
-            "name": "<div style='color: white; background-color: steelblue; font-weight: 800; width:100%; padding: 10px;'>EVENT ABBREVIATIONS</div>"
+            "name": "EVENT ABBREVIATIONS"
         },
         {
             "key": "event-abbreviations",
@@ -121,12 +121,6 @@
                     "name": "Abbreviation (suggest 4 characters or less)"
                 }
             ]
-        },
-        {
-            "key":  "specifications-json",
-            "name": "Specifications JSON string",
-            "required": false,
-            "type": "textarea"
         }
     ],
 

@@ -15,9 +15,11 @@ $HtmlPage->ProjectHeader();
  *   (1) output html tags and code for js and css libraries named [param1]
  *   (2) if [param2] is true, output /html/yes3.html (yes3 dialog panels)
  *   (3) output js code to build the global yes3ModuleProperties object
- *       
- * $module->getCodeFor("yes3_fieldmapper", true);
- *
+ */
+
+ $module->getCodeFor("yes3_fieldmapper", true);
+
+ /**
  * bail if EM not set up
  */
 
@@ -263,8 +265,8 @@ foreach( $module->specifications as $specification ){
             <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
             <i class="far fa-save yes3-fmapr-action-icon yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="Save the specification."></i>
             <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
-            <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="printSpecification" title="Print the specification."></i>
-            <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-clean" action="exportData" title="Export a csv file based on this specification."></i>
+            <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i>
+            <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="exportData" title="Export a csv file based on this specification."></i>
             <i class="fas fa-question yes3-fmapr-action-icon" action="Help_openPanel" title="get some help"></i>
 
             <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
