@@ -45,6 +45,10 @@ html {
     --yes3-button-hover-color: black;
     --yes3-button-hover-background-color: indianred;
 
+    --yes3-action-icon-color: darkslategray;
+
+    --yes3-hover-color: dodgerblue;
+
     --yes3-color-balloon-input: silver;
     --yes3-project-title-color: black;
  
@@ -54,6 +58,7 @@ html {
  
     --yes3-panel-color: darkslategrey;
     --yes3-panel-hover-color: black;
+    --yes3-panel-title-color: black;
     --yes3-panel-subtitle-color: darkcyan;
     --yes3-panel-message-color: darkslategray;
     --yes3-panel-background-color: white;
@@ -86,6 +91,8 @@ html {
     
     --yes3-information-em-color: black;
  
+    --yes3-nonessential-information-color: gray;
+
     --yes3-select-color: steelblue;
  
     --yes3-alert-color: darkred;
@@ -126,6 +133,10 @@ html {
     --yes3-input-background-color: rgb(24, 24, 24);;
     --yes3-input-border-color: rgb(64, 64, 64);
 
+    --yes3-action-icon-color: rgb(49, 148, 168);
+
+    --yes3-hover-color: dodgerblue;
+
     --yes3-button-color: silver;
     --yes3-button-background-color: transparent;
     --yes3-button-border-color: silver;
@@ -140,6 +151,7 @@ html {
  
     --yes3-panel-color: silver;
     --yes3-panel-hover-color: white;
+    --yes3-panel-title-color: linen;
     --yes3-panel-subtitle-color: cyan;
     --yes3-panel-message-color: antiquewhite;
     --yes3-panel-background-color: rgba(8, 8, 8, 1.00);
@@ -172,7 +184,9 @@ html {
     --yes3-information-color: silver;
     
     --yes3-information-em-color: linen;
-  
+ 
+    --yes3-nonessential-information-color: gray;
+ 
     --yes3-select-color: skyblue;
  
     --yes3-alert-color: orangered;
@@ -221,8 +235,108 @@ p {
     opacity: 0.65;
 }
 
+/* === THEME === */
+
+/* Eyeball toggle */
+
+.yes3-theme-switch {
+    display: inline-block;
+    height: 1.5rem;
+    position: relative;
+    width: 1.5rem;
+    margin-left: 0.5rem;
+    margin-bottom: 0 !important;
+}
+
+.yes3-theme-switch input {
+    display:none;
+}
+
+.yes3-theme-slider {
+    background-color: var(--yes3-fmapr-color);
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    height: 1.5rem;
+}
+
+.yes3-theme-slider:before {
+    background-color: #fff;
+    bottom: 0.375rem;
+    content: "";
+    height: 0.75rem;
+    width: 0.75rem;
+    left: 1px;
+    position: absolute;
+    transition: .4s;
+}
+
+input:checked + .yes3-theme-slider {
+    background-color: var(--yes3-fmapr-color);
+}
+
+input:checked + .yes3-theme-slider:before {
+    transform: translateX( calc( 0.75rem - 2px ) );
+}
+
+.yes3-theme-slider.round {
+    border-radius: .75rem;
+}
+
+.yes3-theme-slider.round:before {
+    border-radius: .375rem;
+}
+
+/* === ACTION ICON SUPPORT === */
+
+i.yes3-action-icon {
+    color: var(--yes3-action-icon-color);
+}
+
+i.yes3-action-icon:hover {
+    cursor: pointer;
+    color: var(--yes3-hover-color);
+}
+
+i.yes3-action-icon-controlpanel {
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    margin-top:0;
+    margin-bottom: 0;
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+i.yes3-action-icon-inline {
+    font-size: 1rem !important;
+    line-height: 1rem !important;
+    margin: 0 !important;
+}
+
+i.yes3-action-icon-gutter {
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    margin: 0 !important;
+}
+
+i.yes3-action-disabled {
+    opacity: 0.3 !important;
+}
+
+/* === CONTAINER === */
+
+div#yes3-container {
+    min-width: 400px;
+    color: var(--yes3-font-color);
+    background-color: var(--yes3-background-color);
+}
+
 .yes3-row-selected {
-    background-color:var(--yes3-fmapr-row-selected-color) !important;
+    background-color:var(--yes3-row-selected-color) !important;
 }
 
 .yes3-row-focused {
@@ -632,7 +746,8 @@ div.yes3-information p {
 
 .yes3-information-em {
     color: var(--yes3-information-em-color);
-    font-family: var(--yes3-message-font-family) !important;
+    font-family: var(--yes3-font-family);
+    font-weight: 800;
 }
 
 .yes3-information a {
@@ -649,7 +764,7 @@ div.yes3-information p {
     text-decoration: underline;
 }
 
- div#yes3-message {
+div#yes3-message {
     display: none;
     color: var(--yes3-message-color);
     font-family: var(--yes3-message-font-family);
@@ -669,9 +784,19 @@ div.yes3-information p {
  }
  
  .yes3-alert {
-     color: var(--yes3-alert-color);
- }
+    color: var(--yes3-alert-color) !important;
+}
  
+.yes3-error {
+    color: indianred !important;
+    background-color: transparent !important;
+    font-weight: 800 !important;
+}
+
+input.yes3-error, select.yes3-error {
+    border-color: indianred !important;
+}
+
  .yes3-config-italicized-subdued {
     font-style: italic;
     opacity: 0.75;
@@ -785,12 +910,20 @@ div.yes3-information p {
     font-weight: 200;
  }
  
+ .yes3-panel-title {
+    font-family: inherit;
+    font-size: 2rem;
+    color: var(--yes3-panel-title-color);
+    font-weight: 200;
+    font-style: normal;
+ }
+ 
  .yes3-panel-subtitle {
     font-family: inherit;
     font-size: 1.2rem;
     color: var(--yes3-panel-subtitle-color);
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
  }
  
  .yes3-panel-footer {

@@ -81,6 +81,74 @@ function requestIsValid( $request ):bool
     return function_exists( __NAMESPACE__."\\".$request );
 }
 
+function saveExportSettings(): string
+{
+    global $module;
+    
+    $logId = $module->log(
+        "export_settings",
+        [
+            "user" => $module->username,
+            "setting" => "export-settings",
+            "export_settings_json" => json_encode($_POST['export_settings'])
+        ]
+    );
+
+    if ( $logId ){
+
+        return "settings saved";
+    }
+
+    return "Fiddlesticks: Settings NOT saved due to some unknowable error.";
+}
+
+function getExportSettings()
+{
+    global $module;
+    
+    $log_id = (int) $_POST['log_id'];
+
+    $fields = "log_id, message, setting, user, timestamp, export_settings_json";
+
+    if ( $log_id ){
+
+        $pSql = "SELECT {$fields} WHERE log_id=?";
+        $params = [$log_id];
+    }
+    else {
+
+        $pSql = "
+            SELECT {$fields}
+            WHERE project_id=? AND setting='export-settings' AND export_settings_json IS NOT NULL
+            ORDER BY timestamp DESC LIMIT 1
+        ";
+        $params = [$module->project_id];
+    }
+
+    if ( $x = $module->queryLogs($pSql, $params)->fetch_assoc() ){
+
+        $output = [
+            "result" => "success",
+            "log_id" => (int)$x['log_id'],
+            "timestamp" => $x['timestamp'],
+            "user" => $x['user'],
+            "export_settings" => json_decode( $x['export_settings_json'], true )
+        ];
+    }
+    else {
+
+        $output = [
+            "result" => "fail",
+            "log_id" => 0,
+            "timestamp" => 0,
+            "user" => "",
+            "export_settings" => []
+        ];        
+    }
+
+    return json_encode( $output );
+}
+
 /**
  * Demonstration function, returns the provided message.
  * 

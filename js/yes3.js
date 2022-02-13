@@ -1,5 +1,6 @@
 let YES3 = {
-    maxZ: 1000
+    maxZ: 1000,
+    Functions: {}
 };
  
 String.prototype.truncateAt = function( n ){
@@ -211,7 +212,7 @@ YES3.contextMenuClose = function( Fn )
 
 YES3.showRedPointer = function( theRow )
 {
-     //let theContainer = $("div#yes3-fmapr-container").parent();
+     //let theContainer = $("div#yes3-YES3-container").parent();
  
      let thePointer = $('div#yes3-red-pointer');
  
@@ -310,13 +311,44 @@ YES3.hideContextMenuOnClickOutside = function()
     })
 }
 
+/* === CONTAINER ELEMENT === */
+
+YES3.container = function()
+{
+    return $('div#yes3-container');
+}
+
+/* === ACTION ICON SUPPORT === */
+
+YES3.setActionIconListeners = function(parentElement)
+{
+    actionIcons = parentElement.find("i.yes3-action-icon");
+
+    $("i.yes3-action-icon").off();
+
+    $("i.yes3-action-icon:not(.yes3-action-disabled)").on("click", function(){
+
+        let action = $(this).attr("action");
+
+        if ( typeof YES3.Functions[action] === "function" ) {
+            YES3.Functions[action].call(this);
+        }
+        else {
+            YES3.hello(`No can do: the feature '${action}' has not been implemented yet.`);
+        }    
+    })
+}
+
+
 
 /*
-    * https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
-    */
+    === THEME ===
+
+    https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
+*/
 
 //determines if the user has a set theme
-function detectColorScheme(){
+YES3.detectColorScheme = function(){
     var theme="light";    //default to light
 
     //local storage is used to override OS theme settings
@@ -338,18 +370,11 @@ function detectColorScheme(){
     } else {
         document.documentElement.setAttribute("data-theme", "light");
     }
+
+    YES3.applyThemeBackgroundToParent();
 }
 
-function switchTheme(e) {
-    if (e.target.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
-    else {
-        document.documentElement.setAttribute('data-theme', 'light');
-    }    
-}
-
-function switchTheme(e) {
+YES3.switchTheme = function(e) {
     if (e.target.checked) {
         document.documentElement.setAttribute('data-theme', 'dark');
         localStorage.setItem('theme', 'dark'); //add this
@@ -359,7 +384,11 @@ function switchTheme(e) {
         localStorage.setItem('theme', 'light'); //add this
     }
 
-    $(document).trigger("theme-switch");
+    YES3.applyThemeBackgroundToParent();
+}
+
+YES3.applyThemeBackgroundToParent = function(){
+    $("#yes3-container").parent().css("background-color", $("#yes3-container").css("background-color"));
 }
 
 /* === UUID GENERATOR === */
@@ -376,11 +405,11 @@ YES3.uuidv4 = function() {
  */
 $( function () {
 
-    detectColorScheme();
+    YES3.detectColorScheme();
 
     const toggleSwitch = document.querySelector('.yes3-theme-switch input[type="checkbox"]');
 
-    toggleSwitch.addEventListener('change', switchTheme, false);
+    toggleSwitch.addEventListener('change', YES3.switchTheme, false);
 
     const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
 
@@ -433,4 +462,47 @@ function listAllEventListeners() {
       return a.type.localeCompare(b.type);
     });
   }
+
+/* === AJAX === */
+
+YES3.noop = function(){}
+ 
+YES3.requestService = function( params, doneFn, json ) 
+{
+   json = json || false;
+   doneFn = doneFn || YES3.noop;
+
+   //console.log('requestService', params);
+
+   $.ajax(
+    {
+      url: yes3ModuleProperties.serviceUrl,
+      type: "POST",
+      dataType: ( json ) ? "json":"html",
+      data: params
+   })
+   .done(
+      doneFn
+   )
+   .fail(function(jqXHR, textStatus, errorThrown) 
+   {
+      console.log(jqXHR);
+      alert('AJAX error: ' + jqXHR.responseText);
+   });
+}
+
+YES3.isEmptyArray = function( x )
+{
+   //console.log('isEmptyArray', typeof x, x);
+   if ( typeof x === "undefined" ) return true;
+   return !x.length;
+}
+
+YES3.isTruthy = function( x )
+{
+   //console.log('isEmptyArray', typeof x, x);
+   if ( typeof x === "undefined" ) return false;
+   return x;
+}
+
 

@@ -123,74 +123,11 @@ tr.yes3-fmapr-expanded .yes3-fmapr-if-collapsed {
     display: none;
 }
 */
-/* === CONTAINER === */
-
-div#yes3-fmapr-container {
-    min-width: 400px;
-    color: var(--yes3-font-color);
-    background-color: var(--yes3-background-color);
-}
-
-/* === THEME === */
-
-/* Eyeball toggle */
-
-.yes3-theme-switch {
-    display: inline-block;
-    height: 1.5rem;
-    position: relative;
-    width: 1.5rem;
-    margin-left: 0.5rem;
-    margin-bottom: 0 !important;
-}
-
-.yes3-theme-switch input {
-    display:none;
-}
-
-.yes3-theme-slider {
-    background-color: var(--yes3-fmapr-color);
-    bottom: 0;
-    cursor: pointer;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    transition: .4s;
-    height: 1.5rem;
-}
-
-.yes3-theme-slider:before {
-    background-color: #fff;
-    bottom: 0.375rem;
-    content: "";
-    height: 0.75rem;
-    width: 0.75rem;
-    left: 1px;
-    position: absolute;
-    transition: .4s;
-}
-
-input:checked + .yes3-theme-slider {
-    background-color: var(--yes3-fmapr-color);
-}
-
-input:checked + .yes3-theme-slider:before {
-    transform: translateX( calc( 0.75rem - 2px ) );
-}
-
-.yes3-theme-slider.round {
-    border-radius: .75rem;
-}
-
-.yes3-theme-slider.round:before {
-    border-radius: .75rem;
-}
 
 /* === MAPPER === */
 
 div#yes3-fmapr-help-panel {
-    max-width: 50% !important;
+    max-width: 700px !important;
     background-color: var(--yes3-panel-background-color);
 }
 
@@ -238,6 +175,13 @@ div#yes3-fmapr-help-panel td {
     cursor: pointer;
     color: dodgerblue;
 }
+
+.yes3-fmapr-gutter-icon {
+    font-size: 1.25rem;
+    color: var(--yes3-fmapr-color);
+    margin: 0;
+}
+
 
 .yes3-action-disabled {
     opacity: 0.3 !important;

@@ -124,7 +124,11 @@ let FMAPR = {
 
 /*** HELP ***/
 
-FMAPR.Help_openPanel = function()
+/**
+ * This function is called via the YES3 'action icon' mechanism,
+ * so it is registered in the YES3 namespace
+ */
+YES3.Functions.Help_openPanel = function()
 {
     YES3.openPanel('yes3-fmapr-help-panel', true)
 }
@@ -163,31 +167,9 @@ FMAPR.displayActionIcons = function()
         }
     }
 
-    FMAPR.setActionIconListeners();
+    YES3.setActionIconListeners( YES3.container() );
 
     FMAPR.reportStatus();
-}
-
-FMAPR.setActionIconListeners = function()
-{
-    actionIcons = $("i.yes3-fmapr-action-icon");
-
-    $("i.yes3-fmapr-action-icon").off();
-
-    $("i.yes3-fmapr-action-icon:not(.yes3-action-disabled)").on("click", function(){
-
-        FMAPR.executeAction( $(this).attr("action") );
-    })
-}
-
-FMAPR.executeAction = function( action )
-{
-    if ( typeof FMAPR[action] === "function" ) {
-        FMAPR[action].apply();
-    }
-    else {
-        YES3.hello(`No can do: the feature '${action}' has not been implemented yet.`);
-    }
 }
 
 FMAPR.markAsClean = function()
@@ -216,7 +198,7 @@ FMAPR.markAsDirty = function()
 
 FMAPR.pointAt = function( theRow )
 {
-    let theContainer = $("div#yes3-fmapr-container").parent();
+    let theContainer = $("div#yes3-container").parent();
 
     let x = theRow.offset().left - theParent.offset().left;
     let y = theRow.offset().top - theParent.offset().top;
@@ -226,12 +208,6 @@ FMAPR.pointAt = function( theRow )
 }
 
 $( function () {
-
-    $(document).on("theme-switch", function() {
-        $("#yes3-fmapr-container").parent().css("background-color", $("#yes3-fmapr-container").css("background-color"));
-    })
-
-    $(document).trigger("theme-switch");
 })
 
 

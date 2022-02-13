@@ -35,7 +35,7 @@
                 "url":  "plugins/yes3_fieldmapper_setup.php"
             },
             {
-                "name": "YES3 Export Specs",
+                "name": "YES3 Export Specifications",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_fieldmapper.php"
             }
