@@ -1,6 +1,4 @@
 # YES3 Exporter
-![GitHub Repo stars](https://img.shields.io/github/stars/yale-redcap/yes3-exporter?style=plastic)
-![GitHub forks](https://img.shields.io/github/forks/yale-redcap/yes3-exporter?style=plastic)
 ![example workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
 ![example workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
 ![example workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
