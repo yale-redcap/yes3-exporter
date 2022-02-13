@@ -53,13 +53,12 @@ YES3.Functions.Exportspecifications_saveSettings = function()
                  FMAPR.inspectEventPrefixes();
 
     if ( errors ){
-        FMAPR.postMessage("Please correct the highlighted errors.", true);
+        FMAPR.postMessage("NOT saved: please correct the indicated errors.", true);
     }
     else {
         FMAPR.postMessage("No errors detected.", false);
+        FMAPR.saveExportSettings();
     }
-
-    FMAPR.saveExportSettings();
 }
 
 YES3.Functions.Exportspecifications_undoSettings = function()

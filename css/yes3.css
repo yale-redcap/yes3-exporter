@@ -32,11 +32,11 @@ html {
 
     --yes3-font-color: darkslategray;
     --yes3-border-color: #000000;
-    --yes3-background-color: white;
+    --yes3-background-color: linen;
     --yes3-divider-color: cadetblue;
 
     --yes3-input-color: black;
-    --yes3-input-background-color: transparent;
+    --yes3-input-background-color: floralwhite;
     --yes3-input-border-color: grey;
 
     --yes3-button-color: darkslategray;
@@ -45,11 +45,13 @@ html {
     --yes3-button-hover-color: black;
     --yes3-button-hover-background-color: indianred;
 
-    --yes3-action-icon-color: darkslategray;
+    --yes3-action-icon-color: rgb(32,32,32);
+
+    --yes3-action-icon-light-color: linen;
 
     --yes3-hover-color: dodgerblue;
 
-    --yes3-color-balloon-input: silver;
+    --yes3-color-balloon-input: rgb(32,32,32);;
     --yes3-project-title-color: black;
  
     --yes3-dashboard-header-color: black;
@@ -130,10 +132,12 @@ html {
     --yes3-divider-color: silver;
 
     --yes3-input-color: powderblue;
-    --yes3-input-background-color: rgb(24, 24, 24);;
+    --yes3-input-background-color: black;
     --yes3-input-border-color: rgb(64, 64, 64);
 
     --yes3-action-icon-color: rgb(49, 148, 168);
+
+    --yes3-action-icon-light-color: rgb(49, 148, 168);
 
     --yes3-hover-color: dodgerblue;
 
@@ -293,8 +297,12 @@ input:checked + .yes3-theme-slider:before {
 
 /* === ACTION ICON SUPPORT === */
 
-i.yes3-action-icon {
+i.yes3-action-icon:not(.yes3-action-icon-light) {
     color: var(--yes3-action-icon-color);
+}
+
+i.yes3-action-icon.yes3-action-icon-light {
+    color: var(--yes3-action-icon-light-color);
 }
 
 i.yes3-action-icon:hover {
@@ -786,11 +794,25 @@ div#yes3-message {
  .yes3-alert {
     color: var(--yes3-alert-color) !important;
 }
- 
+
+.icon::before {
+    display: inline-block;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+}
+
 .yes3-error {
     color: indianred !important;
     background-color: transparent !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
+}
+
+td:nth-child(1).yes3-error::before {
+    content: "\2639"; /* frowny face */
+    font-size: 1.5rem;
+    margin-right: 4px;
+    font-weight: 400 !important;
+    vertical-align: middle;
 }
 
 input.yes3-error, select.yes3-error {

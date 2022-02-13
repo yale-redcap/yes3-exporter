@@ -280,8 +280,8 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
                 <th colspan="2" class="yes3-fmapr-export-header">New export specification</th>
                                 
                 <th class="yes3-fmapr-export-specification yes3-gutter-right-center">
-                    <i class="fas fa-expand-alt yes3-fmapr-if-collapsed yes3-action-icon yes3-action-icon-gutter" action="ExportSpecificationEditor_expand" title="expand the form to see all fields" style="display: none;"></i>
-                    <i class="fas fa-compress-alt yes3-fmapr-if-expanded yes3-action-icon yes3-action-icon-gutter" action="ExportSpecificationEditor_collapse" title="collapse the form to one line"></i>
+                    <i class="fas fa-expand-alt yes3-fmapr-if-collapsed yes3-action-icon yes3-action-icon-light yes3-action-icon-gutter" action="ExportSpecificationEditor_expand" title="expand the form to see all fields" style="display: none;"></i>
+                    <i class="fas fa-compress-alt yes3-fmapr-if-expanded yes3-action-icon yes3-action-icon-light yes3-action-icon-gutter" action="ExportSpecificationEditor_collapse" title="collapse the form to one line"></i>
                 </th>
 
             </tr>
