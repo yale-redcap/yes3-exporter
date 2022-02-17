@@ -21,7 +21,6 @@ $HtmlPage->ProjectHeader();
 
 $module->getCodeFor("yes3_fieldmapper_setup", true);
 
-
 ?>
 
 <div id="yes3-fmapr-help-panel" class="yes3-panel yes3-draggable" style="display:none">
@@ -154,7 +153,7 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
 
     <div class="yes3-panel-row" style="margin-top: 20px !important">
 
-    <textarea id="export_mappings">foo</textarea>
+    <textarea id="mapping_specification">foo</textarea>
 
     </div>
 
@@ -220,13 +219,21 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
                 </p>
             </div>
 
-            <div class="yes3-information">
+            <div class="yes3-information yes3-flex-container-evenly-distributed">
 
-                <div class="yes3-float-left">
-                    Click <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_openPanel"></i> for some help.
+                <div class="yes3-flex-vcenter-hleft">
+                    Click&nbsp;<i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_openPanel"></i>&nbsp;for some help.
                 </div>
 
-                <div class="yes3-float-right">
+                <div class="yes3-flex-vcenter-hcenter">
+                    <label class="yes3-checkmarkContainer">
+                        <input type="checkbox" id="yes3-fmapr-show-removed" name="yes3-fmapr-show-removed" onclick="FMAPR.showRemoved()" />
+                        <span class="yes3-checkmark"></span> 
+                        show removed
+                    </label>
+                </div>
+
+                <div class="yes3-flex-vcenter-hright">
                     <a href="javascript:FMAPR.Exportspecs_collapseAll()">collapse all</a>
                     <!--i class="fas fa-compress-arrows-alt yes3-action-icon yes3-action-icon-inline" title="collapse all export specifications" action="Exportspecs_collapseAll"></i-->
                 </div>
@@ -277,7 +284,9 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
         <thead>
 
             <tr>
-                <th colspan="2" class="yes3-fmapr-export-header">New export specification</th>
+                <th class="yes3-fmapr-export-header">New export specification</th>
+
+                <th class="yes3-fmapr-export-header"><span class="yes3-if-removed">REMOVED</span></th>
                                 
                 <th class="yes3-fmapr-export-specification yes3-gutter-right-center">
                     <i class="fas fa-expand-alt yes3-fmapr-if-collapsed yes3-action-icon yes3-action-icon-light yes3-action-icon-gutter" action="ExportSpecificationEditor_expand" title="expand the form to see all fields" style="display: none;"></i>
@@ -294,10 +303,14 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
 
                 <td class="yes3-fmapr-export-specification">Export name:</td>
                 
-                <td class="yes3-fmapr-export-specification"><input type="text" data-setting="export_name" value="" class="yes3-fmapr-spec-lastrow-item" placeholder="enter an export name"></td>
+                <td class="yes3-fmapr-export-specification">
+                    <input type="text" data-setting="export_name" value="" class="yes3-fmapr-spec-lastrow-item" placeholder="enter an export name">
+                    <input type="hidden" name="export_uuid" data-setting="export_uuid" value="" />
+                    <input type="hidden" name="removed" data-setting="removed" value="0" />
+                </td>
                
                 <td class="yes3-fmapr-export-specification yes3-gutter-right-center">
-                    <i class="far fa-trash-alt yes3-action-icon yes3-action-icon-gutter yes3-fmapr-spec-lastrow-item" action="removeExportSpecification" title="remove this export specification"></i>
+                    <i class="far fa-trash-alt yes3-action-icon yes3-action-icon-gutter yes3-fmapr-spec-lastrow-item" action="removeExportSpecificationToggle" title="remove this export specification"></i>
                 </td>
             
             </tr>
@@ -378,7 +391,7 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
                 <td class="yes3-fmapr-export-specification">OPTIONAL mapping specification:</td>
                 
                 <td class="yes3-fmapr-export-specification yes3-fmapr-mappings-link">
-                    <textarea class="yes3-fmapr-hidden" data-setting="export_mappings"></textarea>
+                    <textarea class="yes3-fmapr-hidden" data-setting="mapping_specification"></textarea>
                     <i class="far fa-map yes3-action-icon yes3-action-icon-gutter" action="MappingsEditor_openForm" title="View, create or paste in the optional mappings JSON string."></i>
                     <span class="yes3-fmapr-export-mappings-length"></span>
                 </td>

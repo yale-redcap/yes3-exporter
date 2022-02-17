@@ -81,7 +81,92 @@ function requestIsValid( $request ):bool
     return function_exists( __NAMESPACE__."\\".$request );
 }
 
-function saveExportSettings(): string
+function saveExportSettings()
+{
+    global $module;
+
+    $eventSettingsSaved = saveEventSettings();
+
+    $specificationsSaved = 0;
+
+    $specifications = json_decode($_POST['specifications'], true);
+
+    if ( !is_array($specifications) ){
+
+        $specificationsSaved = 0;
+    }
+    else {
+        foreach ( $specifications as $specification ){
+
+            $specificationsSaved += saveExportSpecification( $specification );
+        }
+    }
+
+    return "{$eventSettingsSaved} events and {$specificationsSaved} specifications saved.";
+}
+
+function saveExportSpecification( $specification )
+{
+    global $module;
+
+    if ( !isset($specification['mapping_specification']) ){
+
+        $specification['mapping_specification'] = [];
+    }
+
+    if ( !isset($specification['field_mappings']) ){
+
+        $specification['field_mappings'] = [];
+    }
+        
+    $logId = $module->log(
+        "export_specification",
+        [
+            "user" => $module->username,
+            "setting" => "export-specification",
+            "export_uuid" => $specification['export_uuid'],
+            "removed" => $specification['removed'],
+            "export_specification_json" => json_encode($specification)
+        ]
+    );
+
+    if ( $logId ){
+
+        return 1;
+    }
+
+    return 0;
+}
+
+function saveEventSettings()
+{
+    global $module;
+
+    $events = json_decode($_POST['events'], true);
+
+    if ( !is_array($events) ){
+
+        return -1;
+    }
+    
+    $logId = $module->log(
+        "export_events",
+        [
+            "user" => $module->username,
+            "setting" => "export-events",
+            "export_events_json" => json_encode($events)
+        ]
+    );
+
+    if ( $logId ){
+
+        return count($events);
+    }
+
+    return -2;
+}
+
+function saveExportSettings_legacy(): string
 {
     global $module;
     
@@ -103,6 +188,85 @@ function saveExportSettings(): string
 }
 
 function getExportSettings()
+{
+    global $module;
+
+    //$specifications = getExportSpecifications();
+
+    $output = [
+        'specification_settings' => getExportSpecifications(),
+        'event_settings' => getEventSettings()
+    ];
+
+    return json_encode($output);
+}
+
+function getEventSettings()
+{
+    global $module;
+
+    $fields = "export_events_json";
+
+    $pSql = "SELECT {$fields} WHERE project_id=? AND setting='export-events' ORDER BY timestamp DESC LIMIT 1";
+
+    if ( $x = $module->queryLogs($pSql, [$module->project_id])->fetch_assoc() ){
+
+        return json_decode($x['export_events_json']);
+    }
+
+    return [];
+}
+
+function getExportSpecifications()
+{
+    global $module;
+    
+    $log_id = (int) $_POST['log_id'];
+
+    /**
+     * retrieve the unique export UUIDs
+     */
+
+    $pSql = "SELECT DISTINCT export_uuid WHERE export_uuid IS NOT NULL AND setting='export-specification' AND project_id=?";
+
+    $uuid_result = $module->queryLogs($pSql, [$module->project_id]);
+    $uuids = [];
+    while ( $row = $uuid_result->fetch_assoc() ){
+        $uuids[] = $row['export_uuid'];
+    }
+
+    //return $uuids;
+
+    $specifications = [];
+
+    for ( $i=0; $i<count($uuids); $i++ ){
+
+        $fields = "log_id, user, removed, setting, export_uuid, export_specification_json";
+
+        $pSql = "
+            SELECT {$fields}
+            WHERE project_id=? AND setting='export-specification' AND export_uuid=?
+            ORDER BY timestamp DESC LIMIT 1
+        ";
+        $params = [$module->project_id, $uuids[$i]];
+
+        if ( $specification_settings = $module->queryLogs($pSql, $params)->fetch_assoc() ){
+
+            $specification = json_decode($specification_settings['export_specification_json']);
+
+            if ( !$specification->removed ) $specification->removed = "0";
+
+            //if ( $specification->removed !== "1" ){
+
+                $specifications[] = $specification;
+            //}
+        }
+    }
+
+    return $specifications;
+}
+
+function getExportSettings_legacy()
 {
     global $module;
     
@@ -273,15 +437,11 @@ function get_field_mappings()
 {
     global $module;
 
-    $specification_index = (int) $_POST['specification_index'];
+    $export_uuid = (string) $_POST['export_uuid'];
 
     $log_id = (int) $_POST['log_id'];
 
-    if ( !$key = Yes3::normalized_string($module->getProjectSetting('specification-key')[$specification_index]) ) {
-        return "Mappings NOT retrieved: no specification key provided.";        
-    }
-
-    $fields = "log_id, message, user, timestamp, map_label, specification_key, field_mappings";
+    $fields = "log_id, message, user, timestamp, export_uuid, field_mappings";
 
     if ( $log_id ){
 
@@ -292,10 +452,10 @@ function get_field_mappings()
 
         $pSql = "
             SELECT {$fields}
-            WHERE project_id=? AND setting='field-map' AND specification_key=?
+            WHERE project_id=? AND setting='field-map' AND export_uuid=?
             ORDER BY timestamp DESC LIMIT 1
         ";
-        $params = [$module->project_id, $key];
+        $params = [$module->project_id, $$export_uuid];
     }
 
     $map_record = $module->queryLogs($pSql, $params)->fetch_assoc();
@@ -305,31 +465,41 @@ function get_field_mappings()
     //Yes3::logDebugMessage($module->project_id, $pSql, "get_field_mappings:pSql");
     //Yes3::logDebugMessage($module->project_id, $msg, "get_field_mappings:result");
 
-    $map_record['field_mappings'] = json_decode( $map_record['field_mappings'], true );
+    if ( !$map_record ){
 
-    $map_record['formatted_time'] = date("D m/d/Y g:i a",  strtotime($map_record['timestamp']) );
+        $map_record = [
 
-    // insert the record id if this is a new mapping
-    if ( !$map_record['field_mappings'] ){
+            "log_id" => 0,
 
-        $map_record['field_mappings'] = [
-            'specification_index' => (string) $specification_index,
-            "elements" => []
+            "message" => "",
+
+            "user" => "",
+
+            "export_uuid" => $export_uuid,
+            
+            "timestamp" => "",
+
+            "formatted_time" => "",
+
+            "field_mappings" => [
+
+                "elements" => [
+                    [
+                        'yes3_fmapr_data_element_name' => "redcap_field_1",
+                        'redcap_field_name' => REDCap::getRecordIdField(),
+                        'redcap_event_id' => $module->getFirstEventId(),
+                        'values' => []
+                    ]
+                ]  
+            ],
         ];
     }
-    if ( !$map_record['field_mappings']['elements'] ){
+    else {
 
-        $map_record['field_mappings']['elements'] = [
-            [
-                'yes3_fmapr_data_element_name' => "redcap_field_1",
-                'redcap_field_name' => REDCap::getRecordIdField(),
-                'redcap_event_id' => $module->getFirstEventId(),
-                'values' => []
-            ]
-        ];
+        $map_record['field_mappings'] = json_decode( $map_record['field_mappings'], true );
+
+        $map_record['formatted_time'] = date("D m/d/Y g:i a",  strtotime($map_record['timestamp']) );
     }
-
-    //Yes3::logDebugMessage($module->project_id, print_r($map_record, true), "get_field_mappings");
 
     return Yes3::json_encode_pretty( $map_record );
 }

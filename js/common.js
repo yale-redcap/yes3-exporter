@@ -28,7 +28,7 @@ let FMAPR = {
  
     $.ajax({
  
-       url: yes3ModuleProperties.serviceUrl,
+       url: YES3.moduleProperties.serviceUrl,
        type: "POST",
        dataType: ( json ) ? "json":"html",
        data: params
@@ -140,7 +140,7 @@ FMAPR.Help_closePanel = function()
 
 FMAPR.Help_openReadMe = function()
 {
-    YES3.openPopupWindow( yes3ModuleProperties.documentationUrl ); 
+    YES3.openPopupWindow( YES3.moduleProperties.documentationUrl ); 
 }
 
 /*** ACTION ICONS ***/
@@ -153,7 +153,7 @@ FMAPR.displayActionIcons = function()
     }
     else {
 
-        $('i.yes3-fmapr-action-icon:not(.yes3-fmapr-clean)').removeClass('yes3-action-disabled');
+        $('i.yes3-action-icon:not(.yes3-fmapr-clean)').removeClass('yes3-action-disabled');
 
         if ( FMAPR.dirty ){
             $('i.yes3-fmapr-display-when-clean').addClass('yes3-action-disabled');

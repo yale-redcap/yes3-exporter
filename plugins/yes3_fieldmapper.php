@@ -19,25 +19,6 @@ $HtmlPage->ProjectHeader();
 
  $module->getCodeFor("yes3_fieldmapper", true);
 
- /**
- * bail if EM not set up
- */
-
-if ( !$module->specifications ){
-   exit("ERROR: The specifications are missing or fargled.");
-}
-
-/**
- * select options for specification
- */
-$specOptionHtml = "";
-$specNum = 0;
-foreach( $module->specifications as $specification ){
-    $specName = $specification['name'] . " (" . $specification['export_layout'] . ")";
-    $specOptionHtml .= "<option value='{$specNum}'>{$specName}</option>";
-    $specNum++;
-}
-
 ?>
 
 
@@ -58,7 +39,7 @@ foreach( $module->specifications as $specification ){
 
                 <tr>
                     <td>
-                        <i class="fas fa-plus yes3-fmapr-action-icon"></i>
+                        <i class="fas fa-plus yes3-action-icon"></i>
                     </td>
                     <td>
                         Add a single REDCap field to the specification.
@@ -67,7 +48,7 @@ foreach( $module->specifications as $specification ){
                 
                 <tr>
                     <td>
-                        <i class="fas fa-plus-square yes3-fmapr-action-icon"></i>
+                        <i class="fas fa-plus-square yes3-action-icon"></i>
                     </td>
                     <td>
                         Add multiple REDCap fields to the specification.
@@ -76,7 +57,7 @@ foreach( $module->specifications as $specification ){
                 
                 <tr>
                     <td>
-                        <i class="far fa-save yes3-fmapr-action-icon"></i>
+                        <i class="far fa-save yes3-action-icon"></i>
                     </td>
                     <td>
                         Save the specification.
@@ -85,7 +66,7 @@ foreach( $module->specifications as $specification ){
                 
                 <tr>
                     <td>
-                        <i class="fas fa-undo yes3-fmapr-action-icon"></i>
+                        <i class="fas fa-undo yes3-action-icon"></i>
                     </td>
                     <td>
                         Restore the specification to a prior version (undo).
@@ -94,7 +75,7 @@ foreach( $module->specifications as $specification ){
                 
                 <tr>
                     <td>
-                        <i class="fas fa-print yes3-fmapr-action-icon"></i>
+                        <i class="fas fa-print yes3-action-icon"></i>
                     </td>
                     <td>
                         Print the specification.
@@ -103,7 +84,7 @@ foreach( $module->specifications as $specification ){
                 
                 <tr>
                     <td>
-                        <i class="fas fa-download yes3-fmapr-action-icon"></i>
+                        <i class="fas fa-download yes3-action-icon"></i>
                     </td>
                     <td>
                         Export a csv file based on this specification.
@@ -236,7 +217,7 @@ foreach( $module->specifications as $specification ){
 
 </div> <!-- injector -->
 
-<div class="container" id="yes3-fmapr-container">
+<div class="container" id="yes3-container">
 
     <div class="row yes3-fmapr-controls">
 
@@ -250,24 +231,20 @@ foreach( $module->specifications as $specification ){
 
         <div class="col-md-4  yes3-flex-vcenter-hcenter">
 
-            <select id="yes3-fmapr-specification" onchange="FMAPR.specificationSelect()">
-                
-                <option value=''>select a specification</option>
-                <?= $specOptionHtml ?>
-
+            <select id="export_uuid" onchange="FMAPR.specificationSelect()">
             </select>
 
         </div>
 
         <div class="col-md-4  yes3-flex-vcenter-hright">
 
-            <i class="fas fa-plus yes3-fmapr-action-icon yes3-fmapr-loaded" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
-            <i class="fas fa-plus-square yes3-fmapr-action-icon yes3-fmapr-loaded" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
-            <i class="far fa-save yes3-fmapr-action-icon yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="Save the specification."></i>
-            <i class="fas fa-undo yes3-fmapr-action-icon yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
-            <i class="fas fa-print yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i>
-            <i class="fas fa-download yes3-fmapr-action-icon yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="exportData" title="Export a csv file based on this specification."></i>
-            <i class="fas fa-question yes3-fmapr-action-icon" action="Help_openPanel" title="get some help"></i>
+            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
+            <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
+            <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="Save the specification."></i>
+            <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
+            <i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i>
+            <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="exportData" title="Export a csv file based on this specification."></i>
+            <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
 
             <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
                 <input type="checkbox" id="yes3-theme-checkbox" />

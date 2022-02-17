@@ -22,10 +22,10 @@ YES3.Functions.MappingsEditor_openForm = function()
     let specTbl = FMAPR.exportSpecificationTable(specNum);
 
     let export_name = specTbl.find("input[data-setting=export_name]").val();
-    let export_mappings = specTbl.find("textarea[data-setting=export_mappings]").val();
+    let mapping_specification = specTbl.find("textarea[data-setting=mapping_specification]").val();
 
     editor.attr({"data-specnum": specNum})
-        .find("textarea").val( export_mappings )
+        .find("textarea").val( mapping_specification )
     ;
 
     editor.find("span#yes3-fmapr-mappings-editor-export-name").html(export_name);
@@ -68,19 +68,52 @@ YES3.Functions.Exportspecifications_undoSettings = function()
     YES3.YesNo("Are you SURE you would like to roll back all changes since the last save?", FMAPR.getExportSettings, null);
 }
 
-YES3.Functions.removeExportSpecification = function()
+YES3.Functions.removeExportSpecificationToggle = function()
 {
-    let specNum = FMAPR.getParentSpecNum( $(this) );
+    let specTbl = FMAPR.getParentTable( $(this) );
     
-    let exportName = FMAPR.exportSpecificationTable(specNum).find("input[data-setting=export_name]").val();
+    let removed = ( specTbl.find("input[data-setting=removed]").val() === "1" ) ? "0" : "1";
 
-    let msg = `Are you SURE you want to remove the specification '${exportName}'? This will make any work you have done with this export specification unavailable.`
-     + "<br><br>Note: the specification won't be permanently removed until you save the settings. Until that point, you may click undo to roll back any changes you have made since the last save."
-     ;
+    FMAPR.setRemovedStatus(specTbl, removed);
+}
 
-    FMAPR.specToRemove = specNum;
+FMAPR.setRemovedStatus = function( specTbl, removed, hide_if_removed )
+{
+    if ( removed==="1" ){
 
-    YES3.YesNo(msg, FMAPR.removeExportSpecificationExecute);
+        specTbl.addClass('yes3-removed');
+    }
+    else {
+
+        specTbl.removeClass('yes3-removed');
+    }
+
+    specTbl.find("input[data-setting=removed]").val(removed);
+
+    if ( removed==="1" && hide_if_removed ){
+        specTbl.hide();
+    }
+}
+
+FMAPR.showRemoved = function()
+{
+    //return true;
+    
+    let show_removed = $("input#yes3-fmapr-show-removed").prop("checked");
+
+    FMAPR.exportSpecificationTables().each(function(){
+
+        let removed = $(this).find("input[data-setting=removed]").val();
+
+        if ( show_removed || removed==="0" ){
+
+            $(this).show();
+        }
+        else {
+
+            $(this).hide();
+        }
+    })
 }
 
 
@@ -88,8 +121,8 @@ YES3.Functions.removeExportSpecification = function()
  
 FMAPR.saveExportSettings = function()
 {
-    let event_settings = [];
-    let specification_settings = [];
+    let events = [];
+    let specifications = [];
 
     /**
      * event id, name, prefix
@@ -99,7 +132,7 @@ FMAPR.saveExportSettings = function()
         let event_name = $(this).find("td[data-setting=event_name]").text();
         let event_prefix = $(this).find("input[data-setting=event_prefix]").val();
 
-        event_settings.push({
+        events.push({
             "event_id": event_id,
             "event_name": event_name,
             "event_prefix": event_prefix
@@ -108,7 +141,8 @@ FMAPR.saveExportSettings = function()
 
     FMAPR.exportSpecificationTables().each(function(){
 
-        let export_uuid = $(this).attr("data-export_uuid");
+        let export_uuid = $(this).find("input[data-setting=export_uuid]").val();
+        let removed = $(this).find("input[data-setting=removed]").val();
         let export_name = $(this).find("input[data-setting=export_name]").val();
         let export_layout = $(this).find("input[data-setting=export_layout]:checked").val() || "";
         let export_selection = $(this).find("input[data-setting=export_selection]:checked").val() || "";
@@ -117,20 +151,20 @@ FMAPR.saveExportSettings = function()
         let export_criterion_event = ( export_selection === "2" ) ? $(this).find("select[data-setting=export_criterion_event]").val() || "" : "";
         let export_criterion_value = ( export_selection === "2" ) ? $(this).find("input[data-setting=export_criterion_value]").val() || "" : "";
 
-        let export_mappings_json = $(this).find("textarea[data-setting=export_mappings]").val() || "";
-        let export_mappings = [];
+        let mapping_specification_json = $(this).find("textarea[data-setting=mapping_specification]").val() || "";
+        let mapping_specification = [];
 
-        if ( export_mappings_json.length > 2 ) {
+        if ( mapping_specification_json.length > 2 ) {
             try {
 
-                export_mappings = JSON.parse( export_mappings_json );
+                mapping_specification = JSON.parse( mapping_specification_json );
             } catch (e) {
                 
-                export_mappings = [];
+                mapping_specification = [];
             }
         }
 
-        specification_settings.push({
+        specifications.push({
             "export_uuid": export_uuid,
             "export_name": export_name,
             "export_layout": export_layout,
@@ -138,18 +172,24 @@ FMAPR.saveExportSettings = function()
             "export_criterion_field": export_criterion_field,
             "export_criterion_event": export_criterion_event,
             "export_criterion_value": export_criterion_value,
-            "export_mappings": export_mappings
+            "mapping_specification": mapping_specification,
+            "field_mappings": [],
+            "removed": removed
         });
     });
 
-    let export_settings = {
-        "event_settings": event_settings,
-        "specification_settings": specification_settings,
+    console.log('saveExportSettings', specifications);
+
+    let requestParams = {
+        "request": "saveExportSettings",
+        "events": JSON.stringify(events),
+        "specifications": JSON.stringify(specifications)
     }
 
-    YES3.requestService({"request": "saveExportSettings", "export_settings": export_settings}, FMAPR.saveExportSettingsCallback, false);
+    YES3.requestService(requestParams, FMAPR.saveExportSettingsCallback, false);
 
-    console.log(export_settings); 
+    console.log(events); 
+    console.log(specifications); 
 }
 
 FMAPR.saveExportSettingsCallback = function(response)
@@ -166,23 +206,19 @@ FMAPR.getExportSettings = function()
 
 FMAPR.getExportSettingsCallback = function(response)
 {
-    console.log(response);
+    console.log('getExportSettingsCallback:', response);
 
-    FMAPR.stored_export_settings = response.export_settings;
+    FMAPR.stored_export_settings = response;
 
-    /**
-     * ensure that blank arrays are available
-     */
-
-    if ( !FMAPR.stored_export_settings.event_settings ){
+    //if ( !FMAPR.stored_export_settings.event_settings ){
         
-        FMAPR.stored_export_settings.event_settings = [];
-    }
+        //FMAPR.stored_export_settings.event_settings = [];
+    //}
 
-    if ( !FMAPR.stored_export_settings.specification_settings ){
+    //if ( !FMAPR.stored_export_settings.specification_settings ){
         
-        FMAPR.stored_export_settings.specification_settings = [];
-    }
+        //FMAPR.stored_export_settings.specification_settings = [];
+    //}
 
     FMAPR.populateAllSettings();
 }
@@ -190,7 +226,7 @@ FMAPR.getExportSettingsCallback = function(response)
 FMAPR.populateAllSettings = function()
 {
 
-    if ( yes3ModuleProperties.isLongitudinal ){
+    if ( YES3.moduleProperties.isLongitudinal ){
 
         $('.yes3-fmapr-longitudinal-only').show();
 
@@ -221,16 +257,16 @@ FMAPR.populateSetupEventTable = function()
     let e = 0;
 
     /**
-     * yes3ModuleProperties.eventPrefixes is a list of default prefixes for all currently defined events.
+     * YES3.moduleProperties.eventPrefixes is a list of default prefixes for all currently defined events.
      * It is keyed by event_id.
      * Defaults will be overriden by stored settings in FMAPR.stored_export_settings.event_settings if found.
      * Odious linear search. Perhaps we should key stored settings on event_id as well, or sort and use binary search?
      */
-    for ( var event_id in yes3ModuleProperties.eventPrefixes ){
+    for ( var event_id in YES3.moduleProperties.eventPrefixes ){
 
-        if (Object.prototype.hasOwnProperty.call(yes3ModuleProperties.eventPrefixes, event_id)) {
+        if (Object.prototype.hasOwnProperty.call(YES3.moduleProperties.eventPrefixes, event_id)) {
 
-            event_prefix = yes3ModuleProperties.eventPrefixes[event_id].event_prefix;
+            event_prefix = YES3.moduleProperties.eventPrefixes[event_id].event_prefix;
 
             for ( e=0; e<FMAPR.stored_export_settings.event_settings.length; e++){
                 if ( FMAPR.stored_export_settings.event_settings[e].event_id==event_id ){
@@ -239,7 +275,7 @@ FMAPR.populateSetupEventTable = function()
                 }
             }
             
-            html += `<tr id='event-${event_id}'><td data-setting='event_name'>${yes3ModuleProperties.eventPrefixes[event_id].event_name}</td><td><input type='text' data-setting='event_prefix' value='${event_prefix}' /></td></tr>`;
+            html += `<tr id='event-${event_id}'><td data-setting='event_name'>${YES3.moduleProperties.eventPrefixes[event_id].event_name}</td><td><input type='text' data-setting='event_prefix' value='${event_prefix}' /></td></tr>`;
         }
     }
 
@@ -255,13 +291,15 @@ FMAPR.populateExportSpecificationsTables = function()
     let specTbl = null;
 
     let export_name = "";
+    let export_uuid = "";
+    let removed = "";
     let export_layout = "";
     let export_selection = "";
     let export_criterion_field = "";
     let export_criterion_event = "";
     let export_criterion_value = "";
-    let export_mappings = [];
-    let export_mappings_json = "";
+    let mapping_specification = [];
+    let mapping_specification_json = "";
     let specNum = "";
 
     FMAPR.removeAllExportSpecificationTables();
@@ -270,30 +308,35 @@ FMAPR.populateExportSpecificationsTables = function()
         
         specTbl = FMAPR.appendBlankExportSpecification();
 
-        specTbl.attr({"data-export_uuid": FMAPR.stored_export_settings.specification_settings[s].export_uuid});
-
         specNum = specTbl.attr("data-specnum"); // required for some function calls
 
         FMAPR.clearLastRowItemFlag(); // prevents auto append of blank specTable on change
 
         export_name = FMAPR.stored_export_settings.specification_settings[s].export_name || "";
+        export_uuid = FMAPR.stored_export_settings.specification_settings[s].export_uuid || "???";
         export_layout = FMAPR.stored_export_settings.specification_settings[s].export_layout || "";
+        removed = FMAPR.stored_export_settings.specification_settings[s].removed || "0";
         export_selection = FMAPR.stored_export_settings.specification_settings[s].export_selection || "";
         export_criterion_field = FMAPR.stored_export_settings.specification_settings[s].export_criterion_field || "";
         export_criterion_event = FMAPR.stored_export_settings.specification_settings[s].export_criterion_event || "";
         export_criterion_value = FMAPR.stored_export_settings.specification_settings[s].export_criterion_value || "";
-        export_mappings = FMAPR.stored_export_settings.specification_settings[s].export_mappings || [];
+        mapping_specification = FMAPR.stored_export_settings.specification_settings[s].mapping_specification || [];
 
-        if ( !export_mappings.length ){
+        specTbl.attr({"data-export_uuid": export_uuid});
 
-            export_mappings_json = "";
+        if ( !mapping_specification.length ){
+
+            mapping_specification_json = "";
         }
         else {
 
-            export_mappings_json = JSON.stringify(export_mappings, null, 4);        
+            mapping_specification_json = JSON.stringify(mapping_specification, null, 4);        
         }
 
         specTbl.find('input[data-setting=export_name]').val(export_name);
+
+        specTbl.find('input[data-setting=export_uuid]').val(export_uuid);
+        specTbl.find('input[data-setting=removed]').val(removed);
 
         specTbl.find(`input[data-setting=export_layout][value=${export_layout}]`).prop('checked', true);
         specTbl.find(`input[data-setting=export_selection][value=${export_selection}]`).prop('checked', true);
@@ -302,12 +345,15 @@ FMAPR.populateExportSpecificationsTables = function()
         specTbl.find('select[data-setting=export_criterion_event]').val(export_criterion_event);
         specTbl.find('input[data-setting=export_criterion_value]').val(export_criterion_value);
 
-        specTbl.find('textarea[data-setting=export_mappings]').val(export_mappings_json);
+        specTbl.find('textarea[data-setting=mapping_specification]').val(mapping_specification_json);
+
         FMAPR.reportExportMappingsLength( specNum );
 
         FMAPR.setCriterionEventSelectOptions( specTbl );
 
         FMAPR.exportSpecificationTableSkipper( specTbl );
+
+        FMAPR.setRemovedStatus( specTbl, removed, true );
 
         FMAPR.toggleExportSpecification( specNum, 0 ); // collapse the table
     }
@@ -364,11 +410,6 @@ FMAPR.resizeSetupEventTable = function()
 
 FMAPR.specToRemove = -1;
 
-FMAPR.removeExportSpecificationExecute = function()
-{
-    FMAPR.exportSpecificationTable(FMAPR.specToRemove).remove();
-}
-
 FMAPR.Exportspecs_collapseAll = function()
 {
     $('table.yes3-fmapr-expanded').removeClass('yes3-fmapr-expanded').addClass('yes3-fmapr-collapsed');
@@ -393,11 +434,11 @@ FMAPR.setExportSpecificationEventSelectOptions = function(specNum)
 {
     let html = "<option value=''>select a REDCap event</option>";
 
-    for ( var prop in yes3ModuleProperties.eventPrefixes ){
+    for ( var prop in YES3.moduleProperties.eventPrefixes ){
 
-        if (Object.prototype.hasOwnProperty.call(yes3ModuleProperties.eventPrefixes, prop)) {
+        if (Object.prototype.hasOwnProperty.call(YES3.moduleProperties.eventPrefixes, prop)) {
             
-            html += `<option value='${yes3ModuleProperties.eventPrefixes[prop].event_name}'>${yes3ModuleProperties.eventPrefixes[prop].event_name}</option>`;
+            html += `<option value='${YES3.moduleProperties.eventPrefixes[prop].event_name}'>${YES3.moduleProperties.eventPrefixes[prop].event_name}</option>`;
         }
     }
 
@@ -408,11 +449,11 @@ FMAPR.setTemplateEventSelectOptions = function()
 {
     let html = "<option value=''>select a REDCap event</option>";
 
-    for ( var prop in yes3ModuleProperties.eventPrefixes ){
+    for ( var prop in YES3.moduleProperties.eventPrefixes ){
 
-        if (Object.prototype.hasOwnProperty.call(yes3ModuleProperties.eventPrefixes, prop)) {
+        if (Object.prototype.hasOwnProperty.call(YES3.moduleProperties.eventPrefixes, prop)) {
             
-            html += `<option value='${yes3ModuleProperties.eventPrefixes[prop].event_name}'>${yes3ModuleProperties.eventPrefixes[prop].event_name}</option>`;
+            html += `<option value='${YES3.moduleProperties.eventPrefixes[prop].event_name}'>${YES3.moduleProperties.eventPrefixes[prop].event_name}</option>`;
         }
     }
 
@@ -540,7 +581,7 @@ FMAPR.eventSelectOptionsForField = function( field_name )
 
         for (let i=0; i<form_events.length; i++){
 
-            html += `<option value='${yes3ModuleProperties.eventPrefixes[form_events[i].event_id].event_name}'>${yes3ModuleProperties.eventPrefixes[form_events[i].event_id].event_name}</option>`;
+            html += `<option value='${YES3.moduleProperties.eventPrefixes[form_events[i].event_id].event_name}'>${YES3.moduleProperties.eventPrefixes[form_events[i].event_id].event_name}</option>`;
         }
     }
 
@@ -597,7 +638,7 @@ FMAPR.giveThemNames = function()
     $("table.yes3-fmapr-export-specification").each(function(){
         let export_name = $(this).find("input[data-setting=export_name]").val();
         if ( export_name ){
-            $(this).find("th.yes3-fmapr-export-header").text( export_name.escapeHTML() );
+            $(this).find("th:nth-child(1).yes3-fmapr-export-header").text( export_name.escapeHTML() );
         }
     })
 }
@@ -607,6 +648,8 @@ FMAPR.appendBlankExportSpecification = function()
     let html = "";
 
     let specNum = -1;
+
+    let export_uuid = YES3.uuidv4();
 
     $('table.yes3-fmapr-export-specification').each(function(){
         let rowSpecNum = parseInt($(this).attr("data-specnum"));
@@ -624,10 +667,13 @@ FMAPR.appendBlankExportSpecification = function()
         .attr({
             id: FMAPR.exportSpecificationTableId(specNum),
             "data-specnum": specNum,
-            "data-export_uuid": YES3.uuidv4()
+            "data-export_uuid": export_uuid
         })
         .addClass("yes3-fmapr-export-specification")
     ;
+
+    newTable.find('input[data-setting=export_uuid]').val(export_uuid);
+    newTable.find('input[data-setting=removed]').val("0");
 
     newTable.find('input[data-setting=export_layout][value=h]').attr({'id': `yes3-fmapr-export-layout-${specNum}-h`, 'name': `yes3-fmapr-export-layout-${specNum}`});
     newTable.find('input[data-setting=export_layout][value=v]').attr({'id': `yes3-fmapr-export-layout-${specNum}-v`, 'name': `yes3-fmapr-export-layout-${specNum}`});
@@ -715,9 +761,9 @@ FMAPR.MappingsEditor_saveAndClose = function()
 
     let specTbl = FMAPR.exportSpecificationTable(specNum);
 
-    let export_mappings = editor.find("textarea").val();
+    let mapping_specification = editor.find("textarea").val();
 
-    specTbl.find("textarea[data-setting=export_mappings]").val( export_mappings );
+    specTbl.find("textarea[data-setting=mapping_specification]").val( mapping_specification );
 
     FMAPR.reportExportMappingsLength(specNum);
 
@@ -732,11 +778,11 @@ FMAPR.reportExportMappingsLength = function(specNum)
 {
     let specTbl = FMAPR.exportSpecificationTable(specNum);
 
-    let export_mappings_json = specTbl.find("textarea[data-setting=export_mappings]").val();
+    let mapping_specification_json = specTbl.find("textarea[data-setting=mapping_specification]").val();
 
     let reportElement = specTbl.find("span.yes3-fmapr-export-mappings-length");
 
-    if ( !export_mappings_json ){
+    if ( !mapping_specification_json ){
         reportElement.text( "no mappings" );
         FMAPR.markAsGood( reportElement );
         return true;
@@ -744,8 +790,8 @@ FMAPR.reportExportMappingsLength = function(specNum)
     else {
 
         try {
-            export_mappings_length = JSON.parse( export_mappings_json ).length;
-            reportElement.text( export_mappings_length + " mappings" );
+            mapping_specification_length = JSON.parse( mapping_specification_json ).length;
+            reportElement.text( mapping_specification_length + " mappings" );
             FMAPR.markAsGood( reportElement );
             return true;
        } catch (e) {
@@ -775,7 +821,7 @@ FMAPR.inspectEventPrefixes = function()
 
 FMAPR.inspectExportSpecificationSettings = function()
 {
-    let specTables = $("table.yes3-fmapr-export-specification:not(.yes3-fmapr-spec-lastrow-item)");
+    let specTables = $("table.yes3-fmapr-export-specification:not(.yes3-fmapr-spec-lastrow-item):not(.yes3-removed)");
 
     let errors = 0;
 
@@ -883,7 +929,7 @@ $( function () {
      * Setup chain
      * 
      * (0) yes3_fieldmapper_setup.php (plugin main page): The getCodeFor() EM method outputs JS, CSS and HTML
-     *      appropriate for the plugin. This includes the YES3 JS object yes3ModuleProperties,
+     *      appropriate for the plugin. This includes the YES3 JS object YES3.moduleProperties,
      *      which includes all the non-private properties of the instantiated EM class.
      * 
      * (1) FMAPR.getProjectSettings (located in FMAPR.yes3_fieldmapper_common.js)

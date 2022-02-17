@@ -1,11 +1,318 @@
+/**
+ * YES3 FUNCTIONS FOR FMAPR
+ * 
+ * These functions are called via the YES3 'action icon' mechanism,
+ * so they are registered in the YES3 namespace.
+ * 
+ * Invocation is through Function.prototype.call(),
+ * which supplies a 'this' value that functions can use to determine context.
+ * 
+ * Be sure to use the full YES3.Functions namespace
+ */
 
+/**
+ * sets: FMAPR.insertionRowId
+ * 
+ * @param {*} rowId 
+ * @param {*} field_name 
+ * @param {*} event_name
+ */
+ YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
+{
+    rowId = rowId || "";
+    field_name = field_name || "";
+    event_name = event_name || "";
+    
+    let thePanel = $("div#yes3-fmapr-fieldinsertion-panel");
+    let theParent = thePanel.parent();
+    let theRow = null;
+
+    /**
+     * if called with no params, set up for append
+     */
+    if ( !rowId ){
+        theRow = $('tr.yes3-fmapr-data-element').last();
+        FMAPR.insertionRowId = theRow.attr('id');
+        field_name = theRow.find('input.yes3-fmapr-input-element').first().val();
+        let theEvent = theRow.find('select.yes3-fmapr-event-select').first();
+        event_name = theEvent.find("option:selected").text();
+        FMAPR.scrollFieldMapperTableToBottom();
+    }
+    else {
+        FMAPR.insertionRowId = rowId;
+        theRow = $(`tr#${rowId}`);
+    }
+
+    let x = theRow.offset().left - theParent.offset().left;
+    let y = theRow.offset().top - theParent.offset().top;
+
+    YES3.showRedPointer( theRow );
+
+    if ( y > $(window).innerHeight()/2 ) {
+        y = y - thePanel.outerHeight();
+    }
+    else {
+        y = y + theRow.outerHeight();
+    }
+
+    YES3.contextMenuClose();
+
+    YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false, x, y);
+
+    FMAPR.fieldInsertionFormReady(rowId, field_name, event_name);
+}
+
+FMAPR.closeFieldInsertionForm = function()
+{
+    YES3.closePanel('yes3-fmapr-fieldinsertion-panel');
+    YES3.hideRedPointer();
+}
+
+YES3.Functions.addRawREDCapField = function( element, theRowBefore )
+{   
+    element = element || {};
+
+    theRowBefore = theRowBefore || {};
+     
+    let fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
+
+    let export_uuid = FMAPR.export_uuid;
+
+    let yes3_fmapr_data_element_name = FMAPR.RawREDCapDataElementName(0);
+
+    let elementInputHtml = FMAPR.getElementInputHtml( yes3_fmapr_data_element_name, 'redcap');
+    let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
+
+    let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" id="yes3_fmapr_data_element-${export_uuid}-${yes3_fmapr_data_element_name}" data-required="0" data-element_origin="redcap">`;
+    html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-fmapr-redcap-element'>&nbsp;</span></td>`;
+    html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
+    html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
+    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
+    html += "</tr>";
+
+    /**
+     * If there is no "row before" the table has no rows so we append.
+     */
+    if ( $.isEmptyObject(theRowBefore) ){
+        fmaprBody.append( html );
+    }
+    else {
+        $( html ).insertAfter( theRowBefore );
+    }
+
+    if ( $.isEmptyObject(element) ){
+
+        FMAPR.doFieldMapperTableHousekeeping();
+
+        FMAPR.scrollFieldMapperTableToBottom();
+
+        //FMAPR.markAsDirty();
+
+        $('input#'+FMAPR.elementInputId( yes3_fmapr_data_element_name )).focus();
+    
+    }
+    else {
+
+        let elementRow = $(`tr.yes3-fmapr-data-element[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
+
+        let itemREDCapField = elementRow.find('input[data-mapitem=redcap_field_name]:first');
+
+        let itemREDCapEvent = elementRow.find('select[data-mapitem=redcap_event_id]:first');
+
+        itemREDCapField.val( element.redcap_field_name );
+
+        FMAPR.REDCapFieldOnChange(itemREDCapField);
+
+        itemREDCapEvent.val(element.redcap_event_id);
+
+        FMAPR.REDCapEventOnChange(itemREDCapEvent);
+    }
+
+    return yes3_fmapr_data_element_name;
+}
+
+YES3.Functions.saveFieldMappings = function() {
+
+    let tableId = FMAPR.specificationTableId( FMAPR.export_uuid );
+
+    let specTable = $(`table#${tableId}`);
+
+    let specification = {
+        "export_uuid": FMAPR.export_uuid,
+        "elements": []
+    };
+
+    let elementRows = specTable.find('tr.yes3-fmapr-data-element');
+
+    elementRows.each( function() {
+
+        let yes3_fmapr_data_element_name = $(this).data('yes3_fmapr_data_element_name');
+
+        let redcap_field_name = $(this).find('input[data-mapitem=redcap_field_name]:first').val();
+        let redcap_event_id = $(this).find('select[data-mapitem=redcap_event_id]:first').val();
+
+        if ( redcap_field_name ) {
+
+            let element = {
+                "yes3_fmapr_data_element_name": yes3_fmapr_data_element_name,
+                "redcap_event_id": redcap_event_id,
+                "redcap_field_name": redcap_field_name,
+                "values": []
+            }
+
+            let valueRows = specTable.find(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
+            
+            valueRows.each(function () {
+
+                let redcap_field_value = $(this).find('input[data-mapitem=redcap_field_value]:first').val();
+                let yes3_fmapr_lov_value = $(this).find('input[data-mapitem=redcap_field_value]:first').data('yes3_fmapr_lov_value');
+
+                if ( redcap_field_value ){
+
+                    element.values.push({
+                        "yes3_fmapr_lov_value": yes3_fmapr_lov_value,
+                        "redcap_field_value": redcap_field_value
+                    })
+
+                } // redcap value nonblank
+            }) // valueRows
+
+            specification.elements.push( element );
+
+        } // redcap field name nonblank
+
+    }) // elementRows
  
+    //console.log( 'saveFieldMappings', specification );
+
+    let field_mappings_json = JSON.stringify(specification);
+
+    console.log('saveFieldMappings: JSON string length = ' + field_mappings_json.length);
+ 
+    YES3.requestService( { 
+        "request": "save_field_mappings", 
+        "export_uuid": FMAPR.export_uuid,
+        "field_mappings_json": field_mappings_json
+    }, FMAPR.saveFieldMappingsCallback, false );
+ }
+ 
+FMAPR.saveFieldMappingsCallback = function( response ){
+    console.log( 'saveFieldMappingsCallback', response );
+
+    FMAPR.postMessage( response );
+
+    if ( response.indexOf('Success') > -1 ){
+        FMAPR.markAsClean();
+    }
+}
+
+/*** WAYBACK ***/
+
+YES3.Functions.Wayback_openForm = function()
+{
+    YES3.openPanel('yes3-fmapr-wayback-panel');
+
+    let wrapper = $("div#yes3-fmapr-wrapper");
+
+    let y = wrapper.offset().top;
+
+    let wayback = $('div#yes3-fmapr-wayback-panel');
+
+    wayback.css('opacity', 0).animate(
+        {
+            top: y,
+            opacity: 1
+        }, 
+        2000, 
+        function() {
+
+        }
+    );
+
+    $({deg: 0}).animate({deg: 360}, {
+        duration: 2000,
+        step: function(now) {
+            // in the step-callback (that is fired each step of the animation),
+            // you can use the `now` paramter which contains the current
+            // animation-position (`0` up to `angle`)
+            wayback.css({
+                transform: 'rotate(-' + now + 'deg)'
+            });
+
+            wrapper.css({
+                transform: 'rotate(' + now + 'deg)'
+            });
+        }
+    });
+
+    YES3.requestService(
+        {
+            'request': 'get_wayback_html',
+            'export_uuid': FMAPR.export_uuid
+        }, FMAPR.Wayback_openFormCallback
+    );
+}
+
+FMAPR.Wayback_openFormCallback = function( response )
+{
+    console.log(response);
+    $("select#yes3-fmapr-wayback-select").empty().append(response);
+}
+
+FMAPR.Wayback_Execute = function()
+{
+    let log_id = $("select#yes3-fmapr-wayback-select").val();
+
+    FMAPR.specificationElements = [];
+    FMAPR.insertionElements = [];
+    FMAPR.markAsBuildInProgress();
+
+    YES3.requestService(
+        {
+            "request": "get_field_mappings",
+            "log_id": log_id
+        }, FMAPR.populateFieldMapperTableCallback, true
+    );
+}
+
+FMAPR.Wayback_closeForm = function()
+{
+
+    let y = $(window).innerHeight()/2;
+
+    let wayback = $('div#yes3-fmapr-wayback-panel');
+
+    wayback.animate(
+        {
+            top: y,
+            opacity: 0
+        }, 
+        2000, 
+        function() {
+            YES3.closePanel('yes3-fmapr-wayback-panel');
+
+        }
+    );
+
+    $({deg: 0}).animate({deg: 360}, {
+        duration: 2000,
+        step: function(now) {
+            // in the step-callback (that is fired each step of the animation),
+            // you can use the `now` paramter which contains the current
+            // animation-position (`0` up to `angle`)
+            wayback.css({
+                transform: 'rotate(' + now + 'deg)'
+            });
+        }
+    });
+}
+
  /*
   * refresh project settings from NIAFMAPR, then call getProjectSettings to fetch them
   */
  FMAPR.updateProjectSettings = function() {
     FMAPR.postMessage("plz wait..");
-    FMAPR.requestService({'request':'update_project_settings'}, FMAPR.updateProjectSettingsCallback, true);
+    YES3.requestService({'request':'update_project_settings'}, FMAPR.updateProjectSettingsCallback, true);
  }
  
  FMAPR.updateProjectSettingsCallback = function(response) {
@@ -16,86 +323,24 @@
     } 
  }
  
- FMAPR.buildAndPopulateFieldMapperTables = function() {
-    let parentDiv = $('div#yes3-fmapr-wrapper');
-    let specTable = null;
-    let typeId = "";
-    let j=0;
-    let k=0;
-    let elementInputId = "";
-    let yes3_fmapr_data_element_name = "";
-    let redcap_field_name = "";
-    let redcap_event_id = "";
-    let lovInputId = "";
-    let yes3_fmapr_lov_value = "";
-    let redcap_field_value = "";
-    let elementInput = null;
-    let lovInput = null;
- 
-    let elementEventId = "";
-    let elementEventSelect = null;
- 
-    $('table.yes3-fmapr-specification').remove();
- 
-    for (let i=0; i<FMAPR.settings.yes3_fmapr_participants.length; i++ ){
- 
-       FMAPR.buildFieldMapperTable();
- 
-       typeId = FMAPR.typeInputId();
-       $('select#' + typeId).val( FMAPR.settings.field_map[i].participant_type );
- 
-       for ( j=0; j<FMAPR.settings.field_map[i].elements.length; j++ ) {
- 
-          yes3_fmapr_data_element_name = FMAPR.settings.field_map[i].elements[j].yes3_fmapr_data_element_name;
-          redcap_field_name = FMAPR.settings.field_map[i].elements[j].redcap_field_name;
-          redcap_event_id = FMAPR.settings.field_map[i].elements[j].redcap_event_id;
- 
-          elementInputId = FMAPR.elementInputId( yes3_fmapr_data_element_name );
-          elementInput =  $('input#' + elementInputId);
-          elementInput.val(redcap_field_name);
- 
-          elementEventId = FMAPR.elementEventId( yes3_fmapr_data_element_name );
-          elementEventSelect =  $('select#' + elementEventId);
-          elementEventSelect.val(redcap_event_id).trigger('change');
- 
-          FMAPR.setValuePickers( yes3_fmapr_data_element_name, redcap_field_name );
- 
-          if ( FMAPR.settings.field_map[i].elements[j].values ) {
-             for ( k=0; k<FMAPR.settings.field_map[i].elements[j].values.length; k++ ){
- 
-                yes3_fmapr_lov_value = FMAPR.settings.field_map[i].elements[j].values[k].yes3_fmapr_lov_value;
-                redcap_field_value = FMAPR.settings.field_map[i].elements[j].values[k].redcap_field_value;
-                lovInputId = FMAPR.lovInputId( yes3_fmapr_data_element_name, yes3_fmapr_lov_value );
-                lovInput = $('input#' + lovInputId);
-                lovInput.val(redcap_field_value);
-                if ( redcap_field_value !== "*" ){
-                   lovInput.trigger('change');
-                }
- 
-             }
-          }
- 
-          FMAPR.setLovTogglePriorities(yes3_fmapr_data_element_name );
-       }
-       
-       FMAPR.displayOrHideNonRequiredElements( FMAPR.settings.yes3_fmapr_participants[i].specification_index );
-    }
- 
+ FMAPR.specificationTableBodyId = function(export_uuid)
+ {
+     return 'yes3-fmapr-tbody-' + export_uuid;
  }
+ 
+FMAPR.specificationSelect = function()
+{
+    let export_uuid = $('select#export_uuid').val();
 
- FMAPR.specificationTableBodyId = function(specification_index)
- {
-     return 'yes3-fmapr-tbody-' + specification_index;
- }
- 
- FMAPR.specificationSelect = function()
- {
-     let specNum = $('select#yes3-fmapr-specification').val();
-     if ( specNum.length ){
-         FMAPR.specification_index = specNum;
-         FMAPR.buildFieldMapperTable();
-     }
- }
+    if ( export_uuid.length ){
+
+        FMAPR.export_uuid = export_uuid;
+
+        FMAPR.setSpecificationStructures(); // FMAPR.specification_index, FMAPR.specification_settings
+        
+        FMAPR.buildFieldMapperTable();
+    }
+}
  
 FMAPR.specificationSave = function()
 {
@@ -105,7 +350,7 @@ FMAPR.specificationSave = function()
 
 FMAPR.dataElementRowId = function(data_element_name)
 {
-    return `yes3_fmapr_data_element-${FMAPR.specification_index}-${data_element_name}`;
+    return `yes3_fmapr_data_element-${FMAPR.export_uuid}-${data_element_name}`;
 }
 
 FMAPR.markAsBuildInProgress = function()
@@ -120,6 +365,22 @@ FMAPR.markAsBuildCompleted = function()
     FMAPR.buildInProgress = false;
     FMAPR.mapperLoaded = true;
     FMAPR.displayActionIcons();
+}
+
+FMAPR.setSpecificationStructures = function()
+{
+    FMAPR.specification_index = -1;
+    FMAPR.specification_settings = {};
+
+    for (let i=0; i<FMAPR.stored_export_settings.specification_settings.length; i++){
+
+        if ( FMAPR.export_uuid === FMAPR.stored_export_settings.specification_settings[i].export_uuid ){
+
+            FMAPR.specification_index = i;
+            FMAPR.specification_settings = FMAPR.stored_export_settings.specification_settings[i];
+            break;
+        }
+    }
 }
   
  FMAPR.buildFieldMapperTable = function() 
@@ -136,8 +397,8 @@ FMAPR.markAsBuildCompleted = function()
     let element_origin = "";
     let lovToggleHtml = "";
 
-    let tableId = FMAPR.specificationTableId( FMAPR.specification_index );
-    let bodyId = FMAPR.specificationTableBodyId( FMAPR.specification_index );
+    let tableId = FMAPR.specificationTableId( FMAPR.export_uuid );
+    let bodyId = FMAPR.specificationTableBodyId( FMAPR.export_uuid );
 
     let rowId = "";
 
@@ -145,7 +406,7 @@ FMAPR.markAsBuildCompleted = function()
 
     FMAPR.specificationValuesets = {};
 
-    html += `<table class='yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-scrollable yes3-dashboard' data-specification_index='${FMAPR.specification_index}' id='${tableId}'>`;
+    html += `<table class='yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-scrollable yes3-dashboard' data-export_uuid='${FMAPR.export_uuid}' id='${tableId}'>`;
     
     html += "<thead>";
 
@@ -158,52 +419,52 @@ FMAPR.markAsBuildCompleted = function()
     
     html += "</thead>";
 
-    html += `<tbody data-specification_index='${FMAPR.specification_index}' id='${bodyId}' >`;
+    html += `<tbody data-export_uuid='${FMAPR.export_uuid}' id='${bodyId}' >`;
  
-    for( i=0; i<yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements.length; i++ ){
+    for( i=0; i<FMAPR.specification_settings.mapping_specification.length; i++ ){
 
-        rowId = FMAPR.dataElementRowId(yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name);
+        rowId = FMAPR.dataElementRowId(FMAPR.specification_settings.mapping_specification[i].name);
 
-        req = yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].required;
+        req = FMAPR.specification_settings.mapping_specification[i].required;
         if ( typeof req === 'undefined' ) req = '0';
 
-        element_origin = yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].element_origin;
+        element_origin = FMAPR.specification_settings.mapping_specification[i].element_origin;
         if ( typeof element_origin === 'undefined' ) element_origin = 'specification';
   
-       if ( yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].format==="valueset" ) {
-          lovToggleHtml = `<a class='yes3-fmapr-lov-toggler' href='javascript:FMAPR.toggleLovDisplay("${yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name}");'><i class='fas fa-plus'></i></a>`;
+       if ( FMAPR.specification_settings.mapping_specification[i].format==="valueset" ) {
+          lovToggleHtml = `<a class='yes3-fmapr-lov-toggler' href='javascript:FMAPR.toggleLovDisplay("${FMAPR.specification_settings.mapping_specification[i].name}");'><i class='fas fa-plus'></i></a>`;
        } else {
           lovToggleHtml = "&nbsp;";
        }
  
-       elementInputHtml = FMAPR.getElementInputHtml( yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name, element_origin);
-       eventSelectHtml = FMAPR.getElementEventHtml( yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name, element_origin);
+       elementInputHtml = FMAPR.getElementInputHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
+       eventSelectHtml = FMAPR.getElementEventHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
  
-       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-sortable'>`;
-       html += `<td class='yes3-3 yes3-td-left' title='${yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].description}'>${yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name}</td>`;
+       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification[i].name}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-sortable'>`;
+       html += `<td class='yes3-3 yes3-td-left' title='${FMAPR.specification_settings.mapping_specification[i].description}'>${FMAPR.specification_settings.mapping_specification[i].name}</td>`;
        html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
        html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
        html += `<td class='yes3-gutter-right-top yes3-td-right'>${lovToggleHtml}</td>`;
        html += "</tr>";
 
-        if ( yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].format==="valueset" ) {
+        if ( FMAPR.specification_settings.mapping_specification[i].format==="valueset" ) {
 
-            FMAPR.specificationValuesets[yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name]
-                = yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].valueset;
+            FMAPR.specificationValuesets[FMAPR.specification_settings.mapping_specification[i].name]
+                = FMAPR.specification_settings.mapping_specification[i].valueset;
 
         }
 
-       if ( yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].format==="valueset" ) {
+       if ( FMAPR.specification_settings.mapping_specification[i].format==="valueset" ) {
  
-            for (j=0; j<yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].valueset.length; j++ ){
+            for (j=0; j<FMAPR.specification_settings.mapping_specification[i].valueset.length; j++ ){
  
-                value = yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].valueset[j].value;
-                label = yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].valueset[j].label;
-                yes3_fmapr_data_element_name = yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name;
+                value = FMAPR.specification_settings.mapping_specification[i].valueset[j].value;
+                label = FMAPR.specification_settings.mapping_specification[i].valueset[j].label;
+                yes3_fmapr_data_element_name = FMAPR.specification_settings.mapping_specification[i].name;
  
                 lovInputHtml = FMAPR.getLovInputHtml( yes3_fmapr_data_element_name, value );
  
-                html += `<tr id='yes3_fmapr_lov_value-${FMAPR.specification_index}-${yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].name}-${value}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-required='${yes3ModuleProperties.specifications[FMAPR.specification_index].data_elements[i].required}' class='yes3-fmapr-lov'>`;
+                html += `<tr id='yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification[i].name}-${value}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-required='${req}'}' class='yes3-fmapr-lov'>`;
                 html += `<td class='yes3-3 yes3-td-left yes3-fmapr-lov' title='${label}'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="Make this the value for all FMAPR submissions" href="javascript:FMAPR.setLovConstant('${yes3_fmapr_data_element_name}', '${value}')">${label}</a></td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'>${lovInputHtml}</td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'></td>`;
@@ -238,15 +499,15 @@ FMAPR.markAsBuildCompleted = function()
 
 FMAPR.populateFieldMapperTable = function() {
  
-    FMAPR.requestService( { 
+    YES3.requestService( { 
         "request": "get_field_mappings", 
-        "specification_index": FMAPR.specification_index
+        "export_uuid": FMAPR.export_uuid
     }, FMAPR.populateFieldMapperTableCallback, true );
 }
 
 FMAPR.populateFieldMapperTableCallback = function( response ) {
 
-    //console.log('populateFieldMapperTableCallback', response);
+    console.log('populateFieldMapperTableCallback', response);
 
     FMAPR.map_record = {
 
@@ -254,7 +515,7 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
         'user': response.user,
         'timestamp': response.timestamp,
         'formatted_time': response.formatted_time,
-        'specification_key': response.specification_key
+        'export_uuid': response.export_uuid
 
     };
 
@@ -284,7 +545,7 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
 
         if ( FMAPR.isRawREDCapDataElement(response.field_mappings.elements[i].yes3_fmapr_data_element_name) ) {
             
-            yes3_fmapr_data_element_name = FMAPR.addRawREDCapField( response.field_mappings.elements[i] );
+            yes3_fmapr_data_element_name = YES3.Functions.addRawREDCapField( response.field_mappings.elements[i] );
 
             //console.log('populateFieldMapperTableCallback:raw', yes3_fmapr_data_element_name);
 
@@ -387,69 +648,6 @@ FMAPR.RawREDCapDataElementNumber = function( elementName )
     return parseInt(elementName.split('_')[2]);
 }
 
-FMAPR.addRawREDCapField = function( element, theRowBefore )
-{   
-    element = element || {};
-
-    theRowBefore = theRowBefore || {};
-     
-    let fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
-
-    let specification_index = FMAPR.specification_index;
-
-    let yes3_fmapr_data_element_name = FMAPR.RawREDCapDataElementName(0);
-
-    let elementInputHtml = FMAPR.getElementInputHtml( yes3_fmapr_data_element_name, 'redcap');
-    let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
-
-    let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" id="yes3_fmapr_data_element-${specification_index}-${yes3_fmapr_data_element_name}" data-required="0" data-element_origin="redcap">`;
-    html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-fmapr-redcap-element'>options</span></td>`;
-    html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
-    html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
-    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
-    html += "</tr>";
-
-    /**
-     * If there is no "row before" the table has no rows so we append.
-     */
-    if ( $.isEmptyObject(theRowBefore) ){
-        fmaprBody.append( html );
-    }
-    else {
-        $( html ).insertAfter( theRowBefore );
-    }
-
-    if ( $.isEmptyObject(element) ){
-
-        FMAPR.doFieldMapperTableHousekeeping();
-
-        FMAPR.scrollFieldMapperTableToBottom();
-
-        //FMAPR.markAsDirty();
-
-        $('input#'+FMAPR.elementInputId( yes3_fmapr_data_element_name )).focus();
-    
-    }
-    else {
-
-        let elementRow = $(`tr.yes3-fmapr-data-element[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
-
-        let itemREDCapField = elementRow.find('input[data-mapitem=redcap_field_name]:first');
-
-        let itemREDCapEvent = elementRow.find('select[data-mapitem=redcap_event_id]:first');
-
-        itemREDCapField.val( element.redcap_field_name );
-
-        FMAPR.REDCapFieldOnChange(itemREDCapField);
-
-        itemREDCapEvent.val(element.redcap_event_id);
-
-        FMAPR.REDCapEventOnChange(itemREDCapEvent);
-    }
-
-    return yes3_fmapr_data_element_name;
-}
-
 FMAPR.doFieldMapperTableHousekeeping = function( isClean )
 {
     isClean = isClean || false;
@@ -479,7 +677,7 @@ FMAPR.removeDataElement = function(element_name)
 
 FMAPR.scrollFieldMapperTableToBottom = function()
 {
-    let bodyId = FMAPR.specificationTableBodyId( FMAPR.specification_index );
+    let bodyId = FMAPR.specificationTableBodyId( FMAPR.export_uuid );
     let domObj = document.getElementById(bodyId);
     domObj.scrollTop = domObj.scrollHeight; 
 }
@@ -493,7 +691,7 @@ FMAPR.resizeFieldMapperTable = function()
 
     let fmaprFooter = $('div#yes3-fmapr-footer');
 
-    let parentSection = $('div#yes3-fmapr-container').parent();
+    let parentSection = $('div#yes3-container').parent();
 
     if ( !fmaprTable.length ){
         return false;
@@ -534,7 +732,7 @@ FMAPR.resizeFieldMapperTable = function()
   
  FMAPR.toggleLovDisplay = function(yes3_fmapr_data_element_name) {
  
-    let tableId = FMAPR.specificationTableId( FMAPR.specification_index );
+    let tableId = FMAPR.specificationTableId( FMAPR.export_uuid );
 
     let rowId = FMAPR.dataElementRowId(yes3_fmapr_data_element_name);
 
@@ -562,7 +760,7 @@ FMAPR.resizeFieldMapperTable = function()
  
  FMAPR.toggleValuePickerDisplay = function(yes3_fmapr_data_element_name, lov_value) {
  
-    let tableId = FMAPR.specificationTableId( FMAPR.specification_index )
+    let tableId = FMAPR.specificationTableId( FMAPR.export_uuid )
  
     let value_picker_wrapper = $(`table#${tableId} tr[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}'][data-yes3_fmapr_lov_value='${lov_value}'] div.yes3-fmapr-value-picker-wrapper`);
     let icon = $(`table#${tableId} tr[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}'][data-yes3_fmapr_lov_value='${lov_value}'] i`);
@@ -593,35 +791,35 @@ FMAPR.resizeFieldMapperTable = function()
     return s.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
  }
  
- FMAPR.specificationTableId = function( specification_index ){
-     specification_index = specification_index || 1;
-    return 'specification-' + specification_index;
+ FMAPR.specificationTableId = function( export_uuid )
+ {
+    return 'specification-' + export_uuid;
  }
  
  FMAPR.elementInputId = function( yes3_fmapr_data_element_name ){
-    return 'element-' + FMAPR.specification_index + '-' + FMAPR.normalizeString(yes3_fmapr_data_element_name);
+    return 'element-' + FMAPR.export_uuid + '-' + FMAPR.normalizeString(yes3_fmapr_data_element_name);
  }
  
  FMAPR.elementEventId = function( yes3_fmapr_data_element_name ){
-    return 'element-' + FMAPR.specification_index + '-' + FMAPR.normalizeString(yes3_fmapr_data_element_name + '-event');
+    return 'element-' + FMAPR.export_uuid + '-' + FMAPR.normalizeString(yes3_fmapr_data_element_name + '-event');
  }
  
  FMAPR.lovInputId = function( yes3_fmapr_data_element_name, value ){
-    return 'lov-' + FMAPR.specification_index +
+    return 'lov-' + FMAPR.export_uuid +
        '-' + FMAPR.normalizeString(yes3_fmapr_data_element_name) +
        '-' + FMAPR.normalizeString(value)
        ;
  }
  
  FMAPR.pickerWrapperId = function(yes3_fmapr_data_element_name, yes3_fmapr_lov_value ){
-    return 'picker-' + FMAPR.specification_index +
+    return 'picker-' + FMAPR.export_uuid +
        '-' + FMAPR.normalizeString(yes3_fmapr_data_element_name) +
        '-' + FMAPR.normalizeString(yes3_fmapr_lov_value)
        ;
  }
  
  FMAPR.typeInputId = function(){
-    return 'type-' + FMAPR.specification_index;
+    return 'type-' + FMAPR.export_uuid;
  }
 
  FMAPR.itemTypeClass = function(element_origin)
@@ -633,7 +831,7 @@ FMAPR.resizeFieldMapperTable = function()
     element_origin = element_origin || 'specification';
     let typeClass = FMAPR.itemTypeClass(element_origin);
     let id = FMAPR.elementInputId( yes3_fmapr_data_element_name );
-    let html =`<input type='text' id=${id} class='yes3_fmapr_field_autocomplete ${typeClass} yes3-fmapr-input-element yes3-fmapr-item' data-specification_index='${FMAPR.specification_index}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_field_name' data-element_origin='${element_origin}' placeholder='Start typing or spacebar for all' />`;
+    let html =`<input type='text' id=${id} class='yes3_fmapr_field_autocomplete ${typeClass} yes3-fmapr-input-element yes3-fmapr-item' data-export_uuid='${FMAPR.export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_field_name' data-element_origin='${element_origin}' placeholder='Start typing or spacebar for all' />`;
     return html;
  }
  
@@ -641,20 +839,20 @@ FMAPR.resizeFieldMapperTable = function()
     element_origin = element_origin || 'specification';
     let typeClass = FMAPR.itemTypeClass(element_origin);
     let id = FMAPR.elementEventId( yes3_fmapr_data_element_name );
-    //let html = `<select id=${id} class='yes3-fmapr-event-select yes3-fmapr-item' data-specification_index='${specification_index}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id'/>${FMAPR.settings.event_select_options_html}</select>`;
-    let html = `<select id=${id} class='yes3-fmapr-event-select ${typeClass} yes3-fmapr-item' data-specification_index='${FMAPR.specification_index}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id' data-element_origin='${element_origin}'/></select>`;
+    //let html = `<select id=${id} class='yes3-fmapr-event-select yes3-fmapr-item' data-export_uuid='${export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id'/>${FMAPR.settings.event_select_options_html}</select>`;
+    let html = `<select id=${id} class='yes3-fmapr-event-select ${typeClass} yes3-fmapr-item' data-export_uuid='${FMAPR.export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id' data-element_origin='${element_origin}'/></select>`;
     return html;
  }
  
  FMAPR.getLovInputHtml = function( yes3_fmapr_data_element_name, value ){
     let id = FMAPR.lovInputId( yes3_fmapr_data_element_name, value );
     let pickerWrapperId = FMAPR.pickerWrapperId( yes3_fmapr_data_element_name, value );
-    return `<input type='text' id='${id}' class='yes3-fmapr-input-lov yes3-fmapr-item' data-specification_index='${FMAPR.specification_index}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-mapitem='redcap_field_value' /><div class='yes3-fmapr-value-picker-wrapper' id='${pickerWrapperId}'></div>`;
+    return `<input type='text' id='${id}' class='yes3-fmapr-input-lov yes3-fmapr-item' data-export_uuid='${FMAPR.export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-mapitem='redcap_field_value' /><div class='yes3-fmapr-value-picker-wrapper' id='${pickerWrapperId}'></div>`;
  }
  
  FMAPR.setLovInputListeners = function() {
  
-    let tableId = FMAPR.specificationTableId( FMAPR.specification_index );
+    let tableId = FMAPR.specificationTableId( FMAPR.export_uuid );
     let lovInputs = $(`table#${tableId} input[type=text].yes3-fmapr-input-lov`);
  
     lovInputs
@@ -669,7 +867,7 @@ FMAPR.resizeFieldMapperTable = function()
           if ( value === '*' ) {
  
              FMAPR.params = {
-                "specification_index": FMAPR.specification_index,
+                "export_uuid": FMAPR.export_uuid,
                 "yes3_fmapr_data_element_name": yes3_fmapr_data_element_name,
                 "lov_value": yes3_fmapr_lov_value,
                 "parentCtl": parentCtl
@@ -963,67 +1161,13 @@ FMAPR.markRowUnSelected = function( ele, sticky )
     }
 }
 
-/**
- * sets: FMAPR.insertionRowId
- * 
- * @param {*} rowId 
- * @param {*} field_name 
- * @param {*} event_name
- */
-FMAPR.openFieldInsertionForm = function(rowId, field_name, event_name)
-{
-    rowId = rowId || "";
-    field_name = field_name || "";
-    event_name = event_name || "";
-    
-    let thePanel = $("div#yes3-fmapr-fieldinsertion-panel");
-    let theParent = thePanel.parent();
-    let theRow = null;
-
-    /**
-     * if called with no params, set up for append
-     */
-    if ( !rowId ){
-        theRow = $('tr.yes3-fmapr-data-element').last();
-        FMAPR.insertionRowId = theRow.attr('id');
-        field_name = theRow.find('input.yes3-fmapr-input-element').first().val();
-        let theEvent = theRow.find('select.yes3-fmapr-event-select').first();
-        event_name = theEvent.find("option:selected").text();
-        FMAPR.scrollFieldMapperTableToBottom();
-    }
-    else {
-        FMAPR.insertionRowId = rowId;
-        theRow = $(`tr#${rowId}`);
-    }
-
-    let x = theRow.offset().left - theParent.offset().left;
-    let y = theRow.offset().top - theParent.offset().top;
-
-    YES3.showRedPointer( theRow );
-
-    if ( y > $(window).innerHeight()/2 ) {
-        y = y - thePanel.outerHeight();
-    }
-    else {
-        y = y + theRow.outerHeight();
-    }
-
-    YES3.contextMenuClose();
-
-    YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false, x, y);
-
-    FMAPR.fieldInsertionFormReady(rowId, field_name, event_name);
-}
-
-FMAPR.closeFieldInsertionForm = function()
-{
-    YES3.closePanel('yes3-fmapr-fieldinsertion-panel');
-    YES3.hideRedPointer();
-}
-
 FMAPR.isVerticalLayout = function()
 {
-    return ( yes3ModuleProperties.specifications[FMAPR.specification_index].export_layout==="V" );
+    if ( typeof FMAPR.specification_settings === "undefined" ){
+
+        return false;
+    }
+    else return ( FMAPR.specification_settings.export_layout === "v" );
 }
 
 FMAPR.fieldInsertionFormReady = function(rowId, field_name, event_name)
@@ -1105,7 +1249,7 @@ FMAPR.fieldInsertionExecute = function()
     
     for ( let i=0; i<FMAPR.insertionElements.length; i++){
 
-        yes3_fmapr_data_element_name = FMAPR.addRawREDCapField( FMAPR.insertionElements[i], theRowBefore );
+        yes3_fmapr_data_element_name = YES3.Functions.addRawREDCapField( FMAPR.insertionElements[i], theRowBefore );
 
         theRowBefore = $(`tr#${FMAPR.dataElementRowId(yes3_fmapr_data_element_name)}`);
 
@@ -1343,7 +1487,7 @@ FMAPR.reportStatus = function()
 
         let counts = FMAPR.enumerateSpecificationElements();
 
-        s+= `[${FMAPR.settings.specification_settings[FMAPR.specification_index].specification_key}]:`;
+        //s+= `[${FMAPR.settings.specification_settings[FMAPR.export_uuid].specification_key}]:`;
 
         s += ` ${counts.elements} data elements, ${counts.columns} export columns.`;
 
@@ -1563,8 +1707,8 @@ FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, event_name, r
         if ( !rowSelected ){
 
             html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
-            //html += `<tr><td><a href="javascript:FMAPR.openFieldInsertionForm('${rowId}', '${field_name}', '${event_name}', 'above');">insert form fields above</a></td><td>&nbsp;</td></tr>`;
-            html += `<tr><td><a href="javascript:FMAPR.openFieldInsertionForm('${rowId}', '${field_name}', '${event_name}', 'below');">insert form fields</a></td><td>&nbsp;</td></tr>`;
+            //html += `<tr><td><a href="javascript:YES3.Functions.openFieldInsertionForm('${rowId}', '${field_name}', '${event_name}', 'above');">insert form fields above</a></td><td>&nbsp;</td></tr>`;
+            html += `<tr><td><a href="javascript:YES3.Functions.openFieldInsertionForm('${rowId}', '${field_name}', '${event_name}', 'below');">insert form fields</a></td><td>&nbsp;</td></tr>`;
 
         }
     }
@@ -1690,10 +1834,10 @@ FMAPR.selectedRowCount = function()
 
  FMAPR.setValuePickers = function( yes3_fmapr_data_element_name, redcap_field_name ) {
  
-    let tblId = FMAPR.specificationTableId( FMAPR.specification_index );
+    let tblId = FMAPR.specificationTableId( FMAPR.export_uuid );
     let tbl = $('table#' + tblId);
 
-    //console.log('setValuePickers', FMAPR.specification_index, yes3_fmapr_data_element_name, redcap_field_name);
+    //console.log('setValuePickers', FMAPR.export_uuid, yes3_fmapr_data_element_name, redcap_field_name);
  
     if ( !FMAPR.settings.field_metadata[FMAPR.settings.field_index[redcap_field_name]].field_valueset.length ) {
        tbl.find(`tr[data-yes3_fmapr_data_element_name=${yes3_fmapr_data_element_name}].yes3-fmapr-lov a.yes3-fmapr-value-picker-toggler`).hide();
@@ -1765,7 +1909,7 @@ FMAPR.selectedRowCount = function()
  
  FMAPR.setFieldAutoselectInputs = function() {
  
-    $(`input[type=text][data-specification_index=${FMAPR.specification_index}].yes3_fmapr_field_autocomplete`).each(function () {
+    $(`input[type=text][data-export_uuid=${FMAPR.export_uuid}].yes3_fmapr_field_autocomplete`).each(function () {
  
        $(this)
        .autocomplete({
@@ -1800,7 +1944,7 @@ FMAPR.selectedRowCount = function()
 
     let event_id = theRow.find('select.yes3-fmapr-event-select').first().val();
 
-    let pseudoName = "options";
+    let pseudoName = "";
 
     //console.log('setRawREDCapPseudoElementName', yes3_fmapr_data_element_name, theRow);
 
@@ -1808,7 +1952,7 @@ FMAPR.selectedRowCount = function()
 
         if ( event_id === "all" ){
 
-            pseudoName = "[evnt]_" + field_name;
+            pseudoName = "*_" + field_name;
         }
         else {
 
@@ -1821,20 +1965,34 @@ FMAPR.selectedRowCount = function()
 
  FMAPR.rawRawREDCapElementName = function( field_name, event_id )
  {
-    if ( field_name === yes3ModuleProperties.RecordIdField || !yes3ModuleProperties.isLongitudinal ){
+    if ( field_name === YES3.moduleProperties.RecordIdField || !YES3.moduleProperties.isLongitudinal ){
 
         return field_name;
     }
-    
-    for ( let j=0; j<FMAPR.settings.event_abbreviations_settings.length; j++){
 
-        if ( event_id===FMAPR.settings.event_abbreviations_settings[j].event_id ) {
-            return FMAPR.settings.event_abbreviations_settings[j].event_abbreviation
-                + "_" + field_name;
+    return FMAPR.eventPrefixForEventId(event_id) + "_" + field_name;
+ }
+
+ FMAPR.eventPrefixForEventId = function(event_id)
+ {
+    for ( let j=0; j<FMAPR.stored_export_settings.event_settings.length; j++) {
+        if ( event_id===FMAPR.stored_export_settings.event_settings[j].event_id ) {
+            return FMAPR.stored_export_settings.event_settings[j].event_prefix;
         }
      }
 
-     return "????_" + field_name;
+     return "?";
+ }
+
+ FMAPR.eventNameForEventId = function(event_id)
+ {
+    for ( let j=0; j<FMAPR.stored_export_settings.event_settings.length; j++) {
+        if ( event_id===FMAPR.stored_export_settings.event_settings[j].event_id ) {
+            return FMAPR.stored_export_settings.event_settings[j].event_name;
+        }
+     }
+
+     return "?";
  }
 
  FMAPR.setEventSelectListeners = function()
@@ -1897,9 +2055,9 @@ FMAPR.selectedRowCount = function()
     var dataElementRows;
  
     if ( yes3_fmapr_data_element_name ) {
-       dataElementRows = $(`table.yes3-fmapr[data-specification_index=${FMAPR.specification_index}] tr.yes3-fmapr-data-element[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
+       dataElementRows = $(`table.yes3-fmapr[data-export_uuid=${FMAPR.export_uuid}] tr.yes3-fmapr-data-element[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
     } else {
-       dataElementRows = $(`table.yes3-fmapr[data-specification_index=${FMAPR.specification_index}] tr.yes3-fmapr-data-element`);
+       dataElementRows = $(`table.yes3-fmapr[data-export_uuid=${FMAPR.export_uuid}] tr.yes3-fmapr-data-element`);
     }
  
     dataElementRows.each(function () {
@@ -1910,7 +2068,7 @@ FMAPR.selectedRowCount = function()
           let inputCtl = $(this).find('input[type=text].yes3_fmapr_field_autocomplete:first');
           let entries = 0;
  
-          let inputs = $(`table.yes3-fmapr[data-specification_index=${FMAPR.specification_index}] tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}'] input[type=text].yes3-fmapr-input-lov`);
+          let inputs = $(`table.yes3-fmapr[data-export_uuid=${FMAPR.export_uuid}] tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}'] input[type=text].yes3-fmapr-input-lov`);
           for (let i = 0; i < inputs.length; i++) {
              if (inputs[i].value.length) {
                 entries++;
@@ -1933,7 +2091,7 @@ FMAPR.selectedRowCount = function()
  }
  
  FMAPR.setLovConstant = function( yes3_fmapr_data_element_name, lov_value ){
-    let lovCtl = $( `input[type=text][data-specification_index='${FMAPR.specification_index}'][data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}'][data-yes3_fmapr_lov_value='${lov_value}'].yes3-fmapr-input-lov:first` );
+    let lovCtl = $( `input[type=text][data-export_uuid='${FMAPR.export_uuid}'][data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}'][data-yes3_fmapr_lov_value='${lov_value}'].yes3-fmapr-input-lov:first` );
  
     lovCtl.val('*').trigger('change');
  }
@@ -1942,7 +2100,7 @@ FMAPR.selectedRowCount = function()
   */
  FMAPR.setLovConstantExecute = function() {
  
-    inputs = $(`input[type=text][data-specification_index=${FMAPR.params.specification_index}][data-yes3_fmapr_data_element_name='${FMAPR.params.yes3_fmapr_data_element_name}'].yes3-fmapr-input-lov`);
+    inputs = $(`input[type=text][data-export_uuid=${FMAPR.params.export_uuid}][data-yes3_fmapr_data_element_name='${FMAPR.params.yes3_fmapr_data_element_name}'].yes3-fmapr-input-lov`);
  
     inputs.each( function () {
  
@@ -1961,193 +2119,58 @@ FMAPR.selectedRowCount = function()
     //console.log('setLovConstantExecute', FMAPR.params);
  }
 
-FMAPR.saveFieldMappings = function() {
+FMAPR.getExportSettings = function()
+{
 
-    let tableId = FMAPR.specificationTableId( FMAPR.specification_index );
+    YES3.requestService({"request": "getExportSettings"}, FMAPR.getExportSettingsCallback, true);  
+}
 
-    let specTable = $(`table#${tableId}`);
+FMAPR.getExportSettingsCallback = function(response)
+{
+    console.log('getExportSettingsCallback:', response);
 
-    let specification = {
-        "specification_index": FMAPR.specification_index,
-        "elements": []
-    };
+    FMAPR.stored_export_settings = response;
+    
+    FMAPR.populateExportSpecificationSelect();
+}
 
-    let elementRows = specTable.find('tr.yes3-fmapr-data-element');
+FMAPR.populateExportSpecificationSelect = function()
+{
+    let html = "<option value='' disabled selected>select a specification</option>";
+    let spec = {};
 
-    elementRows.each( function() {
+    for (let s=0; s<FMAPR.stored_export_settings.specification_settings.length; s++){
 
-        let yes3_fmapr_data_element_name = $(this).data('yes3_fmapr_data_element_name');
+        spec = FMAPR.stored_export_settings.specification_settings[s];
 
-        let redcap_field_name = $(this).find('input[data-mapitem=redcap_field_name]:first').val();
-        let redcap_event_id = $(this).find('select[data-mapitem=redcap_event_id]:first').val();
+        spec.export_name = escapeHTML( spec.export_name );
 
-        if ( redcap_field_name ) {
+        if ( spec.removed === "0" ){
 
-            let element = {
-                "yes3_fmapr_data_element_name": yes3_fmapr_data_element_name,
-                "redcap_event_id": redcap_event_id,
-                "redcap_field_name": redcap_field_name,
-                "values": []
-            }
-
-            let valueRows = specTable.find(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
-            
-            valueRows.each(function () {
-
-                let redcap_field_value = $(this).find('input[data-mapitem=redcap_field_value]:first').val();
-                let yes3_fmapr_lov_value = $(this).find('input[data-mapitem=redcap_field_value]:first').data('yes3_fmapr_lov_value');
-
-                if ( redcap_field_value ){
-
-                    element.values.push({
-                        "yes3_fmapr_lov_value": yes3_fmapr_lov_value,
-                        "redcap_field_value": redcap_field_value
-                    })
-
-                } // redcap value nonblank
-            }) // valueRows
-
-            specification.elements.push( element );
-
-        } // redcap field name nonblank
-
-    }) // elementRows
- 
-    //console.log( 'saveFieldMappings', specification );
-
-    let field_mappings_json = JSON.stringify(specification);
-
-    console.log('saveFieldMappings: JSON string length = ' + field_mappings_json.length);
- 
-    FMAPR.requestService( { 
-        "request": "save_field_mappings", 
-        "specification_index": FMAPR.specification_index,
-        "field_mappings_json": field_mappings_json
-    }, FMAPR.saveFieldMappingsCallback, false );
- }
- 
- FMAPR.saveFieldMappingsCallback = function( response ){
-    console.log( 'saveFieldMappingsCallback', response );
-
-    FMAPR.postMessage( response );
-
-    if ( response.indexOf('Success') > -1 ){
-        FMAPR.markAsClean();
+            html += `<option value='${spec.export_uuid}'>${spec.export_name}</option>`;
+        }
+        $("select#export_uuid").empty().append(html);
     }
-}
- 
-$(document).on('yes3-fmapr.settings', function () {
- 
-})
-
-/*** WAYBACK ***/
-
-FMAPR.Wayback_openForm = function()
-{
-    YES3.openPanel('yes3-fmapr-wayback-panel');
-
-    let wrapper = $("div#yes3-fmapr-wrapper");
-
-    let y = wrapper.offset().top;
-
-    let wayback = $('div#yes3-fmapr-wayback-panel');
-
-    wayback.css('opacity', 0).animate(
-        {
-            top: y,
-            opacity: 1
-        }, 
-        2000, 
-        function() {
-
-        }
-    );
-
-    $({deg: 0}).animate({deg: 360}, {
-        duration: 2000,
-        step: function(now) {
-            // in the step-callback (that is fired each step of the animation),
-            // you can use the `now` paramter which contains the current
-            // animation-position (`0` up to `angle`)
-            wayback.css({
-                transform: 'rotate(-' + now + 'deg)'
-            });
-
-            wrapper.css({
-                transform: 'rotate(' + now + 'deg)'
-            });
-        }
-    });
-
-    FMAPR.requestService(
-        {
-            'request': 'get_wayback_html',
-            'specification_key': FMAPR.settings.specification_settings[FMAPR.specification_index].specification_key
-        }, FMAPR.Wayback_openFormCallback
-    );
-}
-
-FMAPR.Wayback_openFormCallback = function( response )
-{
-    console.log(response);
-    $("select#yes3-fmapr-wayback-select").empty().append(response);
-}
-
-FMAPR.Wayback_Execute = function()
-{
-    let log_id = $("select#yes3-fmapr-wayback-select").val();
-
-    FMAPR.specificationElements = [];
-    FMAPR.insertionElements = [];
-    FMAPR.markAsBuildInProgress();
-
-    FMAPR.requestService(
-        {
-            "request": "get_field_mappings",
-            "log_id": log_id
-        }, FMAPR.populateFieldMapperTableCallback, true
-    );
-}
-
-FMAPR.Wayback_closeForm = function()
-{
-
-    let y = $(window).innerHeight()/2;
-
-    let wayback = $('div#yes3-fmapr-wayback-panel');
-
-    wayback.animate(
-        {
-            top: y,
-            opacity: 0
-        }, 
-        2000, 
-        function() {
-            YES3.closePanel('yes3-fmapr-wayback-panel');
-
-        }
-    );
-
-    $({deg: 0}).animate({deg: 360}, {
-        duration: 2000,
-        step: function(now) {
-            // in the step-callback (that is fired each step of the animation),
-            // you can use the `now` paramter which contains the current
-            // animation-position (`0` up to `angle`)
-            wayback.css({
-                transform: 'rotate(' + now + 'deg)'
-            });
-        }
-    });
-
 }
 
 /*** ANONYMOUS TIME ***/
 
+/**
+ * things to do when the settings are loaded
+ */
+ $(document).on('yes3-fmapr.settings', function(){
+
+    console.log("on.yes3-fmapr.settings");
+
+    /**
+     * now we fetch the export settings
+     */
+    FMAPR.getExportSettings();
+})
+
 $(window).resize( function() {
 
     FMAPR.resizeFieldMapperTable();
-
 })
  
 $( function () {
@@ -2155,7 +2178,6 @@ $( function () {
     YES3.hideContextMenuOnClickOutside();
 
     FMAPR.getProjectSettings();
-
 })
 
 

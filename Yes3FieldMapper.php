@@ -16,9 +16,9 @@ require "autoload.php";
  */
 require "defines/yes3_defines.php";
 
-use Exception;
 use REDCap;
 use Yale\Yes3\Yes3;
+use Yale\Yes3\Yes3Trait;
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
@@ -32,6 +32,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $eventPrefixes = [];
     private $token = "";
 
+    use Yes3Trait;
+
     public function __construct() {
 
         parent::__construct(); // call parent (AbstractExternalModule) constructor
@@ -41,7 +43,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->project_id = Yes3::getREDCapProjectId();
 
             $this->username = $this->getUser()->getUsername();
-            $this->serviceUrl = $this->getUrl('services/yes3_fieldmapper_services.php');
+            $this->serviceUrl = $this->getUrl('services/services.php');
             $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php');
 
             $this->RecordIdField = \REDCap::getRecordIdField();
@@ -137,73 +139,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         Yes3::logDebugMessage($this->project_id, print_r($specification_name, true), 'specification_name');
         Yes3::logDebugMessage($this->project_id, print_r($data_elements_json, true), 'specification_data_elements');
         */
-    }
-
-    public function objectProperties()
-    {
-        $propKeys = [];
-
-        /**
-         * A ReflectionObject is apparently required to distinuish the non-private properties of this object
-         * https://www.php.net/ReflectionObject
-         */
-        $publicProps = (new \ReflectionObject($this))->getProperties(\ReflectionProperty::IS_PUBLIC+\ReflectionProperty::IS_PROTECTED);
-
-        foreach( $publicProps as $rflxnProp){
-            $propKeys[] = $rflxnProp->name;
-        }
-         
-        $props = [ 'CLASS' => __CLASS__ ];
-
-        foreach ( $propKeys as $propKey ){
-
-            $json = json_encode($this->$propKey);
-
-            /**
-             * some properties can't be json-encoded...
-             */
-            if ( $json===false ){
-                $props[$propKey] = "json encoding failed for {$propKey}: " . json_last_error_msg();
-            }
-            else {
-                $props[$propKey] = $this->$propKey;
-            }
-        }
-
-        if ( !$json = json_encode($props) ){
-            return json_encode(['message'=>json_last_error_msg()]);
-        }
-        
-        return $json;
-    }
-
-    public function getCodeFor( string $libname, bool $includeHtml=false ):string
-    {
-        $s = "\n<!-- Fieldmapper getCodeFor: {$libname} -->";
-
-        $js = "\nlet yes3ModuleProperties = " . $this->objectProperties() . ";\n";
-
-        $css = "";
-
-        $js .= file_get_contents( $this->getModulePath()."js/yes3.js" );  
-        $js .= file_get_contents( $this->getModulePath()."js/yes3_fieldmapper_common.js" );  
-        $js .= file_get_contents( $this->getModulePath()."js/{$libname}.js" );
-
-        $css .= file_get_contents( $this->getModulePath()."css/yes3.css" );
-        $css .= file_get_contents( $this->getModulePath()."css/yes3_fieldmapper_common.css" );
-        $css .= file_get_contents( $this->getModulePath()."css/{$libname}.css" );
-
-        if ( $js ) $s .= "\n<script>{$js}</script>";
-
-        if ( $css ) $s .= "\n<style>{$css}</style>";
-
-        if ( $includeHtml ){
-            $s .= file_get_contents( $this->getModulePath()."html/yes3.html" );
-        }
-
-        print $s;
-
-        return $s;
     }
 
     /* ==== HOOKS ==== */

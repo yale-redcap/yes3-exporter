@@ -76,7 +76,6 @@ String.prototype.truncateAt = function( n ){
        [this.getHours(),
           this.getMinutes(),
           this.getSeconds()].join(':');
- 
 };
  
  /*
@@ -334,7 +333,7 @@ YES3.setActionIconListeners = function(parentElement)
             YES3.Functions[action].call(this);
         }
         else {
-            YES3.hello(`No can do: the feature '${action}' has not been implemented yet.`);
+            YES3.hello(`No can do: the feature 'YES3.Functions.${action}' has not been implemented yet.`);
         }    
     })
 }
@@ -476,7 +475,7 @@ YES3.requestService = function( params, doneFn, json )
 
    $.ajax(
     {
-      url: yes3ModuleProperties.serviceUrl,
+      url: YES3.moduleProperties.serviceUrl,
       type: "POST",
       dataType: ( json ) ? "json":"html",
       data: params
