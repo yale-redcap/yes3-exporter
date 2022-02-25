@@ -11,8 +11,11 @@
     --yes3-fmapr-input-background-color: white;
     --yes3-fmapr-input-border-color: lightgrey;
 
-    --yes3-fmapr-redcap-element-color: slategrey;
- 
+    --yes3-fmapr-redcap-element-color: slategray;
+    --yes3-fmapr-redcap-field-color: cadetblue;
+    --yes3-fmapr-redcap-form-color: darkgreen;
+    --yes3-fmapr-specmap-color: steelblue;
+
     --yes3-fmapr-gutter-width: 30px;
 
     --yes3-fmapr-control-color: rgb(7, 55, 65);
@@ -47,6 +50,11 @@
     --yes3-fmapr-input-border-color: black;
 
     --yes3-fmapr-redcap-element-color: silver;
+    --yes3-fmapr-redcap-field-color: darkcyan;
+    --yes3-fmapr-redcap-form-color: mediumseagreen;
+    --yes3-fmapr-specmap-color: steelblue;
+
+    --yes3-fmapr-gutter-width: 30px;
  
     --yes3-fmapr-gutter-width: 30px;
 

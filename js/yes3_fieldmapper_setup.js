@@ -146,6 +146,9 @@ FMAPR.saveExportSettings = function()
         let export_name = $(this).find("input[data-setting=export_name]").val();
         let export_layout = $(this).find("input[data-setting=export_layout]:checked").val() || "";
         let export_selection = $(this).find("input[data-setting=export_selection]:checked").val() || "";
+        
+        let export_target = $(this).find("input[data-setting=export_target]:checked").val() || "";
+        let export_target_folder = $(this).find("input[data-setting=export_target_folder]").val() || "";
 
         let export_criterion_field = ( export_selection === "2" ) ? $(this).find("input[data-setting=export_criterion_field]").val() || "" : "";
         let export_criterion_event = ( export_selection === "2" ) ? $(this).find("select[data-setting=export_criterion_event]").val() || "" : "";
@@ -172,6 +175,8 @@ FMAPR.saveExportSettings = function()
             "export_criterion_field": export_criterion_field,
             "export_criterion_event": export_criterion_event,
             "export_criterion_value": export_criterion_value,
+            "export_target": export_target,
+            "export_target_folder": export_target_folder,
             "mapping_specification": mapping_specification,
             "field_mappings": [],
             "removed": removed
@@ -298,6 +303,8 @@ FMAPR.populateExportSpecificationsTables = function()
     let export_criterion_field = "";
     let export_criterion_event = "";
     let export_criterion_value = "";
+    let export_target = "";
+    let export_target_folder = "";
     let mapping_specification = [];
     let mapping_specification_json = "";
     let specNum = "";
@@ -320,6 +327,10 @@ FMAPR.populateExportSpecificationsTables = function()
         export_criterion_field = FMAPR.stored_export_settings.specification_settings[s].export_criterion_field || "";
         export_criterion_event = FMAPR.stored_export_settings.specification_settings[s].export_criterion_event || "";
         export_criterion_value = FMAPR.stored_export_settings.specification_settings[s].export_criterion_value || "";
+
+        export_target = FMAPR.stored_export_settings.specification_settings[s].export_target || "";
+        export_target_folder = FMAPR.stored_export_settings.specification_settings[s].export_target_folder || "";
+
         mapping_specification = FMAPR.stored_export_settings.specification_settings[s].mapping_specification || [];
 
         specTbl.attr({"data-export_uuid": export_uuid});
@@ -345,6 +356,9 @@ FMAPR.populateExportSpecificationsTables = function()
         specTbl.find('select[data-setting=export_criterion_event]').val(export_criterion_event);
         specTbl.find('input[data-setting=export_criterion_value]').val(export_criterion_value);
 
+        specTbl.find(`input[data-setting=export_target][value=${export_target}]`).prop('checked', true);
+        specTbl.find('input[data-setting=export_target_folder]').val(export_target_folder);
+
         specTbl.find('textarea[data-setting=mapping_specification]').val(mapping_specification_json);
 
         FMAPR.reportExportMappingsLength( specNum );
@@ -352,6 +366,10 @@ FMAPR.populateExportSpecificationsTables = function()
         FMAPR.setCriterionEventSelectOptions( specTbl );
 
         FMAPR.exportSpecificationTableSkipper( specTbl );
+
+        //FMAPR.setExportLayoutListeners( specTbl );
+
+        FMAPR.setExportTargetListeners( specTbl );
 
         FMAPR.setRemovedStatus( specTbl, removed, true );
 
@@ -554,9 +572,61 @@ FMAPR.setExportEventPrefixListeners = function() {
     ;
 }
 
+FMAPR.setExportLayoutListeners = function( tbl ) {
+
+    tbl.find('input[data-setting=export_layout]')
+        .off()
+        .on('click', function(){
+
+            //console.log('setExportLayoutListeners', $(this).val());
+
+            if ( $(this).val()==="r" ){
+
+                $(this).closest('table').find('tr.yes3-fmapr-repeating-only').show();
+            }
+            else {
+
+                $(this).closest('table').find('tr.yes3-fmapr-repeating-only').hide();
+            }
+    
+            FMAPR.markAsDirty();
+        })
+    ;
+}
+
+FMAPR.setExportTargetListeners = function( tbl ) {
+
+    tbl.find('input[data-setting=export_target]')
+        .off()
+        .on('click', function(){
+
+            let parentTable = FMAPR.getParentTable( $(this) );
+    
+            FMAPR.markAsDirty();
+
+            FMAPR.exportSpecificationTableSkipper( parentTable );
+
+            //console.log('setExportLayoutListeners', $(this).val());
+/*
+            if ( $(this).val()==="filesystem" ){
+
+                $(this).closest('table').find('tr.yes3-fmapr-target-filesystem-only').show();
+            }
+            else {
+
+                $(this).closest('table').find('tr.yes3-fmapr-target-filesystem-only').hide();
+            }
+    
+            FMAPR.markAsDirty();
+            */
+        })
+    ;
+}
+
 FMAPR.exportSpecificationTableSkipper = function ( tbl )
 {
     let export_selection = tbl.find('input[data-setting=export_selection]:checked').val() || "0";
+    let export_target    = tbl.find('input[data-setting=export_target]:checked').val() || "";
 
     if ( export_selection==="2" ) {
 
@@ -566,8 +636,16 @@ FMAPR.exportSpecificationTableSkipper = function ( tbl )
 
         tbl.find(".yes3-fmapr-if-selected").hide().addClass('yes3-fmapr-skipped-over');
     }
-}
 
+    if ( export_target==="filesystem" ) {
+
+        tbl.find(".yes3-fmapr-target-filesystem-only").show().removeClass('yes3-fmapr-skipped-over');
+    }
+    else {
+
+        tbl.find(".yes3-fmapr-target-filesystem-only").hide().addClass('yes3-fmapr-skipped-over');
+    }
+}
 
 FMAPR.eventSelectOptionsForField = function( field_name )
 {
@@ -577,7 +655,10 @@ FMAPR.eventSelectOptionsForField = function( field_name )
 
     if ( typeof field_index === "number" ){
 
-        let form_events = FMAPR.settings.form_metadata[FMAPR.settings.field_metadata[field_index].form_name].form_events;
+        let form_name = FMAPR.settings.field_metadata[field_index].form_name;
+        let form_index = FMAPR.settings.form_index[form_name];
+
+        let form_events = FMAPR.settings.form_metadata[form_index].form_events;
 
         for (let i=0; i<form_events.length; i++){
 
@@ -684,6 +765,12 @@ FMAPR.appendBlankExportSpecification = function()
 
     newTable.find('label[for=yes3-fmapr-export-selection-9999-1]').attr({"for": `yes3-fmapr-export-selection-${specNum}-1`});
     newTable.find('label[for=yes3-fmapr-export-selection-9999-2]').attr({"for": `yes3-fmapr-export-selection-${specNum}-2`});
+
+    newTable.find('input[data-setting=export_target][value=download]').attr({'id': `yes3-fmapr-export-target-${specNum}-download`, 'name': `yes3-fmapr-export-target-${specNum}`});
+    newTable.find('input[data-setting=export_target][value=filesystem]').attr({'id': `yes3-fmapr-export-target-${specNum}-filesystem`, 'name': `yes3-fmapr-export-target-${specNum}`});
+
+    newTable.find('label[for=yes3-fmapr-export-target-9999-download]').attr({"for": `yes3-fmapr-export-target-${specNum}-download`});
+    newTable.find('label[for=yes3-fmapr-export-target-9999-filesystem]').attr({"for": `yes3-fmapr-export-target-${specNum}-filesystem`});
 
     newTable.find('label[for=yes3-fmapr-export-layout-9999-h]').attr({"for": `yes3-fmapr-export-layout-${specNum}-h`});
     newTable.find('label[for=yes3-fmapr-export-layout-9999-v]').attr({"for": `yes3-fmapr-export-layout-${specNum}-v`});
@@ -835,8 +922,11 @@ FMAPR.inspectExportSpecificationSettings = function()
 
         errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_name");
         errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_layout");
-        errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_selection");
+        
+        errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_target");
+        errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_target_folder");
 
+        errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_selection");
         errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_criterion_field");
         errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_criterion_event");
         errors += FMAPR.checkBlankSpecificationSetting( $(this), "export_criterion_value");

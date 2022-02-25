@@ -1,6 +1,6 @@
 <?php
 
-namespace Yale\Yes3;
+namespace Yale\Yes3FieldMapper;
 
 use Exception;
 use ExternalModules\ExternalModules;
@@ -239,6 +239,17 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
       }
 
       return $data[$REDCapRecordId];
+   }
+
+   public static function isRepeatingInstrument(string $form_name)
+   {
+        $sql = "SELECT COUNT(*) AS k
+                FROM redcap_events_repeat er
+                    INNER JOIN redcap_events_metadata em ON em.event_id=er.event_id
+                    INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id
+                WHERE ea.project_id=? AND er.form_name=?";
+        
+        return self::fetchValue($sql, [self::getREDCapProjectId(), $form_name]);
    }
 
    public static function saveREDCapDataForRecord(string $REDCapRecordId, array $x, int $event_id=0): int

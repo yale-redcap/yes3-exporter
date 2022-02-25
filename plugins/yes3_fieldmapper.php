@@ -11,10 +11,12 @@ $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();
 
 /**
- * getCodeFor will: 
+ * getCodeFor (from Yes3Trait) will: 
  *   (1) output html tags and code for js and css libraries named [param1]
  *   (2) if [param2] is true, output /html/yes3.html (yes3 dialog panels)
- *   (3) output js code to build the global yes3ModuleProperties object
+ *   (3) output js code to build 
+ *          - YES3.moduleObject (the REDCap Javascript module object)
+ *          - YES3.moduleProperties (all public properties of the EM class)
  */
 
  $module->getCodeFor("yes3_fieldmapper", true);
@@ -136,7 +138,7 @@ $HtmlPage->ProjectHeader();
 
    <div class="yes3-panel-header-row">
       <div class="yes3-panel-row-left" id="yes3-fmapr-fieldinsertion-panel-title">
-         YES3 FIELD INJECTOR
+         YES3 Exporter - bulk insertion
       </div>
       <div class="yes3-panel-row-right">
          <a href="javascript: FMAPR.closeFieldInsertionForm()"><i class="fas fa-times fa-2x"></i></a>
@@ -195,6 +197,22 @@ $HtmlPage->ProjectHeader();
 
             <tr>
                 <td>
+                    Insertion options:
+                </td>
+                <td>
+                    <div class="yes3-panel-row">
+                        <input type="radio" class="balloon" value="default" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-default" checked />
+                        <label for="yes3-fmapr-fieldinsertion-option-default">as above</label>&nbsp;
+                        <input type="radio" class="balloon" value="forms" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-forms" />
+                        <label for="yes3-fmapr-fieldinsertion-option-forms">expand to forms</label>
+                        <input type="radio" class="balloon" value="fields" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-fields" />
+                        <label for="yes3-fmapr-fieldinsertion-option-fields">expand to fields</label>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
                     &nbsp;
                 </td>
                 <td>
@@ -206,13 +224,20 @@ $HtmlPage->ProjectHeader();
 
    </div>
 
-   <div class="yes3-panel-row">
-      <div style='float:left'>
+   <div class="yes3-flex-container-evenly-distributed">
+
+      <div class="yes3-flex-vcenter-hleft">
          <input type="button" value="make it so" onClick="FMAPR.fieldInsertionExecute();" class="yes3-panel-button" />
       </div>
-      <div style='float:right'>
+
+      <div class="yes3-flex-vcenter-hleft yes3-panel-between-the-buttons">
+          <div id="yes3-fmapr-bulk-insertion-progress"></div>
+      </div>
+
+      <div class="yes3-flex-vcenter-hright">
          <input type="button" value="nah" onClick="FMAPR.closeFieldInsertionForm();" class="yes3-panel-button" />
       </div>
+
    </div>
 
 </div> <!-- injector -->
@@ -238,8 +263,8 @@ $HtmlPage->ProjectHeader();
 
         <div class="col-md-4  yes3-flex-vcenter-hright">
 
-            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
-            <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
+            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-not-repeating" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
+            <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-bulk-insert" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="Save the specification."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
             <i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i>

@@ -62,3 +62,11 @@ div#yes3-fmapr-mappings-editor textarea {
     margin-left: var(--yes3-margin);
     color: var(--yes3-nonessential-information-color);
 }
+
+tr.yes3-fmapr-repeating-only {
+    display: none;
+}
+
+tr.yes3-fmapr-target-filesystem-only {
+    display: none;
+}

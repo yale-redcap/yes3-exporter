@@ -22,7 +22,7 @@
 spl_autoload_register(function ($classOrTrait) {
 
    // project-specific namespace prefix
-   $prefix = 'Yale\\Yes3\\';
+   $prefix = 'Yale\\Yes3FieldMapper\\';
 
    // does the class/trait use the namespace prefix?
    $len = strlen($prefix);

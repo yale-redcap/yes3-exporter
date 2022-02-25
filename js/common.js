@@ -165,6 +165,23 @@ FMAPR.displayActionIcons = function()
             $('i.yes3-fmapr-display-when-dirty').addClass('yes3-action-disabled');
             $('i#yes3-fmapr-save-control').removeClass('yes3-fmapr-dirty');
         }
+
+        if ( FMAPR.specification_settings && FMAPR.specification_settings.export_layout=== "r" ){
+
+            $('i.yes3-fmapr-display-when-not-repeating').addClass('yes3-action-disabled');
+
+            /**
+             * only one repeating form allowed
+             */
+            if ( $('tr.yes3-fmapr-data-element').length > 1 ){
+
+                $('i.yes3-fmapr-bulk-insert').addClass('yes3-action-disabled');
+            }
+            else {
+
+                $('i.yes3-fmapr-bulk-insert').removeClass('yes3-action-disabled');
+            }
+        }
     }
 
     YES3.setActionIconListeners( YES3.container() );

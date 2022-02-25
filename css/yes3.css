@@ -356,8 +356,16 @@ div#yes3-container {
     background-color: var(--yes3-background-color);
 }
 
-.yes3-row-selected {
-    background-color:var(--yes3-row-selected-color) !important;
+tr.yes3-row-selected, tr.yes3-row-selected input, tr.yes3-row-selected select {
+    background-color:var(--yes3-dashboard-row-selected-background-color) !important;
+}
+
+tr.yes3-row-selected span.yes3-fmapr-redcap-element::before {
+    /*content: "\25B6"; arrow */
+    content: "\2714"; /* checkmark */
+    font-size: 1.5rem;
+    font-style: normal !important;
+    margin-right: 10px;
 }
 
 .yes3-row-focused {
@@ -421,7 +429,25 @@ div#yes3-red-pointer {
     padding: var(--yes3-padding);
     margin: var(--yes3-margin);
  }
- 
+
+.yes3-flex-vcenter-hleft {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.yes3-flex-vcenter-hright {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.yes3-flex-vcenter-hcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
  .yes3-highlight {
     color: var(--yes3-highlight-color);
  }
@@ -631,24 +657,6 @@ div#yes3-red-pointer {
  a:focus, i:focus, a:hover, i:hover {
     outline: none !important;
  }
-
- .yes3-flex-vcenter-hleft {
-    display: flex;
-    justify-content: left;
-    align-items: center;
-}
-
-.yes3-flex-vcenter-hright {
-    display: flex;
-    justify-content: right;
-    align-items: center;
-}
-
-.yes3-flex-vcenter-hcenter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
  .yes3-block {
      height: var(--yes3-block-height);
@@ -1139,7 +1147,25 @@ table.yes3-removed .yes3-if-removed {
     border-color: var(--yes3-button-hover-background-color);
     cursor: pointer;
  }
- 
+
+/*
+* for divs used as progress bars twixt 'okay' and 'cancel' buttons
+*/
+.yes3-panel-between-the-buttons {
+    width: calc(100% - 300px);
+    border: 1px solid var(--yes3-panel-form-button-color);
+    background-color: transparent;
+    visibility: hidden;
+}
+
+.yes3-panel-between-the-buttons div {
+    width: 0;
+    height: 1.5rem;
+    border: 0;
+    color: var(--yes3-panel-form-button-background-color);
+    background-color: var(--yes3-panel-form-button-color);
+}
+
  .yes3-panel td, .yes3-panel th {
     vertical-align: middle;
     padding: 5px;

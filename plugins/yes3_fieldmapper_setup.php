@@ -320,7 +320,7 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
                 <td class="yes3-fmapr-export-specification">Export layout:</td>
                 
                 <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
-                    <input type="radio" class="balloon" value="h" data-setting="export_layout" name="yes3-fmapr-export-layout-9999" id="yes3-fmapr-export-layout-9999-h">
+                    <input type="radio" class="balloon" value="h" data-setting="export_layout" name="yes3-fmapr-export-layout-9999" id="yes3-fmapr-export-layout-9999-h" checked>
                         <label for="yes3-fmapr-export-layout-9999-h" title="Horizontal layout">Horiz</label>&nbsp;
                     <input type="radio" class="balloon" value="v" data-setting="export_layout" name="yes3-fmapr-export-layout-9999" id="yes3-fmapr-export-layout-9999-v">
                         <label for="yes3-fmapr-export-layout-9999-v" title="Vertical layout">Vert</label>&nbsp;
@@ -332,13 +332,25 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
             
             </tr>
 
+            <!--tr class="yes3-fmapr-if-expanded yes3-fmapr-repeating-only">
+
+                <td class="yes3-fmapr-export-specification">Repeating form name:</td>
+                
+                <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
+                    <select data-setting="repeating_form_name" name="repeating-form-name"></select>
+                </td>
+                
+                <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
+            
+            </tr-->
+
             <tr class="yes3-fmapr-if-expanded">
 
                 <td class="yes3-fmapr-export-specification">Include:</td>
                 
                 <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
 
-                    <input type="radio" class="balloon" value="1" data-setting="export_selection" name="yes3-fmapr-export-selection-9999" id="yes3-fmapr-export-selection-9999-1">
+                    <input type="radio" class="balloon" value="1" data-setting="export_selection" name="yes3-fmapr-export-selection-9999" id="yes3-fmapr-export-selection-9999-1" checked>
                     <label for="yes3-fmapr-export-selection-9999-1" title="Include all records">All records</label>&nbsp;
 
                     <input type="radio" class="balloon" value="2" data-setting="export_selection" name="yes3-fmapr-export-selection-9999" id="yes3-fmapr-export-selection-9999-2">
@@ -382,6 +394,36 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
                     <input type="text" data-setting="export_criterion_value" placeholder="value">
                 </td>
                 
+                <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
+            
+            </tr>
+
+            <tr class="yes3-fmapr-if-expanded">
+
+                <td class="yes3-fmapr-export-specification">Export target:</td>
+                
+                <td class="yes3-fmapr-export-specification yes3-fmapr-export-target">
+
+                    <input type="radio" class="balloon" value="download" data-setting="export_target" name="yes3-fmapr-export-target-9999" id="yes3-fmapr-export-target-9999-download" checked>
+                    <label for="yes3-fmapr-export-target-9999-download" title="Download to client computer">Download</label>&nbsp;
+
+                    <input type="radio" class="balloon" value="filesystem" data-setting="export_target" name="yes3-fmapr-export-target-9999" id="yes3-fmapr-export-target-9999-filesystem">
+                    <label for="yes3-fmapr-export-target-9999-filesystem" title="Host file system: file, automount or symlink">Host file system</label>&nbsp;
+
+                </td>
+                
+                <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
+            
+            </tr>
+
+            <tr class="yes3-fmapr-if-expanded yes3-fmapr-target-filesystem-only yes3-fmapr-skipped-over">
+
+                <td class="yes3-fmapr-export-specification">Folder or automount name:</td>
+                
+                <td class="yes3-fmapr-export-specification">
+                    <input type="text" data-setting="export_target_folder" value="" class="yes3-fmapr-spec-lastrow-item" placeholder="enter a folder or automount name">
+                </td>
+               
                 <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
             
             </tr>

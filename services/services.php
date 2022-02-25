@@ -1,5 +1,9 @@
 <?php
 
+namespace Yale\Yes3FieldMapper;
+
+use Exception;
+
 /**
  * Enable PHP error message output to browser.
  * DISABLE IN PRODUCTION!
@@ -8,8 +12,7 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-$module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
-use Yale\Yes3\Yes3;
+$module = new Yes3FieldMapper();
 
 /**
  * validate the csrf token
@@ -70,7 +73,7 @@ exit ( call_user_func( __NAMESPACE__."\\".$request ) );
  */
 function toesUp($errmsg)
 {
-    throw new Exception("ARHH! YES3 Services reports ".$errmsg);  
+    throw new \Exception("ARHH! YES3 Services reports ".$errmsg);  
 }
  
  /**
@@ -335,17 +338,17 @@ function get_wayback_html()
 {
     global $module;
 
-    $specification_key = Yes3::normalized_string($_POST['specification_key']);
+    $export_uuid = $_POST['export_uuid'];
     
-    $fields = "log_id, message, user, timestamp, map_label, field_mappings";
-
+    $fields = "log_id, message, user, timestamp, export_uuid, field_mappings";
+    
     $pSql = "
         SELECT {$fields}
-        WHERE project_id=? AND setting='field-map' AND specification_key=?
+        WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
         ORDER BY timestamp DESC
     ";
 
-    $params = [$module->project_id, $specification_key];
+    $params = [$module->project_id, $export_uuid];
 
     $result = $module->queryLogs($pSql, $params);
 
@@ -377,60 +380,28 @@ function save_field_mappings()
 {
     global $module;
 
-    $specification_index = (int) $_POST['specification_index'];
+    $export_uuid = $_POST['export_uuid'];
 
     $field_mappings_json = $_POST['field_mappings_json'];
 
-    //if ( !$field_mappings_json = json_encode($field_mappings) ) {
-    //    return "Fail: Mappings NOT saved: json error '" . json_last_error_msg() . "' reported.";
-    //}
-
-    if ( !$key = Yes3::normalized_string($module->getProjectSetting('specification-key')[$specification_index]) ) {
-        return "Fail: Mappings NOT saved: no specification key provided.";        
-    }
-
-    $logMsg = "Success: Field map '{$key}' saved.";
+    $logMsg = "YES3 Exporter Mappings";
 
     $logId = $module->log(
         $logMsg,
         [
-            "setting" => "field-map",
-            "specification_index" => $specification_index,
-            "specification_key" => $key,
-            "map_label" => "my map label",
+            "export_uuid" => $export_uuid,
             "user" => $module->username,
+            "setting" => "yes3-exporter-field-map",
             "field_mappings" => $field_mappings_json
         ]
     );
 
     if ( $logId ){
 
-        return $logMsg;
-
+        return "Success: YES3 Exporter Field Mappings for " . Yes3::escapeHtml($export_uuid) . " saved.";
     }
 
     return "Fiddlesticks: Mappings NOT saved due to some unknowable error.";
-}
-
-function save_field_mappings_legacy()
-{
-    global $module;
-
-    $specification_index = (int) $_POST['specification_index'];
-    $field_mappings = $_POST['field_mappings'];
-
-    if ( !$field_mappings_json = json_encode($field_mappings) ) {
-        return "Field mappings NOT saved: json error '" . json_last_error_msg() . "' reported.";
-    }
-
-    $specification_field_mappings = $module->getProjectSetting('specification-field-mappings');
-
-    $specification_field_mappings[$specification_index] = $field_mappings_json;
-
-    $module->setProjectSetting('specification-field-mappings', $specification_field_mappings);
-
-    return "Mappings saved at " . strftime("%F %T") . ".";
-
 }
 
 function get_field_mappings()
@@ -452,10 +423,10 @@ function get_field_mappings()
 
         $pSql = "
             SELECT {$fields}
-            WHERE project_id=? AND setting='field-map' AND export_uuid=?
+            WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
             ORDER BY timestamp DESC LIMIT 1
         ";
-        $params = [$module->project_id, $$export_uuid];
+        $params = [$module->project_id, $export_uuid];
     }
 
     $map_record = $module->queryLogs($pSql, $params)->fetch_assoc();
@@ -485,9 +456,12 @@ function get_field_mappings()
 
                 "elements" => [
                     [
-                        'yes3_fmapr_data_element_name' => "redcap_field_1",
-                        'redcap_field_name' => REDCap::getRecordIdField(),
+                        'yes3_fmapr_data_element_name' => "redcap_element_1",
+                        'element_origin' => "redcap",
+                        'redcap_field_name' => \REDCap::getRecordIdField(),
                         'redcap_event_id' => $module->getFirstEventId(),
+                        'redcap_object_type' => "field",
+                        'redcap_form_name' => "",
                         'values' => []
                     ]
                 ]  
@@ -514,16 +488,44 @@ function get_project_settings():string
     global $module;
 
     $field_metadata_structures = get_field_metadata_structures();
+    $form_metadata_structures  = get_form_metadata_structures();
 
     // note: field_metadata_structures is properly html-escaped
+
+    /**
+     * Count fields on the event grid if longitudinal.
+     * Otherwise, count all fields.
+     */
+    if ( \REDCap::isLongitudinal() ){
+
+        $sqlCount = "SELECT COUNT(distinct field_name) AS field_count
+        FROM redcap_metadata m
+        INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
+        INNER JOIN redcap_events_metadata em on ef.event_id=em.event_id
+        INNER JOIN redcap_events_arms ea on ea.arm_id=em.arm_id AND ea.project_id=m.project_id
+        WHERE m.project_id=?
+        AND m.field_name<>?
+        AND m.element_type<>'descriptive'";
+    } 
+    else {
+
+        $sqlCount = "SELECT COUNT(*) AS field_count
+        FROM redcap_metadata m
+        WHERE m.project_id=? 
+        AND m.field_name<>?
+        AND m.element_type<>'descriptive'";
+    }
 
     return Yes3::json_encode_pretty( [
         'project_id' => $module->project_id,
         'field_index' => $field_metadata_structures['field_index'],
         'field_metadata' => $field_metadata_structures['field_metadata'],
+        'field_count' => Yes3::fetchValue($sqlCount, [$module->project_id, \REDCap::getRecordIdField()]),
         'field_autoselect_source' => $field_metadata_structures['field_autoselect_source'],
-        'form_metadata' => get_form_metadata(),
+        'form_index' => $form_metadata_structures['form_index'],
+        'form_metadata' => $form_metadata_structures['form_metadata'],
         'event_metadata' => get_event_metadata(),
+        'project_event_metadata' => get_project_event_metadata(),
         'default_event_id' => get_first_event_id(),
         'specification_settings' => get_specification_settings(),
         'event_abbreviations_settings' => get_event_abbreviation_settings()
@@ -578,8 +580,7 @@ function get_fields():array
 SELECT m.`field_name`, m.`element_label`, m.`element_type`, m.`element_enum`
 FROM redcap_metadata m
 WHERE m.`project_id`={$module->project_id}
-  AND m.`element_type` NOT IN('descriptive', 'checkbox')
-  AND m.`field_name` NOT LIKE '%\_complete'
+  AND m.`element_type` NOT IN('descriptive')
 ORDER BY m.`field_order`
    ");
 
@@ -613,24 +614,24 @@ function get_field_metadata_structures(): array
     if ( \REDCap::isLongitudinal() ){
 
         $sql = "
-            SELECT DISTINCT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum
-            FROM redcap_metadata m
-              INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
-            WHERE m.project_id=?
-            AND m.element_type NOT IN('textarea', 'checkbox', 'descriptive')
-            AND m.field_name NOT LIKE '%\_complete'
-            ORDER BY m.field_order      
+        SELECT DISTINCT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum
+        FROM redcap_metadata m
+            INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
+            INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id
+            INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id AND ea.project_id=m.project_id
+        WHERE m.project_id=?
+        AND m.element_type NOT IN('descriptive')
+        ORDER BY m.field_order;  
         ";
     }
     else {
 
         $sql = "
-            SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum
-            FROM redcap_metadata m
-            WHERE m.project_id=?
-            AND m.element_type NOT IN('textarea', 'checkbox', 'descriptive')
-            AND m.field_name NOT LIKE '%\_complete'
-            ORDER BY m.field_order      
+        SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum
+        FROM redcap_metadata m
+        WHERE m.project_id=?
+        AND m.element_type NOT IN('descriptive')
+        ORDER BY m.field_order      
         ";
     }
 
@@ -657,24 +658,25 @@ function get_field_metadata_structures(): array
               ];
            }
         }
-  
-        $events = [48 =>'baseline', 49 => 'screen'];
 
         $field_label = ellipsis( Yes3::escapeHtml($field['element_label']) );
 
         $field_metadata[] = [
 
-            'field_name'      => $field['field_name'],
-            'form_name'       => Yes3::escapeHtml($field['form_name']),
-            'field_label'     => $field_label,
-            'field_valueset'  => $valueset
+            'field_name'        => $field['field_name'],
+            'form_name'         => Yes3::escapeHtml($field['form_name']),
+            'field_type'        => $field['element_type'],
+            'field_label'       => $field_label,
+            'field_valueset'    => $valueset
 
         ];
 
-        $field_autoselect_source[] = [
-            'value' => $field['field_name'],
-            'label' => "[" . $field['field_name'] . "] " . $field_label
-        ];
+        if ( !Yes3::isRepeatingInstrument($field['form_name'])) {
+            $field_autoselect_source[] = [
+                'value' => $field['field_name'],
+                'label' => "[" . $field['field_name'] . "] " . $field_label
+            ];
+        }
 
         $field_index[$field['field_name']] = $field_index_num;
 
@@ -697,6 +699,16 @@ function ellipsis( $s, $len=64 )
     return $s;
 }
 
+/**
+ * 
+ * note (2/23/2022): event_metadata now deprecated. moving to project_event_metadata
+ * 
+ * function: Yale\Yes3FieldMapper\get_event_metadata
+ * 
+ * 
+ * @return array
+ * @throws Exception
+ */
 function get_event_metadata():array
 {
     global $module;
@@ -722,7 +734,43 @@ ORDER BY e.day_offset
     return $event_metadata;   
 }
 
-function get_form_metadata():array
+function get_project_event_metadata():array
+{
+    global $module;
+
+    $sql = "
+SELECT e.event_id, e.descrip AS `event_label`
+FROM redcap_events_metadata e
+  INNER JOIN redcap_events_arms a on e.arm_id=a.arm_id
+WHERE a.project_id=?
+ORDER BY e.day_offset
+    ";
+
+    $ee = Yes3::fetchRecords($sql, [$module->project_id]);
+
+    $project_event_metadata = [];
+
+    foreach ($ee as $e){
+        $project_event_metadata[] = [
+            'event_id' => (string) $e['event_id'],
+            'event_label' => Yes3::escapeHtml($e['event_label'])
+        ];
+    }
+
+    return $project_event_metadata;   
+}
+
+
+/**
+ * Note (2/23/2022): event.descrip now deprecated, use event.event_label 
+ * 
+ * function: Yale\Yes3FieldMapper\get_form_metadata_structures
+ * 
+ * 
+ * @return array
+ * @throws Exception
+ */
+function get_form_metadata_structures():array
 {
     global $module;
 
@@ -731,17 +779,21 @@ function get_form_metadata():array
     if ( $isLong = \REDCap::isLongitudinal() ) {
 
         $sql = "
-        SELECT DISTINCT m.form_name, m.form_menu_description
+        SELECT DISTINCT m.form_name, m.field_order, m.form_menu_description
         FROM redcap_metadata m
             INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
+            INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id
+            INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id AND ea.project_id=m.project_id
         WHERE m.project_id=? AND m.form_menu_description IS NOT NULL
+        ORDER BY m.field_order
         ";
 
     } else {
 
         $events = [[ 
             'event_id' => get_first_event_id(),
-            'descrip' => "Event 1"
+            'descrip' => "Event 1",
+            'event_label' => "Event_1"
         ]];
 
         $sql = "
@@ -755,6 +807,10 @@ function get_form_metadata():array
     $mm = Yes3::fetchRecords($sql, [$module->project_id]);
 
     $form_metadata = [];
+
+    $form_index_num = 0;
+
+    $form_index = [];
 
     foreach ($mm as $m){
 
@@ -777,19 +833,46 @@ function get_form_metadata():array
 
                 $events[] = [ 
                     'event_id' => (string)$e['event_id'],
+                    'event_label' => Yes3::escapeHtml($e['descrip']),
                     'descrip' => Yes3::escapeHtml($e['descrip'])
-                ];
-        
+                ];      
             }
         }
 
-        $form_metadata[$m['form_name']] = [
-            'form_label' => Yes3::escapeHtml($m['form_menu_description']),
-            'form_events' => $events
-        ];
-    }
+        $sqlF = "
+        SELECT m.field_name
+        FROM redcap_metadata m
+        WHERE m.project_id=? and m.form_name=?
+            AND m.element_type<>'descriptive'
+        ORDER BY m.field_order ; 
+        ";
 
-    return $form_metadata;   
+        $form_fields = [];
+
+        $fields = Yes3::fetchRecords($sqlF, [$module->project_id, $m['form_name']]);
+        foreach ( $fields as $field ){
+            $form_fields[] = $field['field_name'];
+        }
+  
+        $form_name = Yes3::escapeHtml($m['form_name']);
+
+        $form_metadata[] = [
+            'form_name' => $form_name,
+            'form_label' => Yes3::escapeHtml($m['form_menu_description']),
+            'form_events' => $events,
+            'form_fields' => $form_fields,
+            'form_repeating' => ( Yes3::isRepeatingInstrument($m['form_name']) ) ? 1 : 0
+        ];
+
+        $form_index[$form_name] = $form_index_num;
+
+        $form_index_num++;
+    }
+    
+   return [
+        'form_index'=>$form_index, 
+        'form_metadata'=>$form_metadata
+    ];
 }
 
 function get_first_event_id()

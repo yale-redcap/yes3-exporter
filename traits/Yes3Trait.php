@@ -1,6 +1,6 @@
 <?php
 
-namespace Yale\Yes3;
+namespace Yale\Yes3FieldMapper;
 
 trait Yes3Trait {
 

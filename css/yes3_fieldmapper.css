@@ -77,5 +77,20 @@ div.yes3-fmapr-value-picker-wrapper {
     width: 90% !important;
     display: none;
 }
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-form-color) !important;
+    font-weight: 600;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field .yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-field-color) !important;
+    font-weight: 600;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
+    color: var(--yes3-fmapr-specmap-color) !important;
+    font-weight: 600;
+}
  
  

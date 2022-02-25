@@ -17,8 +17,6 @@ require "autoload.php";
 require "defines/yes3_defines.php";
 
 use REDCap;
-use Yale\Yes3\Yes3;
-use Yale\Yes3\Yes3Trait;
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
