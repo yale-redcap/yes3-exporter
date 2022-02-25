@@ -14,11 +14,17 @@
     ],
 
     "versions": [
-    {
-        "number": "0.0.1",
-        "date": "2021-12-29",
-        "description": "and away we go",
-        "comments": ""
+        {
+            "number": "0.1.1",
+            "date": "2022-02-24",
+            "description": "Settings and Specifications functional",
+            "comments": ""
+        },
+        {
+            "number": "0.0.1",
+            "date": "2021-12-29",
+            "description": "and away we go",
+            "comments": ""
         }
     ],
 
