@@ -643,11 +643,14 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
     
             itemREDCapField.val( response.field_mappings.elements[i].redcap_field_name );
     
-            FMAPR.REDCapFieldOnChange(itemREDCapField);
-    
             elementRow.find('select[data-mapitem=redcap_event_id]:first')
                 .val(response.field_mappings.elements[i].redcap_event_id)
             ;
+    
+            if ( response.field_mappings.elements[i].redcap_event_id ) {
+
+                FMAPR.REDCapFieldOnChange(itemREDCapField);
+            }
 
             /**
              * see if REDCap values are mapped to specification values
