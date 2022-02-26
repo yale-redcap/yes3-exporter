@@ -3,7 +3,9 @@
 
     "namespace": "Yale\\Yes3FieldMapper",
 
-    "description": "YES3 Field Mapper",
+    "description": "YES3 Exporter",
+
+    "prefix": "yes3_exporter",
 
     "authors": [
     {
@@ -14,6 +16,12 @@
     ],
 
     "versions": [
+        {
+            "number": "0.1.2",
+            "date": "2022-02-26",
+            "description": "Minor change to config.json",
+            "comments": ""
+        },
         {
             "number": "0.1.1",
             "date": "2022-02-24",
