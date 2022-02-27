@@ -24,7 +24,7 @@
 
         <UndefinedFunction>
             <errorLevel type="suppress">
-                <referencedFunction name="Yale\Yes3\db_real_escape_string" />
+                <referencedFunction name="Yale\Yes3FieldMapper\db_real_escape_string" />
             </errorLevel>
         </UndefinedFunction>
 
