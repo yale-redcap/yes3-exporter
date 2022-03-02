@@ -174,7 +174,7 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
 
     let html = `<tr class='yes3-fmapr-redcap-form yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description="REDCap form" id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="form" data-form_name="${form_name}">`;
     html += `<td class='yes3-3 yes3-td-left' title='REDcap form'><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
-    html += `<td class='yes3-3 yes3-td-middle'>${field_count} fields</td>`;
+    html += `<td class='yes3-3 yes3-td-middle'>up to ${field_count} fields</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
     html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
     html += "</tr>";
@@ -1592,14 +1592,8 @@ FMAPR.fieldInsertionReportCounts = function()
 
     let counts = FMAPR.enumerateInsertionElements(form_name, event_id);
 
-    //if ( !counts.fields ){
+    // statusDiv.html(`up to ${counts.fields} fields, ${counts.columns} export columns will be inserted.`);
 
-    //    statusDiv.html('');
-    //}
-    //else {
-
-        statusDiv.html(`${counts.fields} fields, ${counts.columns} export columns will be inserted.`);
-    //}
 }
 
 FMAPR.fieldInsertionSetFormSelectListener = function()
@@ -1876,7 +1870,7 @@ FMAPR.reportStatus = function()
 
         //s+= `[${FMAPR.project.specification_settings[FMAPR.export_uuid].specification_key}]:`;
 
-        s += ` ${counts.elements} data elements, ${counts.columns} export columns.`;
+        s += ` ${counts.elements} data elements, approx ${counts.columns} export columns.`;
 
         s += "<br>";
 
