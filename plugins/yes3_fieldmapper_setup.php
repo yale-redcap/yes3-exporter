@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 use Yale\Yes3\Yes3;
 
-$module->updateEventPrefixes();
+//$module->updateEventPrefixes(); // creates *default* event prefixes
 
 $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();

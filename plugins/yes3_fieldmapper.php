@@ -23,7 +23,6 @@ $HtmlPage->ProjectHeader();
 
 ?>
 
-
 <div id="yes3-fmapr-help-panel" class="yes3-panel yes3-draggable" style="display:none">
 
    <div class="yes3-panel-header-row">
@@ -75,21 +74,21 @@ $HtmlPage->ProjectHeader();
                     </td>
                 </tr>
                 
-                <tr>
+                <!--tr>
                     <td>
                         <i class="fas fa-print yes3-action-icon"></i>
                     </td>
                     <td>
                         Print the specification.
                     </td>
-                </tr>
+                </tr-->
                 
                 <tr>
                     <td>
                         <i class="fas fa-download yes3-action-icon"></i>
                     </td>
                     <td>
-                        Export a csv file based on this specification.
+                        Download the data dictionary or a csv file based on this specification.
                     </td>
                 </tr>
                 
@@ -133,6 +132,47 @@ $HtmlPage->ProjectHeader();
 
 </div>
 
+<div id="yes3-fmapr-export-panel" class="yes3-panel yes3-draggable" style="display:none">
+
+    <div class="yes3-panel-header-row">
+        <div class="yes3-panel-row-left">
+            YES3 Exporter: Export Options
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: FMAPR.closeExportForm()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+    </div>
+
+    <div class="yes3-panel-row" style="margin-top: 20px !important">
+            Please indicate what you would like to do:
+    </div>
+
+    <div class="yes3-panel-row">
+        <input type="radio" class="balloon" value="datadictionary" name="yes3-fmapr-export" id="yes3-fmapr-export-datadictionary" checked />
+        <label for="yes3-fmapr-export-datadictionary">Download the data Dictionary</label>&nbsp;
+        <input type="radio" class="balloon" value="data" name="yes3-fmapr-export" id="yes3-fmapr-export-data" />
+        <label for="yes3-fmapr-export-data">Execute the data export</label>
+    </div>
+
+    <div class="yes3-panel-row">
+
+        <div class="yes3-flex-container-evenly-distributed">
+
+            <div class="yes3-flex-vcenter-hleft">
+                <input type="button" value="make it so" onClick="FMAPR.exportExecute();" class="yes3-panel-button" />
+            </div>
+
+            <div class="yes3-flex-vcenter-hleft yes3-panel-between-the-buttons">
+                <div>Hi Mom</div>
+            </div>
+
+            <div class="yes3-flex-vcenter-hright">
+                <input type="button" value="nah" onClick="FMAPR.closeExportForm();" class="yes3-panel-button" />
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <div id="yes3-fmapr-fieldinsertion-panel" class="yes3-panel yes3-draggable" style="display:none">
 
@@ -267,8 +307,8 @@ $HtmlPage->ProjectHeader();
             <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-bulk-insert" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveFieldMappings" title="Save the specification."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
-            <i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i>
-            <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="exportData" title="Export a csv file based on this specification."></i>
+            <!--i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i-->
+            <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="openExportForm" title="Download a data dictionary or export data based on this specification."></i>
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
 
             <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">

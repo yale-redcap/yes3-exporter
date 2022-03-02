@@ -7,7 +7,7 @@ html {
     --yes3-semibold-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
 
     --yes3-padding: 5px;
-    --yes3-margin: 5px;
+    --yes3-margin: 10px;
 
  
     --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
@@ -41,7 +41,7 @@ html {
     --yes3-input-color: black;
     --yes3-input-background-color: floralwhite;
     --yes3-input-border-color: grey; 
-    --yes3-input-label-color: black;
+    --yes3-input-label-color: rgb(49, 148, 168);
  
     --yes3-button-color: darkslategray;
     --yes3-button-background-color: transparent;
@@ -142,7 +142,7 @@ html {
     --yes3-input-color: powderblue;
     --yes3-input-background-color: black;
     --yes3-input-border-color: rgb(64, 64, 64);
-    --yes3-input-label-color: linen;
+    --yes3-input-label-color: rgb(49, 148, 168);
  
     --yes3-action-icon-color: rgb(49, 148, 168);
 
@@ -168,7 +168,7 @@ html {
     --yes3-panel-subtitle-color: cyan;
     --yes3-panel-message-color: antiquewhite;
     --yes3-panel-background-color: rgba(8, 8, 8, 1.00);
- 
+
     --yes3-link-color-alert: indianred;
     --yes3-link-color-warning: darkorange;
     --yes3-link-color-passive: gray;
@@ -936,7 +936,7 @@ table.yes3-removed .yes3-if-removed {
 
  #yes3-hello-panel, #yes3-yesno-panel {
      width: 60% !important;
-     max-width: 800px !important;
+     max-width: 600px !important;
  }
  
  .yes3-panel p {
@@ -1065,6 +1065,7 @@ table.yes3-removed .yes3-if-removed {
     float: right;
     height: 100%;
     vertical-align: middle;
+    margin-left: var(--yes3-margin);
  }
  
  .yes3-panel-row-middle {
@@ -1083,8 +1084,8 @@ table.yes3-removed .yes3-if-removed {
  }
  
  .yes3-panel label {
-    font-weight: 500;
-    font-style: italic;
+    font-weight: 600;
+    color: var(--yes3-input-label-color);
  }
  
  div.yes3-panel ul ul {
@@ -1230,7 +1231,7 @@ table.yes3-removed .yes3-if-removed {
     height: 15px;
     width: 15px;
     background-color: transparent;
-    border: 2px solid var( --yes3-color-balloon-input );
+    border: 2px solid var( --yes3-input-label-color );
  }
  
  /* Checkmark/indicator: rotated rectangle with 2 sides visible */
@@ -1243,9 +1244,9 @@ table.yes3-removed .yes3-if-removed {
     top: 0;
     width: 5px;
     height: 9px;
-    border: solid var(--yes3-input-color);
+    border: solid;
+    border-color: var(---yes3-input-label-color);
     border-width: 0 2px 2px 0;
-    border-color: var( --yes3-color-balloon-input );
     -webkit-transform: rotate(35deg);
     -ms-transform: rotate(35deg);
     transform: rotate(35deg);
@@ -1271,7 +1272,7 @@ table.yes3-removed .yes3-if-removed {
     content: " ";
     display: inline-block;
     vertical-align: middle;
-    border: 1px solid var(--yes3-color-balloon-input);
+    border: 1px solid var(--yes3-input-label-color);
  }
  
  input[type=radio].balloon + label + input[type=radio].balloon + label:before, input[type=checkbox].balloon + label + input[type=checkbox].balloon + label:before {
@@ -1279,23 +1280,23 @@ table.yes3-removed .yes3-if-removed {
  }
  
  input[type=radio].balloon:checked + label:before, input[type=checkbox].balloon:checked + label:before {
-    background: var(--yes3-color-balloon-input);
-    border-color: var(--yes3-color-balloon-input);
+    background: var(--yes3-input-label-color);
+    border-color: var(--yes3-input-label-color);
  }
  
  input[type=radio].balloon:hover + label:before, input[type=checkbox].balloon:hover + label:before {
-    border: 2px solid var(--yes3-color-balloon-input);
+    border: 2px solid var(--yes3-input-label-color);
     cursor: pointer;
  }
  
  input[type=radio].balloon + label:before {
     border-radius: 50%;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
  }
  
  input[type=checkbox].balloon + label:before {
     border-radius: 50%;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
  }
  
  .yes3-title {

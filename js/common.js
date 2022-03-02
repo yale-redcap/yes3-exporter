@@ -113,7 +113,7 @@ let FMAPR = {
 
     console.log( 'getProjectSettingsCallback', response );
 
-    FMAPR.settings = response;
+    FMAPR.project = response;
 
     FMAPR.displayActionIcons();
  

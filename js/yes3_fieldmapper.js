@@ -10,6 +10,16 @@
  * Be sure to use the full YES3.Functions namespace
  */
 
+YES3.Functions.openExportForm = function()
+{
+    YES3.openPanel("yes3-fmapr-export-panel");
+}
+
+FMAPR.closeExportForm = function()
+{
+    YES3.closePanel('yes3-fmapr-export-panel');
+}
+
 /**
  * sets: FMAPR.insertionRowId
  * 
@@ -17,7 +27,7 @@
  * @param {*} field_name 
  * @param {*} event_name
  */
- YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
+YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
 {
     rowId = rowId || "";
     field_name = field_name || "";
@@ -90,7 +100,7 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode )
     let elementInputHtml = FMAPR.getElementInputHtml( yes3_fmapr_data_element_name, 'redcap');
     let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
 
-    let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="field">`;
+    let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description='(non-specification) REDCap field' id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="field">`;
     html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-fmapr-redcap-element'>&nbsp;</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
@@ -141,7 +151,7 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
 {   
     theRowBefore = theRowBefore || {};
 
-    let form_index = FMAPR.settings.form_index[form_name];
+    let form_index = FMAPR.project.form_index[form_name];
 
     if ( typeof form_index !== "number" && form_name !== "all" ){
         return false;
@@ -157,12 +167,12 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
 
     let eventSelectHtml  = FMAPR.getFormEventHtml( form_name, yes3_fmapr_data_element_name );
 
-    let field_count = (form_name==="all") ? FMAPR.settings.field_metadata.length : FMAPR.settings.form_metadata[form_index].form_fields.length;
+    let field_count = (form_name==="all") ? FMAPR.project.field_metadata.length : FMAPR.project.form_metadata[form_index].form_fields.length;
 
     //let elementInputHtml = FMAPR.getElementInputHtml( yes3_fmapr_data_element_name, 'redcap');
     //let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
 
-    let html = `<tr class='yes3-fmapr-redcap-form yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="form" data-form_name="${form_name}">`;
+    let html = `<tr class='yes3-fmapr-redcap-form yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description="REDCap form" id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="form" data-form_name="${form_name}">`;
     html += `<td class='yes3-3 yes3-td-left' title='REDcap form'><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${field_count} fields</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
@@ -212,11 +222,14 @@ YES3.Functions.saveFieldMappings = function() {
 
         let element = {
             "yes3_fmapr_data_element_name": $(this).data('yes3_fmapr_data_element_name'),
+            "yes3_fmapr_data_element_description": $(this).data('yes3_fmapr_data_element_description'),
             "element_origin": $(this).data('element_origin'),
             "redcap_object_type": "",
             "redcap_event_id": ( redcap_event_id ) ? redcap_event_id : "",
             "redcap_field_name": ( redcap_field_name ) ? redcap_field_name : "",
             "redcap_form_name": "",
+            "spec_type": "",
+            "spec_format": "",
             "values": []
         }
 
@@ -231,17 +244,22 @@ YES3.Functions.saveFieldMappings = function() {
         }
         else if ( element_origin === "specification" && element.redcap_field_name.length > 0 && element.redcap_event_id.length > 0) {
 
+            element.spec_format = $(this).data("spec_format");
+            element.spec_type = $(this).data("spec_type");
+            
             let valueRows = specTable.find(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${element.yes3_fmapr_data_element_name}']`);
             
             valueRows.each(function () {
 
-                let redcap_field_value = $(this).find('input[data-mapitem=redcap_field_value]:first').val();
-                let yes3_fmapr_lov_value = $(this).find('input[data-mapitem=redcap_field_value]:first').data('yes3_fmapr_lov_value');
+                let redcap_field_value   = $(this).find('input[data-mapitem=redcap_field_value]:first').val();
+                let yes3_fmapr_lov_value = $(this).data('yes3_fmapr_lov_value');
+                let yes3_fmapr_lov_label = $(this).data('yes3_fmapr_lov_label');
 
                 if ( redcap_field_value ){
 
                     element.values.push({
                         "yes3_fmapr_lov_value": yes3_fmapr_lov_value,
+                        "yes3_fmapr_lov_label": yes3_fmapr_lov_label,
                         "redcap_field_value": redcap_field_value
                     })
 
@@ -277,6 +295,67 @@ FMAPR.saveFieldMappingsCallback = function( response ){
         FMAPR.markAsClean();
     }
 }
+
+/*** EXPORT ***/
+FMAPR.exportExecute = function()
+{
+    let exportOption = $("input[type=radio][name=yes3-fmapr-export]:checked").val();
+
+    if ( exportOption==="datadictionary"){
+        FMAPR.downloadDataDictionary();
+    }
+
+    else if ( exportOption==="data"){
+        FMAPR.exportData();
+    }
+
+    FMAPR.closeExportForm();
+}
+
+FMAPR.downloadDataDictionary = function()
+{
+    let url = YES3.moduleProperties.serviceUrl
+        + "&request=downloadDataDictionary"
+        + "&export_uuid=" + encodeURIComponent(FMAPR.export_uuid)
+        + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
+    ;
+
+    console.log(url);
+
+    window.open(url);
+}
+
+FMAPR.downloadDataDictionary_hold = function()
+{
+    YES3.requestService(
+        {
+            'request': 'exportDatadictionary',
+            'export_uuid': FMAPR.export_uuid
+        }, FMAPR.downloadDataDictionaryCallback
+    );  
+}
+
+FMAPR.exportData = function()
+{    
+    YES3.requestService(
+        {
+            'request': 'exportData',
+            'export_uuid': FMAPR.export_uuid
+        }, FMAPR.exportDataCallback
+    );  
+}
+
+FMAPR.downloadDataDictionaryCallback = function( response )
+{
+  console.log(response);
+}
+
+FMAPR.exportDataCallback = function( response )
+{
+  console.log(response);
+}
+
+
 
 /*** WAYBACK ***/
 
@@ -512,7 +591,7 @@ FMAPR.setSpecificationStructures = function()
        elementInputHtml = FMAPR.getElementInputHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
        eventSelectHtml = FMAPR.getElementEventHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
  
-       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification[i].name}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
+       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification[i].name}' data-yes3_fmapr_data_element_description='${FMAPR.specification_settings.mapping_specification[i].description}' data-spec_type='${FMAPR.specification_settings.mapping_specification[i].type}' data-spec_format='${FMAPR.specification_settings.mapping_specification[i].format}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
        html += `<td class='yes3-3 yes3-td-left' title='${FMAPR.specification_settings.mapping_specification[i].description}'><span class='yes3-fmapr-specmap-element'>${FMAPR.specification_settings.mapping_specification[i].name}</span></td>`;
        html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
        html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
@@ -536,7 +615,7 @@ FMAPR.setSpecificationStructures = function()
  
                 lovInputHtml = FMAPR.getLovInputHtml( yes3_fmapr_data_element_name, value );
  
-                html += `<tr id='yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification[i].name}-${value}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-required='${req}'}' class='yes3-fmapr-lov'>`;
+                html += `<tr id='yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification[i].name}-${value}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-yes3_fmapr_lov_label='${label}' data-required='${req}'}' class='yes3-fmapr-lov'>`;
                 html += `<td class='yes3-3 yes3-td-left yes3-fmapr-lov' title='${label}'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="Make this the value for all FMAPR submissions" href="javascript:FMAPR.setLovConstant('${yes3_fmapr_data_element_name}', '${value}')">${label}</a></td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'>${lovInputHtml}</td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'></td>`;
@@ -596,8 +675,8 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
         // null soec; add recordId
         
         let element = {
-            "redcap_field_name": FMAPR.settings.field_metadata[0].field_name,
-            "redcap_event_id": FMAPR.settings.project_event_metadata[0].event_id
+            "redcap_field_name": FMAPR.project.field_metadata[0].field_name,
+            "redcap_event_id": FMAPR.project.project_event_metadata[0].event_id
         };
         YES3.addRawREDCapField( element )
 
@@ -927,7 +1006,7 @@ FMAPR.getElementEventHtml = function( yes3_fmapr_data_element_name, element_orig
     element_origin = element_origin || 'specification';
     let typeClass = FMAPR.itemTypeClass(element_origin);
     let id = FMAPR.elementEventId( yes3_fmapr_data_element_name );
-    //let html = `<select id=${id} class='yes3-fmapr-event-select yes3-fmapr-item' data-export_uuid='${export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id'/>${FMAPR.settings.event_select_options_html}</select>`;
+    //let html = `<select id=${id} class='yes3-fmapr-event-select yes3-fmapr-item' data-export_uuid='${export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id'/>${FMAPR.project.event_select_options_html}</select>`;
     let html = `<select id=${id} class='yes3-fmapr-event-select ${typeClass} yes3-fmapr-item yes3-fmapr-field-event' data-export_uuid='${FMAPR.export_uuid}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-mapitem='redcap_event_id' data-element_origin='${element_origin}'/></select>`;
     return html;
 }
@@ -942,15 +1021,15 @@ FMAPR.getFormEventHtml = function( form_name, yes3_fmapr_data_element_name ){
 
     if ( form_name === "all" ){
 
-        formEvents = FMAPR.settings.project_event_metadata;
+        formEvents = FMAPR.project.project_event_metadata;
     }
     else {
 
-        let form_index = FMAPR.settings.form_index[form_name];
+        let form_index = FMAPR.project.form_index[form_name];
 
         if ( typeof form_index === "number" ){
 
-            formEvents = FMAPR.settings.form_metadata[form_index].form_events;
+            formEvents = FMAPR.project.form_metadata[form_index].form_events;
         }
 
     }
@@ -1468,16 +1547,16 @@ FMAPR.insertAllFormsForEvent = function(event, theRowBefore)
     let allowed = false;
     let j=0;
 
-    for (let k=0; k<FMAPR.settings.form_metadata.length; k++){
+    for (let k=0; k<FMAPR.project.form_metadata.length; k++){
 
         // insert form if registered for this event
         allowed = ( event === "all" );
 
         //if ( !allowed ){
 
-            for (j=0; j<FMAPR.settings.form_metadata[k].form_events.length && !allowed; j++){
+            for (j=0; j<FMAPR.project.form_metadata[k].form_events.length && !allowed; j++){
 
-                if ( event == FMAPR.settings.form_metadata[k].form_events[j].event_id ) {
+                if ( event == FMAPR.project.form_metadata[k].form_events[j].event_id ) {
                     allowed = true;
                 }
             }
@@ -1486,7 +1565,7 @@ FMAPR.insertAllFormsForEvent = function(event, theRowBefore)
         if ( allowed ){
 
             yes3_fmapr_data_element_name = FMAPR.addREDCapForm( 
-                FMAPR.settings.form_metadata[k].form_name, 
+                FMAPR.project.form_metadata[k].form_name, 
                 event, 
                 theRowBefore
             );
@@ -1564,19 +1643,19 @@ FMAPR.enumerateInsertionElements = function(form_name, event_id)
 
     FMAPR.insertionElements = [];
 
-    for (let i=0; i<FMAPR.settings.field_metadata.length; i++){
+    for (let i=0; i<FMAPR.project.field_metadata.length; i++){
 
-        this_field_name = FMAPR.settings.field_metadata[i].field_name;
-        this_form_name = FMAPR.settings.field_metadata[i].form_name;
-        this_form_index = FMAPR.settings.form_index[this_form_name];
+        this_field_name = FMAPR.project.field_metadata[i].field_name;
+        this_form_name = FMAPR.project.field_metadata[i].form_name;
+        this_form_index = FMAPR.project.form_index[this_form_name];
 
         if ( form_name === this_form_name || form_name === "all" ){
 
             element_events = [];
 
-            for (j=0; j<FMAPR.settings.form_metadata[this_form_index].form_events.length; j++){
+            for (j=0; j<FMAPR.project.form_metadata[this_form_index].form_events.length; j++){
 
-                this_event_id = FMAPR.settings.form_metadata[this_form_index].form_events[j].event_id;
+                this_event_id = FMAPR.project.form_metadata[this_form_index].form_events[j].event_id;
 
                 if ( event_id === this_event_id || event_id === "all" ){
 
@@ -1658,9 +1737,9 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
      */
     if ( !form_name ){
 
-        if ( typeof FMAPR.settings.field_index[field_name] === "number" ){
+        if ( typeof FMAPR.project.field_index[field_name] === "number" ){
 
-            form_name = FMAPR.settings.field_metadata[FMAPR.settings.field_index[field_name]].form_name;
+            form_name = FMAPR.project.field_metadata[FMAPR.project.field_index[field_name]].form_name;
         }
 
         if (form_name && field_name){
@@ -1673,14 +1752,14 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
 
     if ( form_name !== "all" ){
 
-        let form_index = FMAPR.settings.form_index[form_name];
+        let form_index = FMAPR.project.form_index[form_name];
 
         if ( typeof form_index === "number" ){
 
-            for (k=0; k<FMAPR.settings.form_metadata[form_index].form_fields.length; k++){
+            for (k=0; k<FMAPR.project.form_metadata[form_index].form_fields.length; k++){
 
                 items++;
-                FMAPR.addREDcapItemToSpecification(data_element_name, form_name, FMAPR.settings.form_metadata[form_index].form_fields[k], event_id_option);
+                FMAPR.addREDcapItemToSpecification(data_element_name, form_name, FMAPR.project.form_metadata[form_index].form_fields[k], event_id_option);
             }
         }
 
@@ -1690,15 +1769,15 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
     /**
      * Add one or more entire forms
      */
-    for (j=0; j<FMAPR.settings.form_metadata.length; j++){
+    for (j=0; j<FMAPR.project.form_metadata.length; j++){
 
         // gotta fix this; the entire field list is processed for each form
-        for (k=0; k<FMAPR.settings.field_metadata.length; k++){
+        for (k=0; k<FMAPR.project.field_metadata.length; k++){
 
-            if ( FMAPR.settings.field_metadata[k].form_name === FMAPR.settings.form_metadata[j].form_name ){
+            if ( FMAPR.project.field_metadata[k].form_name === FMAPR.project.form_metadata[j].form_name ){
 
                 items++;
-                FMAPR.addREDcapItemToSpecification(data_element_name, FMAPR.settings.field_metadata[k].form_name, FMAPR.settings.field_metadata[k].field_name, event_id_option);
+                FMAPR.addREDcapItemToSpecification(data_element_name, FMAPR.project.field_metadata[k].form_name, FMAPR.project.field_metadata[k].field_name, event_id_option);
             }
         }
     }
@@ -1708,21 +1787,21 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
 
 FMAPR.addREDcapItemToSpecification = function(data_element_name, form_name, field_name, event_id_option)
 {
-    let form_index = FMAPR.settings.form_index[form_name];
+    let form_index = FMAPR.project.form_index[form_name];
 
     if ( typeof form_index === "number" ){
 
-        for (let j=0; j<FMAPR.settings.form_metadata[form_index].form_events.length; j++){
+        for (let j=0; j<FMAPR.project.form_metadata[form_index].form_events.length; j++){
 
-            if ( event_id_option === "all" || event_id_option == FMAPR.settings.form_metadata[form_index].form_events[j].event_id ){
+            if ( event_id_option === "all" || event_id_option == FMAPR.project.form_metadata[form_index].form_events[j].event_id ){
 
-                if ( !FMAPR.isSpecificationElement(field_name, FMAPR.settings.form_metadata[form_index].form_events[j].event_id) ){
+                if ( !FMAPR.isSpecificationElement(field_name, FMAPR.project.form_metadata[form_index].form_events[j].event_id) ){
 
                     FMAPR.specificationElements.push({
                         data_element_name: data_element_name,
                         data_element_origin: "redcap",
                         redcap_field_name: field_name,
-                        redcap_event_id: FMAPR.settings.form_metadata[form_index].form_events[j].event_id,
+                        redcap_event_id: FMAPR.project.form_metadata[form_index].form_events[j].event_id,
                     });
                 }
             }
@@ -1795,7 +1874,7 @@ FMAPR.reportStatus = function()
 
         let counts = FMAPR.enumerateSpecificationElements();
 
-        //s+= `[${FMAPR.settings.specification_settings[FMAPR.export_uuid].specification_key}]:`;
+        //s+= `[${FMAPR.project.specification_settings[FMAPR.export_uuid].specification_key}]:`;
 
         s += ` ${counts.elements} data elements, ${counts.columns} export columns.`;
 
@@ -1839,13 +1918,13 @@ FMAPR.getFormOptionsHtml = function(event_id)
         optionHtml = "\n<option value='' disabled>select a form</option>";
     }
 
-    for (let i=0; i<FMAPR.settings.form_metadata.length; i++){
+    for (let i=0; i<FMAPR.project.form_metadata.length; i++){
 
-        if ( FMAPR.settings.form_metadata[i].form_repeating && FMAPR.specification_settings.export_layout !== "r"){
+        if ( FMAPR.project.form_metadata[i].form_repeating && FMAPR.specification_settings.export_layout !== "r"){
 
             allowed = false;
         }
-        else if ( !FMAPR.settings.form_metadata[i].form_repeating && FMAPR.specification_settings.export_layout === "r" ){
+        else if ( !FMAPR.project.form_metadata[i].form_repeating && FMAPR.specification_settings.export_layout === "r" ){
             allowed = false;
         }
         else {
@@ -1854,9 +1933,9 @@ FMAPR.getFormOptionsHtml = function(event_id)
 
             if ( !allowed ){
     
-                for (j=0; j<FMAPR.settings.form_metadata[i].form_events.length; j++){
+                for (j=0; j<FMAPR.project.form_metadata[i].form_events.length; j++){
 
-                    if ( FMAPR.settings.form_metadata[i].form_events[j].event_id==event_id ){
+                    if ( FMAPR.project.form_metadata[i].form_events[j].event_id==event_id ){
                         allowed = true;
                         //break;
                     }
@@ -1866,7 +1945,7 @@ FMAPR.getFormOptionsHtml = function(event_id)
 
         if ( allowed ){
 
-            optionHtml += `\n<option value='${FMAPR.settings.form_metadata[i].form_name}'>${FMAPR.settings.form_metadata[i].form_label}</option>`;
+            optionHtml += `\n<option value='${FMAPR.project.form_metadata[i].form_name}'>${FMAPR.project.form_metadata[i].form_label}</option>`;
         }
     }
 
@@ -1881,28 +1960,28 @@ FMAPR.getEventOptionsHtml = function(form_name)
 
     if ( form_name==="all" ) {
 
-        let eventIDs = Object.getOwnPropertyNames( FMAPR.settings.event_metadata );
+        let eventIDs = Object.getOwnPropertyNames( FMAPR.project.event_metadata );
         
         for (let i=0; i<eventIDs.length; i++){
     
-            optionHtml += `\n<option value='${eventIDs[i]}'>${FMAPR.settings.event_metadata[eventIDs[i]].event_label}</option>`;
+            optionHtml += `\n<option value='${eventIDs[i]}'>${FMAPR.project.event_metadata[eventIDs[i]].event_label}</option>`;
     
         }
     }
     else {
 
-        let form_index = FMAPR.settings.form_index[form_name];
+        let form_index = FMAPR.project.form_index[form_name];
 
         if ( typeof form_index === "number" ){
 
-            if ( FMAPR.settings.form_metadata[form_index].form_events.length < 2 ){
+            if ( FMAPR.project.form_metadata[form_index].form_events.length < 2 ){
 
                 optionHtml = "";
             }
 
-            for (let i=0; i<FMAPR.settings.form_metadata[form_index].form_events.length; i++){
+            for (let i=0; i<FMAPR.project.form_metadata[form_index].form_events.length; i++){
 
-                optionHtml += `\n<option value='${FMAPR.settings.form_metadata[form_index].form_events[i].event_id}'>${FMAPR.settings.form_metadata[form_index].form_events[i].descrip}</option>`;
+                optionHtml += `\n<option value='${FMAPR.project.form_metadata[form_index].form_events[i].event_id}'>${FMAPR.project.form_metadata[form_index].form_events[i].descrip}</option>`;
             }
         }
     }
@@ -2169,7 +2248,7 @@ FMAPR.selectedRowCount = function()
 
     //console.log('setValuePickers', FMAPR.export_uuid, yes3_fmapr_data_element_name, redcap_field_name);
  
-    if ( !FMAPR.settings.field_metadata[FMAPR.settings.field_index[redcap_field_name]].field_valueset.length ) {
+    if ( !FMAPR.project.field_metadata[FMAPR.project.field_index[redcap_field_name]].field_valueset.length ) {
        tbl.find(`tr[data-yes3_fmapr_data_element_name=${yes3_fmapr_data_element_name}].yes3-fmapr-lov a.yes3-fmapr-value-picker-toggler`).hide();
        return true;
     }
@@ -2183,9 +2262,9 @@ FMAPR.selectedRowCount = function()
  
     let pkrHtml = "";
  
-    for (let i = 0; i < FMAPR.settings.field_metadata[FMAPR.settings.field_index[redcap_field_name]].field_valueset.length; i++) {
-       value = FMAPR.settings.field_metadata[FMAPR.settings.field_index[redcap_field_name]].field_valueset[i].value;
-       label = FMAPR.settings.field_metadata[FMAPR.settings.field_index[redcap_field_name]].field_valueset[i].label;
+    for (let i = 0; i < FMAPR.project.field_metadata[FMAPR.project.field_index[redcap_field_name]].field_valueset.length; i++) {
+       value = FMAPR.project.field_metadata[FMAPR.project.field_index[redcap_field_name]].field_valueset[i].value;
+       label = FMAPR.project.field_metadata[FMAPR.project.field_index[redcap_field_name]].field_valueset[i].label;
        if (i) {
           pkrHtml += "<br />";
        }
@@ -2243,7 +2322,7 @@ FMAPR.selectedRowCount = function()
  
        $(this)
        .autocomplete({
-          source: FMAPR.settings.field_autoselect_source,
+          source: FMAPR.project.field_autoselect_source,
           minLength: 1,
           select: function(event, ui) {
 
@@ -2373,13 +2452,13 @@ FMAPR.selectedRowCount = function()
         return false;
     }
 
-    let form_name = FMAPR.settings.field_metadata[FMAPR.settings.field_index[field_name]].form_name;
+    let form_name = FMAPR.project.field_metadata[FMAPR.project.field_index[field_name]].form_name;
 
     if ( !form_name ){
         return false;
     }
 
-    let form_index = FMAPR.settings.form_index[form_name];
+    let form_index = FMAPR.project.form_index[form_name];
 
     if ( typeof form_index !== "number" ){
         return false;
@@ -2387,7 +2466,7 @@ FMAPR.selectedRowCount = function()
 
     let optionsHtml = "";
     
-    let formEvents = FMAPR.settings.form_metadata[form_index].form_events;
+    let formEvents = FMAPR.project.form_metadata[form_index].form_events;
     
     let raw = FMAPR.isRawREDCapDataElement(yes3_fmapr_data_element_name);
 

@@ -26,8 +26,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $username = "";
     public $serviceUrl = "";
     public $documentationUrl = "";
-    public $specifications = [];
-    public $eventPrefixes = [];
     private $token = "";
 
     use Yes3Trait;
@@ -48,10 +46,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->isLongitudinal = \REDCap::isLongitudinal();
 
             $this->token = "this-should-be-private";
-
-            $this->getSpecificationsFromSettings();
-
-            $this->setEventPrefixes();
         }
     }
 
@@ -105,55 +99,374 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return $t;
     }
 
-    public function getSpecificationsFromSettings()
+    public function buildExportDataDictionary( $export_uuid )
     {
-        $this->specifications = [];
-        /*
-        if ( $json = $this->getProjectSetting('specifications-json') ){
-            $this->specifications = json_decode( htmlentities($json, ENT_NOQUOTES), true )['specifications'];
+        /**
+         * Event settings
+         * 
+         * [ {event_id, event_name, event_prefix}, ... ]
+         * 
+         * event_name is REDCap unique event name ("screen_arm_1")
+         * 
+         */
+        $event_settings = $this->getEventSettings(); /* evcen abbreviations */
+    
+        /**
+         * Export specification (settings):
+         * 
+         *       export_uuid,
+         *       export_name,
+         *       export_layout,
+         *       export_selection,
+         *       export_criterion_field,
+         *       export_criterion_event,
+         *       export_criterion_value,
+         *       export_target,
+         *       export_target_folder,
+         *       mapping_specification,
+         *       removed
+         *      
+         */
+        $export = new Yes3Export( $this->getExportSpecification($export_uuid) ); 
+    
+        /**
+         * export elements (stored separately from settings)
+         * 
+         * List of REDCap objects
+         *  {
+         *      yes3_fmapr_data_element_name: specification element name or 'redcap_element_[n]'
+         *      element_origin: 'redcap' or 'specification'
+         *      redcap_object_type: 'field' or 'form'
+         *      redcap_event_id: event_id or 'all'
+         *      redcap_field_name: if relevant (type is 'field')
+         *      redcap_form_name: if relevant (type is 'form') - form name or 'all'
+         *      spec_type: data type if from specification
+         *      spec_format: display format if from specification
+         * 
+         *      values: list of REDCap-to-specification value mappings
+         *              {
+         *                  yes3_fmapr_lov_value: specification value
+         *                  redcap_field_value: redcap value
+         *              }
+         *  }
+         */
+        //if ( !$map_record = getFieldMapRecord( $export_uuid ) ){
+        //    return "no mappings";
+        //}
+        //$export_elements = json_decode($map_record['field_mappings'], true)['elements'];
+    
+        $export_elements = $this->getExportElements( $export_uuid );
+    
+        //return print_r($export_elements, true);
+    
+        /**
+         * 
+         * form_metadata: list of form objects
+         *      {
+         *      form_name,
+         *      form_label,
+         *      form_events: list of event objects {event_id, event_label},
+         *      form_fields: list of field names,
+         *      form_repeating: 1 or 0
+         *      }
+         * 
+         * form_index: list index, keyed by form_name
+         * 
+         */
+        //$forms = get_form_metadata_structures();
+        $forms = $this->getFormMetadataStructures();
+    
+        /**
+         * 
+         * field_metadata: list of field objects
+         *      {
+         *          field_name
+         *          field_label
+         *          form_name
+         *          field_type: REDCap element_type
+         *          field_valueset: list of valueset objects {value, label}
+         *      }
+         * 
+         * field_index: list index, keyed by field_name
+         * 
+         */
+        //$fields = get_field_metadata_structures();
+        $fields = $this->getFieldMetadataStructures();
+    
+        /**
+         * DATA DICTIONARY
+         * 
+         * {
+         *      var_name
+         *      var_type ( INTEGER, FLOAT, NOMINAL, TEXT, DATE, DATETIME, TIME )
+         *      var_label
+         *      valueset [{value, label}, ...] as JSON string (NOMINAL only)
+         * 
+         *      for computation:
+         * 
+         *      source_field
+         *      source_form
+         *      origin ('specification', 'redcap')
+         *      spec_value_map [{spec_value, redcap_value}, ... ] as JSON string
+         * 
+         *      for validation / code generation:
+         * 
+         *      non_missing_count
+         *      min_length (TEXT)
+         *      max_length (TEXT)
+         *      min_value
+         *      max_value
+         *      sum_of_values
+         *      sum_of_squared_values
+         * }
+         * 
+         */
+
+        /**
+         * Start with recordid field; always the first column
+         */
+        $field_name = \REDCap::getRecordIdField();
+
+        $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings );
+
+        /**
+         * If not horizontal, event is next column
+         */
+        if ( $export->export_layout !== "h" ){
+
+            $this->addExportItem_otherProperty($export, "redcap_event", "REDCap Event");
+
+            /**
+             * If repeating, instance is next
+             */
+            if ( $export->export_layout === "r" ){
+
+                $this->addExportItem_otherProperty($export, "redcap_repeat_instance", "REDCap Repeat Instance");
+            }
         }
-        */
+    
+        foreach ($export_elements as $element){
+    
+            if ( $element['element_origin'] === 'specification' ) {
+    
+                $this->addExportItem_Specification( $export, $element, $event_settings );
+            }
+    
+            elseif ( $element['redcap_field_name'] ) {
+    
+                $this->addExportItem_REDCapField( $export, $element['redcap_field_name'], $element['redcap_event_id'], $fields, $forms, $event_settings );
+            }
+    
+            elseif ( $element['redcap_form_name'] ) {
+    
+                $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element['redcap_event_id'], $fields, $forms, $event_settings );
+            }
+        }
 
-        $specification = $this->getProjectSetting('specification');
-        $specification_name = $this->getProjectSetting('specification-name');
-        $specification_description = $this->getProjectSetting('specification-description');
-        $specification_export_layout = $this->getProjectSetting('specification-export-layout');
-        $specification_data_elements_json = $this->getProjectSetting('specification-data-elements');
+        $dd = [];
 
-        for ($i=0; $i<count($specification); $i++){
+        foreach( $export->export_items as $export_item ){
 
-            $specification_data_elements = json_decode( $specification_data_elements_json[$i], true );
-
-            $this->specifications[$i] = [
-                'name' => Yes3::alphaNumericString($specification_name[$i]),
-                'description' => Yes3::escapeHtml($specification_description[$i]),
-                'export_layout' => ($specification_export_layout[$i]) ? $specification_export_layout[$i]:"H",
-                'data_elements' => $this->validated_data_elements( $specification_data_elements )
+            $dd[] = [
+                'var_name' => $export_item->var_name,
+                'var_label' => $export_item->var_label,
+                'var_type' => $export_item->var_type,
+                'valueset' => ( $export_item->valueset ) ? json_encode($export_item->valueset) : "",
+                'origin' => $export_item->origin,
+                'redcap_field_name' => $export_item->redcap_field_name,
+                'redcap_form_name' => $export_item->redcap_form_name,
+                'redcap_event_id' => $export_item->redcap_event_id,
+                'redcap_event_name' => $export_item->redcap_event_name,
+                'non_missing_count' => $export_item->non_missing_count,
+                'min_length' => $export_item->min_length,
+                'max_length' => $export_item->max_length,
+                'min_value' => $export_item->min_value,
+                'max_value' => $export_item->max_value,
+                'sum_of_values' => $export_item->sum_of_values,
+                'sum_of_squared_values' => $export_item->sum_of_squared_values   
             ];
         }
 
-        /*
-        Yes3::logDebugMessage($this->project_id, print_r($specification, true), 'specification');
-        Yes3::logDebugMessage($this->project_id, print_r($specification_name, true), 'specification_name');
-        Yes3::logDebugMessage($this->project_id, print_r($data_elements_json, true), 'specification_data_elements');
-        */
+        //return print_r($event_settings, true);
+        //return print_r($export, true);
+        //return print_r($fields['field_index'], true);
+        //return print_r($dd, true);
+        //return "";
+
+        return [
+            'export_name' => $export->export_name,
+            'data_dictionary' => $dd
+        ];
+
+        //$this->download($export->export_name . "_dd", $dd);
+    
+        //return count($dd) . " export columns defined.";
     }
 
-    /* ==== HOOKS ==== */
-
-    public function redcap_module_link_check_display( $project_id, $link )
+    public function downloadDataDictionary($export_uuid)
     {
-        return $link; // noop for now
+        $ddpackage = $this->buildExportDataDictionary($export_uuid);
+        $this->download( $ddpackage['export_name'] . "_dd", $ddpackage['data_dictionary'] );
     }
 
-    public function redcap_module_save_configuration($project_id)
+    private function getEventName($event_id, $event_settings)
     {
-        $this->updateEventPrefixes( true );
+        foreach ($event_settings as $event){
+
+            if ( $event['event_id']==$event_id ){
+
+                return $event['event_name'];
+            }
+        }
+
+        return "";
     }
 
-    public function updateEventPrefixes( $force=false )
+    public function download($filename, $xx, $extension="csv", $delim=",") {
+
+        $filename = Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($filename)))) . "_" . Yes3::timeStampString();
+
+        ob_start();
+        header("Content-type: text/csv");
+        header("Cache-Control: no-store, no-cache");
+        header('Content-Disposition: attachment; filename="'.$filename.'.'.$extension.'"');
+     
+        $fp = fopen('php://output', 'w');
+     
+        $h = array();
+        foreach ($xx[0] as $colname=>$value ) {
+           $h[] = $colname;
+        }
+        fputcsv($fp, $h, $delim);
+     
+        foreach ( $xx as $x ) {
+           $y = array();
+           foreach ($x as $colname=>$value) {
+              //$y[] = str_replace("%", "", $value);
+              $y[] = $value;
+           }
+           if ( $y ) fputcsv($fp, $y, $delim);
+        }
+     
+        fclose($fp);
+        ob_end_flush();
+     
+     }
+
+    public function getEventSettings()
+    {
+        if ( !\REDCap::isLongitudinal() ){
+
+            return [
+                [
+                    'event_id' => (string) Yes3::getFirstREDCapEventId(),
+                    'event_name' => "Event_1_arm_1",
+                    'event_prefix' => ""
+                ]
+            ];
+        }
+
+        /**
+         * [ {event_id, event_name, event_prefix}, ... ]
+         */
+        $event_settings = $this->getDefaultExportEvents(); 
+
+        $fields = "export_events_json";
+
+        $pSql = "SELECT {$fields} WHERE project_id=? AND setting='export-events' ORDER BY timestamp DESC LIMIT 1";
+
+        if ( $x = $this->queryLogs($pSql, [$this->project_id])->fetch_assoc() ){
+
+            if ( $export_events_settings = json_decode($x['export_events_json'], true) ){
+
+                for ( $i=0; $i<count($event_settings); $i++ ){
+
+                    for ( $j=0; $j<count($export_events_settings); $j++ ){
+
+                        if ( $export_events_settings[$j]['event_id'] == $event_settings[$i]['event_id'] ){
+
+                            $event_settings[$i]['event_prefix'] = $export_events_settings[$j]['event_prefix'];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $event_settings;
+    }
+
+    public function getExportSpecification( $export_uuid )
     {        
-        $events = REDCap::getEventNames(true);
+        $fields = "log_id, user, removed, setting, export_uuid, export_specification_json";
+    
+        $pSql = "
+            SELECT {$fields}
+            WHERE project_id=? AND setting='export-specification' AND removed='0' AND export_uuid=?
+            ORDER BY timestamp DESC LIMIT 1
+        ";
+        $params = [$this->project_id, $export_uuid];
+    
+        if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
+    
+            return json_decode($specification_settings['export_specification_json'], true);
+        }
+    
+        return [];
+    }
+
+    public function getExportSpecifications()
+    {
+        /**
+         * retrieve the unique export UUIDs
+         */
+
+        $pSql = "SELECT DISTINCT export_uuid WHERE export_uuid IS NOT NULL AND setting='export-specification' AND project_id=?";
+
+        $uuid_result = $this->queryLogs($pSql, [$this->project_id]);
+        $uuids = [];
+        while ( $row = $uuid_result->fetch_assoc() ){
+            $uuids[] = $row['export_uuid'];
+        }
+
+        //return $uuids;
+
+        $specifications = [];
+
+        for ( $i=0; $i<count($uuids); $i++ ){
+
+            $fields = "log_id, user, removed, setting, export_uuid, export_specification_json";
+
+            $pSql = "
+                SELECT {$fields}
+                WHERE project_id=? AND setting='export-specification' AND export_uuid=?
+                ORDER BY timestamp DESC LIMIT 1
+            ";
+            $params = [$this->project_id, $uuids[$i]];
+
+            if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
+
+                $specification = json_decode($specification_settings['export_specification_json']);
+
+                if ( !$specification->removed ) $specification->removed = "0";
+
+                //if ( $specification->removed !== "1" ){
+
+                    $specifications[] = $specification;
+                //}
+            }
+        }
+
+        return $specifications;
+    }
+
+    public function getDefaultExportEvents()
+    {
+        if ( !\REDCap::isLongitudinal() ){
+            return [];
+        }
+
+        $events = \REDCap::getEventNames(true);
 
         $maxUniquePrefixLen = 8;
         $uniquePrefixLen = 0;
@@ -176,74 +489,447 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $k++;
         }
 
-        $event_prefixes = [];
+        $export_events = [];
 
         foreach( $events as $event_id => $event_name ){
 
             $strEventId = (string) $event_id;
 
-            if ( isset($this->eventPrefixes[$strEventId]['event_prefix']) && !$force ){
+            if ( $uniquePrefixLen ){
 
-                $prefix = $this->eventPrefixes[$strEventId]['event_prefix'];
+                $prefix = $prefixes[$event_id];
             }
             else {
 
-                if ( $uniquePrefixLen ){
-                    $prefix = $prefixes[$event_id];
-                }
-                else {
-                    $prefix = "e" . $strEventId;
-                }
+                $prefix = "e" . $strEventId;
             }
 
-            $event_prefixes[$strEventId] = ['event_id'=>$strEventId, 'event_name'=>$event_name, 'event_prefix'=>$prefix];        
+            $export_events[] = ['event_id'=>$strEventId, 'event_name'=>$event_name, 'event_prefix'=>$prefix];        
         }
 
-        return $this->saveEventPrefixes( $event_prefixes );
+        return $export_events;
     }
 
-    public function saveEventPrefixes( $event_prefixes )
+    public function getExportElements($export_uuid)
     {
-        Yes3::logDebugMessage($this->project_id, print_r($event_prefixes, true), "saveEventPrefixes");
-
-        $logId = $this->log(
-            "Event prefixes saved",
-            [
-                "setting" => "event-prefixes",
-                "user" => $this->username,
-                "event_prefixes" => json_encode( $event_prefixes )
-            ]
-        );
-
-        if ( $logId ){
-            $this->setEventPrefixes();
-        }
-    }
-
-    public function getEventPrefixesRecord()
-    {    
-        $fields = "log_id, message, user, timestamp, event_prefixes";
+        $fields = "log_id, message, user, timestamp, export_uuid, field_mappings";
 
         $pSql = "
             SELECT {$fields}
-            WHERE project_id=? AND setting='event-prefixes'
-            ORDER BY timestamp DESC
+            WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
+            ORDER BY timestamp DESC LIMIT 1
         ";
+        $params = [$this->project_id, $export_uuid];
 
-        $params = [$this->project_id];
+        if ( !$map_record = $this->queryLogs($pSql, $params)->fetch_assoc() ){
+            return [];
+        }
 
-        return $this->queryLogs($pSql, $params)->fetch_assoc();
+        if ( !$field_mappings = json_decode($map_record['field_mappings'], true) ){
+            return [];
+        }
+
+        if ( !$field_mappings['elements']) {
+            return [];
+        }
+
+        return $field_mappings['elements'];
     }
 
-    private function setEventPrefixes()
+    public function getFormMetadataStructures():array
     {
-        if ( $eventPrefixesRecord = $this->getEventPrefixesRecord() ){
+        $events = [];
 
-            $this->eventPrefixes = json_decode( $eventPrefixesRecord['event_prefixes'], true);
+        if ( $isLong = \REDCap::isLongitudinal() ) {
+
+            $sql = "
+            SELECT DISTINCT m.form_name, m.field_order, m.form_menu_description
+            FROM redcap_metadata m
+                INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
+                INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id
+                INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id AND ea.project_id=m.project_id
+            WHERE m.project_id=? AND m.form_menu_description IS NOT NULL
+            ORDER BY m.field_order
+            ";
+
+        } else {
+
+            $events = [[ 
+                'event_id' => Yes3::getFirstREDCapEventId(),
+                'descrip' => "Event 1",
+                'event_label' => "Event_1"
+            ]];
+
+            $sql = "
+            SELECT m.form_name, m.form_menu_description
+            FROM redcap_metadata m
+            WHERE m.project_id=? AND m.form_menu_description IS NOT NULL
+            ";
+
+        }
+
+        $mm = Yes3::fetchRecords($sql, [$this->project_id]);
+
+        $form_metadata = [];
+
+        $form_index_num = 0;
+
+        $form_index = [];
+
+        foreach ($mm as $m){
+
+            if ( $isLong ){
+
+                $sqlE = "
+                SELECT ef.event_id, em.descrip
+                FROM redcap_events_forms ef
+                    INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id
+                    INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id
+                WHERE ea.project_id=? and ef.form_name=?
+                ORDER BY em.day_offset, ef.event_id
+                ";
+
+                $ee = Yes3::fetchRecords($sqlE, [$this->project_id, $m['form_name']]);
+
+                $events = [];
+
+                foreach( $ee as $e ){
+
+                    $events[] = [ 
+                        'event_id' => (string)$e['event_id'],
+                        'event_label' => Yes3::escapeHtml($e['descrip']),
+                        'descrip' => Yes3::escapeHtml($e['descrip'])
+                    ];      
+                }
+            }
+
+            $sqlF = "
+            SELECT m.field_name
+            FROM redcap_metadata m
+            WHERE m.project_id=? and m.form_name=?
+                AND m.element_type<>'descriptive'
+            ORDER BY m.field_order ; 
+            ";
+
+            $form_fields = [];
+
+            $fields = Yes3::fetchRecords($sqlF, [$this->project_id, $m['form_name']]);
+            foreach ( $fields as $field ){
+                $form_fields[] = $field['field_name'];
+            }
+    
+            $form_name = Yes3::escapeHtml($m['form_name']);
+
+            $form_metadata[] = [
+                'form_name' => $form_name,
+                'form_label' => Yes3::escapeHtml($m['form_menu_description']),
+                'form_events' => $events,
+                'form_fields' => $form_fields,
+                'form_repeating' => ( Yes3::isRepeatingInstrument($m['form_name']) ) ? 1 : 0
+            ];
+
+            $form_index[$form_name] = $form_index_num;
+
+            $form_index_num++;
+        }
+        
+        return [
+            'form_index'=>$form_index, 
+            'form_metadata'=>$form_metadata
+        ];
+    }
+
+    public function getFieldMetadataStructures(): array
+    {
+        if ( \REDCap::isLongitudinal() ){
+
+            $sql = "
+            SELECT DISTINCT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type
+            FROM redcap_metadata m
+                INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
+                INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id
+                INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id AND ea.project_id=m.project_id
+            WHERE m.project_id=?
+            AND m.element_type NOT IN('descriptive')
+            ORDER BY m.field_order;  
+            ";
         }
         else {
 
-            $this->eventPrefixes = [];
+            $sql = "
+            SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type
+            FROM redcap_metadata m
+            WHERE m.project_id=?
+            AND m.element_type NOT IN('descriptive')
+            ORDER BY m.field_order      
+            ";
         }
+
+        $fields = Yes3::fetchRecords($sql, [$this->project_id]);
+
+        $field_metadata = [];
+
+        $field_autoselect_source = [];
+
+        $field_index_num = 0;
+
+        $field_index = [];
+
+        foreach ($fields as $field){
+
+            $valueset = [];
+
+            if ( $field['element_type']==="radio" || $field['element_type']==="select" || $field['element_type']==="checkbox"){
+                $vv = $this->getChoiceLabels($field['field_name']);
+                foreach ( $vv as $value => $label) {
+                    $valueset[] = [
+                        'value' => (string)$value,
+                        'label' => Yes3::ellipsis(Yes3::printableEscHtmlString($label), MAX_LABEL_LEN)
+                    ];
+                }
+            }
+
+            $field_label = Yes3::ellipsis( Yes3::printableEscHtmlString($field['element_label']), MAX_LABEL_LEN );
+
+            $field_metadata[] = [
+
+                'field_name'        => $field['field_name'],
+                'form_name'         => Yes3::escapeHtml($field['form_name']),
+                'field_type'        => $field['element_type'],
+                'field_validation'  => $field['element_validation_type'],
+                'field_label'       => $field_label,
+                'field_valueset'    => $valueset
+
+            ];
+
+            if ( !Yes3::isRepeatingInstrument($field['form_name'])) {
+                $field_autoselect_source[] = [
+                    'value' => $field['field_name'],
+                    'label' => "[" . $field['field_name'] . "] " . $field_label
+                ];
+            }
+
+            $field_index[$field['field_name']] = $field_index_num;
+
+            $field_index_num++;
+        }
+
+        return [
+            'field_index'=>$field_index, 
+            'field_metadata'=>$field_metadata, 
+            'field_autoselect_source'=>$field_autoselect_source
+        ];
+    }
+
+    private function addExportItem_Specification( $export, $element, $event_settings )
+    {
+        $valueset = [];
+
+        foreach( $element['values'] as $v ){
+
+            $valueset[] = [
+                'value' => $v['yes3_fmapr_lov_value'],
+                'label' => $v['yes3_fmapr_lov_label'],
+                'redcap_field_value' => $v['redcap_field_value']
+            ];
+        }
+
+        $export->addExportItem([
+            'var_name' => $element['yes3_fmapr_data_element_name'],
+            'var_label' => $element['yes3_fmapr_data_element_description'],
+            'var_type' => $this->specificationTypeToVarType( $element['type'], $valueset ),
+            'valueset' => $valueset,
+            'origin' => "specification",
+            'redcap_field_name' => $element['redcap_field_name'],
+            'redcap_form_name' => Yes3::getREDCapFormForField($element['redcap_field_name']),
+            'redcap_event_id' => $element['redcap_event_id'],
+            'redcap_event_name' => $this->getEventName($element['redcap_event_id'], $event_settings)
+        ]);
+    }
+
+    private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings )
+    {
+        $field_index = $fields['field_index'][$redcap_field_name];
+
+        $form_name = $fields['field_metadata'][$field_index]['form_name'];
+
+        $event_ids = [];
+
+        if ( $redcap_event_id === ALL_OF_THEM && $export->export_layout === "h" ){
+
+            $form_index = $forms['form_index'][$form_name];
+
+            foreach($forms['form_metadata'][$form_index]['form_events'] as $event){
+
+                $event_ids[] = $event['event_id'];
+            }
+        }
+        else {
+
+            $event_ids = [ $redcap_event_id ];
+        }
+
+        foreach ( $event_ids as $event_id ){
+
+            $var_name = $this->exportFieldName($export, $redcap_field_name, $event_id, $event_settings);
+
+            if ( !$export->itemInExport($var_name) ){
+
+                $export->addExportItem([
+                    'var_name' => $var_name,
+                    'var_label' => $fields['field_metadata'][$field_index]['field_label'],
+                    'var_type' => $this->REDCapFieldTypeToVarType($redcap_field_name, $fields),
+                    'valueset' => $fields['field_metadata'][$field_index]['field_valueset'],
+                    'origin' => "redcap",
+                    'redcap_field_name' => $redcap_field_name,
+                    'redcap_form_name' => $form_name,
+                    'redcap_event_id' => $event_id,
+                    'redcap_event_name' => $this->getEventName($event_id, $event_settings)
+                ]);
+            }
+        }
+    }
+
+    private function addExportItem_otherProperty( $export, $property_name, $property_label, $property_type="TEXT" )
+    {
+        $export->addExportItem([
+            'var_name' => $property_name,
+            'var_label' => $property_label,
+            'var_type' => $property_type,
+            'valueset' => [],
+            'origin' => "other",
+            'redcap_field_name' => "",
+            'redcap_form_name' => "",
+            'redcap_event_id' => "",
+            'redcap_event_name' => ""
+        ]);
+    }
+
+    private function addExportItem_REDCapForm( $export, $redcap_form_name, $redcap_event_id, $fields, $forms, $event_settings )
+    {
+        $form_names = [];
+
+        if ( $redcap_form_name === ALL_OF_THEM ){
+
+            foreach ( $forms['form_metadata'] as $form ){
+
+                if ( !$form['form_repeating'] ) {
+
+                    $includeForm = ( $redcap_event_id === ALL_OF_THEM || !\REDCap::isLongitudinal() );
+
+                    if ( !$includeForm ){
+
+                        foreach ( $form['form_events'] as $event ){
+
+                            if ( $event['event_id'] == $redcap_event_id ){
+
+                                $includeForm = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ( $includeForm ){
+                        
+                        $form_names[] = $form['form_name'];
+                    }
+                } // no repeaters allowed in 'all' forms
+            }
+        }
+        else {
+
+            $form_names = [ $redcap_form_name ];
+        }
+
+        foreach ( $form_names as $form_name ){
+
+            $form_index = $forms['form_index'][$form_name]; 
+
+            foreach ( $forms['form_metadata'][$form_index]['form_fields'] as $field_name ){
+
+                $this->addExportItem_REDCapField($export, $field_name, $redcap_event_id, $fields, $forms, $event_settings);
+            }
+        }
+    }
+
+    private function exportFieldName( $export, $field_name, $event_id, $event_settings)
+    {
+        if ( $export->export_layout==="h" && $field_name !== \REDCap::getRecordIdField() ) {
+    
+            return $this->eventPrefixForEventId($event_id, $event_settings) . "_" . $field_name;
+        }
+    
+        return $field_name;
+    }
+    
+    private function eventPrefixForEventId($event_id, $event_settings)
+    {
+        for ( $i=0; $i<count($event_settings); $i++){
+    
+            if ( $event_settings[$i]['event_id']==$event_id ){
+    
+                return $event_settings[$i]['event_prefix'];
+            }
+        }
+    
+        return "???";
+    }
+ 
+    private function specificationTypeToVarType( $spec_type, $valueset )
+    {
+        if ( $valueset ) return "NOMINAL";
+
+        if ( !$spec_type ) return "TEXT";
+
+        $spec_type = strtolower(trim($spec_type));
+
+        if ( $spec_type==="string" ) return "TEXT";
+        if ( $spec_type==="text" ) return "TEXT";
+        if ( $spec_type==="character" ) return "TEXT";
+        if ( $spec_type==="integer" ) return "INTEGER";
+        if ( $spec_type==="float" ) return "FLOAT";
+        if ( $spec_type==="date" ) return "DATE";
+        if ( $spec_type==="datetime" ) return "DATETIME";
+        if ( $spec_type==="time" ) return "TIME";
+        if ( $spec_type==="number" ) return "FLOAT";
+        if ( $spec_type==="real" ) return "FLOAT";
+        if ( $spec_type==="categorical" ) return "NOMINAL";
+
+        return "TEXT";
+    }
+
+    private function REDCapFieldTypeToVarType( $field_name, $fields )
+    {
+        $field_index = $fields['field_index'][$field_name];
+        $field_type = $fields['field_metadata'][$field_index]['field_type'];
+        $field_validation = $fields['field_metadata'][$field_index]['field_validation'];
+
+        if ( $field_type === "radio" ) return "NOMINAL";
+        if ( $field_type === "dropdown" ) return "NOMINAL";
+        if ( $field_type === "yesno" ) return "NOMINAL";
+        if ( $field_type === "truefalse" ) return "NOMINAL";
+        if ( $field_type === "checkbox" ) return "CHECKBOX";
+        if ( $field_type === "select" ) return "NOMINAL";
+        if ( $field_type === "slider" ) return "INTEGER";
+
+        if ( $field_validation === "date_mdy" ) return "DATE";
+        if ( $field_validation === "date_ymd" ) return "DATE";
+        if ( $field_validation === "datetime_mdy" ) return "DATETIME";
+        if ( $field_validation === "datetime_ymd" ) return "DATETIME";
+        if ( $field_validation === "datetime_seconds_mdy" ) return "DATETIME";
+        if ( $field_validation === "datetime_seconds_ymd" ) return "DATETIME";
+        if ( $field_validation === "time" ) return "TIME";
+        if ( $field_validation === "float" ) return "FLOAT";
+        if ( $field_validation === "int" ) return "INTEGER";
+
+        return "TEXT";
+    }
+   
+
+    /* ==== HOOKS ==== */
+
+    public function redcap_module_link_check_display( $project_id, $link )
+    {
+        return $link; // noop for now
     }
 }

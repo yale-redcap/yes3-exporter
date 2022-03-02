@@ -178,7 +178,7 @@ FMAPR.saveExportSettings = function()
             "export_target": export_target,
             "export_target_folder": export_target_folder,
             "mapping_specification": mapping_specification,
-            "field_mappings": [],
+            //"field_mappings": [],
             "removed": removed
         });
     });
@@ -257,31 +257,19 @@ FMAPR.populateSetupEventTable = function()
 {
     let html = "";
 
+    let event_id = "";
+
+    let event_name = "";
+
     let event_prefix = "";
 
-    let e = 0;
+    for ( let e=0; e<FMAPR.stored_export_settings.event_settings.length; e++){
 
-    /**
-     * YES3.moduleProperties.eventPrefixes is a list of default prefixes for all currently defined events.
-     * It is keyed by event_id.
-     * Defaults will be overriden by stored settings in FMAPR.stored_export_settings.event_settings if found.
-     * Odious linear search. Perhaps we should key stored settings on event_id as well, or sort and use binary search?
-     */
-    for ( var event_id in YES3.moduleProperties.eventPrefixes ){
+        event_id = FMAPR.stored_export_settings.event_settings[e].event_id;
+        event_name = FMAPR.stored_export_settings.event_settings[e].event_name;
+        event_prefix = FMAPR.stored_export_settings.event_settings[e].event_prefix;
 
-        if (Object.prototype.hasOwnProperty.call(YES3.moduleProperties.eventPrefixes, event_id)) {
-
-            event_prefix = YES3.moduleProperties.eventPrefixes[event_id].event_prefix;
-
-            for ( e=0; e<FMAPR.stored_export_settings.event_settings.length; e++){
-                if ( FMAPR.stored_export_settings.event_settings[e].event_id==event_id ){
-                    event_prefix = FMAPR.stored_export_settings.event_settings[e].event_prefix;
-                    break;
-                }
-            }
-            
-            html += `<tr id='event-${event_id}'><td data-setting='event_name'>${YES3.moduleProperties.eventPrefixes[event_id].event_name}</td><td><input type='text' data-setting='event_prefix' value='${event_prefix}' /></td></tr>`;
-        }
+        html += `<tr id='event-${event_id}'><td data-setting='event_name'>${event_name}</td><td><input type='text' data-setting='event_prefix' value='${event_prefix}' /></td></tr>`;
     }
 
     FMAPR.eventPrefixesTable().find('tbody').empty().append(html);
@@ -319,6 +307,8 @@ FMAPR.populateExportSpecificationsTables = function()
 
         FMAPR.clearLastRowItemFlag(); // prevents auto append of blank specTable on change
 
+        console.log('populateExportSpecificationsTables TOP, s='+s+', len='+FMAPR.stored_export_settings.specification_settings.length);
+
         export_name = FMAPR.stored_export_settings.specification_settings[s].export_name || "";
         export_uuid = FMAPR.stored_export_settings.specification_settings[s].export_uuid || "???";
         export_layout = FMAPR.stored_export_settings.specification_settings[s].export_layout || "";
@@ -351,6 +341,8 @@ FMAPR.populateExportSpecificationsTables = function()
 
         specTbl.find(`input[data-setting=export_layout][value=${export_layout}]`).prop('checked', true);
         specTbl.find(`input[data-setting=export_selection][value=${export_selection}]`).prop('checked', true);
+        
+        console.log('populateExportSpecificationsTables WATCH, s='+s+', len='+FMAPR.stored_export_settings.specification_settings.length);
 
         specTbl.find('input[data-setting=export_criterion_field]').val(export_criterion_field).trigger('change');
         specTbl.find('select[data-setting=export_criterion_event]').val(export_criterion_event);
@@ -374,6 +366,8 @@ FMAPR.populateExportSpecificationsTables = function()
         FMAPR.setRemovedStatus( specTbl, removed, true );
 
         FMAPR.toggleExportSpecification( specNum, 0 ); // collapse the table
+
+
     }
 
     FMAPR.appendBlankExportSpecification();
@@ -452,11 +446,11 @@ FMAPR.setExportSpecificationEventSelectOptions = function(specNum)
 {
     let html = "<option value=''>select a REDCap event</option>";
 
-    for ( var prop in YES3.moduleProperties.eventPrefixes ){
+    for ( var prop in FMAPR.project.event_metadata ){
 
-        if (Object.prototype.hasOwnProperty.call(YES3.moduleProperties.eventPrefixes, prop)) {
+        if (Object.prototype.hasOwnProperty.call(FMAPR.project.event_metadata, prop)) {
             
-            html += `<option value='${YES3.moduleProperties.eventPrefixes[prop].event_name}'>${YES3.moduleProperties.eventPrefixes[prop].event_name}</option>`;
+            html += `<option value='${FMAPR.project.event_metadata[prop].event_name}'>${FMAPR.project.event_metadata[prop].event_name}</option>`;
         }
     }
 
@@ -467,11 +461,11 @@ FMAPR.setTemplateEventSelectOptions = function()
 {
     let html = "<option value=''>select a REDCap event</option>";
 
-    for ( var prop in YES3.moduleProperties.eventPrefixes ){
+    for ( var prop in FMAPR.project.event_metadata ){
 
-        if (Object.prototype.hasOwnProperty.call(YES3.moduleProperties.eventPrefixes, prop)) {
+        if (Object.prototype.hasOwnProperty.call(FMAPR.project.event_metadata, prop)) {
             
-            html += `<option value='${YES3.moduleProperties.eventPrefixes[prop].event_name}'>${YES3.moduleProperties.eventPrefixes[prop].event_name}</option>`;
+            html += `<option value='${FMAPR.project.event_metadata[prop].event_name}'>${FMAPR.project.event_metadata[prop].event_name}</option>`;
         }
     }
 
@@ -520,7 +514,7 @@ FMAPR.setExportSpecificationCriterionFieldListener = function(tbl)
 {
     tbl.find(`input[data-setting=export_criterion_field]`)
     .autocomplete({
-        source: FMAPR.settings.field_autoselect_source,
+        source: FMAPR.project.field_autoselect_source,
         minLength: 1,
         select: function(event, ui) {
 
@@ -649,20 +643,20 @@ FMAPR.exportSpecificationTableSkipper = function ( tbl )
 
 FMAPR.eventSelectOptionsForField = function( field_name )
 {
-    let field_index = FMAPR.settings.field_index[field_name];
+    let field_index = FMAPR.project.field_index[field_name];
 
     let html = "";
 
     if ( typeof field_index === "number" ){
 
-        let form_name = FMAPR.settings.field_metadata[field_index].form_name;
-        let form_index = FMAPR.settings.form_index[form_name];
+        let form_name = FMAPR.project.field_metadata[field_index].form_name;
+        let form_index = FMAPR.project.form_index[form_name];
 
-        let form_events = FMAPR.settings.form_metadata[form_index].form_events;
+        let form_events = FMAPR.project.form_metadata[form_index].form_events;
 
         for (let i=0; i<form_events.length; i++){
 
-            html += `<option value='${YES3.moduleProperties.eventPrefixes[form_events[i].event_id].event_name}'>${YES3.moduleProperties.eventPrefixes[form_events[i].event_id].event_name}</option>`;
+            html += `<option value='${form_events[i].event_id}'>${FMAPR.project.event_metadata[form_events[i].event_id].event_name}</option>`;
         }
     }
 
@@ -1026,7 +1020,7 @@ $( function () {
      *      - issues service (ajax) request for REDCap project metadata
      * 
      * (2) FMAPR.getProjectSettingsCallback
-     *      - populates FMAPR.settings with reorganized REDCap project metadata
+     *      - populates FMAPR.project with reorganized REDCap project metadata (fields, forms, events)
      *      - triggers 'yes3-fmapr-settings' event when completed
      * 
      * (3) 'yes3-fmapr-settings' event handler

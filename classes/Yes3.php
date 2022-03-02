@@ -290,7 +290,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
 
    public static function timeStampString()
    {
-      return strftime("%Y%m%d%H%M%S");
+      return strftime("%y%m%d%H%M%S");
    }
 
     /**
@@ -315,10 +315,27 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
         return preg_replace("/[^a-zA-Z0-9_ ]+/", "", $s);
     }
 
+    public static function printableEscHtmlString($s, $maxLen=0)
+    {
+        $s = preg_replace('/[\x00-\x1F\x7F]/u', '', self::escapeHtml(strip_tags($s)));
+        if ( $maxLen && strlen($s)>$maxLen ) $s = substr($s, 0, $maxLen);
+        return $s;
+    }
+
     public static function escapeHtml( $s )
     {
         return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
     }
+
+    public static function ellipsis( $s, $len=64 )
+    {
+        $s = trim($s);
+        if ( strlen($s) > $len-3 ) {
+            return substr($s, 0, $len-3)."...";
+        }
+        return $s;
+    }
+
 
    /**
     * These SQL escaping functions will be retired
