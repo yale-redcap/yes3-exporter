@@ -2013,6 +2013,8 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
 
     let field_name = thisRow.find('input.yes3-fmapr-input-element').first().val();
 
+    let element_name = thisRow.find('span.yes3-fmapr-redcap-element').first().text();
+
     let event_name = thisRow.find('select.yes3-fmapr-event-select option:selected').first().text();
 
     let rowSelected = thisRow.hasClass('yes3-row-selected');
@@ -2026,7 +2028,7 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
 
     e.preventDefault();
 
-    html = FMAPR.REDCapFieldContextMenuContent( thisRow.prop('id'), field_name, event_name, rowSelected );
+    html = FMAPR.REDCapFieldContextMenuContent( thisRow.prop('id'), field_name, element_name, event_name, rowSelected );
 
     theMenuPanel.css({'top': 0, 'left': 0});
 
@@ -2054,7 +2056,7 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
     return false;
 }
 
-FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, event_name, rowSelected )
+FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, element_name, event_name, rowSelected )
 {
     let k = FMAPR.selectedRowCount();
 
@@ -2064,11 +2066,13 @@ FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, event_name, r
 
     let theNextRowIsSelected = FMAPR.rowIsSelected( theNexRow );
 
+    let redcap_objname = ( field_name ) ? field_name : element_name;
+
     let html = "";
 
     html += "<div id='yes3-contextmenu-panel-title' class='yes3-contextmenu-panel-row yes3-drag-handle'>";
 
-    html += "<div class='yes3-float-left'>" + field_name + "</div><div class='yes3-float-right yes3-ellipsis' style='max-width: 150px'>" + event_name + "</div>";
+    html += "<div class='yes3-float-left'>" + redcap_objname + "</div><div class='yes3-float-right yes3-ellipsis' style='max-width: 150px'>" + event_name + "</div>";
 
     html += "</div>";
 
@@ -2117,7 +2121,7 @@ FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, event_name, r
 
             html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
             //html += `<tr><td><a href="javascript:YES3.Functions.openFieldInsertionForm('${rowId}', '${field_name}', '${event_name}', 'above');">insert form fields above</a></td><td>&nbsp;</td></tr>`;
-            html += `<tr><td><a href="javascript:YES3.Functions.openFieldInsertionForm('${rowId}', '${field_name}', '${event_name}', 'below');">insert form fields</a></td><td>&nbsp;</td></tr>`;
+            html += `<tr><td><a href="javascript:YES3.Functions.openFieldInsertionForm('${rowId}', '${redcap_objname}', '${event_name}', 'below');">insert form fields</a></td><td>&nbsp;</td></tr>`;
 
         }
     }

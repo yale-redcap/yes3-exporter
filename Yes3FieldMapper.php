@@ -843,11 +843,28 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         foreach ( $form_names as $form_name ){
 
-            $form_index = $forms['form_index'][$form_name]; 
+            $form_index = $forms['form_index'][$form_name];
 
-            foreach ( $forms['form_metadata'][$form_index]['form_fields'] as $field_name ){
+            $event_ids = [];
 
-                $this->addExportItem_REDCapField($export, $field_name, $redcap_event_id, $fields, $forms, $event_settings);
+            if ( $redcap_event_id === ALL_OF_THEM ) {
+
+                foreach ( $forms['form_metadata'][$form_index]['form_events'] as $event ){
+
+                    $event_ids[] = $event['event_id'];
+                }
+            }
+            else {
+
+                $event_ids[] = $redcap_event_id;
+            }
+
+            foreach ( $event_ids as $event_id ){
+
+                foreach ( $forms['form_metadata'][$form_index]['form_fields'] as $field_name ){
+
+                    $this->addExportItem_REDCapField($export, $field_name, $event_id, $fields, $forms, $event_settings);
+                }
             }
         }
     }
