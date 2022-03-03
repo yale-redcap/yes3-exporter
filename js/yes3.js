@@ -198,20 +198,27 @@ YES3.contextMenuOpen = function(x, y)
     YES3.openPanel('yes3-contextmenu-panel', true, x, y);
 };
  
-YES3.contextMenuClose = function( Fn ) 
+YES3.contextMenuClose = function( Fn, keepPointer ) 
 {
+    keepPointer = keepPointer || false;
+
     YES3.closePanel('yes3-contextmenu-panel');
-    YES3.hideRedPointer();
+
+    //console.log("contextMenuClose", Fn, typeof Fn);
 
     if ( typeof Fn === "function" ) {
-       //console.log("contextmenu: executing function");
+
        Fn();
+    }
+
+    if ( !keepPointer ) {
+
+        YES3.hideRedPointer();
     }
 };
 
-YES3.showRedPointer = function( theRow )
+YES3.showRedPointer_alt = function( theRow )
 {
-     //let theContainer = $("div#yes3-YES3-container").parent();
  
      let thePointer = $('div#yes3-red-pointer');
  
@@ -223,11 +230,26 @@ YES3.showRedPointer = function( theRow )
      thePointer.css({top: y, left: x}).show();
 }
  
-YES3.hideRedPointer = function(x, y)
+YES3.hideRedPointer_alt = function()
 {
     $('div#yes3-red-pointer').hide();
 }
+
+/**
+ * replaced the actual red pointer with a red bottom border 3/2/2022
+ * 
+ * @param {*} theRow 
+ */
+YES3.showRedPointer = function( theRow )
+{
+    theRow.addClass('yes3-rowPointer');
+}
  
+YES3.hideRedPointer = function()
+{
+    $('.yes3-rowPointer').removeClass('yes3-rowPointer');
+}
+
 YES3.YesNo = function(question, fnYes, fnNo) {
     YES3.yesFunction = fnYes;
     YES3.noFunction = fnNo;

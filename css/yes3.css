@@ -385,6 +385,10 @@ div#yes3-red-pointer {
     margin: 0;
 }
 
+.yes3-rowPointer {
+    border-bottom: 2px solid var(--yes3-alert-color) !important;
+}
+
 .vartester {
     color: #483d8b;
  }

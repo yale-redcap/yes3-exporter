@@ -59,7 +59,7 @@ YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
     let x = theRow.offset().left - theParent.offset().left;
     let y = theRow.offset().top - theParent.offset().top;
 
-    YES3.showRedPointer( theRow );
+    //YES3.showRedPointer( theRow );
 
     if ( y > $(window).innerHeight()/2 ) {
         y = y - thePanel.outerHeight();
@@ -68,7 +68,7 @@ YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
         y = y + theRow.outerHeight();
     }
 
-    YES3.contextMenuClose();
+    YES3.contextMenuClose(null, true);
 
     YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false, x, y);
 
@@ -81,13 +81,13 @@ FMAPR.closeFieldInsertionForm = function()
     YES3.hideRedPointer();
 }
 
-YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode )
+YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, noTrashCan )
 {   
-    batchMode = batchMode || false;
 
     element = element || {};
-
     theRowBefore = theRowBefore || {};
+    batchMode = batchMode || false;
+    noTrashCan = noTrashCan || false;
      
     let fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
 
@@ -104,7 +104,16 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode )
     html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-fmapr-redcap-element'>&nbsp;</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
-    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
+
+    if ( noTrashCan ){
+
+        html += `<td class='yes3-gutter-right-top yes3-td-right'>&nbsp;</td>`;
+    }
+    else {
+
+        html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
+    }
+
     html += "</tr>";
 
     /**
@@ -672,13 +681,13 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
 
     if ( response.field_mappings === null ){
 
-        // null soec; add recordId
+        // null spec; add recordId
         
         let element = {
             "redcap_field_name": FMAPR.project.field_metadata[0].field_name,
             "redcap_event_id": FMAPR.project.project_event_metadata[0].event_id
         };
-        YES3.addRawREDCapField( element )
+        YES3.addRawREDCapField( element, null, false, true );
 
         FMAPR.doFieldMapperTableHousekeeping( true );
 
@@ -701,12 +710,15 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
     $("tr.yes3-fmapr-redcap-field.yes3-fmapr-data-element").remove();
 
     let j = 0;
+    let noTrashCan = false;
 
     for ( let i=0; i<response.field_mappings.elements.length; i++ ) {
 
         if ( response.field_mappings.elements[i].element_origin==="redcap" && response.field_mappings.elements[i].redcap_object_type==="field" ) {
             
-            yes3_fmapr_data_element_name = YES3.Functions.addRawREDCapField( response.field_mappings.elements[i], null, true );
+            noTrashCan = ( response.field_mappings.elements[i].redcap_field_name === YES3.moduleProperties.RecordIdField );
+
+            yes3_fmapr_data_element_name = YES3.Functions.addRawREDCapField( response.field_mappings.elements[i], null, true, noTrashCan );
         }
         else if ( response.field_mappings.elements[i].element_origin==="redcap" && response.field_mappings.elements[i].redcap_object_type==="form" ) {
             
@@ -775,6 +787,7 @@ FMAPR.makeSortable = function( tbody )
             for (let j=FMAPR.rowsToMove.length; j>0; j--){
                 ui.item.after(FMAPR.rowsToMove[j-1]);
             }
+            FMAPR.markAsDirty();
         }
     });
 
@@ -1237,7 +1250,9 @@ FMAPR.clearSelectionRange = function( boundariesToo )
 
 FMAPR.removeSelections = function( stickyToo )
 {
-    $("tr.yes3-row-selected").off().remove();  
+    $("tr.yes3-row-selected").off().remove();
+
+    FMAPR.markAsDirty();  
 }
 
 FMAPR.clearSelections = function( stickyToo )
@@ -2146,6 +2161,8 @@ FMAPR.contextMenuMoveRowSelections = function(rowId)
     FMAPR.clearSelectionRangeBoundaries();
 
     //console.log('contextMenuMoveRowSelections', theRows);
+
+    FMAPR.markAsDirty();
 
     YES3.contextMenuClose();
 }
