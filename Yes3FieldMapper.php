@@ -294,8 +294,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         //return "";
 
         return [
+            'export_uuid' => $export_uuid,
             'export_name' => $export->export_name,
-            'data_dictionary' => $dd
+            'export_target_folder' => $export->export_target_folder,
+            'export_data_dictionary' => $dd
         ];
 
         //$this->download($export->export_name . "_dd", $dd);
@@ -303,10 +305,437 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         //return count($dd) . " export columns defined.";
     }
 
+    private function openTempFile()
+    {
+        if ( !$filename = tempnam(sys_get_temp_dir(), "ys3") ){
+
+            return false;
+        }
+
+        // ensure file is erased as soon as script finishes
+        register_shutdown_function( function() use($filename){
+
+            unlink($filename);
+        });
+
+        return fopen( $filename, "w+" );
+    }
+
+    private function writeExportDataDictionaryFile( $export_uuid, $export_name, $export_target_folder, $dd, &$bytesWritten=0 )
+    {
+        $delim = ",";
+        
+        if ( !$export_target_folder ) {
+
+            $path = tempnam(sys_get_temp_dir(), "ys3");
+            $keepOpen = true;
+        }
+        else {
+
+            if ( substr($export_target_folder, -1) !== DIRECTORY_SEPARATOR ){
+
+                $export_target_folder .= DIRECTORY_SEPARATOR;
+            }
+
+            $path = $export_target_folder . $this->exportDataDictionaryFilename($export_name, "filesystem");           
+        }
+
+        $h = fopen( $path, "w+" );
+
+        if ( $h===false ){
+
+            exit("Fail: could not create export file {$path}");
+        }
+
+        $R = 0;
+
+        $C = count($dd[0]);
+           
+        $bytesWritten = fputcsv($h, array_keys($dd[0]), $delim);
+     
+        foreach ( $dd as $x ) {
+
+            $bytesWritten += fputcsv($h, array_values($x), $delim);
+            $R++;
+        }
+     
+        fclose($h);
+
+        return "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.";
+    }
+
+    private function writeExportDataFile( $export_uuid, $export_name, $export_target_folder, $dd, &$bytesWritten=0 )
+    {
+
+        //exit( print_r($eventSpecs, true) )
+        
+        if ( !$export_target_folder ) {
+
+            $path = tempnam(sys_get_temp_dir(), "ys3");
+            $keepOpen = true;
+        }
+        else {
+
+            if ( substr($export_target_folder, -1) !== DIRECTORY_SEPARATOR ){
+
+                $export_target_folder .= DIRECTORY_SEPARATOR;
+            }
+
+            $path = $export_target_folder . $this->exportDataFilename($export_name, "filesystem");
+            $keepOpen = false;
+        }
+
+        $h = fopen( $path, "w+" );
+
+        if ( $h===false ){
+
+            exit("Fail: could not create export file {$path}");
+        }
+
+        /**
+         * build an assoc array for rapid event name resolution
+         */
+        $eventSpecs = $this->getEventSettings();
+
+        $eventName = [];
+
+        foreach( $eventSpecs as $eventSpec){
+
+            $eventName[$eventSpec['event_id']] = $eventSpec['event_name'];
+        }
+
+        /**
+         * Assemble 
+         *   (1) the list of all events that contribute to this export, for use with IN() operator.
+         *   (2) an index, keyed by field_name and event_id, for rapid retrieval of dd entry during record processing.
+         * 
+         * Most likely too many fields for the IN() approach to be efficient,
+         * but perhaps worth testing.
+         */
+        $events = [];
+        $dd_index = [];
+
+        for ($i=0; $i<count($dd); $i++){
+
+            if ( $dd[$i]['redcap_field_name'] && $dd[$i]['redcap_event_id'] && is_numeric($dd[$i]['redcap_event_id']) ){
+
+                $dd_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_event_id']] = $i;
+
+                if ( !in_array($dd[$i]['redcap_event_id'], $events) ){
+
+                    $events[] = $dd[$i]['redcap_event_id'];
+                }
+            }
+        }
+
+        /**
+         * build the query
+         */
+        $critXOperators = [ "=>", "<=", "=", "<", ">"];
+
+        $spec = $this->getExportSpecification( $export_uuid );
+
+        $sqlWhere = "d.`project_id`=?";
+        $sqlParams = [$this->project_id];
+
+        if ( $events ){
+
+            $inString = "";
+
+            foreach ($events as $event_id){
+
+                $inString .= (($inString) ? ",":"") . "?";
+                $sqlParams[] = $event_id;
+            }
+            $sqlWhere .= " AND d.`event_id` IN({$inString})";
+        }
+
+        $sqlInnerJoin = "";
+
+        if ( $spec['export_selection']=='2' && $spec['export_criterion_field'] && $spec['export_criterion_event'] && $spec['export_criterion_value'] ) {
+
+            $criterion_expression = "";
+
+            $critXParams = [ $spec['export_criterion_field'], $spec['export_criterion_event'] ];
+
+            $critXStr = trim( $spec['export_criterion_value'] );
+
+            $critXOp = "="; // default operator for the SELECT query
+            $critXVal = $critXStr; // the value applied to the operator
+
+            $critXQ = ""; // the query expression to be determined
+
+            /**
+             * lists of comma-separated values are allowed
+             */
+            if ( strpos($critXVal, ',') !== false ){
+
+                $valParts = explode($critXVal, ",");
+
+                $critXQList = "";
+
+                foreach ( $valParts as $val){
+
+                    $critXQList .= (( $critXQList ) ? "," : "") . "?";
+                    $critXParams[] = $val;
+                }
+                $critXQ = "IN({$critXQList})";
+            }
+            else {
+
+                foreach ($critXOperators as $op){
+                    if (strpos($critXStr, $op)===0){
+                        $critXOp = $op;
+                        $critXVal = trim(substr($critXStr, strlen($critXOp)));
+                        break;
+                    }
+                }
+
+                $critXQ = $critXOp . "?";
+                $critXParams[] = $critXVal;
+            }
+
+            $sqlInnerJoin = "INNER JOIN redcap_data c ON c.`project_id`=d.`project_id` AND c.`record`=d.`record` AND c.`field_name`=? AND c.`event_id`=?"
+                . " AND c.`value` {$critXQ}";
+
+            // The inner join params are now first in order
+            $sqlParams = array_merge( $critXParams, $sqlParams );
+        }
+
+        $sql = "       
+SELECT d.* 
+FROM redcap_data d 
+    {$sqlInnerJoin}
+WHERE {$sqlWhere}
+ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
+        ";
+
+        /**
+         * Records are fetched from a generator, instead of the entire recordset at once.
+         * Presumably slower, but won't exhaust PHP resources.
+         */
+
+        $K = 0; // datum count
+        $R = 0; // export row count
+        $C = 0; // col count
+
+        $record = ".";
+        $event_id = ".";
+        $instance = ".";
+        $field_index = -1;
+        $y = [];
+        $max_col_count = 0;
+
+        $BOR = true;
+        $EOR = true;
+
+        $RecordIdField = \REDCap::getRecordIdField();
+
+        $bytesWritten = 0;
+
+        foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
+
+            $K++;
+
+            $x_instance = $x['instance'] || "1";
+
+            /**
+             * $BOR: beginning of record
+             * 
+             * The break will be on (record) for horiz layouts,
+             *   (record_event_id) for vertical,
+             *   (record, instance) for repeating
+             */
+
+            if ( $spec['export_layout']==="h" ) {
+
+                $BOR = ( $x['record'] !== $record );
+            }
+            elseif ( $spec['export_layout']==="v" ) {
+
+                $BOR = ( $x['record'] !== $record || $x['event_id'] !== $event_id );
+            }
+            elseif ( $spec['export_layout']==="r" ) {
+
+                $BOR = ( $x['record'] !== $record || $x_instance !== $$instance );
+            }
+            else {
+
+                $BOR = false;
+            }
+            
+            if ( $BOR ) {
+
+                if ( $y ){
+
+                    if ( !$R ) $C = count($y);
+
+                    $bytesWritten += $this->writeTempExportRecord($h, $y, $R, $C);
+                }
+                    
+                $y = [
+                    $RecordIdField => $x['record']
+                ];
+
+                if ( $spec['export_layout']==="v" ) {
+    
+                    $y['event_id'] = $x['event_id'];
+                    $y['event_name'] = $eventName[$x['event_id']];
+                }
+                elseif ( $spec['export_layout']==="r" ) {
+    
+                    $y['event_id'] = $x['event_id'];
+                    $y['event_name'] = $eventName[$x['event_id']];
+                    $y['instance'] = $x_instance;
+                }
+
+                /**
+                 * fill out the record
+                 */
+                foreach ($dd as $d){
+
+                    if ( !isset($y[$d['var_name']]) ){
+                        $y[$d['var_name']] = "";
+                    }
+                }
+
+                $BOR = false;
+            }
+
+            $record = $x['record'];
+            $event_id = $x['event_id'];
+            $instance = $x_instance;
+
+            $field_index = $dd_index[$x['field_name']][$x['event_id']] ?? -1;
+
+            if ( $field_index > -1 ){
+
+                $y[ $dd[$field_index]['var_name'] ] = $x['value'];
+            }
+        }
+
+        if ( $y ){
+
+            $bytesWritten += $this->writeTempExportRecord($h, $y, $R, $C);
+        }
+
+        if ( $keepOpen ){
+
+            return $h;
+        }
+
+        fclose($h);
+
+        return "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.";
+    }
+
+    private function writeTempExportRecord( $h, $y, &$rowNumber, &$colCount ){
+
+        $delim = ",";
+
+        $bytes = 0;
+
+        if ( $rowNumber===0 ){
+
+            $bytes += fputcsv($h, array_keys($y), $delim);
+            $colCount = count($y);
+        }
+
+        $rowNumber++;
+
+        $bytes += fputcsv($h, array_values($y), $delim);
+
+        return $bytes;
+    }
+
+    public function exportData($export_uuid)
+    {
+        $t = time();
+
+        $ddPackage = $this->buildExportDataDictionary($export_uuid);
+
+        $response = "";
+ 
+        $response .= $this->writeExportDataDictionaryFile($ddPackage['export_uuid'], $ddPackage['export_name'], $ddPackage['export_target_folder'], $ddPackage['export_data_dictionary']);
+
+        $response .= "\n\n" . $this->writeExportDataFile($ddPackage['export_uuid'], $ddPackage['export_name'], $ddPackage['export_target_folder'], $ddPackage['export_data_dictionary']);
+
+        $response .= "\n\nElapsed time: " . time() - $t . " seconds.";
+
+        return nl2br($response);
+    }
+
     public function downloadDataDictionary($export_uuid)
     {
-        $ddpackage = $this->buildExportDataDictionary($export_uuid);
-        $this->download( $ddpackage['export_name'] . "_dd", $ddpackage['data_dictionary'] );
+     
+        $h = fopen('php://output', 'w');
+
+        if ( $h===false ){
+
+            exit("Fail: could not open PHP output stream.");
+        }
+
+        $ddPackage = $this->buildExportDataDictionary($export_uuid);
+
+        $filename = $this->exportDataDictionaryFilename( $ddPackage['export_name'], "download" );
+
+        $delim = ",";
+
+        ob_start();
+        header("Content-type: text/csv");
+        header("Cache-Control: no-store, no-cache");
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+     
+        fputcsv($h, array_keys($ddPackage['export_data_dictionary'][0]), $delim);
+     
+        foreach ( $ddPackage['export_data_dictionary'] as $x ) {
+
+            fputcsv($h, array_values($x), $delim);
+        }
+     
+        fclose($h);
+        ob_end_flush();
+
+        exit;
+    }
+
+    public function downloadData($export_uuid)
+    {
+        $ddPackage = $this->buildExportDataDictionary($export_uuid);
+
+        $bytesWritten = 0;
+
+        $h = $this->writeExportDataFile($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);
+
+        if ( $h===false ) {
+
+            exit("Fail: download export file not written");
+        }
+
+        $filename = $this->exportDataFilename( $ddPackage['export_name'], "download" );
+
+        $chunksize = 1024 * 1024; // 1MB per one chunk of file.
+
+        $size = intval(sprintf("%u", $bytesWritten));
+
+        header('Content-Type: application/octet-stream');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: '.$size);
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
+
+        rewind($h);
+
+        while (!feof($h)){
+
+            print(@fread($h, $chunksize));
+
+            ob_flush();
+            flush();
+        }
+
+        fclose($h);
+
+        exit;
     }
 
     private function getEventName($event_id, $event_settings)
@@ -322,36 +751,27 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return "";
     }
 
-    public function download($filename, $xx, $extension="csv", $delim=",") {
+    private function exportDataFilename( $export_name, $target="download")
+    {
+        $extension = "csv"; // will work on this later
 
-        $filename = Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($filename)))) . "_" . Yes3::timeStampString();
+        if ( $target==="download") {
+            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_" . Yes3::timeStampString() . "." . $extension;
+        }
 
-        ob_start();
-        header("Content-type: text/csv");
-        header("Cache-Control: no-store, no-cache");
-        header('Content-Disposition: attachment; filename="'.$filename.'.'.$extension.'"');
-     
-        $fp = fopen('php://output', 'w');
-     
-        $h = array();
-        foreach ($xx[0] as $colname=>$value ) {
-           $h[] = $colname;
+        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "." . $extension;
+    }
+
+    private function exportDataDictionaryFilename( $export_name, $target="download")
+    {
+        $extension = "csv"; // will work on this later
+
+        if ( $target==="download") {
+            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_dd_" . Yes3::timeStampString() . "." . $extension;
         }
-        fputcsv($fp, $h, $delim);
-     
-        foreach ( $xx as $x ) {
-           $y = array();
-           foreach ($x as $colname=>$value) {
-              //$y[] = str_replace("%", "", $value);
-              $y[] = $value;
-           }
-           if ( $y ) fputcsv($fp, $y, $delim);
-        }
-     
-        fclose($fp);
-        ob_end_flush();
-     
-     }
+
+        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_dd." . $extension;
+    }
 
     public function getEventSettings()
     {

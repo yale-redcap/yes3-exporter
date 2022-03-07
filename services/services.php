@@ -100,10 +100,22 @@ function downloadDataDictionary()
     return $module->downloadDataDictionary($export_uuid);
 }
 
+function downloadData()
+{
+    global $module;
+
+    $export_uuid = $_POST['export_uuid'] ?? $_GET['export_uuid'];
+
+    return $module->downloadData($export_uuid);
+}
+
 function exportData()
 {
+    global $module;
 
-    return "notta lotta";
+    $export_uuid = $_POST['export_uuid'];
+
+    return $module->exportData($export_uuid);
 }
 
 function getExportSettings()

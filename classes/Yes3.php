@@ -40,14 +40,14 @@ class Yes3 {
       return ExternalModules::query($sql, $parameters);
    }
 
-   public static function yieldRecords($sql, $parameters = [])
+   public static function recordGenerator($sql, $parameters = [])
    {
-      $resultSet = self::query($sql, $parameters);
-      if ( $resultSet->num_rows > 0 ) {
-         while ($row = $resultSet->fetch_assoc()) {
+        $resultSet = self::query($sql, $parameters);
+    
+        while ($row = $resultSet->fetch_assoc()) {
+
             yield $row;
-         }
-      }
+        }
    }
 
    public static function fetchRecords($sql, $parameters = [])

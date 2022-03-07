@@ -13,6 +13,15 @@
 YES3.Functions.openExportForm = function()
 {
     YES3.openPanel("yes3-fmapr-export-panel");
+
+    if ( FMAPR.specification_settings.export_target==="filesystem" ){
+
+        $(".yes3-fmapr-target-filesystem").show();
+    }
+    else {
+        
+        $(".yes3-fmapr-target-filesystem").hide();
+    }
 }
 
 FMAPR.closeExportForm = function()
@@ -315,6 +324,10 @@ FMAPR.exportExecute = function()
     }
 
     else if ( exportOption==="data"){
+        FMAPR.downloadData();
+    }
+
+    else if ( exportOption==="filesystem"){
         FMAPR.exportData();
     }
 
@@ -334,14 +347,22 @@ FMAPR.downloadDataDictionary = function()
     window.open(url);
 }
 
-FMAPR.downloadDataDictionary_hold = function()
+FMAPR.downloadData = function()
 {
-    YES3.requestService(
-        {
-            'request': 'exportDatadictionary',
-            'export_uuid': FMAPR.export_uuid
-        }, FMAPR.downloadDataDictionaryCallback
-    );  
+    let url = YES3.moduleProperties.serviceUrl
+        + "&request=downloadData"
+        + "&export_uuid=" + encodeURIComponent(FMAPR.export_uuid)
+        + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
+    ;
+
+    console.log(url);
+
+    window.open(url);
+}
+
+FMAPR.downloadDataDictionaryCallback = function( response )
+{
+  console.log(response);
 }
 
 FMAPR.exportData = function()
@@ -354,17 +375,10 @@ FMAPR.exportData = function()
     );  
 }
 
-FMAPR.downloadDataDictionaryCallback = function( response )
-{
-  console.log(response);
-}
-
 FMAPR.exportDataCallback = function( response )
 {
-  console.log(response);
+  YES3.hello(response);
 }
-
-
 
 /*** WAYBACK ***/
 
@@ -769,9 +783,9 @@ FMAPR.populateFieldMapperTableCallback = function( response ) {
 
 FMAPR.rowsToMove = [];
 
-FMAPR.makeSortable = function( tbody )
+FMAPR.makeSortable = function( parentElement )
 {
-    tbody.sortable({
+    parentElement.sortable({
         items: 'tr.yes3-fmapr-sortable',
         cursor: 'grab',
         axis: 'y',
@@ -1739,7 +1753,7 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
     let k = 0;
     let items = 0;
 
-    console.log('addREDcapObjectToSpecification', data_element_name, form_name, field_name, event_id_option);
+    //console.log('addREDcapObjectToSpecification', data_element_name, form_name, field_name, event_id_option);
 
     /**
      * add a single item (redcap field)
@@ -1854,7 +1868,7 @@ FMAPR.enumerateSpecificationElements = function()
                 form_name = allRows.eq(i).data("form_name");
             }
 
-            console.log('enumerateSpecificationElements', data_element_name, form_name, field_name, event_id_option);
+            //console.log('enumerateSpecificationElements', data_element_name, form_name, field_name, event_id_option);
 
             FMAPR.addREDcapObjectToSpecification(data_element_name, form_name, field_name, event_id_option);
         }

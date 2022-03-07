@@ -17,6 +17,12 @@
 
     "versions": [
         {
+            "number": "0.2.1",
+            "date": "2022-03-06",
+            "description": "Exports and downloads functioning",
+            "comments": ""
+        },
+        {
             "number": "0.1.2",
             "date": "2022-02-26",
             "description": "Minor change to config.json",
