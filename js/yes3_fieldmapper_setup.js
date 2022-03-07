@@ -63,7 +63,7 @@ YES3.Functions.Exportspecifications_saveSettings = function()
 
 YES3.Functions.Exportspecifications_undoSettings = function()
 {
-    console.log('MappingsEditor_undoSettings' );
+    //console.log('MappingsEditor_undoSettings' );
 
     YES3.YesNo("Are you SURE you would like to roll back all changes since the last save?", FMAPR.getExportSettings, null);
 }
@@ -183,7 +183,7 @@ FMAPR.saveExportSettings = function()
         });
     });
 
-    console.log('saveExportSettings', specifications);
+    //console.log('saveExportSettings', specifications);
 
     let requestParams = {
         "request": "saveExportSettings",
@@ -193,8 +193,8 @@ FMAPR.saveExportSettings = function()
 
     YES3.requestService(requestParams, FMAPR.saveExportSettingsCallback, false);
 
-    console.log(events); 
-    console.log(specifications); 
+    //console.log(events); 
+    //console.log(specifications); 
 }
 
 FMAPR.saveExportSettingsCallback = function(response)
@@ -211,7 +211,7 @@ FMAPR.getExportSettings = function()
 
 FMAPR.getExportSettingsCallback = function(response)
 {
-    console.log('getExportSettingsCallback:', response);
+    //console.log('getExportSettingsCallback:', response);
 
     FMAPR.stored_export_settings = response;
 
@@ -307,7 +307,7 @@ FMAPR.populateExportSpecificationsTables = function()
 
         FMAPR.clearLastRowItemFlag(); // prevents auto append of blank specTable on change
 
-        console.log('populateExportSpecificationsTables TOP, s='+s+', len='+FMAPR.stored_export_settings.specification_settings.length);
+        //console.log('populateExportSpecificationsTables TOP, s='+s+', len='+FMAPR.stored_export_settings.specification_settings.length);
 
         export_name = FMAPR.stored_export_settings.specification_settings[s].export_name || "";
         export_uuid = FMAPR.stored_export_settings.specification_settings[s].export_uuid || "???";
@@ -342,7 +342,7 @@ FMAPR.populateExportSpecificationsTables = function()
         specTbl.find(`input[data-setting=export_layout][value=${export_layout}]`).prop('checked', true);
         specTbl.find(`input[data-setting=export_selection][value=${export_selection}]`).prop('checked', true);
         
-        console.log('populateExportSpecificationsTables WATCH, s='+s+', len='+FMAPR.stored_export_settings.specification_settings.length);
+        //console.log('populateExportSpecificationsTables WATCH, s='+s+', len='+FMAPR.stored_export_settings.specification_settings.length);
 
         specTbl.find('input[data-setting=export_criterion_field]').val(export_criterion_field).trigger('change');
         specTbl.find('select[data-setting=export_criterion_event]').val(export_criterion_event);
@@ -430,16 +430,26 @@ FMAPR.Exportspecs_collapseAll = function()
 
 /**
  * Uses CSS classes to show or hide UI elements (table rows mostly).
- * The .yes3-fmapr-skipped-over class blocks display of UI elements that
- * are hidden by skip pattern rules 
+ * The .yes3-fmapr-skipped-over and .yes3-fmapr-beta class blocks display of UI elements that
+ * are hidden by skip pattern or beta access rules 
  * (e.g., selection criterion field, event, value for 'all records' selection)
  */
 FMAPR.showOrHideCollapsibles = function()
 {
     $('table.yes3-fmapr-collapsed .yes3-fmapr-if-expanded').hide();
-    $('table.yes3-fmapr-collapsed .yes3-fmapr-if-collapsed:not(.yes3-fmapr-skipped-over)').show();
     $('table.yes3-fmapr-expanded .yes3-fmapr-if-collapsed').hide();
-    $('table.yes3-fmapr-expanded .yes3-fmapr-if-expanded:not(.yes3-fmapr-skipped-over)').show();
+
+    if ( FMAPR.project.beta===1 ){
+
+        $('table.yes3-fmapr-collapsed .yes3-fmapr-if-collapsed:not(.yes3-fmapr-skipped-over)').show();
+        $('table.yes3-fmapr-expanded .yes3-fmapr-if-expanded:not(.yes3-fmapr-skipped-over)').show();
+    }
+    else {
+
+        $('table.yes3-fmapr-collapsed .yes3-fmapr-if-collapsed:not(.yes3-fmapr-skipped-over):not(.yes3-fmapr-beta)').show();
+        $('table.yes3-fmapr-expanded .yes3-fmapr-if-expanded:not(.yes3-fmapr-skipped-over):not(.yes3-fmapr-beta)').show();
+        $('.yes3-fmapr-beta').hide();
+    }
 }
 
 FMAPR.setExportSpecificationEventSelectOptions = function(specNum)
@@ -859,9 +869,20 @@ FMAPR.reportExportMappingsLength = function(specNum)
 {
     let specTbl = FMAPR.exportSpecificationTable(specNum);
 
-    let mapping_specification_json = specTbl.find("textarea[data-setting=mapping_specification]").val();
+    let specMap = specTbl.find("textarea[data-setting=mapping_specification]");
 
     let reportElement = specTbl.find("span.yes3-fmapr-export-mappings-length");
+
+    /**
+     * specMap is a beta feature (March 2022), and won't be visible if 'beta' is checked 'No' in the EM config. 
+     * This prevents errors caused by scanning a bad JSON string saved when 'beta' was checked on in EM config.
+     */
+    if ( !specMap.is(':visible') ){
+
+        return true;
+    }
+
+    let mapping_specification_json = specMap.val();
 
     if ( !mapping_specification_json ){
         reportElement.text( "no mappings" );

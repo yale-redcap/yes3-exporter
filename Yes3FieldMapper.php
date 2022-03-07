@@ -429,6 +429,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         }
 
         /**
+         * Assemble the list of records to include
+         */
+
+        /**
          * build the query
          */
         $critXOperators = [ "=>", "<=", "=", "<", ">"];
@@ -533,7 +537,9 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
 
         $bytesWritten = 0;
 
-        foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
+        //foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
+        $xx = Yes3::fetchRecords($sql, $sqlParams);
+        foreach ( $xx as $x ){
 
             $K++;
 
@@ -706,6 +712,8 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
         $bytesWritten = 0;
 
         $h = $this->writeExportDataFile($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);
+
+        //exit('downloadData: '.$bytesWritten.' bytes written to export data file');
 
         if ( $h===false ) {
 

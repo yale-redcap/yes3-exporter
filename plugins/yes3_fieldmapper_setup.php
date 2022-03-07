@@ -428,9 +428,9 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
             
             </tr>
 
-            <tr class="yes3-fmapr-if-expanded">
+            <tr class="yes3-fmapr-if-expanded yes3-fmapr-beta">
 
-                <td class="yes3-fmapr-export-specification">OPTIONAL mapping specification:</td>
+                <td class="yes3-fmapr-export-specification">BETA mapping specification:</td>
                 
                 <td class="yes3-fmapr-export-specification yes3-fmapr-mappings-link">
                     <textarea class="yes3-fmapr-hidden" data-setting="mapping_specification"></textarea>

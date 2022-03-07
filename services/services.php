@@ -442,7 +442,8 @@ function get_project_settings():string
         'form_metadata' => $form_metadata_structures['form_metadata'],
         'event_metadata' => get_event_metadata(),
         'project_event_metadata' => get_project_event_metadata(),
-        'default_event_id' => get_first_event_id()
+        'default_event_id' => get_first_event_id(),
+        'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0
         //, 'specification_settings' => get_specification_settings()
         //, 'event_abbreviations_settings' => get_event_abbreviation_settings()
     ] );
