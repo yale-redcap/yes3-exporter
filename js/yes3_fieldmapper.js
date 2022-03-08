@@ -327,6 +327,10 @@ FMAPR.exportExecute = function()
         FMAPR.downloadData();
     }
 
+    else if ( exportOption==="zip"){
+        FMAPR.downloadZip();
+    }
+
     else if ( exportOption==="filesystem"){
         FMAPR.exportData();
     }
@@ -342,7 +346,7 @@ FMAPR.downloadDataDictionary = function()
         + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
     ;
 
-    console.log(url);
+    //console.log(url);
 
     window.open(url);
 }
@@ -355,7 +359,20 @@ FMAPR.downloadData = function()
         + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
     ;
 
-    console.log(url);
+    //console.log(url);
+
+    window.open(url);
+}
+
+FMAPR.downloadZip = function()
+{
+    let url = YES3.moduleProperties.serviceUrl
+        + "&request=downloadZip"
+        + "&export_uuid=" + encodeURIComponent(FMAPR.export_uuid)
+        + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
+    ;
+
+    //console.log(url);
 
     window.open(url);
 }

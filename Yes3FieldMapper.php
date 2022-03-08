@@ -17,6 +17,7 @@ require "autoload.php";
 require "defines/yes3_defines.php";
 
 use REDCap;
+use ZipArchive;
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
@@ -218,6 +219,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      max_value
          *      sum_of_values
          *      sum_of_squared_values
+         *      frequency_table (JSON)
          * }
          * 
          */
@@ -283,7 +285,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 'min_value' => $export_item->min_value,
                 'max_value' => $export_item->max_value,
                 'sum_of_values' => $export_item->sum_of_values,
-                'sum_of_squared_values' => $export_item->sum_of_squared_values   
+                'sum_of_squared_values' => $export_item->sum_of_squared_values, 
+                'frequency_table' => $export_item->frequency_table   
             ];
         }
 
@@ -321,14 +324,13 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return fopen( $filename, "w+" );
     }
 
-    private function writeExportDataDictionaryFile( $export_uuid, $export_name, $export_target_folder, $dd, &$bytesWritten=0 )
+    private function writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, &$bytesWritten=0 )
     {
         $delim = ",";
         
         if ( !$export_target_folder ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
-            $keepOpen = true;
         }
         else {
 
@@ -361,10 +363,14 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
      
         fclose($h);
 
-        return "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.";
+        return [
+            'export_data_dictionary_message' => "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.",
+            'export_data_dictionary_filename' => $path,
+            'export_data_dictionary_file_size' => $bytesWritten
+        ];
     }
 
-    private function writeExportDataFile( $export_uuid, $export_name, $export_target_folder, $dd, &$bytesWritten=0 )
+    private function writeExportFiles( $export_uuid, $export_name, $export_target_folder, &$dd, &$bytesWritten=0 )
     {
 
         //exit( print_r($eventSpecs, true) )
@@ -372,7 +378,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         if ( !$export_target_folder ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
-            $keepOpen = true;
         }
         else {
 
@@ -382,7 +387,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
 
             $path = $export_target_folder . $this->exportDataFilename($export_name, "filesystem");
-            $keepOpen = false;
         }
 
         $h = fopen( $path, "w+" );
@@ -404,63 +408,104 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $eventName[$eventSpec['event_id']] = $eventSpec['event_name'];
         }
 
+        $spec = $this->getExportSpecification( $export_uuid );
+
         /**
-         * Assemble 
-         *   (1) the list of all events that contribute to this export, for use with IN() operator.
-         *   (2) an index, keyed by field_name and event_id, for rapid retrieval of dd entry during record processing.
+         * DD pre-processing
+         * 
+         * (1) unpack the specmap valueset
+         * 
+         * (2) Assemble 
+         *   (a) the list of all events that contribute to this export, for use with IN() operator.
+         *   (b) two indexes, keyed by field_name and event_id, for rapid retrieval of dd entry during record processing.
          * 
          * Most likely too many fields for the IN() approach to be efficient,
          * but perhaps worth testing.
          */
         $events = [];
         $dd_index = [];
+        $dd_specmap_index = [];
 
         for ($i=0; $i<count($dd); $i++){
 
             if ( $dd[$i]['redcap_field_name'] && $dd[$i]['redcap_event_id'] && is_numeric($dd[$i]['redcap_event_id']) ){
 
-                $dd_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_event_id']] = $i;
+                if ( $dd[$i]['origin'] === "redcap" ){
 
+                    $dd_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_event_id']] = $i;
+                }
+
+                elseif ( $dd[$i]['origin'] === "specification" ){
+
+                    $dd_specmap_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_event_id']] = $i;
+                }
+                
                 if ( !in_array($dd[$i]['redcap_event_id'], $events) ){
 
                     $events[] = $dd[$i]['redcap_event_id'];
                 }
             }
+
+            if ( $dd[$i]['valueset'] && is_string($dd[$i]['valueset']) ){
+
+                $dd[$i]['valueset'] = json_decode($dd[$i]['valueset'], true);
+            }
+        }
+
+        /**
+         * Assemble the SELECT query and event params to be passed to the record writer
+         */
+        $sqlSelect = "SELECT d.* FROM redcap_data d WHERE d.`project_id`=? AND d.`record`=?";
+
+        $sqlEvent = "";
+        $sqlEventParams = [];
+        $sqlOrderBy = "";
+
+        if ( $events ){
+            
+            $sqlEvent = "AND d.`event_id` IN(";
+
+            for($e=0; $e<count($events); $e++){
+
+                $sqlEvent .= ( $e===0 ) ? "?":",?";
+
+                $sqlEventParams[] = $events[$e];
+            }
+
+            $sqlEvent .= ")";
+        }
+
+        if ( $spec['export_layout']==="r" ){
+
+            $sqlOrderBy = " ORDER BY d.`event_id`, d.`instance`";
+        }
+        else if ( $spec['export_layout']==="v" ){
+
+            $sqlOrderBy = "ORDER BY d.`event_id`";
+        }
+
+        if ( $sqlEvent ){
+
+            $sqlSelect .= "\n" . $sqlEvent;
+        }
+
+        if ( $sqlOrderBy ){
+
+            $sqlSelect .= "\n" . $sqlOrderBy;
         }
 
         /**
          * Assemble the list of records to include
          */
 
-        /**
-         * build the query
-         */
-        $critXOperators = [ "=>", "<=", "=", "<", ">"];
-
-        $spec = $this->getExportSpecification( $export_uuid );
-
-        $sqlWhere = "d.`project_id`=?";
         $sqlParams = [$this->project_id];
-
-        if ( $events ){
-
-            $inString = "";
-
-            foreach ($events as $event_id){
-
-                $inString .= (($inString) ? ",":"") . "?";
-                $sqlParams[] = $event_id;
-            }
-            $sqlWhere .= " AND d.`event_id` IN({$inString})";
-        }
-
-        $sqlInnerJoin = "";
 
         if ( $spec['export_selection']=='2' && $spec['export_criterion_field'] && $spec['export_criterion_event'] && $spec['export_criterion_value'] ) {
 
-            $criterion_expression = "";
+            $critXOperators = [ "=>", "<=", "=", "<", ">"];
 
-            $critXParams = [ $spec['export_criterion_field'], $spec['export_criterion_event'] ];
+            $sqlParams[] = $spec['export_criterion_event'];
+            $sqlParams[] = $spec['export_criterion_field'];
 
             $critXStr = trim( $spec['export_criterion_value'] );
 
@@ -481,7 +526,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 foreach ( $valParts as $val){
 
                     $critXQList .= (( $critXQList ) ? "," : "") . "?";
-                    $critXParams[] = $val;
+                    $sqlParams[] = $val;
                 }
                 $critXQ = "IN({$critXQList})";
             }
@@ -496,50 +541,150 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 }
 
                 $critXQ = $critXOp . "?";
-                $critXParams[] = $critXVal;
+
+                $sqlParams[] = $critXVal;
             }
 
-            $sqlInnerJoin = "INNER JOIN redcap_data c ON c.`project_id`=d.`project_id` AND c.`record`=d.`record` AND c.`field_name`=? AND c.`event_id`=?"
-                . " AND c.`value` {$critXQ}";
+            $sql = "
+SELECT d.`record` 
+FROM redcap_data d
+WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` {$critXQ}                    
+            ";
+        }
+        else {
 
-            // The inner join params are now first in order
-            $sqlParams = array_merge( $critXParams, $sqlParams );
+            $sql = "       
+SELECT DISTINCT d.`record`
+FROM redcap_data d
+WHERE d.`project_id`=?
+            ";
         }
 
-        $sql = "       
-SELECT d.* 
-FROM redcap_data d 
-    {$sqlInnerJoin}
-WHERE {$sqlWhere}
-ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
-        ";
+        $records = [];
+        $all_numeric = true;
+        foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
 
-        /**
-         * Records are fetched from a generator, instead of the entire recordset at once.
-         * Presumably slower, but won't exhaust PHP resources.
-         */
+            $records[] = $x['record'];
+            if ( $all_numeric && !is_numeric($x['record']) ){
+
+                $all_numeric = false;
+            }
+        }
+
+        if ( $all_numeric ){
+
+            sort($records, SORT_NUMERIC);
+        }
+        else {
+
+            sort($records, SORT_NATURAL | SORT_FLAG_CASE);
+        }
 
         $K = 0; // datum count
         $R = 0; // export row count
         $C = 0; // col count
+        $bytesWritten = 0;
 
-        $record = ".";
-        $event_id = ".";
-        $instance = ".";
+        foreach ( $records as $record ){
+
+            $sqlSelectParams = array_merge([$this->project_id, $record], $sqlEventParams);
+
+            $bytesWritten += $this->writeExportDataFileRecord( $sqlSelect, $sqlSelectParams, $eventName, $dd, $dd_index, $dd_specmap_index, $h, $spec['export_layout'], $K, $R, $C);
+        }
+
+        /**
+         * DD post-processing
+         * 
+         * (1) repack the valueset
+         * (1) Tidy up the dd validation section
+         */
+
+        $this->tidyUpDD($dd);
+        
+/*        
+        foreach($dd as $d){
+
+            if ( $d['non_missing_count'] > 0 ) {
+
+                print "<p>".nl2br(print_r($d, true))."</p>";
+            }
+        }
+        exit;
+*/        
+        
+        fclose($h);
+
+        $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd);
+
+        return [
+            'export_data_message' => "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.",
+            'export_data_filename' => $path,
+            'export_data_file_size' => $bytesWritten,
+            'export_data_dictionary_message' => $export_data_dictionary_response['export_data_dictionary_message'],
+            'export_data_dictionary_filename' => $export_data_dictionary_response['export_data_dictionary_filename'],
+            'export_data_dictionary_file_size' => $export_data_dictionary_response['export_data_dictionary_file_size']
+        ];
+    }
+
+    private function tidyUpDD( &$dd, $noCalculations=false )
+    {
+        for ( $i=0; $i<count($dd); $i++ ){
+        
+            if ( is_array($dd[$i]['valueset']) && count($dd[$i]['valueset']) > 0 ){
+
+                $dd[$i]['valueset'] = json_encode($dd[$i]['valueset']);
+            }
+
+            if ( $dd[$i]['min_value']===NULL || $noCalculations ){
+
+                $dd[$i]['min_value'] = "";
+                $dd[$i]['max_value'] = "";
+                $dd[$i]['sum_of_values'] = "";
+                $dd[$i]['sum_of_squared_values'] = "";
+
+                if ( !$dd[$i]['non_missing_count'] ) {
+
+                    $dd[$i]['min_length'] = "";
+                    $dd[$i]['max_length'] = "";
+                }
+
+                if ( $noCalculations ){
+
+                    $dd[$i]['non_missing_count'] = "";
+                }
+            }
+
+            if ( is_array($dd[$i]['frequency_table']) && count($dd[$i]['frequency_table']) > 0 ){
+
+                ksort($dd[$i]['frequency_table'], SORT_NATURAL || SORT_FLAG_CASE );
+
+                $dd[$i]['frequency_table'] = Yes3::json_encode_pretty($dd[$i]['frequency_table']);
+            }
+
+            else {
+
+                $dd[$i]['frequency_table'] = "";
+            }
+        }
+    }
+
+    private function writeExportDataFileRecord( $sqlSelect, $sqlSelectParams, $eventName, &$dd, $dd_index, $dd_specmap_index, $h, $export_layout, &$K, &$R, &$C)
+    {
+        $event_id = "?";
+        $instance = "?";
         $field_index = -1;
+
         $y = [];
-        $max_col_count = 0;
 
         $BOR = true;
-        $EOR = true;
 
         $RecordIdField = \REDCap::getRecordIdField();
 
         $bytesWritten = 0;
 
-        //foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
-        $xx = Yes3::fetchRecords($sql, $sqlParams);
-        foreach ( $xx as $x ){
+        foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
+        //$xx = Yes3::fetchRecords($sql, $sqlParams);
+        //foreach ( $xx as $x ){
 
             $K++;
 
@@ -548,47 +693,37 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
             /**
              * $BOR: beginning of record
              * 
-             * The break will be on (record) for horiz layouts,
-             *   (record_event_id) for vertical,
-             *   (record, instance) for repeating
+             * No break for horiz layouts,
+             *   (event_id) for vertical,
+             *   (event_id, instance) for repeating
              */
 
-            if ( $spec['export_layout']==="h" ) {
+            if ( $export_layout==="v" ) {
 
-                $BOR = ( $x['record'] !== $record );
+                $BOR = ( $x['event_id'] !== $event_id );
             }
-            elseif ( $spec['export_layout']==="v" ) {
+            elseif ( $export_layout==="r" ) {
 
-                $BOR = ( $x['record'] !== $record || $x['event_id'] !== $event_id );
-            }
-            elseif ( $spec['export_layout']==="r" ) {
-
-                $BOR = ( $x['record'] !== $record || $x_instance !== $$instance );
-            }
-            else {
-
-                $BOR = false;
+                $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
             }
             
             if ( $BOR ) {
 
                 if ( $y ){
 
-                    if ( !$R ) $C = count($y);
-
-                    $bytesWritten += $this->writeTempExportRecord($h, $y, $R, $C);
+                    $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);
                 }
                     
                 $y = [
                     $RecordIdField => $x['record']
                 ];
 
-                if ( $spec['export_layout']==="v" ) {
+                if ( $export_layout==="v" ) {
     
                     $y['event_id'] = $x['event_id'];
                     $y['event_name'] = $eventName[$x['event_id']];
                 }
-                elseif ( $spec['export_layout']==="r" ) {
+                elseif ( $export_layout==="r" ) {
     
                     $y['event_id'] = $x['event_id'];
                     $y['event_name'] = $eventName[$x['event_id']];
@@ -601,41 +736,182 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
                 foreach ($dd as $d){
 
                     if ( !isset($y[$d['var_name']]) ){
+
                         $y[$d['var_name']] = "";
+                    }
+
+                    /**
+                     * constant specmap field?
+                     */
+                    if ( substr($d['redcap_field_name'], 0, 9)==="constant:" ) {
+
+                        $y[$d['var_name']] = str_replace("'", "", trim(substr($d['redcap_field_name'], 9)));
                     }
                 }
 
                 $BOR = false;
             }
 
-            $record = $x['record'];
+            /**
+             * add the value to the record
+             */
             $event_id = $x['event_id'];
+            $REDCapValue = $x['value'];
+
             $instance = $x_instance;
 
-            $field_index = $dd_index[$x['field_name']][$x['event_id']] ?? -1;
+            $field_index = $dd_index[$x['field_name']][$event_id] ?? -1;
+
+            $specmap_field_index = $dd_specmap_index[$x['field_name']][$event_id] ?? -1;
 
             if ( $field_index > -1 ){
 
-                $y[ $dd[$field_index]['var_name'] ] = $x['value'];
+                $y[ $dd[$field_index]['var_name'] ] = $REDCapValue;
+
+                $this->doValidationCalculations($dd[$field_index], $REDCapValue);
             }
+
+            if ( $specmap_field_index > -1 ){
+
+                //print "<br>Specification block entered for [{$x['record']}] [{$x['event_id']}] [{$x['field_name']}] [{$x['value']}] [{$specmap_field_index}]";
+
+                $specValue = "";
+
+                if ( is_array($dd[$specmap_field_index]['valueset']) && count($dd[$specmap_field_index]['valueset'])>0 ){
+
+                    foreach( $dd[$specmap_field_index]['valueset'] as $vMap ){
+
+                        if ( $REDCapValue == $vMap['redcap_field_value'] ){
+
+                            $specValue = $vMap['value'];
+                            break;
+                        }
+
+                        elseif ( strpos($vMap['redcap_field_value'], ",")!==false ){
+
+                            $vMapREDCapValues = explode(",", $vMap['redcap_field_value']);
+
+                            foreach ($vMapREDCapValues as $vMapREDCapValue){
+
+                                if ( $REDCapValue == trim($vMapREDCapValue)){
+
+                                    $specValue = $vMap['value'];
+                                    break(2);   
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // no valueset, so just assign the REDCap value
+                else {
+
+                    $specValue = $REDCapValue;
+                }
+
+                //print "<br>--> specValue = [{$specValue}]";
+
+                $y[ $dd[$specmap_field_index]['var_name'] ] = $specValue;
+
+                $this->doValidationCalculations($dd[$specmap_field_index], $specValue);
+           }
+
         }
 
         if ( $y ){
 
-            $bytesWritten += $this->writeTempExportRecord($h, $y, $R, $C);
+            $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);
         }
 
-        if ( $keepOpen ){
-
-            return $h;
-        }
-
-        fclose($h);
-
-        return "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.";
+        return $bytesWritten;
     }
 
-    private function writeTempExportRecord( $h, $y, &$rowNumber, &$colCount ){
+    private function doValidationCalculations( &$d, $value )
+    {
+        $len = strlen($value);
+
+        if ( !$len ){
+
+            return false;
+        }
+
+        $var_type = $d['var_type'];
+
+        $d['non_missing_count']++;
+
+        if ( $len > $d['max_length'] ) {
+
+            $d['max_length'] = $len;
+        }
+
+        if ( $len < $d['min_length'] ) {
+
+            $d['min_length'] = $len;
+        }
+
+        if ( $var_type === "NOMINAL" ){
+
+            if ( !isset($d['frequency_table'][$value]) ){
+
+                $d['frequency_table'][$value] = 1;
+            }
+            else {
+
+                $d['frequency_table'][$value]++;
+            }
+        }
+        else {
+
+            if ( $var_type==="FLOAT" || $var_type==="INTEGER" ){
+
+                $v = $value;
+            }
+
+            elseif ( $var_type==="DATE" || $var_type==="TIME" || $var_type==="DATETIME" ){
+
+                $v = strtotime($value);
+            }
+
+            else {
+
+                $v = NULL;
+            }
+
+            if ( $v !== NULL ) {
+
+                /**
+                 * All accumulators start out NULL
+                 */
+                if ( $d['min_value']===NULL ) {
+
+                    $d['min_value'] = $v;
+                    $d['max_value'] = $v;
+
+                    $d['sum_of_values'] = (float) $v;
+                    $d['sum_of_squared_values'] = (float) $v*$v;
+                }
+                else {
+
+                    $d['sum_of_values'] += (float) $v;
+                    $d['sum_of_squared_values'] += (float) $v*$v;
+
+                    if ( $v > $d['max_value'] ){
+
+                        $d['max_value'] = $v;
+                    }
+
+                    if ( $v < $d['min_value'] ){
+
+                        $d['min_value'] = $v;
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+
+    private function writeExportRecord( $h, $y, &$rowNumber, &$colCount ){
 
         $delim = ",";
 
@@ -660,11 +936,12 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
 
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
-        $response = "";
- 
-        $response .= $this->writeExportDataDictionaryFile($ddPackage['export_uuid'], $ddPackage['export_name'], $ddPackage['export_target_folder'], $ddPackage['export_data_dictionary']);
+        $results = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], $ddPackage['export_target_folder'], $ddPackage['export_data_dictionary']);
 
-        $response .= "\n\n" . $this->writeExportDataFile($ddPackage['export_uuid'], $ddPackage['export_name'], $ddPackage['export_target_folder'], $ddPackage['export_data_dictionary']);
+        $response = $results['export_data_dictionary_message']
+                    . "\n\n" 
+                    . $results['export_data_message']
+        ;
 
         $response .= "\n\nElapsed time: " . time() - $t . " seconds.";
 
@@ -684,6 +961,8 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
         $filename = $this->exportDataDictionaryFilename( $ddPackage['export_name'], "download" );
+
+        $this->tidyUpDD($ddPackage['export_data_dictionary'], true);
 
         $delim = ",";
 
@@ -711,27 +990,99 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
 
         $bytesWritten = 0;
 
-        $h = $this->writeExportDataFile($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);
+        $xFileResponse = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);
+        /*   
+        print nl2br(print_r($xFileResponse, true));
+
+        exit;
+        */
+        
 
         //exit('downloadData: '.$bytesWritten.' bytes written to export data file');
 
-        if ( $h===false ) {
+        if ( !isset( $xFileResponse['export_data_filename'] ) ) {
 
             exit("Fail: download export file not written");
+        }
+
+        $h = fopen( $xFileResponse['export_data_filename'], "r");
+
+        if ( $h === false ) {
+
+            exit("Fail: download export file could not be opened");
         }
 
         $filename = $this->exportDataFilename( $ddPackage['export_name'], "download" );
 
         $chunksize = 1024 * 1024; // 1MB per one chunk of file.
 
-        $size = intval(sprintf("%u", $bytesWritten));
+        $size = intval(sprintf("%u", $xFileResponse['export_data_file_size']));
 
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$size);
         header('Content-Disposition: attachment;filename="'.$filename.'"');
 
-        rewind($h);
+        while (!feof($h)){
+
+            print(@fread($h, $chunksize));
+
+            ob_flush();
+            flush();
+        }
+
+        fclose($h);
+
+        exit;
+    }
+
+    public function downloadZip($export_uuid)
+    {
+        $ddPackage = $this->buildExportDataDictionary($export_uuid);
+
+        $xFileResponse = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary']);
+        /*
+        print nl2br(print_r($xFileResponse, true));
+
+        exit;
+        */
+
+        //exit('downloadData: '.$bytesWritten.' bytes written to export data file');
+
+        if ( !isset( $xFileResponse['export_data_filename']) || !isset( $xFileResponse['export_data_dictionary_filename']) ) {
+
+            exit("Fail: download export file(s) not written");
+        }
+
+        $zipFilename = tempnam(sys_get_temp_dir(), "ys3");
+
+        $zip = new ZipArchive;
+
+        $zip->open($zipFilename, ZipArchive::CREATE);
+
+        $zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download"));
+
+        $zip->addFile($xFileResponse['export_data_filename'], $this->exportDataFilename($ddPackage['export_name'], "download"));
+
+        $zip->close();
+
+        $filename = $this->exportZipFilename( $ddPackage['export_name'], "download" );
+
+        $chunksize = 1024 * 1024; // 1MB per one chunk of file.
+
+        $size = intval(sprintf("%u", filesize($zipFilename)));
+
+        $h = fopen($zipFilename, "r");
+
+        if ( $h === false ) {
+
+            exit("Fail: download export file could not be opened");
+        }
+
+        header('Content-Type: application/octet-stream');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: '.$size);
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
 
         while (!feof($h)){
 
@@ -779,6 +1130,17 @@ ORDER BY d.`record`, d.`event_id`, d.`instance`, d.`field_name`
         }
 
         return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_dd." . $extension;
+    }
+
+    private function exportZipFilename( $export_name, $target="download")
+    {
+        $extension = "zip"; // will work on this later
+
+        if ( $target==="download") {
+            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_" . Yes3::timeStampString() . "." . $extension;
+        }
+
+        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "." . $extension;
     }
 
     public function getEventSettings()

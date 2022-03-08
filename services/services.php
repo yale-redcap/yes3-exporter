@@ -109,6 +109,15 @@ function downloadData()
     return $module->downloadData($export_uuid);
 }
 
+function downloadZip()
+{
+    global $module;
+
+    $export_uuid = $_POST['export_uuid'] ?? $_GET['export_uuid'];
+
+    return $module->downloadZip($export_uuid);
+}
+
 function exportData()
 {
     global $module;

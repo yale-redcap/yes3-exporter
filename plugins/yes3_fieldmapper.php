@@ -150,13 +150,22 @@ $HtmlPage->ProjectHeader();
     <div class="yes3-panel-row">
 
         <input type="radio" class="balloon" value="datadictionary" name="yes3-fmapr-export" id="yes3-fmapr-export-datadictionary" checked />
-        <label for="yes3-fmapr-export-datadictionary">Download the data dictionary</label>
+        <label for="yes3-fmapr-export-datadictionary">Download the data dictionary file</label>
+
         <br />
+
         <input type="radio" class="balloon" value="data" name="yes3-fmapr-export" id="yes3-fmapr-export-data" />
-        <label for="yes3-fmapr-export-data">Download the data</label>
+        <label for="yes3-fmapr-export-data">Download the data file</label>
+
+        <br />
+
+        <input type="radio" class="balloon" value="zip" name="yes3-fmapr-export" id="yes3-fmapr-export-zip" />
+        <label for="yes3-fmapr-export-zip">Download a zip of the data dictionary and data files</label>
+        
         <br class="yes3-fmapr-target-filesystem" />
+
         <input type="radio" class="balloon yes3-fmapr-target-filesystem" value="filesystem" name="yes3-fmapr-export" id="yes3-fmapr-export-filesystem" />
-        <label for="yes3-fmapr-export-filesystem" class="yes3-fmapr-target-filesystem">Export data dictionary and data to host file system</label>
+        <label for="yes3-fmapr-export-filesystem" class="yes3-fmapr-target-filesystem">Export the data dictionary and data files to host file system</label>
 
     </div>
 

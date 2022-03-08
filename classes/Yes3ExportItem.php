@@ -15,13 +15,14 @@ class Yes3ExportItem {
     public $redcap_event_id = "";
     public $redcap_event_name = "";
 
-    public $non_missing_count = "";
-    public $min_length = "";
-    public $max_length = "";
-    public $min_value = "";
-    public $max_value = "";
-    public $sum_of_values = "";
-    public $sum_of_squared_values = "";
+    public $non_missing_count = 0;
+    public $min_length = 32768;
+    public $max_length = 0;
+    public $min_value = NULL;
+    public $max_value = NULL;
+    public $sum_of_values = NULL;
+    public $sum_of_squared_values = NULL;
+    public $frequency_table = [];
 
     public function __construct( $exportItemProperties )
     {
