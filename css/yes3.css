@@ -33,9 +33,10 @@ html {
 [data-theme="light"] {
     color-scheme: light;
 
-    --yes3-font-color: darkslategray;
-    --yes3-border-color: #000000;
+    --yes3-color: rgb(7, 55, 65);
     --yes3-background-color: linen;
+
+    --yes3-border-color: #000000;
     --yes3-divider-color: cadetblue;
 
     --yes3-input-color: black;
@@ -84,6 +85,14 @@ html {
     --yes3-message-staff-color: cadetblue;
     --yes3-message-log-color: slategray;
 
+    --yes3-control-color: rgb(7, 55, 65);
+    --yes3-control-background-color: white;
+    --yes3-control-border-color: rgb(7, 55, 65);
+
+    --yes3-selected-background-color: rgba(7, 55, 65, 0.25);
+
+    --yes3-selected-color: dodgerblue;
+
     /* -------------------------------------------------------*/
 
     --yes3-message-color: indianred;
@@ -125,7 +134,7 @@ html {
 
     --yes3-highlight-color: darkslategray;
  
-    --yes3-title-color: rgb(64, 64, 64);
+    --yes3-title-color: rgb(7, 55, 65);;
     --yes3-subtitle-color: darkcyan;
  
     --yes3-contextmenu-title-color: darkcyan;
@@ -134,9 +143,10 @@ html {
 [data-theme="dark"] {
     color-scheme: dark;
 
-    --yes3-font-color: powderblue;
-    --yes3-border-color: silver;
+    --yes3-color: rgb(49, 148, 168);
     --yes3-background-color: rgb(24, 24, 24);
+
+    --yes3-border-color: silver;
     --yes3-divider-color: silver;
 
     --yes3-input-color: powderblue;
@@ -185,6 +195,14 @@ html {
     --yes3-message-staff-color: lightsalmon;
     --yes3-message-log-color: silver;
 
+    --yes3-control-color: gainsboro;
+    --yes3-control-background-color: rgb(24, 24, 24);;
+    --yes3-control-border-color: rgb(64, 64, 64);
+
+    --yes3-selected-background-color: rgba(49, 148, 168, 0.25);
+
+    --yes3-selected-color: turquoise;
+
     /* -------------------------------------------------------*/
 
     --yes3-message-color: lightsalmon;
@@ -226,7 +244,7 @@ html {
 
     --yes3-highlight-color: darkorange;
  
-    --yes3-title-color: white;
+    --yes3-title-color: rgb(49, 148, 168);
     --yes3-subtitle-color: lightgray;
  
     --yes3-contextmenu-title-color: darkcyan;
@@ -270,7 +288,7 @@ p {
 }
 
 .yes3-theme-slider {
-    background-color: var(--yes3-fmapr-color);
+    background-color: var(--yes3-color);
     bottom: 0;
     cursor: pointer;
     left: 0;
@@ -293,7 +311,7 @@ p {
 }
 
 input:checked + .yes3-theme-slider {
-    background-color: var(--yes3-fmapr-color);
+    background-color: var(--yes3-color);
 }
 
 input:checked + .yes3-theme-slider:before {
@@ -352,20 +370,12 @@ i.yes3-action-disabled {
 
 div#yes3-container {
     min-width: 400px;
-    color: var(--yes3-font-color);
+    color: var(--yes3-color);
     background-color: var(--yes3-background-color);
 }
 
 tr.yes3-row-selected, tr.yes3-row-selected input, tr.yes3-row-selected select {
     background-color:var(--yes3-dashboard-row-selected-background-color) !important;
-}
-
-tr.yes3-row-selected span.yes3-fmapr-redcap-element::before {
-    /*content: "\25B6"; arrow */
-    content: "\2714"; /* checkmark */
-    font-size: 1.5rem;
-    font-style: normal !important;
-    margin-right: 10px;
 }
 
 .yes3-row-focused {
@@ -425,7 +435,7 @@ div#yes3-red-pointer {
     justify-content: flex-start;
     align-items: stretch;
     align-content: flex-start;
-    border: 1px solid lightgrey;
+    /*border: 1px solid lightgrey;*/
  }
  
  .yes3-flex-item {
@@ -455,9 +465,46 @@ div#yes3-red-pointer {
  .yes3-highlight {
     color: var(--yes3-highlight-color);
  }
- 
+
+/* === PLUGIN CONTROL PANEL/ROW === */
+
+.yes3-controls select {
+
+    font-size: 1rem;
+
+    color: var(--yes3-control-color);
+    background-color: var(--yes3-control-background-color);
+
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+
+    border: 1px solid var(--yes3-control-border-color);
+    border-radius: 4px;
+
+    width: 100%;
+}
+
+.yes3-controls input[type=date] {
+
+    font-size: 1rem;
+
+    color: var(--yes3-control-color);
+    background-color: var(--yes3-control-background-color);
+
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+
+    border: 1px solid var(--yes3-control-border-color);
+    border-radius: 4px;
+}
+
+/* === CONFIG PANEL === DEPRECATED === */
+
  .yes3-config-panel {
-    /*   margin-bottom: calc( 2*var(--yes3-margin) ); */
     min-width: 400px;
  }
  
@@ -470,7 +517,6 @@ div#yes3-red-pointer {
     width: 100%;
     height: var(--yes3-block-height);
     line-height: var(--yes3-block-height);
-    /*margin-bottom: calc(4*var(--yes3-margin));*/
  }
  
  .yes3-config-panel-row-left {
@@ -510,7 +556,7 @@ div#yes3-red-pointer {
  }
  
  .yes3-look-out-below {
-    margin-bottom: calc(4 * var(--yes3-margin));
+    margin-bottom: calc(2 * var(--yes3-margin));
  }
  
  table.yes3-config-table tr:first-child td {
@@ -657,6 +703,8 @@ div#yes3-red-pointer {
  table.yes3-config-table, div.yes3-config-table-add i:hover {
     opacity: 1.0;
  }
+
+/* === END OF DEPRECATED CONFIG PANEL CSS === */
  
  a:focus, i:focus, a:hover, i:hover {
     outline: none !important;
@@ -879,9 +927,12 @@ table.yes3-removed .yes3-if-removed {
  
  /* --- PANELS --- */
 
- 
-.yes3-row-selected {
-    background-color: rgba(211, 211, 211, 0.233);
+i.yes3-selected {
+    color: var(--yes3-selected-color);
+}
+
+.yes3-row-selected, tr.yes3-selected {
+    background-color: var(--yes3-selected-background-color);
 }
 
 .yes3-drag-handle:hover {

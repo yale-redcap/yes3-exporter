@@ -16,6 +16,7 @@ require "autoload.php";
  */
 require "defines/yes3_defines.php";
 
+use Exception;
 use REDCap;
 use ZipArchive;
 
@@ -63,13 +64,12 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         foreach ($elements as $element){
 
-            if ( isset($element['name']) && isset($element['type']) && isset($element['description']) ){
+            if ( isset($element['name']) && isset($element['type']) && isset($element['label']) ){
 
                 $e = [
                     'name' => Yes3::alphaNumericString( $element['name'] )
                     , 'type' => Yes3::alphaNumericString( $element['type'] )
-                    , 'description' => Yes3::alphaNumericString( $element['description'] )
-                    , 'format' => ( isset($element['format']) ) ? Yes3::alphaNumericString($element['description']) : ""
+                    , 'label' => Yes3::alphaNumericString( $element['label'] )
                 ];
 
                 if ( isset($element['valueset']) && is_array($element['valueset']) ) {
@@ -85,12 +85,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                     if ( count($v) > 0 ){
                         $e['valueset'] = $v;
-                        $e['format'] = "valueset";
-                    } else {
-                        if ( $e['format'] === "valueset" ){
-                            $e['format'] = "";
-                        }
-                    }
+                        $e['type'] = "nominal";
+                    } 
                 }
 
                 $t[] = $e;
@@ -142,7 +138,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      redcap_field_name: if relevant (type is 'field')
          *      redcap_form_name: if relevant (type is 'form') - form name or 'all'
          *      spec_type: data type if from specification
-         *      spec_format: display format if from specification
          * 
          *      values: list of REDCap-to-specification value mappings
          *              {
@@ -378,6 +373,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         if ( !$export_target_folder ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
+
+            $destination = "download";
         }
         else {
 
@@ -387,6 +384,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
 
             $path = $export_target_folder . $this->exportDataFilename($export_name, "filesystem");
+
+            $destination = "filesystem";
         }
 
         $h = fopen( $path, "w+" );
@@ -616,14 +615,91 @@ WHERE d.`project_id`=?
 
         $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd);
 
+        $this->logExport(
+            "export files written",
+            $destination,
+            $export_uuid,
+            $export_name,
+            $path,
+            $export_data_dictionary_response['export_data_dictionary_filename'],
+            null,
+            $bytesWritten,
+            $K,
+            $R,
+            $C
+        );
+
         return [
             'export_data_message' => "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.",
             'export_data_filename' => $path,
             'export_data_file_size' => $bytesWritten,
+            'export_data_items' => $K,
+            'export_data_rows' => $R,
+            'export_data_columns' => $C,
             'export_data_dictionary_message' => $export_data_dictionary_response['export_data_dictionary_message'],
             'export_data_dictionary_filename' => $export_data_dictionary_response['export_data_dictionary_filename'],
             'export_data_dictionary_file_size' => $export_data_dictionary_response['export_data_dictionary_file_size']
         ];
+    }
+
+    private function logExport($message, $destination, $export_uuid, $export_name, $filename_data, $filename_data_dictionary, $filename_zip, $bytes, $items, $rows, $columns)
+    {
+        $params = [
+            'username' => $this->username,
+            'log_entry_type' => "yes3-export",
+            'destination' => $destination,
+            'export_uuid' => $export_uuid,
+            'export_name' => $export_name,
+            'filename_data' => $filename_data,
+            'filename_data_dictionary' => $filename_data_dictionary,
+            'filename_zip' => $filename_zip,
+            'exported_bytes' => $bytes,
+            'exported_items' => $items,
+            'exported_rows' => $rows,
+            'exported_columns' => $columns
+        ];
+
+        $log_id = $this->log(
+            $message,
+            $params
+        );
+
+        return $log_id;
+    }
+
+    public function getExportLogs($export_uuid)
+    {
+        $pSql = "
+SELECT log_id, timestamp, username, message
+    , log_entry_type, destination, export_uuid, export_name
+    , filename_data, filename_data_dictionary, filename_zip 
+    , exported_bytes, exported_items, exported_rows, exported_columns
+WHERE project_id=? AND export_uuid=? AND log_entry_type='yes3-export'
+ORDER BY timestamp
+        ";
+
+        //print nl2br( $this->getQueryLogsSql($pSql) );
+
+        /*
+SELECT log_id, timestamp, user, message,
+  log_entry_type, destination, export_uuid, export_name, 
+  filename_data, filename_data_dictionary, filename_zip, 
+  bytes, items, rows, columns
+WHERE project_id=? AND export_uuid=? AND log_entry_type='yes3-export'
+ORDER BY timestamp DESC
+
+        */
+
+        $logRecords = [];
+
+        $result = $this->queryLogs($pSql, [ $this->project_id, $export_uuid ]);
+
+        while ($logRecord = $result->fetch_assoc()){
+
+            $logRecords[] = $logRecord;
+        }
+
+        return $logRecords;
     }
 
     private function tidyUpDD( &$dd, $noCalculations=false )
@@ -667,7 +743,7 @@ WHERE d.`project_id`=?
             }
         }
     }
-
+    
     private function writeExportDataFileRecord( $sqlSelect, $sqlSelectParams, $eventName, &$dd, $dd_index, $dd_specmap_index, $h, $export_layout, &$K, &$R, &$C)
     {
         $event_id = "?";
@@ -768,6 +844,8 @@ WHERE d.`project_id`=?
 
                 $y[ $dd[$field_index]['var_name'] ] = $REDCapValue;
 
+                $K++;
+
                 $this->doValidationCalculations($dd[$field_index], $REDCapValue);
             }
 
@@ -812,6 +890,8 @@ WHERE d.`project_id`=?
                 //print "<br>--> specValue = [{$specValue}]";
 
                 $y[ $dd[$specmap_field_index]['var_name'] ] = $specValue;
+
+                $K++;
 
                 $this->doValidationCalculations($dd[$specmap_field_index], $specValue);
            }
@@ -966,7 +1046,22 @@ WHERE d.`project_id`=?
 
         $delim = ",";
 
+        $this->logExport(
+            "export data dictionary downloaded",
+            "download",
+            $export_uuid,
+            $ddPackage['export_name'],
+            null,
+            $filename,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+
         ob_start();
+
         header("Content-type: text/csv");
         header("Cache-Control: no-store, no-cache");
         header('Content-Disposition: attachment; filename="'.$filename.'"');
@@ -979,6 +1074,7 @@ WHERE d.`project_id`=?
         }
      
         fclose($h);
+
         ob_end_flush();
 
         exit;
@@ -990,15 +1086,7 @@ WHERE d.`project_id`=?
 
         $bytesWritten = 0;
 
-        $xFileResponse = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);
-        /*   
-        print nl2br(print_r($xFileResponse, true));
-
-        exit;
-        */
-        
-
-        //exit('downloadData: '.$bytesWritten.' bytes written to export data file');
+        $xFileResponse = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);     
 
         if ( !isset( $xFileResponse['export_data_filename'] ) ) {
 
@@ -1018,6 +1106,22 @@ WHERE d.`project_id`=?
 
         $size = intval(sprintf("%u", $xFileResponse['export_data_file_size']));
 
+        $this->logExport(
+            "export data downloaded",
+            "download",
+            $export_uuid,
+            $ddPackage['export_name'],
+            $filename,
+            null,
+            null,
+            $size,
+            null,
+            null,
+            null
+        );
+
+        ob_start();
+
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$size);
@@ -1033,6 +1137,8 @@ WHERE d.`project_id`=?
 
         fclose($h);
 
+        ob_end_flush();
+
         exit;
     }
 
@@ -1046,8 +1152,6 @@ WHERE d.`project_id`=?
 
         exit;
         */
-
-        //exit('downloadData: '.$bytesWritten.' bytes written to export data file');
 
         if ( !isset( $xFileResponse['export_data_filename']) || !isset( $xFileResponse['export_data_dictionary_filename']) ) {
 
@@ -1079,6 +1183,22 @@ WHERE d.`project_id`=?
             exit("Fail: download export file could not be opened");
         }
 
+        $this->logExport(
+            "export zip downloaded",
+            "download",
+            $export_uuid,
+            $ddPackage['export_name'],
+            null,
+            null,
+            $filename,
+            $size,
+            null,
+            null,
+            null
+        );
+
+        ob_start();
+
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
         header('Content-Length: '.$size);
@@ -1093,6 +1213,8 @@ WHERE d.`project_id`=?
         }
 
         fclose($h);
+
+        ob_end_flush();
 
         exit;
     }
@@ -1110,7 +1232,7 @@ WHERE d.`project_id`=?
         return "";
     }
 
-    private function exportDataFilename( $export_name, $target="download")
+    public function exportDataFilename( $export_name, $target="download")
     {
         $extension = "csv"; // will work on this later
 
@@ -1121,7 +1243,7 @@ WHERE d.`project_id`=?
         return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "." . $extension;
     }
 
-    private function exportDataDictionaryFilename( $export_name, $target="download")
+    public function exportDataDictionaryFilename( $export_name, $target="download")
     {
         $extension = "csv"; // will work on this later
 
@@ -1132,7 +1254,7 @@ WHERE d.`project_id`=?
         return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_dd." . $extension;
     }
 
-    private function exportZipFilename( $export_name, $target="download")
+    public function exportZipFilename( $export_name, $target="download")
     {
         $extension = "zip"; // will work on this later
 
@@ -1141,6 +1263,17 @@ WHERE d.`project_id`=?
         }
 
         return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "." . $extension;
+    }
+
+    public function exportLogFilename( $export_name, $target="download")
+    {
+        $extension = "csv"; // will work on this later
+
+        if ( $target==="download") {
+            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_log_" . Yes3::timeStampString() . "." . $extension;
+        }
+
+        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_log_." . $extension;
     }
 
     public function getEventSettings()
@@ -1205,6 +1338,20 @@ WHERE d.`project_id`=?
         return [];
     }
 
+    /**
+     * 'export specification' here is equiv to the preferred 'upload specification' or 'specMap'
+     * This is stored as a JSON string in the settings.
+     * 
+     * The data dictionary is based on the 'field map' which is fetched by getExportElements.
+     * 
+     * 'specification' is also used to refer to the field map. A lot of under-the-hood ambiguity to clean up,
+     * 
+     * function: getExportSpecifications
+     * 
+     * 
+     * @return array
+     * @throws Exception
+     */
     public function getExportSpecifications()
     {
         /**
@@ -1236,14 +1383,22 @@ WHERE d.`project_id`=?
 
             if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
 
-                $specification = json_decode($specification_settings['export_specification_json']);
+                //Yes3::logDebugMessage($this->project_id, $specification_settings['export_specification_json'], "getExportSpecifications:json");
 
-                if ( !$specification->removed ) $specification->removed = "0";
+                if ( Yes3::is_json_decodable($specification_settings['export_specification_json'])) {
+                    
+                    $specification = json_decode($specification_settings['export_specification_json']);
 
-                //if ( $specification->removed !== "1" ){
+                    if ( is_object($specification) ){
 
-                    $specifications[] = $specification;
-                //}
+                        if ( !$specification->removed ) {
+
+                            $specification->removed = "0";
+                        }
+
+                        $specifications[] = $specification;
+                    }
+                }
             }
         }
 

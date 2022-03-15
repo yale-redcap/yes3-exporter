@@ -110,7 +110,7 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
     let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
 
     let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description='(non-specification) REDCap field' id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="field">`;
-    html += `<td class='yes3-3 yes3-td-left' title='(non-specification) REDcap field'><span class='yes3-fmapr-redcap-element'>&nbsp;</span></td>`;
+    html += `<td class='yes3-3 yes3-td-left' title="(non-specification) REDcap field"><span class='yes3-fmapr-redcap-element'>&nbsp;</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
 
@@ -191,7 +191,7 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
     //let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
 
     let html = `<tr class='yes3-fmapr-redcap-form yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description="REDCap form" id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="form" data-form_name="${form_name}">`;
-    html += `<td class='yes3-3 yes3-td-left' title='REDcap form'><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
+    html += `<td class='yes3-3 yes3-td-left' title="REDcap form"><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>up to ${field_count} fields</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
     html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
@@ -224,6 +224,8 @@ YES3.Functions.saveFieldMappings = function() {
 
     let specTable = $(`table#${tableId}`);
 
+    //console.log('specTable:', `table#${tableId}`);
+
     let specification = {
         "export_uuid": FMAPR.export_uuid,
         "elements": []
@@ -247,7 +249,6 @@ YES3.Functions.saveFieldMappings = function() {
             "redcap_field_name": ( redcap_field_name ) ? redcap_field_name : "",
             "redcap_form_name": "",
             "spec_type": "",
-            "spec_format": "",
             "values": []
         }
 
@@ -262,16 +263,19 @@ YES3.Functions.saveFieldMappings = function() {
         }
         else if ( element_origin === "specification" && element.redcap_field_name.length > 0 && element.redcap_event_id.length > 0) {
 
-            element.spec_format = $(this).data("spec_format");
             element.spec_type = $(this).data("spec_type");
             
             let valueRows = specTable.find(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${element.yes3_fmapr_data_element_name}']`);
+
+            //console.log('valueRows:', `tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name='${element.yes3_fmapr_data_element_name}']`);
             
             valueRows.each(function () {
 
                 let redcap_field_value   = $(this).find('input[data-mapitem=redcap_field_value]:first').val();
                 let yes3_fmapr_lov_value = $(this).data('yes3_fmapr_lov_value');
                 let yes3_fmapr_lov_label = $(this).data('yes3_fmapr_lov_label');
+
+                //console.log("-->valueRow: redcap_field_value="+redcap_field_value+", yes3_fmapr_lov_value="+yes3_fmapr_lov_value+", yes3_fmapr_lov_label="+yes3_fmapr_lov_label);
 
                 if ( redcap_field_value ){
 
@@ -291,7 +295,7 @@ YES3.Functions.saveFieldMappings = function() {
         }
     }) // elementRows
  
-    //console.log( 'saveFieldMappings', specification );
+    console.log( 'saveFieldMappings', specification );
 
     let field_mappings_json = JSON.stringify(specification);
 
@@ -622,7 +626,7 @@ FMAPR.setSpecificationStructures = function()
         element_origin = FMAPR.specification_settings.mapping_specification[i].element_origin;
         if ( typeof element_origin === 'undefined' ) element_origin = 'specification';
   
-       if ( FMAPR.specification_settings.mapping_specification[i].format==="valueset" ) {
+       if ( FMAPR.specification_settings.mapping_specification[i].type==="nominal" ) {
           lovToggleHtml = `<a class='yes3-fmapr-lov-toggler' href='javascript:FMAPR.toggleLovDisplay("${FMAPR.specification_settings.mapping_specification[i].name}");'><i class='fas fa-plus'></i></a>`;
        } else {
           lovToggleHtml = "&nbsp;";
@@ -631,21 +635,21 @@ FMAPR.setSpecificationStructures = function()
        elementInputHtml = FMAPR.getElementInputHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
        eventSelectHtml = FMAPR.getElementEventHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
  
-       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification[i].name}' data-yes3_fmapr_data_element_description='${FMAPR.specification_settings.mapping_specification[i].description}' data-spec_type='${FMAPR.specification_settings.mapping_specification[i].type}' data-spec_format='${FMAPR.specification_settings.mapping_specification[i].format}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
-       html += `<td class='yes3-3 yes3-td-left' title='${FMAPR.specification_settings.mapping_specification[i].description}'><span class='yes3-fmapr-specmap-element'>${FMAPR.specification_settings.mapping_specification[i].name}</span></td>`;
+       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification[i].name}' data-yes3_fmapr_data_element_description="${FMAPR.specification_settings.mapping_specification[i].label}" data-spec_type='${FMAPR.specification_settings.mapping_specification[i].type}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
+       html += `<td class='yes3-3 yes3-td-left' title='${FMAPR.specification_settings.mapping_specification[i].label}'><span class='yes3-fmapr-specmap-element'>${FMAPR.specification_settings.mapping_specification[i].name}</span></td>`;
        html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
        html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
        html += `<td class='yes3-gutter-right-top yes3-td-right'>${lovToggleHtml}</td>`;
        html += "</tr>";
 
-        if ( FMAPR.specification_settings.mapping_specification[i].format==="valueset" ) {
+        if ( FMAPR.specification_settings.mapping_specification[i].type==="nominal" ) {
 
             FMAPR.specificationValuesets[FMAPR.specification_settings.mapping_specification[i].name]
                 = FMAPR.specification_settings.mapping_specification[i].valueset;
 
         }
 
-       if ( FMAPR.specification_settings.mapping_specification[i].format==="valueset" ) {
+       if ( FMAPR.specification_settings.mapping_specification[i].type==="nominal" ) {
  
             for (j=0; j<FMAPR.specification_settings.mapping_specification[i].valueset.length; j++ ){
  
@@ -655,8 +659,8 @@ FMAPR.setSpecificationStructures = function()
  
                 lovInputHtml = FMAPR.getLovInputHtml( yes3_fmapr_data_element_name, value );
  
-                html += `<tr id='yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification[i].name}-${value}' data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value='${value}' data-yes3_fmapr_lov_label='${label}' data-required='${req}'}' class='yes3-fmapr-lov'>`;
-                html += `<td class='yes3-3 yes3-td-left yes3-fmapr-lov' title='${label}'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="Make this the value for all FMAPR submissions" href="javascript:FMAPR.setLovConstant('${yes3_fmapr_data_element_name}', '${value}')">${label}</a></td>`;
+                html += `<tr id="yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification[i].name}-${value}" data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value="${value}" data-yes3_fmapr_lov_label="${label}" data-required='${req}'}' class='yes3-fmapr-lov'>`;
+                html += `<td class='yes3-3 yes3-td-left yes3-fmapr-lov' title="${label}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="Make this the value for all FMAPR submissions" href="javascript:FMAPR.setLovConstant('${yes3_fmapr_data_element_name}', '${value}')">${label}</a></td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'>${lovInputHtml}</td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'></td>`;
                 html += `<td class='yes3-gutter-right-top yes3-td-right'><a class='yes3-fmapr-value-picker-toggler' href='javascript:FMAPR.toggleValuePickerDisplay("${yes3_fmapr_data_element_name}", "${value}");'><i class='fas fa-plus'></i></a></td>`;
@@ -2609,46 +2613,12 @@ FMAPR.selectedRowCount = function()
     //console.log('setLovConstantExecute', FMAPR.params);
  }
 
-FMAPR.getExportSettings = function()
-{
-
-    YES3.requestService({"request": "getExportSettings"}, FMAPR.getExportSettingsCallback, true);  
-}
-
-FMAPR.getExportSettingsCallback = function(response)
-{
-    console.log('getExportSettingsCallback:', response);
-
-    FMAPR.stored_export_settings = response;
-    
-    FMAPR.populateExportSpecificationSelect();
-}
-
-FMAPR.populateExportSpecificationSelect = function()
-{
-    let html = "<option value='' disabled selected>select a specification</option>";
-    let spec = {};
-
-    for (let s=0; s<FMAPR.stored_export_settings.specification_settings.length; s++){
-
-        spec = FMAPR.stored_export_settings.specification_settings[s];
-
-        spec.export_name = escapeHTML( spec.export_name );
-
-        if ( spec.removed === "0" ){
-
-            html += `<option value='${spec.export_uuid}'>${spec.export_name} (${spec.export_layout})</option>`;
-        }
-        $("select#export_uuid").empty().append(html);
-    }
-}
-
 /*** ANONYMOUS TIME ***/
 
 /**
  * things to do when the settings are loaded
  */
- $(document).on('yes3-fmapr.settings', function(){
+$(document).on('yes3-fmapr.settings', function(){
 
     console.log("on.yes3-fmapr.settings");
 

@@ -49,9 +49,4 @@ class Yes3Export {
         }
         return false;
     }
-
-    public function buildDataDictionary()
-    {
-
-    }
 }

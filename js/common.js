@@ -12,61 +12,34 @@ let FMAPR = {
     settings: {}
 }
  
- FMAPR.conditionUserInput = function( s ){
+FMAPR.conditionUserInput = function( s ){
     //return s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     return s;
- }
+}
  
- FMAPR.noop = function(){}
+FMAPR.noop = function(){}
  
- FMAPR.requestService = function( params, doneFn, json ) {
- 
-    json = json || false;
-    doneFn = doneFn || FMAPR.noop;
- 
-    //console.log('requestService', params);
- 
-    $.ajax({
- 
-       url: YES3.moduleProperties.serviceUrl,
-       type: "POST",
-       dataType: ( json ) ? "json":"html",
-       data: params
- 
-    })
-    .done(
-       doneFn
-    )
-    .fail(function(jqXHR, textStatus, errorThrown) {
- 
-       console.log(jqXHR);
-       FMAPR.postMessage(jqXHR.responseText);
-  
-    });
- 
- }
- 
- FMAPR.isEmptyArray = function( x ){
+FMAPR.isEmptyArray = function( x ){
     //console.log('isEmptyArray', typeof x, x);
     if ( typeof x === "undefined" ) return true;
     return !x.length;
  
- }
+}
  
- FMAPR.isTruthy = function( x ){
+FMAPR.isTruthy = function( x ){
     //console.log('isEmptyArray', typeof x, x);
     if ( typeof x === "undefined" ) return false;
     return x;
  
- }
+}
 
- FMAPR.displayHelpPanel = function()
- {
-     YES3.hello("Sorry bud, you're on your own.");
- }
+FMAPR.displayHelpPanel = function()
+{
+    YES3.hello("Sorry bud, you're on your own.");
+}
  
  
- FMAPR.postMessage = function( msg, urgent ){
+FMAPR.postMessage = function( msg, urgent ){
 
     urgent = urgent || false;
 
@@ -89,62 +62,85 @@ let FMAPR = {
     } else {
        alert(msg);
     }
- }
+}
 
- FMAPR.clearMessage = function(){
+FMAPR.clearMessage = function(){
     if ( $('div#yes3-message') ) {
        $('#yes3-message').html("").show();
     }
  }
  
- FMAPR.postAjaxMessage = function( msg ){
-    FMAPR.postMessage(msg);
- }
- 
- FMAPR.postAPIResponse = function(response){
-    FMAPR.postMessage(response);
- }
- 
- FMAPR.getProjectSettings = function() {
-    FMAPR.requestService({'request':'get_project_settings'}, FMAPR.getProjectSettingsCallback, true);
- }
- 
- FMAPR.getProjectSettingsCallback = function(response) {
+FMAPR.postAjaxMessage = function( msg )
+{
+FMAPR.postMessage(msg);
+}
 
+FMAPR.postAPIResponse = function(response)
+{
+FMAPR.postMessage(response);
+}
+
+FMAPR.getProjectSettings = function() 
+{
+    YES3.requestService({'request':'get_project_settings'}, FMAPR.getProjectSettingsCallback, true);
+}
+
+FMAPR.getProjectSettingsCallback = function(response) 
+{
     console.log( 'getProjectSettingsCallback', response );
 
     FMAPR.project = response;
 
-    FMAPR.displayActionIcons();
- 
+    // In the process of deprecating FMAPR.displayActionIcons
+
+    if ( FMAPR.useYes3Functions ) {
+
+        YES3.displayActionIcons();
+    }
+    else {
+
+        FMAPR.displayActionIcons();
+    }
+
     // handler must defined in plugin JS
     $(document).trigger('yes3-fmapr.settings');
- 
- }
-
-/*** HELP ***/
-
-/**
- * This function is called via the YES3 'action icon' mechanism,
- * so it is registered in the YES3 namespace
- */
-YES3.Functions.Help_openPanel = function()
-{
-    YES3.openPanel('yes3-fmapr-help-panel', true)
 }
 
-FMAPR.Help_closePanel = function()
+FMAPR.getExportSettings = function()
 {
-    YES3.closePanel('yes3-fmapr-help-panel');
+
+    YES3.requestService({"request": "getExportSettings"}, FMAPR.getExportSettingsCallback, true);  
 }
 
-FMAPR.Help_openReadMe = function()
+FMAPR.getExportSettingsCallback = function(response)
 {
-    YES3.openPopupWindow( YES3.moduleProperties.documentationUrl ); 
+    console.log('getExportSettingsCallback:', response);
+
+    FMAPR.stored_export_settings = response;
+    
+    FMAPR.populateExportSpecificationSelect();
+}
+
+FMAPR.populateExportSpecificationSelect = function()
+{
+    let html = "<option value='' disabled selected>select a specification</option>";
+    let spec = {};
+
+    for (let s=0; s<FMAPR.stored_export_settings.specification_settings.length; s++){
+
+        spec = FMAPR.stored_export_settings.specification_settings[s];
+
+        spec.export_name = escapeHTML( spec.export_name );
+
+        if ( spec.removed === "0" ){
+
+            html += `<option value='${spec.export_uuid}'>${spec.export_name} (${spec.export_layout})</option>`;
+        }
+        $("select#export_uuid").empty().append(html);
+    }
 }
 
 /*** ACTION ICONS ***/
-
 
 FMAPR.displayActionIcons = function()
 {

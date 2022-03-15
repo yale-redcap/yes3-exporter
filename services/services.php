@@ -12,7 +12,26 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-$module = new Yes3FieldMapper();
+$request = "";
+  
+/**
+ * Validate the 'request' parameter, 
+ * which can be via GET or POST
+ */
+
+if ( isset($_POST['request']) ) {
+    $request = $_POST['request'];
+}
+elseif ( isset($_GET['request']) ) {
+   $request = $_GET['request'];
+}
+else {
+   toesUp("request parameter not passed");
+}
+ 
+if ( !requestIsValid($request) ) {
+    toesUp("error: invalid request: ".$request);
+};
 
 /**
  * validate the csrf token
@@ -36,7 +55,7 @@ if ( isset($_POST['csrf_token']) ) {
 }
 
 if ( !$csrf_token ){
-   toesUp("error: csrf token missing");
+   toesUp("error: csrf token missing for request '{$request}'.");
 }
 
 /**
@@ -44,31 +63,12 @@ if ( !$csrf_token ){
  * for this session.
  */
 if ( !in_array( $csrf_token, $_SESSION['redcap_csrf_token']) ){
-    toesUp("error: invalid csrf token.");
+    toesUp("error: invalid csrf token for request '{$request}'.");
 }
 
 //if ( $csrf_token !== $module->getCSRFToken() ){
 //    toesUp("error: invalid csrf token.");
 //}
-  
-/**
- * Validate the 'request' parameter, 
- * which can be via GET or POST
- */
-
-if ( isset($_POST['request']) ) {
-    $request = $_POST['request'];
-}
-elseif ( isset($_GET['request']) ) {
-   $request = $_GET['request'];
-}
-else {
-   toesUp("request parameter not passed");
-}
- 
-if ( !requestIsValid($request) ) {
-    toesUp("error: invalid request: ".$request);
-};
  
 /**
  * Execute the requested function and head out.
@@ -89,6 +89,251 @@ function toesUp($errmsg)
 function requestIsValid( $request ):bool 
 {
     return function_exists( __NAMESPACE__."\\".$request );
+}
+
+function getExportLogRecordSQL( $log_id=0 )
+{
+    $sql = "
+    SELECT x.log_id
+    , x.`timestamp`
+    , ui.username
+    , p0.`value` AS `export_name`
+    , p1.`value` AS `log_entry_type`
+    , p2.`value` AS `export_uuid`
+    , p3.`value` AS `destination`
+    , p4.`value` AS `filename_data`
+    , p5.`value` AS `filename_data_dictionary`
+    , p6.`value` AS `exported_bytes`
+    , p7.`value` AS `exported_items`
+    , p8.`value` AS `exported_rows`
+    , p9.`value` AS `exported_columns`
+    FROM redcap_external_modules_log x
+    INNER JOIN redcap_external_modules_log_parameters p0 ON p0.log_id=x.log_id AND p0.name='export_name'
+    INNER JOIN redcap_external_modules_log_parameters p1 ON p1.log_id=x.log_id AND p1.name='log_entry_type'
+    INNER JOIN redcap_external_modules_log_parameters p2 ON p2.log_id=x.log_id AND p2.name='export_uuid'
+    LEFT  JOIN redcap_external_modules_log_parameters p3 ON p3.log_id=x.log_id AND p3.name='destination'
+    LEFT  JOIN redcap_external_modules_log_parameters p4 ON p4.log_id=x.log_id AND p4.name='filename_data'
+    LEFT  JOIN redcap_external_modules_log_parameters p5 ON p5.log_id=x.log_id AND p5.name='filename_data_dictionary'
+    LEFT  JOIN redcap_external_modules_log_parameters p6 ON p6.log_id=x.log_id AND p6.name='exported_bytes'
+    LEFT  JOIN redcap_external_modules_log_parameters p7 ON p7.log_id=x.log_id AND p7.name='exported_items'
+    LEFT  JOIN redcap_external_modules_log_parameters p8 ON p8.log_id=x.log_id AND p8.name='exported_rows'
+    LEFT  JOIN redcap_external_modules_log_parameters p9 ON p9.log_id=x.log_id AND p9.name='exported_columns'
+    LEFT  JOIN redcap_user_information ui ON ui.ui_id=x.ui_id
+    ";
+
+    if ( $log_id ){
+
+        $sql .= " WHERE x.`log_id`=? LIMIT 1";
+    }
+    else {
+ 
+        $sql .= " WHERE p2.`value`=? ORDER BY timestamp ASC";
+    }
+
+    return $sql;
+}
+
+function getExportLogRecord()
+{
+    global $module;
+    $log_id = $_POST['log_id'];
+
+    return json_encode( Yes3::fetchRecord( getExportLogRecordSQL($log_id), [ $log_id ] ) );
+}
+
+function downloadExportLog()
+{
+    global $module;
+
+    $export_uuid = $_GET['export_uuid'];
+
+    $export_name = $module->getExportSpecification( $export_uuid )['export_name'];
+
+    $path = tempnam(sys_get_temp_dir(), "ys3");
+
+    $h = fopen( $path, "w+" );
+
+    if ( $h===false ){
+
+        exit("Fail: could not create temporary file {$path}");
+    }
+
+    $sql = getExportLogRecordSQL();
+
+    $bytes = 0;
+
+    foreach ( Yes3::recordGenerator($sql, [ $export_uuid ]) as $x ){
+
+        if ( !$bytes ) {
+
+            $bytes = fputcsv($h, array_keys($x));
+
+            $export_name = $x['export_name'];
+        }
+
+        $bytes += fputcsv($h, array_values($x));
+    }
+
+    rewind($h);
+
+    //exit("downloadExportLog: {$export_uuid}, {$export_name}, {$path}, {$bytes}");
+
+    $chunksize = 1024 * 1024; // 1MB per one chunk of file.
+
+    $filename = $module->exportLogFilename( $export_name );
+
+    ob_start();
+
+    header('Content-Type: application/octet-stream');
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: '.$bytes);
+    header('Content-Disposition: attachment;filename="'.$filename.'"');
+
+    while (!feof($h)){
+
+        print(@fread($h, $chunksize));
+
+        ob_flush();
+        flush();
+    }
+
+    fclose($h);
+
+    ob_end_flush();
+
+    exit;
+}
+
+function getExportLogData()
+{
+    global $module;
+
+    $LIMIT = (isset($_POST['limit'])) ? (int)$_POST['limit'] : 0;
+
+    $export_uuid = $_POST['export_uuid'];
+    $username = $_POST['username'] ?? "";
+    $date0 = $_POST['date0'] ?? "";
+    $date1 = $_POST['date1'] ?? "";
+
+    $subSql = "
+SELECT x.*, ui.username, p2.`value` AS `export_uuid`, p3.`value` AS `destination`
+FROM redcap_external_modules_log x
+  INNER JOIN redcap_external_modules_log_parameters p1 ON p1.log_id=x.log_id AND p1.name='log_entry_type' AND p1.value='yes3-export'
+  INNER JOIN redcap_external_modules_log_parameters p2 ON p2.log_id=x.log_id AND p2.name='export_uuid' AND p2.value=?
+  INNER JOIN redcap_external_modules_log_parameters p3 ON p3.log_id=x.log_id AND p3.name='destination'
+  INNER JOIN redcap_user_information ui ON ui.ui_id=x.ui_id
+WHERE x.project_id=?    
+    ";
+
+    $params = [ $export_uuid, $module->project_id ];
+
+    if ( $username ){
+
+        $subSql .= " AND ui.username = ?";
+
+        $params[] = $username;
+    }
+
+    if ( $date0 ){
+
+        $subSql .= " AND DATEDIFF(x.timestamp, ?) >= 0";
+
+        $params[] = strftime("%F", strtotime($date0));
+    }
+
+    if ( $date1 ){
+
+        $subSql .= " AND DATEDIFF(x.timestamp, ?) <= 0";
+
+        $params[] = strftime("%F", strtotime($date1));
+    }
+
+    $subSql .= " ORDER BY timestamp DESC LIMIT {$LIMIT}";
+
+    $sql = "SELECT * FROM ( " . $subSql . " ) y ORDER BY y.timestamp ASC";
+
+    //exit( json_encode( ['sql'=>$sql] ) );
+
+    $data = Yes3::fetchRecords($sql, $params);
+
+    $observed_usernames = [];
+    $observed_date0 = "";
+    $observed_date1 = "";
+    $message = "";
+    $n = 0;
+
+    if ( $data ){
+
+        $observed_date0 = strftime("%F", strtotime($data[0]['timestamp']));
+        $observed_date1 = strftime("%F", strtotime($data[count($data)-1]['timestamp']));
+
+        foreach( $data as $x ){
+
+            $n++;
+
+            if ( !in_array($x['username'], $observed_usernames )){
+                $observed_usernames[] = $x['username'];
+            }
+        }
+
+        sort($observed_usernames);
+    }
+
+    $truncated = ( $n === $LIMIT ) ? 1:0;
+
+    if ( $n===0 ){
+
+        $message = "No records met your search criteria.";
+    }
+    elseif ( $truncated===1 ){
+
+        $message = "WARNING: The maximum allowed number of records ({$LIMIT}) was returned. Please narrow your search criteria by user or date range.";
+    }
+
+    return json_encode([
+        'message' => $message,
+        'data' => $data,
+        'n' => $n,
+        'truncated' => $truncated,
+        'observed_usernames' => $observed_usernames,
+        'observed_date0' => $observed_date0,
+        'observed_date1' => $observed_date1,
+    ]);
+}
+
+function getExportLogs()
+{
+    global $module;
+
+    $export_uuid = $_POST['export_uuid'];
+
+    $columns = [
+        "log_id",
+        "user", 
+        "timestamp", 
+        "destination", 
+        "message" 
+    ];
+
+    $data = [];
+
+    foreach( $module->getExportLogs($export_uuid) as $logrecord ){
+
+        $data[] = [
+            $logrecord['log_id'],
+            $logrecord['username'],
+            $logrecord['timestamp'],
+            $logrecord['destination'],
+            $logrecord['message']
+        ];
+    }
+
+    return( json_encode(
+        [
+            'columns' => $columns,
+            'data' => $data
+        ]
+    ));
 }
 
 function downloadDataDictionary()
@@ -181,6 +426,88 @@ function saveExportSettings()
     return "{$eventSettingsSaved} events and {$specificationsSaved} specifications saved.";
 }
 
+/**
+ * does what it can to tidy up an upload specification map
+ * 
+ * function: Yale\Yes3FieldMapper\sanitizeUploadSpec
+ * 
+ * @param mixed $specMap
+ * 
+ * @return array
+ */
+function sanitizeUploadSpec( $specMap ): array
+{
+    global $module;
+   
+    //Yes3::logDebugMessage($module->project_id, print_r($specMap, true), "sanitizeUploadSpec");
+    
+    if ( !is_array($specMap )){
+
+        return [];
+    }
+
+    for($i=0; $i<count($specMap); $i++){
+
+        if ( isset($specMap[$i]['name']) ){
+
+            $specMap[$i]['name'] = Yes3::inoffensiveFieldName($specMap[$i]['name']);
+        }
+        else {
+
+            $specMap[$i]['name'] = "element_name_needed_here";
+        }
+
+        if ( isset($specMap[$i]['type']) ){
+
+            $specMap[$i]['type'] = Yes3::normalized_string($specMap[$i]['type']);
+        }
+        else {
+
+            $specMap[$i]['type'] = "element_type_needed_here";
+        }
+
+        if ( isset($specMap[$i]['label']) ){
+
+            $specMap[$i]['label'] = Yes3::inoffensiveText($specMap[$i]['label']);
+        }
+        else {
+
+            $specMap[$i]['label'] = "element label needed here";
+        }
+
+        if ( isset($specMap[$i]['valueset']) && is_array($specMap[$i]['valueset']) ){
+
+            if ( $k = count($specMap[$i]['valueset']) ) {
+
+                $specMap[$i]['type'] = "nominal";
+
+                for($j=0; $j<$k; $j++){
+
+                    if ( isset($specMap[$i]['valueset'][$j]['value']) ){
+
+                        $specMap[$i]['valueset'][$j]['value'] = Yes3::inoffensiveText($specMap[$i]['valueset'][$j]['value']);
+                    }
+                    else {
+
+                        $specMap[$i]['valueset'][$j]['value'] = "value_needed_here";
+                    }
+
+                    if ( isset($specMap[$i]['valueset'][$j]['label']) ){
+
+                        $specMap[$i]['valueset'][$j]['label'] = Yes3::inoffensiveText($specMap[$i]['valueset'][$j]['label']);
+                    }
+                    else {
+
+                        $specMap[$i]['valueset'][$j]['label'] = "value label needed here";
+                    }
+                }
+            }
+        }
+    }
+
+    return $specMap;
+}
+
 function saveExportSpecification( $specification )
 {
     global $module;
@@ -188,6 +515,10 @@ function saveExportSpecification( $specification )
     if ( !isset($specification['mapping_specification']) ){
 
         $specification['mapping_specification'] = [];
+    }
+    else {
+
+        $specification['mapping_specification'] = sanitizeUploadSpec( $specification['mapping_specification'] );
     }
 
     if ( !isset($specification['field_mappings']) ){
@@ -384,7 +715,7 @@ function get_field_mappings()
                         'yes3_fmapr_data_element_name' => "redcap_element_1",
                         'element_origin' => "redcap",
                         'redcap_field_name' => \REDCap::getRecordIdField(),
-                        'redcap_event_id' => $module->getFirstEventId(),
+                        'redcap_event_id' => Yes3::getFirstREDCapEventId(),
                         'redcap_object_type' => "field",
                         'redcap_form_name' => "",
                         'values' => []

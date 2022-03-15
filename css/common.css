@@ -113,39 +113,7 @@ div.yes3-fmapr td.yes3-gutter-right-center, div.yes3-fmapr th.yes3-gutter-right-
     text-align: right;
 }
 
-/* === expand/collapse toggling === */
-/*
-tr.yes3-fmapr-collapsed .yes3-fmapr-if-collapsed {
-    display: table-row;
-}
-
-tr.yes3-fmapr-collapsed .yes3-fmapr-if-expanded {
-    display: none;
-}
-
-tr.yes3-fmapr-expanded .yes3-fmapr-if-expanded {
-    display: table-row;
-}
-
-tr.yes3-fmapr-expanded .yes3-fmapr-if-collapsed {
-    display: none;
-}
-*/
-
 /* === MAPPER === */
-
-div#yes3-fmapr-help-panel {
-    max-width: 700px !important;
-    background-color: var(--yes3-panel-background-color);
-}
-
-div#yes3-fmapr-help-panel-title, div#yes3-fmapr-fieldinsertion-panel-title {
-    color: var(--yes3-fmapr-panel-title-color) !important;
-}
-
-div#yes3-fmapr-help-panel td {
-    border: 1px solid transparent;
-}
 
 .yes3-fmapr-msgclass-normal {
     color: var(--yes3-fmapr-message-color-normal) !important;

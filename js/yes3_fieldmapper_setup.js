@@ -183,7 +183,7 @@ FMAPR.saveExportSettings = function()
         });
     });
 
-    //console.log('saveExportSettings', specifications);
+    console.log('saveExportSettings', specifications);
 
     let requestParams = {
         "request": "saveExportSettings",
@@ -877,7 +877,7 @@ FMAPR.reportExportMappingsLength = function(specNum)
      * specMap is a beta feature (March 2022), and won't be visible if 'beta' is checked 'No' in the EM config. 
      * This prevents errors caused by scanning a bad JSON string saved when 'beta' was checked on in EM config.
      */
-    if ( !specMap.is(':visible') ){
+    if ( !reportElement.is(':visible') ){
 
         return true;
     }
@@ -1011,6 +1011,8 @@ $(window).resize( function() {
  * things to do when the settings are loaded
  */
 $(document).on('yes3-fmapr.settings', function(){
+
+    console.log("on.yes3-fmapr.settings");
 
     /**
      * now we fetch the export settings

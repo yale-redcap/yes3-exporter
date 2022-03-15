@@ -42,6 +42,14 @@ td.yes3-fmapr-fieldinsertion-td-right {
     display:none;
  }
 
+tr.yes3-row-selected span.yes3-fmapr-redcap-element::before {
+    /*content: "\25B6"; arrow */
+    content: "\2714"; /* checkmark */
+    font-size: 1.5rem;
+    font-style: normal !important;
+    margin-right: 10px;
+}
+
 tr.yes3-lov {
     display: none;
 }

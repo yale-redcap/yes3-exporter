@@ -1,6 +1,8 @@
 let YES3 = {
     maxZ: 1000,
-    Functions: {}
+    Functions: {},
+    contentLoaded: true,
+    dirty: false
 };
  
 String.prototype.truncateAt = function( n ){
@@ -341,6 +343,38 @@ YES3.container = function()
 
 /* === ACTION ICON SUPPORT === */
 
+YES3.displayActionIcons = function( listenersLater )
+{
+    listenersLater = listenersLater || false;
+
+    if ( !YES3.contentLoaded ){
+
+        $('i.yes3-loaded').addClass('yes3-action-disabled');
+    }
+    else {
+
+        $('i.yes3-action-icon:not(.yes3-clean)').removeClass('yes3-action-disabled');
+
+        if ( YES3.dirty ){
+
+            $('i.yes3-display-when-clean').addClass('yes3-action-disabled');
+            $('i.yes3-display-when-dirty').removeClass('yes3-action-disabled');
+            $('i#yes3-save-control').addClass('yes3-dirty');
+        }
+        else {
+
+            $('i.yes3-display-when-clean').removeClass('yes3-action-disabled');
+            $('i.yes3-display-when-dirty').addClass('yes3-action-disabled');
+            $('i#yes3-save-control').removeClass('yes3-dirty');
+        }
+    }
+
+    if ( !listenersLater ) {
+
+        YES3.setActionIconListeners( YES3.container() );
+    }
+}
+
 YES3.setActionIconListeners = function(parentElement)
 {
     actionIcons = parentElement.find("i.yes3-action-icon");
@@ -361,6 +395,26 @@ YES3.setActionIconListeners = function(parentElement)
 }
 
 
+/*** HELP ***/
+
+/**
+ * This function is called via the YES3 'action icon' mechanism,
+ * so it is registered in the YES3 namespace
+ */
+ YES3.Functions.Help_openPanel = function()
+ {
+     YES3.openPanel('yes3-help-panel', true)
+ }
+ 
+ YES3.Help_closePanel = function()
+ {
+     YES3.closePanel('yes3-help-panel');
+ }
+ 
+ YES3.Help_openReadMe = function()
+ {
+     YES3.openPopupWindow( YES3.moduleProperties.documentationUrl ); 
+ } 
 
 /*
     === THEME ===

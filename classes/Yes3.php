@@ -109,6 +109,12 @@ class Yes3 {
        return true;
    }
 
+   public static function is_json_decodable( $s )
+   {
+       if ( json_decode( $s)===null ) return false;
+       return true;
+   }
+
    public static function getFirstREDCapEventId(int $project_id=null)
    {
       if ( !$project_id ){
@@ -218,7 +224,6 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
     */
    public static function getREDCapDataForRecord(string $REDCapRecordId, array $fields, int $event_id=0, string $return_format='array'): array
    {
-
       $params = [
 
          'project_id'=>self::getREDCapProjectId(),
@@ -229,6 +234,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
       ];
 
       if ( $event_id ){
+
          $params['events'] = $event_id;
       }
 
@@ -253,35 +259,35 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
    }
 
    public static function saveREDCapDataForRecord(string $REDCapRecordId, array $x, int $event_id=0): int
-   {
-      
-      if ( !$event_id && \REDCap::isLongitudinal() ){
-         $event_id = self::getFirstREDCapEventId();
-      }
-      
-       $params = [
+   {    
+        if ( !$event_id && \REDCap::isLongitudinal() ){
 
-         'project_id'=>self::getREDCapProjectId(),
-         'records'=>$REDCapRecordId,
-         'dataFormat'=>'array',
-         'data'=>[
-            $REDCapRecordId=>[
-                $event_id => $x
-            ]    
-         ],
-         'overwritebehavior'=>'overwrite',
-         'dataLogging'=>TRUE,
-         'commitData'=>TRUE
-      ];
+            $event_id = self::getFirstREDCapEventId();
+        }
 
-      $rc = \REDCap::saveData( $params );
+        $params = [
 
-      if ( !is_array($rc['ids']) ){
-         return -1;
-      }
+            'project_id'=>self::getREDCapProjectId(),
+            'records'=>$REDCapRecordId,
+            'dataFormat'=>'array',
+            'data'=>[
+                $REDCapRecordId=>[
+                    $event_id => $x
+                ]    
+            ],
+            'overwritebehavior'=>'overwrite',
+            'dataLogging'=>TRUE,
+            'commitData'=>TRUE
+        ];
 
-      return count($rc['ids']);
-   }
+        $rc = \REDCap::saveData( $params );
+
+        if ( !is_array($rc['ids']) ){
+            return -1;
+        }
+
+        return count($rc['ids']);
+    }
 
    public static function REDCapDateTimeString()
    {
@@ -293,8 +299,19 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
       return strftime("%y%m%d%H%M%S");
    }
 
+    public static function inoffensiveFieldName( string $s )
+    {
+
+        /**
+         * @psalm-suppress InvalidReturnStatement
+         */
+        return preg_replace("/[^a-zA-Z0-9_]+/", "", str_replace(' ', '_', $s));
+    }
+
+
     /**
-    * lower case, alphanumeric (underscores allowed)
+    * lower case, alphanumeric (blanks converted to underscores)
+    * suitable for REDCap field names
     * 
     * function: normalized_string
     * 
@@ -311,18 +328,111 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
        return preg_replace("/[^a-z0-9_]+/", "", strtolower(str_replace(' ', '_', $s)));
     }
 
-    public static function alphaNumericString( string $s ){
+    /**
+     * Converts every ASCII/UTF-8 quotation mark-like character to straight quote (including html entities)
+     * 
+     * adapted from:
+     * https://stackoverflow.com/questions/20025030/convert-all-types-of-smart-quotes-with-php
+     * 
+     * function: straightQuoter
+     * 
+     * @param string $s
+     * 
+     * @return string
+     */
+    public static function straightQuoter( string $s ):string
+    {  
+        if (!strlen($s) ) {
+
+            return "";
+        }
+
+        $qSearch = [
+
+            // Windows codepage 1252
+
+            "\xC2\x82", // U+0082⇒U+201A single low-9 quotation mark
+            "\xC2\x84", // U+0084⇒U+201E double low-9 quotation mark
+            "\xC2\x8B", // U+008B⇒U+2039 single left-pointing angle quotation mark
+            "\xC2\x91", // U+0091⇒U+2018 left single quotation mark
+            "\xC2\x92", // U+0092⇒U+2019 right single quotation mark
+            "\xC2\x93", // U+0093⇒U+201C left double quotation mark
+            "\xC2\x94", // U+0094⇒U+201D right double quotation mark
+            "\xC2\x9B", // U+009B⇒U+203A single right-pointing angle quotation mark
+        
+            // Regular Unicode  
+            
+            "\x22"        , // U+0022 quotation mark (")
+            "\x60"        , // U+0060 grave accent
+
+            "\xC2\xB4"    , // U+00B4 acute accent
+            "\xC2\xAB"    , // U+00AB left-pointing double angle quotation mark
+            "\xC2\xBB"    , // U+00BB right-pointing double angle quotation mark
+            "\xE2\x80\x98", // U+2018 left single quotation mark
+            "\xE2\x80\x99", // U+2019 right single quotation mark
+            "\xE2\x80\x9A", // U+201A single low-9 quotation mark
+            "\xE2\x80\x9B", // U+201B single high-reversed-9 quotation mark
+            "\xE2\x80\x9C", // U+201C left double quotation mark
+            "\xE2\x80\x9D", // U+201D right double quotation mark
+            "\xE2\x80\x9E", // U+201E double low-9 quotation mark
+            "\xE2\x80\x9F", // U+201F double high-reversed-9 quotation mark
+            "\xE2\x80\xB9", // U+2039 single left-pointing angle quotation mark
+            "\xE2\x80\xBA"  // U+203A single right-pointing angle quotation mark         
+        ];
+
+        return str_replace($qSearch, "'", $s);
+    }
+
+    /**
+     * Tries to guarantee inoffensive text, suitable for labels or SAS text fields
+     * 
+     * - trimmed
+     * - stripped of HTML tags
+     * - control chars (0-31, 127) converted to spaces
+     * - all flavors of quotes converted to straight quote (apostrophe)
+     * 
+     * regexp from: https://stackoverflow.com/questions/1176904/how-to-remove-all-non-printable-characters-in-a-string
+     * 
+     * function: inoffensiveText
+     * 
+     * @param string $s
+     * @param int $maxLen
+     * 
+     * @return string
+     */
+    public static function inoffensiveText( string $s, $maxLen=0 ):string
+    {
+        $s = trim(strip_tags(preg_replace('/[\x00-\x1F\x7F]/u', ' ', self::straightQuoter($s)))); 
+
+        if ( $maxLen ) return self::ellipsis($s, $maxLen);
+
+        return $s;       
+    }
+
+    /**
+     * Removes non-alphanumerics from string
+     * 
+     * function: alphaNumericString
+     * 
+     * @param string $s
+     * 
+     * @return string
+     */
+    public static function alphaNumericString( string $s ):string
+    {
         return preg_replace("/[^a-zA-Z0-9_ ]+/", "", $s);
     }
 
-    public static function printableEscHtmlString($s, $maxLen=0)
+    public static function printableEscHtmlString( string $s, $maxLen=0)
     {
         $s = preg_replace('/[\x00-\x1F\x7F]/u', '', self::escapeHtml(strip_tags($s)));
-        if ( $maxLen && strlen($s)>$maxLen ) $s = substr($s, 0, $maxLen);
-        return $s;
+ 
+        if ( $maxLen ) return self::ellipsis($s, $maxLen);
+
+        return $s;       
     }
 
-    public static function escapeHtml( $s )
+    public static function escapeHtml( string $s )
     {
         return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
     }

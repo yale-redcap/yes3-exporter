@@ -57,6 +57,11 @@
                 "name": "YES3 Export Specifications",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_fieldmapper.php"
+            },
+            {
+                "name": "YES3 Export Logs",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_export_logs.php"
             }
         ]
     },
