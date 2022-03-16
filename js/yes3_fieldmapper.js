@@ -616,50 +616,50 @@ FMAPR.setSpecificationStructures = function()
 
     html += `<tbody data-export_uuid='${FMAPR.export_uuid}' id='${bodyId}' >`;
  
-    for( i=0; i<FMAPR.specification_settings.mapping_specification.length; i++ ){
+    for( i=0; i<FMAPR.specification_settings.mapping_specification.elements.length; i++ ){
 
-        rowId = FMAPR.dataElementRowId(FMAPR.specification_settings.mapping_specification[i].name);
+        rowId = FMAPR.dataElementRowId(FMAPR.specification_settings.mapping_specification.elements[i].name);
 
-        req = FMAPR.specification_settings.mapping_specification[i].required;
+        req = FMAPR.specification_settings.mapping_specification.elements[i].required;
         if ( typeof req === 'undefined' ) req = '0';
 
-        element_origin = FMAPR.specification_settings.mapping_specification[i].element_origin;
+        element_origin = FMAPR.specification_settings.mapping_specification.elements[i].element_origin;
         if ( typeof element_origin === 'undefined' ) element_origin = 'specification';
   
-       if ( FMAPR.specification_settings.mapping_specification[i].type==="nominal" ) {
-          lovToggleHtml = `<a class='yes3-fmapr-lov-toggler' href='javascript:FMAPR.toggleLovDisplay("${FMAPR.specification_settings.mapping_specification[i].name}");'><i class='fas fa-plus'></i></a>`;
-       } else {
-          lovToggleHtml = "&nbsp;";
-       }
- 
-       elementInputHtml = FMAPR.getElementInputHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
-       eventSelectHtml = FMAPR.getElementEventHtml( FMAPR.specification_settings.mapping_specification[i].name, element_origin);
- 
-       html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification[i].name}' data-yes3_fmapr_data_element_description="${FMAPR.specification_settings.mapping_specification[i].label}" data-spec_type='${FMAPR.specification_settings.mapping_specification[i].type}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
-       html += `<td class='yes3-3 yes3-td-left' title='${FMAPR.specification_settings.mapping_specification[i].label}'><span class='yes3-fmapr-specmap-element'>${FMAPR.specification_settings.mapping_specification[i].name}</span></td>`;
-       html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
-       html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
-       html += `<td class='yes3-gutter-right-top yes3-td-right'>${lovToggleHtml}</td>`;
-       html += "</tr>";
+        if ( FMAPR.specification_settings.mapping_specification.elements[i].type==="nominal" ) {
+            lovToggleHtml = `<a class='yes3-fmapr-lov-toggler' href='javascript:FMAPR.toggleLovDisplay("${FMAPR.specification_settings.mapping_specification.elements[i].name}");'><i class='fas fa-plus'></i></a>`;
+        } else {
+            lovToggleHtml = "&nbsp;";
+        }
+    
+        elementInputHtml = FMAPR.getElementInputHtml( FMAPR.specification_settings.mapping_specification.elements[i].name, element_origin);
+        eventSelectHtml = FMAPR.getElementEventHtml( FMAPR.specification_settings.mapping_specification.elements[i].name, element_origin);
+    
+        html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${FMAPR.specification_settings.mapping_specification.elements[i].name}' data-yes3_fmapr_data_element_description="${FMAPR.specification_settings.mapping_specification.elements[i].label}" data-spec_type='${FMAPR.specification_settings.mapping_specification.elements[i].type}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
+        html += `<td class='yes3-3 yes3-td-left' title='${FMAPR.specification_settings.mapping_specification.elements[i].label}'><span class='yes3-fmapr-specmap-element'>${FMAPR.specification_settings.mapping_specification.elements[i].name}</span></td>`;
+        html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
+        html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
+        html += `<td class='yes3-gutter-right-top yes3-td-right'>${lovToggleHtml}</td>`;
+        html += "</tr>";
 
-        if ( FMAPR.specification_settings.mapping_specification[i].type==="nominal" ) {
+        if ( FMAPR.specification_settings.mapping_specification.elements[i].type==="nominal" ) {
 
-            FMAPR.specificationValuesets[FMAPR.specification_settings.mapping_specification[i].name]
-                = FMAPR.specification_settings.mapping_specification[i].valueset;
+            FMAPR.specificationValuesets[FMAPR.specification_settings.mapping_specification.elements[i].name]
+                = FMAPR.specification_settings.mapping_specification.elements[i].valueset;
 
         }
 
-       if ( FMAPR.specification_settings.mapping_specification[i].type==="nominal" ) {
+       if ( FMAPR.specification_settings.mapping_specification.elements[i].type==="nominal" ) {
  
-            for (j=0; j<FMAPR.specification_settings.mapping_specification[i].valueset.length; j++ ){
+            for (j=0; j<FMAPR.specification_settings.mapping_specification.elements[i].valueset.length; j++ ){
  
-                value = FMAPR.specification_settings.mapping_specification[i].valueset[j].value;
-                label = FMAPR.specification_settings.mapping_specification[i].valueset[j].label;
-                yes3_fmapr_data_element_name = FMAPR.specification_settings.mapping_specification[i].name;
+                value = FMAPR.specification_settings.mapping_specification.elements[i].valueset[j].value;
+                label = FMAPR.specification_settings.mapping_specification.elements[i].valueset[j].label;
+                yes3_fmapr_data_element_name = FMAPR.specification_settings.mapping_specification.elements[i].name;
  
                 lovInputHtml = FMAPR.getLovInputHtml( yes3_fmapr_data_element_name, value );
  
-                html += `<tr id="yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification[i].name}-${value}" data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value="${value}" data-yes3_fmapr_lov_label="${label}" data-required='${req}'}' class='yes3-fmapr-lov'>`;
+                html += `<tr id="yes3_fmapr_lov_value-${FMAPR.export_uuid}-${FMAPR.specification_settings.mapping_specification.elements[i].name}-${value}" data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value="${value}" data-yes3_fmapr_lov_label="${label}" data-required='${req}'}' class='yes3-fmapr-lov'>`;
                 html += `<td class='yes3-3 yes3-td-left yes3-fmapr-lov' title="${label}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="Make this the value for all FMAPR submissions" href="javascript:FMAPR.setLovConstant('${yes3_fmapr_data_element_name}', '${value}')">${label}</a></td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'>${lovInputHtml}</td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'></td>`;

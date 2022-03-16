@@ -1322,6 +1322,8 @@ ORDER BY timestamp DESC
     public function getExportSpecification( $export_uuid )
     {        
         $fields = "log_id, user, removed, setting, export_uuid, export_specification_json";
+
+        //Yes3::logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
     
         $pSql = "
             SELECT {$fields}
@@ -1331,8 +1333,12 @@ ORDER BY timestamp DESC
         $params = [$this->project_id, $export_uuid];
     
         if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
+
+            $specification = json_decode($specification_settings['export_specification_json'], true);
+
+            //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecification");
     
-            return json_decode($specification_settings['export_specification_json'], true);
+            return $specification;
         }
     
         return [];

@@ -96,9 +96,9 @@ FMAPR.exportUUIDSelectCallback = function( response )
 
         rowHtml += `<td class="yes3-td-middle yes3-cw15">${response.data[i].username}</td>`;
 
-        rowHtml += `<td class="yes3-td-middle yes3-cw20">${response.data[i].destination}</td>`;
-
         rowHtml += `<td class="yes3-td-right  yes3-cw35">${response.data[i].message}</td>`;
+
+        rowHtml += `<td class="yes3-td-middle yes3-cw20">${response.data[i].destination}</td>`;
 
         rowHtml += "</tr>";
     }

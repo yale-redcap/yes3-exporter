@@ -97,6 +97,7 @@ function getExportLogRecordSQL( $log_id=0 )
     SELECT x.log_id
     , x.`timestamp`
     , ui.username
+    , x.`message`
     , p0.`value` AS `export_name`
     , p1.`value` AS `log_entry_type`
     , p2.`value` AS `export_uuid`
@@ -431,81 +432,93 @@ function saveExportSettings()
  * 
  * function: Yale\Yes3FieldMapper\sanitizeUploadSpec
  * 
- * @param mixed $specMap
+ * @param mixed $uSpec
  * 
- * @return array
+ * @return mixed
  */
-function sanitizeUploadSpec( $specMap ): array
+function sanitizeUploadSpec( $uSpec ): mixed
 {
     global $module;
-   
-    //Yes3::logDebugMessage($module->project_id, print_r($specMap, true), "sanitizeUploadSpec");
     
-    if ( !is_array($specMap )){
+    if ( !is_array( $uSpec )){
 
-        return [];
+        return null;
     }
 
-    for($i=0; $i<count($specMap); $i++){
+    if ( !is_array($uSpec['elements']) ){
 
-        if ( isset($specMap[$i]['name']) ){
+        return null;
+    }
 
-            $specMap[$i]['name'] = Yes3::inoffensiveFieldName($specMap[$i]['name']);
+    if ( count($uSpec['elements'])==0 ){
+
+        return null;
+    }
+      
+    //Yes3::logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:pre");
+
+    for($i=0; $i<count($uSpec['elements']); $i++){
+
+        if ( isset($uSpec['elements'][$i]['name']) ){
+
+            $uSpec['elements'][$i]['name'] = Yes3::inoffensiveFieldName($uSpec['elements'][$i]['name']);
         }
         else {
 
-            $specMap[$i]['name'] = "element_name_needed_here";
+            $uSpec['elements'][$i]['name'] = "element_name_needed_here";
         }
 
-        if ( isset($specMap[$i]['type']) ){
+        if ( isset($uSpec['elements'][$i]['type']) ){
 
-            $specMap[$i]['type'] = Yes3::normalized_string($specMap[$i]['type']);
-        }
-        else {
-
-            $specMap[$i]['type'] = "element_type_needed_here";
-        }
-
-        if ( isset($specMap[$i]['label']) ){
-
-            $specMap[$i]['label'] = Yes3::inoffensiveText($specMap[$i]['label']);
+            $uSpec['elements'][$i]['type'] = Yes3::normalized_string($uSpec['elements'][$i]['type']);
         }
         else {
 
-            $specMap[$i]['label'] = "element label needed here";
+            $uSpec['elements'][$i]['type'] = "element_type_needed_here";
         }
 
-        if ( isset($specMap[$i]['valueset']) && is_array($specMap[$i]['valueset']) ){
+        if ( isset($uSpec['elements'][$i]['label']) ){
 
-            if ( $k = count($specMap[$i]['valueset']) ) {
+            $uSpec['elements'][$i]['label'] = Yes3::inoffensiveText($uSpec['elements'][$i]['label']);
+        }
+        else {
 
-                $specMap[$i]['type'] = "nominal";
+            $uSpec['elements'][$i]['label'] = "element label needed here";
+        }
+
+        if ( isset($uSpec['elements'][$i]['valueset']) && is_array($uSpec['elements'][$i]['valueset']) ){
+
+            if ( $k = count($uSpec['elements'][$i]['valueset']) ) {
+
+                $uSpec['elements'][$i]['type'] = "nominal";
 
                 for($j=0; $j<$k; $j++){
 
-                    if ( isset($specMap[$i]['valueset'][$j]['value']) ){
+                    if ( isset($uSpec['elements'][$i]['valueset'][$j]['value']) ){
 
-                        $specMap[$i]['valueset'][$j]['value'] = Yes3::inoffensiveText($specMap[$i]['valueset'][$j]['value']);
+                        $uSpec['elements'][$i]['valueset'][$j]['value'] = Yes3::inoffensiveText($uSpec['elements'][$i]['valueset'][$j]['value']);
                     }
                     else {
 
-                        $specMap[$i]['valueset'][$j]['value'] = "value_needed_here";
+                        $uSpec['elements'][$i]['valueset'][$j]['value'] = "value_needed_here";
                     }
 
-                    if ( isset($specMap[$i]['valueset'][$j]['label']) ){
+                    if ( isset($uSpec['elements'][$i]['valueset'][$j]['label']) ){
 
-                        $specMap[$i]['valueset'][$j]['label'] = Yes3::inoffensiveText($specMap[$i]['valueset'][$j]['label']);
+                        $uSpec['elements'][$i]['valueset'][$j]['label'] = Yes3::inoffensiveText($uSpec['elements'][$i]['valueset'][$j]['label']);
                     }
                     else {
 
-                        $specMap[$i]['valueset'][$j]['label'] = "value label needed here";
+                        $uSpec['elements'][$i]['valueset'][$j]['label'] = "value label needed here";
                     }
                 }
             }
         }
     }
+  
+    //Yes3::logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:post");
 
-    return $specMap;
+    return $uSpec;
 }
 
 function saveExportSpecification( $specification )
@@ -514,7 +527,7 @@ function saveExportSpecification( $specification )
 
     if ( !isset($specification['mapping_specification']) ){
 
-        $specification['mapping_specification'] = [];
+        $specification['mapping_specification'] = null;
     }
     else {
 
@@ -525,6 +538,8 @@ function saveExportSpecification( $specification )
 
         $specification['field_mappings'] = [];
     }
+  
+    //Yes3::logDebugMessage($module->project_id, print_r($specification, true), "saveExportSpecification");
         
     $logId = $module->log(
         "export_specification",

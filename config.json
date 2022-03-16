@@ -17,6 +17,12 @@
 
     "versions": [
         {
+            "number": "0.3.0",
+            "date": "2022-03-16",
+            "description": "Export logging",
+            "comments": ""
+        },
+        {
             "number": "0.2.1",
             "date": "2022-03-06",
             "description": "Exports and downloads functioning",

@@ -154,6 +154,10 @@ FMAPR.saveExportSettings = function()
         let export_criterion_event = ( export_selection === "2" ) ? $(this).find("select[data-setting=export_criterion_event]").val() || "" : "";
         let export_criterion_value = ( export_selection === "2" ) ? $(this).find("input[data-setting=export_criterion_value]").val() || "" : "";
 
+        let export_max_label_length = $(this).find("input[data-setting=export_max_label_length]").val();
+        let export_max_text_length  = $(this).find("input[data-setting=export_max_text_length]").val();
+        let export_inoffensive_text = ( $(this).find("input[type=checkbox][data-setting=export_inoffensive_text]").is(':checked') ) ? "1" : "0";
+
         let mapping_specification_json = $(this).find("textarea[data-setting=mapping_specification]").val() || "";
         let mapping_specification = [];
 
@@ -177,6 +181,9 @@ FMAPR.saveExportSettings = function()
             "export_criterion_value": export_criterion_value,
             "export_target": export_target,
             "export_target_folder": export_target_folder,
+            "export_max_label_length": export_max_label_length,
+            "export_max_text_length": export_max_text_length,
+            "export_inoffensive_text": export_inoffensive_text,
             "mapping_specification": mapping_specification,
             //"field_mappings": [],
             "removed": removed
@@ -211,7 +218,7 @@ FMAPR.getExportSettings = function()
 
 FMAPR.getExportSettingsCallback = function(response)
 {
-    //console.log('getExportSettingsCallback:', response);
+    console.log('getExportSettingsCallback:', response);
 
     FMAPR.stored_export_settings = response;
 
@@ -291,6 +298,9 @@ FMAPR.populateExportSpecificationsTables = function()
     let export_criterion_field = "";
     let export_criterion_event = "";
     let export_criterion_value = "";
+    let export_max_label_length = "";
+    let export_max_text_length = "";
+    let export_inoffensive_text = "";
     let export_target = "";
     let export_target_folder = "";
     let mapping_specification = [];
@@ -313,25 +323,31 @@ FMAPR.populateExportSpecificationsTables = function()
         export_uuid = FMAPR.stored_export_settings.specification_settings[s].export_uuid || "???";
         export_layout = FMAPR.stored_export_settings.specification_settings[s].export_layout || "";
         removed = FMAPR.stored_export_settings.specification_settings[s].removed || "0";
+
         export_selection = FMAPR.stored_export_settings.specification_settings[s].export_selection || "";
+
         export_criterion_field = FMAPR.stored_export_settings.specification_settings[s].export_criterion_field || "";
         export_criterion_event = FMAPR.stored_export_settings.specification_settings[s].export_criterion_event || "";
         export_criterion_value = FMAPR.stored_export_settings.specification_settings[s].export_criterion_value || "";
 
+        export_max_label_length = FMAPR.stored_export_settings.specification_settings[s].export_max_label_length || "";
+        export_max_text_length = FMAPR.stored_export_settings.specification_settings[s].export_max_text_length || "";
+        export_inoffensive_text = FMAPR.stored_export_settings.specification_settings[s].export_inoffensive_text || "";
+
         export_target = FMAPR.stored_export_settings.specification_settings[s].export_target || "";
         export_target_folder = FMAPR.stored_export_settings.specification_settings[s].export_target_folder || "";
 
-        mapping_specification = FMAPR.stored_export_settings.specification_settings[s].mapping_specification || [];
+        mapping_specification = FMAPR.stored_export_settings.specification_settings[s].mapping_specification || {};
 
         specTbl.attr({"data-export_uuid": export_uuid});
 
-        if ( !mapping_specification.length ){
+        if ( YES3.isNonEmptyObject (mapping_specification) ){
 
-            mapping_specification_json = "";
+            mapping_specification_json = JSON.stringify(mapping_specification, null, 4);        
         }
         else {
 
-            mapping_specification_json = JSON.stringify(mapping_specification, null, 4);        
+            mapping_specification_json = "";
         }
 
         specTbl.find('input[data-setting=export_name]').val(export_name);
@@ -347,6 +363,14 @@ FMAPR.populateExportSpecificationsTables = function()
         specTbl.find('input[data-setting=export_criterion_field]').val(export_criterion_field).trigger('change');
         specTbl.find('select[data-setting=export_criterion_event]').val(export_criterion_event);
         specTbl.find('input[data-setting=export_criterion_value]').val(export_criterion_value);
+
+        specTbl.find('input[data-setting=export_max_label_length]').val(export_max_label_length);
+        specTbl.find('input[data-setting=export_max_text_length]').val(export_max_text_length);
+
+        if ( export_inoffensive_text==="1" ){
+
+            specTbl.find(`input[type=checkbox][data-setting=export_inoffensive_text]`).prop('checked', true);
+        }
 
         specTbl.find(`input[data-setting=export_target][value=${export_target}]`).prop('checked', true);
         specTbl.find('input[data-setting=export_target_folder]').val(export_target_folder);
@@ -366,8 +390,6 @@ FMAPR.populateExportSpecificationsTables = function()
         FMAPR.setRemovedStatus( specTbl, removed, true );
 
         FMAPR.toggleExportSpecification( specNum, 0 ); // collapse the table
-
-
     }
 
     FMAPR.appendBlankExportSpecification();
@@ -892,8 +914,8 @@ FMAPR.reportExportMappingsLength = function(specNum)
     else {
 
         try {
-            mapping_specification_length = JSON.parse( mapping_specification_json ).length;
-            reportElement.text( mapping_specification_length + " mappings" );
+            mapping_specification_length = JSON.parse( mapping_specification_json ).elements.length;
+            reportElement.text( mapping_specification_length + " elements" );
             FMAPR.markAsGood( reportElement );
             return true;
        } catch (e) {

@@ -139,7 +139,7 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left" id="yes3-fmapr-mappings-editor-title">
-            <span class="yes3-panel-title">Export Mapping Specification</span>
+            <span class="yes3-panel-title">Export Upload Specification</span>
             &nbsp;<span class="yes3-panel-subtitle" id="yes3-fmapr-mappings-editor-export-name"></span>
         </div>
         <div class="yes3-panel-row-right">
@@ -428,9 +428,49 @@ $module->getCodeFor("yes3_fieldmapper_setup", true);
             
             </tr>
 
+            <tr class="yes3-fmapr-if-expanded">
+
+                <td class="yes3-fmapr-export-specification">Max label length (optional):</td>
+                
+                <td class="yes3-fmapr-export-specification">
+                    <input type="text" data-setting="export_max_label_length" value="" class="yes3-input-integer yes3-fmapr-spec-lastrow-item" placeholder="max #characters">
+                </td>
+               
+                <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
+            
+            </tr>
+
+            <tr class="yes3-fmapr-if-expanded">
+
+                <td class="yes3-fmapr-export-specification">Max text length (optional):</td>
+                
+                <td class="yes3-fmapr-export-specification">
+                    <input type="text" data-setting="export_max_text_length" value="" class="yes3-input-integer yes3-fmapr-spec-lastrow-item" placeholder="max #characters">
+                </td>
+               
+                <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
+            
+            </tr>
+
+            <tr class="yes3-fmapr-if-expanded">
+
+                <td class="yes3-fmapr-export-specification">Inoffensive text values:</td>
+                
+                <td class="yes3-fmapr-export-specification">
+                    <label class="yes3-checkmarkContainer">
+                            <input type="checkbox" data-setting="export_inoffensive_text" value="1" />
+                            <span class="yes3-checkmark"></span> 
+                            Strip offensive chars from all text
+                    </label>
+                </td>
+               
+                <td class="yes3-fmapr-export-specification yes3-gutter-right-center">&nbsp;</td>
+            
+            </tr>
+
             <tr class="yes3-fmapr-if-expanded yes3-fmapr-beta">
 
-                <td class="yes3-fmapr-export-specification">BETA mapping specification:</td>
+                <td class="yes3-fmapr-export-specification">BETA upload specification:</td>
                 
                 <td class="yes3-fmapr-export-specification yes3-fmapr-mappings-link">
                     <textarea class="yes3-fmapr-hidden" data-setting="mapping_specification"></textarea>

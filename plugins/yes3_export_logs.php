@@ -65,11 +65,13 @@ $module->getCodeFor("yes3_export_logs", true);
             
         <tr id="yes3-export-username"><td>User</td><td></td></tr>
             
+        <tr id="yes3-export-message"><td>Message</td><td></td></tr>
+            
+        <tr id="yes3-export-destination"><td>Destination</td><td></td></tr>
+            
         <tr id="yes3-export-log_entry_type"><td>Log Entry Type</td><td></td></tr>
             
         <tr id="yes3-export-export_uuid"><td>Export UUID</td><td></td></tr>
-            
-        <tr id="yes3-export-destination"><td>Destination</td><td></td></tr>
             
         <tr id="yes3-export-filename_data"><td>Export filename</td><td></td></tr>
             
@@ -192,15 +194,15 @@ $module->getCodeFor("yes3_export_logs", true);
 
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-6 yes3-flex-container">
 
-            <input type="date" id="export_date0" onchange="FMAPR.exportConstraintSelect()" title="Start of date range"/>
+            <div class="yes3-flex-vcenter-hleft">
+                &nbsp;from&nbsp;<input type="date" id="export_date0" onchange="FMAPR.exportConstraintSelect()" title="Start of date range"/>
+            </div>
 
-        </div>
-
-        <div class="col-md-3">
-
-            <input type="date" id="export_date1" onchange="FMAPR.exportConstraintSelect()" title="End of date range" />
+            <div class="yes3-flex-vcenter-hleft">
+                &nbsp;to&nbsp;<input type="date" id="export_date1" onchange="FMAPR.exportConstraintSelect()" title="End of date range" />
+            </div>
 
         </div>
 
@@ -220,8 +222,8 @@ $module->getCodeFor("yes3_export_logs", true);
                     <th class="yes3-header yes3-cw10">log id</th>
                     <th class="yes3-header yes3-cw15">timestamp</th>
                     <th class="yes3-header yes3-cw15">user</th>
-                    <th class="yes3-header yes3-cw20">destination</th>
                     <th class="yes3-header yes3-cw35">message</th>
+                    <th class="yes3-header yes3-cw20">destination</th>
                 </tr>
             </thead>
 
@@ -231,8 +233,8 @@ $module->getCodeFor("yes3_export_logs", true);
                     <td class="yes3-td-middle yes3-cw10">14</td>
                     <td class="yes3-td-middle yes3-cw15">2022-03-12 00:00:00</td>
                     <td class="yes3-td-middle yes3-cw15">flapdoodle</td>
-                    <td class="yes3-td-middle yes3-cw20">download</td>
                     <td class="yes3-td-right  yes3-cw35">Hi mom</td>                    
+                    <td class="yes3-td-middle yes3-cw20">download</td>
                 </tr>
             </tbody>
 

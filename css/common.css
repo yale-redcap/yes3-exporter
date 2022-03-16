@@ -163,7 +163,7 @@ div.yes3-fmapr td.yes3-gutter-right-center, div.yes3-fmapr th.yes3-gutter-right-
     opacity: 0.3 !important;
 }
 
-table.yes3-fmapr input[type=checkbox] {
+table.yes3-fmapr:not(.yes3-fmapr-export-specification) input[type=checkbox] {
     width: 13px;
     height: 13px;
     padding: 0;

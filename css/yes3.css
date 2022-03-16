@@ -714,6 +714,10 @@ div#yes3-red-pointer {
      height: var(--yes3-block-height);
      line-height: var(--yes3-block-height);
  }
+
+ input[type=text].yes3-input-integer {
+     width: 10rem !important;
+ }
  
  input[type=button].yes3-large-button {
     float: left;

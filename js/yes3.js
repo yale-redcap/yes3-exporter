@@ -580,4 +580,8 @@ YES3.isTruthy = function( x )
    return x;
 }
 
+YES3.isNonEmptyObject = function( o )
+{
+    return ( typeof o === "object" && Object.keys(o).length > 0 );
+}
 
