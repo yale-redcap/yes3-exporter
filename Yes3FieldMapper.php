@@ -1389,13 +1389,19 @@ ORDER BY timestamp DESC
 
             if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
 
-                //Yes3::logDebugMessage($this->project_id, $specification_settings['export_specification_json'], "getExportSpecifications:json");
-
+ 
                 if ( Yes3::is_json_decodable($specification_settings['export_specification_json'])) {
                     
                     $specification = json_decode($specification_settings['export_specification_json']);
 
+                    Yes3::logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecifications:object");
+
                     if ( is_object($specification) ){
+
+                        if ( !is_object($specification->mapping_specification) ) {
+
+                            $specification->mapping_specification = ['elements'=>[]];
+                        }
 
                         if ( !$specification->removed ) {
 

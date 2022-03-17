@@ -11,12 +11,59 @@ $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();
 
 /**
- * getCodeFor (from Yes3Trait) will: 
- *   (1) output html tags and code for js and css libraries named [param1]
- *   (2) if [param2] is true, output /html/yes3.html (yes3 dialog panels)
- *   (3) output js code to build 
- *          - YES3.moduleObject (the REDCap Javascript module object)
- *          - YES3.moduleProperties (all public properties of the EM class)
+ * --------------------------------------
+ * STARTUP ACTIONS - yes3_fieldmapper.php
+ * --------------------------------------
+ * 
+ * getCodeFor() actions
+ * --------------------
+ * The $module->getCodeFor() function is found in Yes3Trait.php
+ * and is applied to all plugin pages
+ * 
+ * (1) Outputs JS and CSS code to the page in the following orders:
+ *     yes3.js, common.js, [plugin name].js
+ *     yes3.css, common.css, [plugin name].css
+ * 
+ * (2) Outputs JS code to create YES3.moduleObject,
+ *     which is the the REDCap 'JavaScriptModuleObject' (see REDCap EM dev documentation). 
+ *     Includes JS equivalents to the EM Framework getUrl(), log(), tt() and tt_add() functions.
+ * 
+ * (3) Outputs JS code to create YES3.moduleProperties, which is an
+ *     object that includes all public properties from the instantiated 
+ *     EM class (Yes3FieldMapper). Mainly useful for service and readme Urls, username,
+ *     EM version.
+ * 
+ * (4) Outputs html/yes3.html, YES3 html relevant to most plugins.
+ *     Mainly the standard dialogs hello, yesno and contextmenu.
+ * 
+ * --------------
+ * ONLOAD ACTIONS
+ * --------------
+ * 
+ * (IIFEs from the JS libraries loaded by getCodeFor())
+ * 
+ * yes3.js
+ * -------
+ * (1) Color scheme detected, theme toggle listener established
+ * (2) csrf token added to jQuery ajax header
+ * (3) jQuery draggables set up
+ * 
+ * common.js
+ * ---------
+ * (no onload actions)
+ * 
+ * yes3_fieldmapper.js (this plugin's script)
+ * ------------------------------------------
+ * (1) getProjectSettings
+ *     Calls services.get_project_settings.
+ *     Populates FMAPR.project with field, form and event metadata,
+ *     field_auto_select_source.
+ * 
+ * (2) getExportSettings
+ *     Calls services.getExportSettings.
+ *     Populates FMAPR.stored_export_settings with event and
+ *     specification settings
+ *     
  */
 
  $module->getCodeFor("yes3_fieldmapper", true);
