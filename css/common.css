@@ -162,7 +162,7 @@ div.yes3-fmapr td.yes3-gutter-right-center, div.yes3-fmapr th.yes3-gutter-right-
 .yes3-action-disabled {
     opacity: 0.3 !important;
 }
-
+/*
 table.yes3-fmapr:not(.yes3-fmapr-export-specification) input[type=checkbox] {
     width: 13px;
     height: 13px;
@@ -181,7 +181,7 @@ table.yes3-fmapr:not(.yes3-fmapr-export-specification) input[type=checkbox] {
     font-weight: normal;
     margin-bottom: 0;
  }
- 
+ */
  /*
   * field mapper color scheme
   */
@@ -269,6 +269,12 @@ input.yes3-fmapr-button {
     max-width: 180px !important;
 }
 
+div.row.yes3-fmapr-controls {
+
+    border-bottom: 1px solid var(--yes3-th-border-color);
+    padding-bottom: 1rem;
+}
+
 .yes3-fmapr-controls select {
 
     font-size: 1rem;
@@ -285,6 +291,31 @@ input.yes3-fmapr-button {
     border-radius: 4px;
 
     width: 100%;
+}
+
+.yes3-fmapr-controls input[type=button] {
+
+    font-size: .8rem;
+
+    color: var(--yes3-fmapr-control-color);
+    background-color: var(--yes3-fmapr-control-background-color);
+
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+    border: 1px solid var(--yes3-fmapr-control-border-color);
+    border-radius: 4px;
+
+    margin-left: 2rem;
+}
+
+.yes3-fmapr-controls input[type=button]:hover {
+
+    cursor: pointer;
+    color: var(--yes3-fmapr-control-background-color);
+    background-color: var(--yes3-fmapr-control-color);
 }
 
 div.yes3-fmapr-footnote {
@@ -311,4 +342,11 @@ div#yes3-fmapr-status {
     display: none;
 }
 
+.yes3-fmapr-hidden {
+    display: none;
+}
+
+.yes3-fmapr-beta {
+    display: none;
+}
 

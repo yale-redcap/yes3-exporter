@@ -55,6 +55,11 @@
     "links": {
         "project": [
             {
+                "name": "YES3 Export Editor",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_export_editor.php"
+            },
+            {
                 "name": "YES3 Export Settings",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_fieldmapper_setup.php"

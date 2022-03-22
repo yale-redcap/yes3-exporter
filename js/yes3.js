@@ -73,11 +73,13 @@ String.prototype.truncateAt = function( n ){
  Date.prototype.mdyhms = function() {
  
     return [this.getMonth()+1,
-          this.getDate(),
-          this.getFullYear()].join('/')+' '+
-       [this.getHours(),
-          this.getMinutes(),
-          this.getSeconds()].join(':');
+            this.getDate(),
+            this.getFullYear()].join('/')+' '+
+            [this.getHours(),
+                this.getMinutes(),
+                this.getSeconds()
+            ].join(':')
+    ;
 };
  
  /*

@@ -889,8 +889,6 @@ FMAPR.MappingsEditor_saveAndClose = function()
 
 FMAPR.reportExportMappingsLength = function(specNum)
 {
-    let specTbl = FMAPR.exportSpecificationTable(specNum);
-
     let specMap = specTbl.find("textarea[data-setting=mapping_specification]");
 
     let reportElement = specTbl.find("span.yes3-fmapr-export-mappings-length");

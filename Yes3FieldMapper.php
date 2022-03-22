@@ -109,51 +109,44 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $event_settings = $this->getEventSettings(); /* evcen abbreviations */
     
         /**
-         * Export specification (settings):
+         * Export specification (assoc array):
          * 
-         *       export_uuid,
-         *       export_name,
-         *       export_layout,
-         *       export_selection,
-         *       export_criterion_field,
-         *       export_criterion_event,
-         *       export_criterion_value,
-         *       export_target,
-         *       export_target_folder,
-         *       mapping_specification,
-         *       removed
+         *      export_uuid,
+         *      export_name,
+         *      export_layout,
+         *      export_selection,
+         *      export_criterion_field,
+         *      export_criterion_event,
+         *      export_criterion_value,
+         *      export_target,
+         *      export_target_folder,
+         *      export_max_label_length,
+         *      export_max_text_length,
+         *      export_inoffensive_text,
+         *      export_uspec_json, 
+         *      export_items_json
+         *      removed
          *      
          */
-        $export = new Yes3Export( $this->getExportSpecification($export_uuid) ); 
-    
+        $export_specification = $this->getExportSpecification($export_uuid);
+
+        Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
+
         /**
-         * export elements (stored separately from settings)
+         * export object:
          * 
-         * List of REDCap objects
-         *  {
-         *      yes3_fmapr_data_element_name: specification element name or 'redcap_element_[n]'
-         *      element_origin: 'redcap' or 'specification'
-         *      redcap_object_type: 'field' or 'form'
-         *      redcap_event_id: event_id or 'all'
-         *      redcap_field_name: if relevant (type is 'field')
-         *      redcap_form_name: if relevant (type is 'form') - form name or 'all'
-         *      spec_type: data type if from specification
-         * 
-         *      values: list of REDCap-to-specification value mappings
-         *              {
-         *                  yes3_fmapr_lov_value: specification value
-         *                  redcap_field_value: redcap value
-         *              }
-         *  }
+         *      export_name = "";
+         *      export_uuid = "";
+         *      export_layout = "";
+         *      export_selection = "";
+         *      export_criterion_field = "";
+         *      export_criterion_event = "";
+         *      export_criterion_value = "";
+         *      export_target = "";
+         *      export_target_folder = "";
+         *      export_data_dictionary = [];
          */
-        //if ( !$map_record = getFieldMapRecord( $export_uuid ) ){
-        //    return "no mappings";
-        //}
-        //$export_elements = json_decode($map_record['field_mappings'], true)['elements'];
-    
-        $export_elements = $this->getExportElements( $export_uuid );
-    
-        //return print_r($export_elements, true);
+        $export = new Yes3Export( $export_specification ); 
     
         /**
          * 
@@ -169,7 +162,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * form_index: list index, keyed by form_name
          * 
          */
-        //$forms = get_form_metadata_structures();
         $forms = $this->getFormMetadataStructures();
     
         /**
@@ -186,7 +178,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * field_index: list index, keyed by field_name
          * 
          */
-        //$fields = get_field_metadata_structures();
         $fields = $this->getFieldMetadataStructures();
     
         /**
@@ -241,12 +232,16 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $this->addExportItem_otherProperty($export, "redcap_repeat_instance", "REDCap Repeat Instance");
             }
         }
+
+        $export_items = json_decode( $export_specification['export_items_json'], true);
+
+        $export_uspec = json_decode( $export_specification['export_uspec_json'], true);
     
-        foreach ($export_elements as $element){
+        foreach ($export_items as $element){
     
-            if ( $element['element_origin'] === 'specification' ) {
+            if ( $element['export_item_origin'] === 'specification' ) {
     
-                $this->addExportItem_Specification( $export, $element, $event_settings );
+                $this->addExportItem_Specification( $export, $element, $event_settings, $export_uspec );
             }
     
             elseif ( $element['redcap_field_name'] ) {
@@ -1319,29 +1314,47 @@ ORDER BY timestamp DESC
         return $event_settings;
     }
 
-    public function getExportSpecification( $export_uuid )
+    /**
+     * 
+     * 
+     * function: getExportSpecification
+     * 
+     * @param mixed $export_uuid
+     * 
+     * @return array
+     * @throws Exception
+     */
+    public function getExportSpecification( $export_uuid ): array
     {        
-        $fields = "log_id, user, removed, setting, export_uuid, export_specification_json";
+        $fields = "log_id, message, timestamp
+        , removed
+        , export_uuid
+        , export_name
+        , export_username
+        , export_layout
+        , export_selection
+        , export_criterion_field
+        , export_criterion_event
+        , export_criterion_value
+        , export_target
+        , export_target_folder
+        , export_max_label_length
+        , export_max_text_length
+        , export_inoffensive_text
+        , export_uspec_json
+        , export_items_json
+        ";
 
         //Yes3::logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
     
         $pSql = "
             SELECT {$fields}
-            WHERE project_id=? AND setting='export-specification' AND removed='0' AND export_uuid=?
+            WHERE project_id=? AND message=? AND export_uuid=?
             ORDER BY timestamp DESC LIMIT 1
         ";
-        $params = [$this->project_id, $export_uuid];
+        $params = [$this->project_id, EMLOG_MSG_EXPORT_SPECIFICATION, $export_uuid];
     
-        if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
-
-            $specification = json_decode($specification_settings['export_specification_json'], true);
-
-            //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecification");
-    
-            return $specification;
-        }
-    
-        return [];
+        return $this->queryLogs($pSql, $params)->fetch_assoc();
     }
 
     /**
@@ -1678,30 +1691,57 @@ ORDER BY timestamp DESC
         ];
     }
 
-    private function addExportItem_Specification( $export, $element, $event_settings )
+    private function addExportItem_Specification( $export, $element, $event_settings, $export_uspec )
     {
         $valueset = [];
 
-        foreach( $element['values'] as $v ){
+        // fetch the corresponding uspec item
+        foreach ($export_uspec['elements'] as $uspec_element ){
 
-            $valueset[] = [
-                'value' => $v['yes3_fmapr_lov_value'],
-                'label' => $v['yes3_fmapr_lov_label'],
-                'redcap_field_value' => $v['redcap_field_value']
-            ];
+            if ( $uspec_element['name']===$element['uspec_element_name'] ){
+
+                /**
+                 * update the uSpec valueset with mapped REDCap field values
+                 */
+                
+                $valueset = [];
+
+                foreach( $uspec_element['valueset'] as $v ){
+
+                    $redcap_field_value = "";
+
+                    // walk through the value map for this export specification
+                    foreach( $element['uspec_element_value_map'] as $vMap ){
+                        
+                        if ( $vMap['uspec_value']==$v['value'] ){
+
+                            $redcap_field_value = $vMap['redcap_field_value'];
+                            break;
+                        }
+                    }
+
+                    $valueset[] = [
+                        'value' => $v['value'],
+                        'label' => $v['label'],
+                        'redcap_field_value' => $redcap_field_value
+                    ];
+                }
+
+                $export->addExportItem([
+                    'var_name' => $uspec_element['name'],
+                    'var_label' => $uspec_element['label'],
+                    'var_type' => $uspec_element['type'],
+                    'valueset' => $valueset,
+                    'origin' => "specification",
+                    'redcap_field_name' => $element['redcap_field_name'],
+                    'redcap_form_name' => Yes3::getREDCapFormForField($element['redcap_field_name']),
+                    'redcap_event_id' => $element['redcap_event_id'],
+                    'redcap_event_name' => $this->getEventName($element['redcap_event_id'], $event_settings)
+                ]);
+
+                break;    
+            }
         }
-
-        $export->addExportItem([
-            'var_name' => $element['yes3_fmapr_data_element_name'],
-            'var_label' => $element['yes3_fmapr_data_element_description'],
-            'var_type' => $this->specificationTypeToVarType( $element['type'], $valueset ),
-            'valueset' => $valueset,
-            'origin' => "specification",
-            'redcap_field_name' => $element['redcap_field_name'],
-            'redcap_form_name' => Yes3::getREDCapFormForField($element['redcap_field_name']),
-            'redcap_event_id' => $element['redcap_event_id'],
-            'redcap_event_name' => $this->getEventName($element['redcap_event_id'], $event_settings)
-        ]);
     }
 
     private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings )

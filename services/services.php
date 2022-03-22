@@ -91,6 +91,102 @@ function requestIsValid( $request ):bool
     return function_exists( __NAMESPACE__."\\".$request );
 }
 
+function saveExportSpecification()
+{
+    global $module;
+
+    $qParams = [
+        'removed' => ""
+        , 'export_uuid' => ""
+        , 'export_name' => ""
+        , 'export_username' => ""
+        , 'export_layout' => ""
+        , 'export_selection' => ""
+        , 'export_criterion_field' => ""
+        , 'export_criterion_event' => ""
+        , 'export_criterion_value' => ""
+        , 'export_target' => ""
+        , 'export_target_folder' => ""
+        , 'export_max_label_length' => ""
+        , 'export_max_text_length' => ""
+        , 'export_inoffensive_text' => ""
+        , 'export_uspec_json' => ""
+        , 'export_items_json' => ""
+    ];
+
+    foreach (array_keys($qParams) as $key){
+
+        if ( isset($_POST[$key]) ){
+
+            $qParams[$key] = $_POST[$key];
+        }
+    }
+
+    $log_id = $module->log(
+        EMLOG_MSG_EXPORT_SPECIFICATION,
+        $qParams
+    );
+
+    //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    if ( $log_id ){
+        return "Success: export parameters saved to EM log record# ".$log_id;
+    }
+
+    return "FAIL: The export specification could not be saved.";
+}
+
+function getExportSpecification()
+{
+    global $module;
+
+    $export_uuid = $_POST['export_uuid'];
+
+    return json_encode(
+        $module->getExportSpecification( $export_uuid )
+    );
+}
+
+function getExportSpecificationList():string
+{
+    global $module;
+
+    $get_removed = (int) $_POST['get_removed'];
+
+    /**
+     * Distinct export specifications best determined by direct query
+     */
+    $sqlUUID = "
+    SELECT DISTINCT p01.`value` AS `export_uuid`
+    FROM redcap_external_modules_log x
+    INNER JOIN redcap_external_modules_log_parameters p01 ON p01.log_id=x.log_id AND p01.name='export_uuid'
+    WHERE x.project_id=? and x.message=?
+    ";
+
+    $UUIDs = Yes3::fetchRecords($sqlUUID, [$module->project_id, EMLOG_MSG_EXPORT_SPECIFICATION]);
+
+    $data = [];
+
+    foreach($UUIDs as $u){
+
+        $s = $module->getExportSpecification($u['export_uuid']);
+
+        if ( $s['removed']==='0' || $get_removed ) {
+
+            $data[] = [
+                'timestamp' => $s['timestamp'],
+                'log_id' => $s['log_id'],
+                'export_uuid' => $s['export_uuid'],
+                'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                'export_layout' => $s['export_layout'],
+                'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
+                'removed' => $s['removed']
+            ];
+        }
+    }
+
+    return json_encode($data);
+}
+
 function getExportLogRecordSQL( $log_id=0 )
 {
     $sql = "
@@ -373,6 +469,13 @@ function exportData()
     return $module->exportData($export_uuid);
 }
 
+function getEventSettings()
+{
+    global $module;
+
+    return json_encode( $module->getEventSettings() );
+}
+
 function getExportSettings()
 {
     global $module;
@@ -401,30 +504,6 @@ function getFieldMapRecord($export_uuid)
     $params = [$module->project_id, $export_uuid];
 
     return $module->queryLogs($pSql, $params)->fetch_assoc();
-}
-
-function saveExportSettings()
-{
-    global $module;
-
-    $eventSettingsSaved = saveEventSettings();
-
-    $specificationsSaved = 0;
-
-    $specifications = json_decode($_POST['specifications'], true);
-
-    if ( !is_array($specifications) ){
-
-        $specificationsSaved = 0;
-    }
-    else {
-        foreach ( $specifications as $specification ){
-
-            $specificationsSaved += saveExportSpecification( $specification );
-        }
-    }
-
-    return "{$eventSettingsSaved} events and {$specificationsSaved} specifications saved.";
 }
 
 /**
@@ -521,7 +600,7 @@ function sanitizeUploadSpec( $uSpec ): mixed
     return $uSpec;
 }
 
-function saveExportSpecification( $specification )
+function saveExportSpecification_legacy( $specification )
 {
     global $module;
 

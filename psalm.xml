@@ -30,6 +30,7 @@
 
         <UndefinedClass>
             <errorLevel type="suppress">
+                <referencedClass name="Yale\Yes3FieldMapper\Yes3FieldMapper" />
                 <referencedClass name="ExternalModules\AbstractExternalModule" />
                 <referencedClass name="ExternalModules\ExternalModules" />
                 <referencedClass name="Parsedown" />

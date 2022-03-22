@@ -9,7 +9,10 @@ let FMAPR = {
     insertionRowId: "",
     specifications: [],
     map_record: {},
-    settings: {}
+    settings: {},
+    reloadParms: {
+        "export_uuid": ""
+    }
 }
  
 FMAPR.conditionUserInput = function( s ){
@@ -82,6 +85,8 @@ FMAPR.postMessage(response);
 
 FMAPR.getProjectSettings = function() 
 {
+    console.log( 'getProjectSettings' );
+
     YES3.requestService({'request':'get_project_settings'}, FMAPR.getProjectSettingsCallback, true);
 }
 
@@ -162,7 +167,7 @@ FMAPR.displayActionIcons = function()
             $('i#yes3-fmapr-save-control').removeClass('yes3-fmapr-dirty');
         }
 
-        if ( FMAPR.specification_settings && FMAPR.specification_settings.export_layout=== "r" ){
+        if ( FMAPR.export_specification && FMAPR.export_specification.export_layout=== "r" ){
 
             $('i.yes3-fmapr-display-when-not-repeating').addClass('yes3-action-disabled');
 
@@ -182,15 +187,30 @@ FMAPR.displayActionIcons = function()
 
     YES3.setActionIconListeners( YES3.container() );
 
-    FMAPR.reportStatus();
+    //FMAPR.reportStatus();
 }
 
-FMAPR.markAsClean = function()
+FMAPR.displayActionInputs = function()
 {
-    if ( FMAPR.dirty ) {
+    if ( FMAPR.dirty ){
+        $('input.yes3-fmapr-display-when-clean').hide();
+        $('input.yes3-fmapr-display-when-dirty').show();
+    }
+    else {
+        $('input.yes3-fmapr-display-when-clean').show();
+        $('input.yes3-fmapr-display-when-dirty').hide();
+    }
+}
+
+FMAPR.markAsClean = function( forceRedisplay )
+{
+    forceRedisplay = forceRedisplay | false;
+    
+    if ( FMAPR.dirty || forceRedisplay ) {
 
         FMAPR.dirty = false;
         FMAPR.displayActionIcons();
+        FMAPR.displayActionInputs();
     }
 }
 
@@ -203,10 +223,31 @@ FMAPR.markAsDirty = function()
     if ( !FMAPR.dirty ) {
         FMAPR.dirty = true;
         FMAPR.displayActionIcons();
+        FMAPR.displayActionInputs();
         FMAPR.postMessage("Be sure to save your changes.", true);
     }
 
-    FMAPR.reportStatus();
+    //FMAPR.reportStatus();
+}
+
+FMAPR.markAsBad = function( element )
+{
+    element.closest('tr').find('td:not(.yes3-gutter-right-center), input, select, span, label, i').addClass('yes3-error');
+}
+
+FMAPR.markAsGood = function( element )
+{
+    element.closest('tr').find('td, input, select, span, label, i').removeClass('yes3-error');
+}
+
+FMAPR.markAllGood = function()
+{
+    $(".yes3-error").removeClass('yes3-error');
+}
+
+FMAPR.someBad = function()
+{
+    return $(".yes3-error").length;
 }
 
 FMAPR.pointAt = function( theRow )
@@ -218,6 +259,11 @@ FMAPR.pointAt = function( theRow )
 
     let py = theRow.outerHeight() + y - 2;
 
+}
+
+FMAPR.getParentTable = function( that )
+{
+    return that.closest("table");
 }
 
 $( function () {

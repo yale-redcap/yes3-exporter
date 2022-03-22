@@ -1,0 +1,145 @@
+
+/* === FIELD INSERTION === */
+
+div#yes3-fmapr-fieldinsertion-panel select {
+    width: 100% !important;
+    max-width: 400px;
+    min-width: 150px;
+}
+
+div#yes3-fmapr-fieldinsertion-panel {
+    width: 90% !important;
+    max-width: 600px !important; 
+}
+
+td.yes3-fmapr-fieldinsertion-td-left {
+    width: 30%;
+}
+
+td.yes3-fmapr-fieldinsertion-td-right {
+    width: 70%;
+}
+
+.yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-element-color);
+    font-style: italic !important;
+}
+
+.yes3-fmapr-redcap-element:hover {
+    cursor: pointer;
+    color: var(--yes3-alert-color);
+}
+
+ .yes3-fmapr-row-selected {
+     background-color: rgb(9, 63, 73, 0.25);
+ }
+
+ a.yes3-fmapr-value-picker-toggler, a.yes3-fmapr-lov-toggler {
+    opacity: 50% !important;
+ }
+ 
+ a.yes3-fmapr-value-picker-toggler {
+    display:none;
+ }
+
+tr.yes3-row-selected span.yes3-fmapr-redcap-element::before {
+    /*content: "\25B6"; arrow */
+    content: "\2714"; /* checkmark */
+    font-size: 1.5rem;
+    font-style: normal !important;
+    margin-right: 10px;
+}
+
+tr.yes3-lov {
+    display: none;
+}
+
+tr.yes3-fmapr-lov {
+    display: none;
+}
+ 
+div.yes3-fmapr td.yes3-fmapr-lov {
+    color: var(--yes3-fmapr-lov-color);
+    font-weight: 400 !important;
+    font-style: italic;
+}
+
+div.yes3-fmapr td.yes3-fmapr-lov a {
+    color: var(--yes3-fmapr-lov-color);
+    text-decoration: none;
+}
+
+
+table.yes3-fmapr td.yes3-site-basis, table.yes3-fmapr th.yes3-site-basis {
+    text-align: center;
+}
+
+table#yes3-fmapr-export-items-table {
+    display: none;
+}
+ 
+ 
+input[type=text].yes3-fmapr-input-lov {
+    margin-left: 10%;
+    width: 90% !important;
+}
+ 
+div.yes3-fmapr-value-picker-wrapper {
+    margin-left: 10%;
+    width: 90% !important;
+    display: none;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-form-color) !important;
+    font-weight: 600;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field .yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-field-color) !important;
+    font-weight: 600;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
+    color: var(--yes3-fmapr-specmap-color) !important;
+    font-weight: 600;
+}
+
+table[name=yes3-fmapr-settings] {
+
+    display: none;
+}
+
+table[name=yes3-fmapr-settings] td {
+
+    height: 3.2rem;
+}
+
+div#yes3-fmapr-uspec-editor textarea {
+
+    width: 100%;
+    height: 500px;
+    resize: vertical;
+    background-color: var(--yes3-input-background-color);
+    padding: 1rem;
+    color: var(--yes3-input-color);
+}
+
+div#yes3-fmapr-uspec-editor {
+    width: 50%;
+    min-width: 440px;
+}
+
+.yes3-fmapr-export-uspec-json-length {
+    margin-left: var(--yes3-margin);
+    color: var(--yes3-nonessential-information-color);
+}
+
+/* remove the bootstrap padding on the settings form */
+
+div#yes3-fmapr-settings div.col-md-6,
+div#yes3-fmapr-footer   div.col-md-6 {
+    padding-left: 0 !important;
+}
+ 
+ 
