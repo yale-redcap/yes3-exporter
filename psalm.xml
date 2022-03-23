@@ -32,7 +32,7 @@
             <errorLevel type="suppress">
                 <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getUrl" />
                 <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getModulePath" />
-                <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getModuleDirectory" />
+                <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getModuleDirectoryName" />
             </errorLevel>
         </UndefinedMethod>
 
