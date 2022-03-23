@@ -25,9 +25,13 @@
         <UndefinedFunction>
             <errorLevel type="suppress">
                 <referencedFunction name="Yale\Yes3FieldMapper\db_real_escape_string" />
-                <referencedFunction name="Yale\Yes3FieldMapper\Yes3FieldMapper::getUrl" />
             </errorLevel>
         </UndefinedFunction>
+        
+        <UndefinedMethod>
+            <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getUrl" />
+            <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper->getUrl" />
+        </UndefinedMethod>
 
         <UndefinedClass>
             <errorLevel type="suppress">
