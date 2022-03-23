@@ -30,7 +30,6 @@
         
         <UndefinedMethod>
             <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getUrl" />
-            <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper->getUrl" />
         </UndefinedMethod>
 
         <UndefinedClass>
