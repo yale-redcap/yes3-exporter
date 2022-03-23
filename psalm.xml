@@ -29,7 +29,9 @@
         </UndefinedFunction>
         
         <UndefinedMethod>
-            <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getUrl" />
+            <errorLevel type="suppress">
+                <referencedMethod name="Yale\Yes3FieldMapper\Yes3FieldMapper::getUrl" />
+            </errorLevel>
         </UndefinedMethod>
 
         <UndefinedClass>
