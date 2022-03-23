@@ -515,7 +515,7 @@ function getFieldMapRecord($export_uuid)
  * 
  * @return mixed
  */
-function sanitizeUploadSpec( $uSpec ): mixed
+function sanitizeUploadSpec( $uSpec )
 {
     global $module;
     

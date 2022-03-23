@@ -56,4 +56,8 @@
         </ignoreFiles>
     </projectFiles>
 
+    <extrafiles>
+        <directory name="var/www/redcap.internal/redcap_*/ExternalModules/classes" />
+    </extrafiles>
+
 </psalm>

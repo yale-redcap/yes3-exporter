@@ -12,7 +12,7 @@ defined('APP_PATH_WEBROOT_FULL') or define('APP_PATH_WEBROOT_FULL', '');
 
 use Yale\Yes3\Yes3;
 
-$module = new \Yale\Yes3FieldMapper\Yes3FieldMapper();
+$module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 
 $cssUrl = $module->getUrl("css/github-markdown-v2.css");
 
