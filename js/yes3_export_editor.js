@@ -9,6 +9,35 @@
  * 
  * Be sure to use the full YES3.Functions namespace
  */
+YES3.Functions.newExportSpecification = function() 
+{
+    YES3.YesNo("Would you like to add a new Export Specification?", FMAPR.newExportSpecificationExecute );
+}
+
+FMAPR.newExportSpecificationExecute = function()
+{
+    let new_export_uuid = YES3.uuidv4();
+    
+    FMAPR.reloadParms = {
+        "export_uuid": new_export_uuid
+    }
+
+    /**
+     * Note that the same callback function is shared by 
+     * saveExportSpecification() and newExportSpecification().
+     * 
+     * This callback will load the specification identified in FMAPR.reloadParms,
+     * and perform the required UI prep.
+     */
+    YES3.requestService( 
+        {
+            "request": "addExportSpecification",
+            "export_uuid": new_export_uuid
+        }, 
+        FMAPR.saveExportSpecificationCallback, 
+        false 
+    );
+}
 
 YES3.Functions.uSpecEditor_openForm = function()
 {
@@ -2314,8 +2343,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
 
  FMAPR.REDCapFieldOnChange = function( fld )
  {
-    batchMode = batchMode || false;
-
+ 
     let yes3_fmapr_data_element_name = fld.data('yes3_fmapr_data_element_name');
 
     let field_name = fld.val();
@@ -2487,11 +2515,6 @@ FMAPR.loadSpecifications = function( get_removed )
     }, FMAPR.loadSpecificationsCallback, true );
 }
 
-FMAPR.getExportUUIDSelect = function()
-{
-    return $('select#export_uuid');
-}
-
 FMAPR.loadSpecificationsCallback = function( response )
 {
     console.log('loadSpecificationsCallback', response, typeof response);
@@ -2516,11 +2539,38 @@ FMAPR.loadSpecificationsCallback = function( response )
 
     select.empty().append(html);
 
+    FMAPR.displayInitializationElements();
+
     if ( FMAPR.reloadParms.export_uuid.length ){
 
         select.val(FMAPR.reloadParms.export_uuid).trigger("change");
 
         FMAPR.reloadParms.export_uuid = "";
+    }
+}
+
+FMAPR.getExportUUIDSelect = function()
+{
+    return $('select#export_uuid');
+}
+
+/**
+ * displays or hides elements that depend on whether there are exports defined
+ */
+FMAPR.displayInitializationElements = function()
+{
+    let select = FMAPR.getExportUUIDSelect();
+
+    // there is always at least one option element
+    if ( select.find('option').length > 1 ){
+
+        $(".yes3-fmapr-when-initialized").show();
+        $(".yes3-fmapr-when-uninitialized").hide(); 
+    }
+    else {
+
+        $(".yes3-fmapr-when-initialized").hide();
+        $(".yes3-fmapr-when-uninitialized").show(); 
     }
 }
 
@@ -2624,6 +2674,11 @@ FMAPR.emptyExportItemsTable = function()
 FMAPR.buildExportItemsTableUspecRows = function( specification )
 {
     if ( typeof specification.export_uspec_json !== "string" ){
+
+        return true;
+    }
+
+    if ( !specification.export_uspec_json.length ){
 
         return true;
     }
@@ -3234,7 +3289,13 @@ $( function () {
 
     console.log("onload");
 
-    FMAPR.getProjectSettings();
+    /**
+     * located in common.js:
+     * (1) Populates FMAPR.project (project, form and field metadata)
+     * (2) runs YES3.displayActionIcons
+     * (3) Triggers 'yes3-fmapr.settings' event
+     */
+    FMAPR.getProjectSettings(); 
 })
  
 

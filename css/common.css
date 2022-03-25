@@ -279,6 +279,8 @@ div.row.yes3-fmapr-controls {
 
     font-size: 1rem;
 
+    font-family: var(--yes3-button-font-family);
+
     color: var(--yes3-fmapr-control-color);
     background-color: var(--yes3-fmapr-control-background-color);
 
@@ -342,11 +344,12 @@ div#yes3-fmapr-status {
     display: none;
 }
 
-.yes3-fmapr-hidden {
+/* these elements are assumed hidden when the page is loaded */
+.yes3-fmapr-hidden,
+.yes3-fmapr-when-initialized,
+.yes3-fmapr-when-uninitialized,
+.yes3-fmapr-longitudinal-only,
+.yes3-fmapr-beta
+{
     display: none;
 }
-
-.yes3-fmapr-beta {
-    display: none;
-}
-

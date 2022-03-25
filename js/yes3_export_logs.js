@@ -217,6 +217,54 @@ FMAPR.resizeExportLogTable = function()
     fmaprTable.show();
 }
 
+FMAPR.getExportUUID = function()
+{
+    return $('select#export_uuid').val();
+}
+
+FMAPR.getExportUUIDSelect = function()
+{
+    return $('select#export_uuid');
+}
+
+FMAPR.loadSpecifications = function( get_removed )
+{
+    console.log('loadSpecifications');
+
+    get_removed = get_removed || 0;
+    
+    YES3.requestService( { 
+        "request": "getExportSpecificationList", 
+        "get_removed": get_removed
+    }, FMAPR.loadSpecificationsCallback, true );
+}
+
+FMAPR.loadSpecificationsCallback = function( response )
+{
+    console.log('loadSpecificationsCallback', response, typeof response);
+
+    let select = FMAPR.getExportUUIDSelect();
+
+    let html = "";
+
+    if ( typeof response === 'object' ){
+
+        html = "<option disabled selected value=''>select an export</option>";
+
+        for (let i=0; i<response.length; i++){
+
+            html += `<option value='${response[i].export_uuid}'>${response[i].export_name}</option>`;
+        }
+    }
+    else {
+
+        html = "<option disabled selected value=''>no exports are defined</option>";
+    }
+
+    select.empty().append(html);
+}
+
+
 $( function(){
 
     $(window).resize( function(){
@@ -228,5 +276,5 @@ $( function(){
 
     YES3.displayActionIcons();
 
-    FMAPR.getExportSettings();
+    FMAPR.loadSpecifications();
 })

@@ -150,6 +150,7 @@ FMAPR.populateExportSpecificationSelect = function()
 FMAPR.displayActionIcons = function()
 {
     if ( !FMAPR.mapperLoaded ){
+
         $('i.yes3-fmapr-loaded').addClass('yes3-action-disabled');
     }
     else {

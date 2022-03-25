@@ -334,14 +334,24 @@ $module->getCodeFor("yes3_export_editor", true);
                 <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Export Editor</span>
             </div>
             
-            <input type="button" value="new export" class="yes3-fmapr-display-when-clean" />
+            <!--input type="button" value="new export" class="yes3-fmapr-display-when-clean" onclick="YES3.Functions.newExportSpecification()" /-->
 
         </div>
 
         <div class="col-md-4  yes3-flex-vcenter-hcenter">
 
-            <select id="export_uuid" onchange="FMAPR.loadSpecification()">
+            <select id="export_uuid" class="yes3-fmapr-when-initialized yes3-flex-vcenter-hcenter" onchange="FMAPR.loadSpecification()">
             </select>
+
+            <div class="yes3-fmapr-when-uninitialized yes3-single-spaced-vcenter">
+
+                Click&nbsp;
+
+                <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-inline yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-fmapr-display-when-clean yes3-fmapr-when-uninitialized" action="newExportSpecification" title="Add a new export specification."></i>
+
+                &nbsp;to add a new Export Specification.
+
+            </div>
 
         </div>
 
@@ -349,6 +359,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-not-repeating" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
             <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-bulk-insert" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
+            <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-clean" action="newExportSpecification" title="Add a new export specification."></i>
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveExportSpecification" title="Save the export specification."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
             <!--i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i-->

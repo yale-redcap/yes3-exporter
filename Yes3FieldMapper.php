@@ -336,7 +336,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         if ( $h===false ){
 
-            exit("Fail: could not create export file {$path}");
+            throw new Exception("Fail: could not create export file {$path}");
         }
 
         $R = 0;
@@ -387,7 +387,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         if ( $h===false ){
 
-            exit("Fail: could not create export file {$path}");
+            throw new Exception("Fail: could not create export file {$path}");
         }
 
         /**
@@ -641,7 +641,7 @@ WHERE d.`project_id`=?
     {
         $params = [
             'username' => $this->username,
-            'log_entry_type' => "yes3-export",
+            'log_entry_type' => EMLOG_LOG_ENTRY_TYPE,
             'destination' => $destination,
             'export_uuid' => $export_uuid,
             'export_name' => $export_name,
@@ -669,25 +669,13 @@ SELECT log_id, timestamp, username, message
     , log_entry_type, destination, export_uuid, export_name
     , filename_data, filename_data_dictionary, filename_zip 
     , exported_bytes, exported_items, exported_rows, exported_columns
-WHERE project_id=? AND export_uuid=? AND log_entry_type='yes3-export'
+WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 ORDER BY timestamp
         ";
 
-        //print nl2br( $this->getQueryLogsSql($pSql) );
-
-        /*
-SELECT log_id, timestamp, user, message,
-  log_entry_type, destination, export_uuid, export_name, 
-  filename_data, filename_data_dictionary, filename_zip, 
-  bytes, items, rows, columns
-WHERE project_id=? AND export_uuid=? AND log_entry_type='yes3-export'
-ORDER BY timestamp DESC
-
-        */
-
         $logRecords = [];
 
-        $result = $this->queryLogs($pSql, [ $this->project_id, $export_uuid ]);
+        $result = $this->queryLogs($pSql, [ $this->project_id, $export_uuid, EMLOG_LOG_ENTRY_TYPE ]);
 
         while ($logRecord = $result->fetch_assoc()){
 
@@ -1030,7 +1018,7 @@ ORDER BY timestamp DESC
 
         if ( $h===false ){
 
-            exit("Fail: could not open PHP output stream.");
+            throw new Exception("Fail: could not open PHP output stream.");
         }
 
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
@@ -1072,7 +1060,7 @@ ORDER BY timestamp DESC
 
         ob_end_flush();
 
-        exit;
+        //exit;
     }
 
     public function downloadData($export_uuid)
@@ -1085,14 +1073,14 @@ ORDER BY timestamp DESC
 
         if ( !isset( $xFileResponse['export_data_filename'] ) ) {
 
-            exit("Fail: download export file not written");
+            throw new Exception("Fail: download export file not written");
         }
 
         $h = fopen( $xFileResponse['export_data_filename'], "r");
 
         if ( $h === false ) {
 
-            exit("Fail: download export file could not be opened");
+            throw new Exception("Fail: download export file could not be opened");
         }
 
         $filename = $this->exportDataFilename( $ddPackage['export_name'], "download" );
@@ -1134,7 +1122,7 @@ ORDER BY timestamp DESC
 
         ob_end_flush();
 
-        exit;
+        //exit;
     }
 
     public function downloadZip($export_uuid)
@@ -1150,7 +1138,7 @@ ORDER BY timestamp DESC
 
         if ( !isset( $xFileResponse['export_data_filename']) || !isset( $xFileResponse['export_data_dictionary_filename']) ) {
 
-            exit("Fail: download export file(s) not written");
+            throw new Exception("Fail: download export file(s) not written");
         }
 
         $zipFilename = tempnam(sys_get_temp_dir(), "ys3");
@@ -1175,7 +1163,7 @@ ORDER BY timestamp DESC
 
         if ( $h === false ) {
 
-            exit("Fail: download export file could not be opened");
+            throw new Exception("Fail: download export file could not be opened");
         }
 
         $this->logExport(
@@ -1211,7 +1199,7 @@ ORDER BY timestamp DESC
 
         ob_end_flush();
 
-        exit;
+        //exit;
     }
 
     private function getEventName($event_id, $event_settings)

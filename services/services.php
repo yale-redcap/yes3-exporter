@@ -91,6 +91,42 @@ function requestIsValid( $request ):bool
     return function_exists( __NAMESPACE__."\\".$request );
 }
 
+function addExportSpecification()
+{
+    global $module;
+
+    $qParams = [
+        'removed' => "0"
+        , 'export_uuid' => $_POST['export_uuid']
+        , 'export_name' => "new export"
+        , 'export_username' => $module->username
+        , 'export_layout' => ""
+        , 'export_selection' => ""
+        , 'export_criterion_field' => ""
+        , 'export_criterion_event' => ""
+        , 'export_criterion_value' => ""
+        , 'export_target' => ""
+        , 'export_target_folder' => ""
+        , 'export_max_label_length' => ""
+        , 'export_max_text_length' => ""
+        , 'export_inoffensive_text' => ""
+        , 'export_uspec_json' => ""
+        , 'export_items_json' => ""
+    ];
+
+    $log_id = $module->log(
+        EMLOG_MSG_EXPORT_SPECIFICATION,
+        $qParams
+    );
+
+    //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    if ( $log_id ){
+        return "Success: new export parameters saved to EM log record# ".$log_id;
+    }
+
+    return "FAIL: The new export specification could not be created.";
+}
+
 function saveExportSpecification()
 {
     global $module;
@@ -224,7 +260,7 @@ function getExportLogRecordSQL( $log_id=0 )
     }
     else {
  
-        $sql .= " WHERE p2.`value`=? ORDER BY timestamp ASC";
+        $sql .= " WHERE x.project_id=? AND p1.`value`=? AND p2.`value`=? ORDER BY timestamp ASC";
     }
 
     return $sql;
@@ -259,7 +295,7 @@ function downloadExportLog()
 
     $bytes = 0;
 
-    foreach ( Yes3::recordGenerator($sql, [ $export_uuid ]) as $x ){
+    foreach ( Yes3::recordGenerator($sql, [ $module->project_id, EMLOG_LOG_ENTRY_TYPE, $export_uuid ]) as $x ){
 
         if ( !$bytes ) {
 
@@ -315,14 +351,14 @@ function getExportLogData()
     $subSql = "
 SELECT x.*, ui.username, p2.`value` AS `export_uuid`, p3.`value` AS `destination`
 FROM redcap_external_modules_log x
-  INNER JOIN redcap_external_modules_log_parameters p1 ON p1.log_id=x.log_id AND p1.name='log_entry_type' AND p1.value='yes3-export'
-  INNER JOIN redcap_external_modules_log_parameters p2 ON p2.log_id=x.log_id AND p2.name='export_uuid' AND p2.value=?
+  INNER JOIN redcap_external_modules_log_parameters p1 ON p1.log_id=x.log_id AND p1.name='log_entry_type'
+  INNER JOIN redcap_external_modules_log_parameters p2 ON p2.log_id=x.log_id AND p2.name='export_uuid'
   INNER JOIN redcap_external_modules_log_parameters p3 ON p3.log_id=x.log_id AND p3.name='destination'
   INNER JOIN redcap_user_information ui ON ui.ui_id=x.ui_id
-WHERE x.project_id=?    
+WHERE x.project_id=? AND p1.`value`=? AND p2.`value`=?
     ";
 
-    $params = [ $export_uuid, $module->project_id ];
+    $params = [ $module->project_id, EMLOG_LOG_ENTRY_TYPE, $export_uuid ];
 
     if ( $username ){
 

@@ -429,7 +429,7 @@ div#yes3-red-pointer {
  
  .yes3-flex-container {
     width: 100%;
-    display: flex;
+    display: flex !important;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -713,6 +713,11 @@ div#yes3-red-pointer {
  .yes3-block {
      height: var(--yes3-block-height);
      line-height: var(--yes3-block-height);
+ }
+
+ .yes3-single-spaced-vcenter {
+     height: 1rem !important;
+     line-height: 1rem !important;
  }
 
  input[type=text].yes3-input-integer {
