@@ -33,7 +33,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-plus yes3-action-icon"></i>
                     </td>
                     <td>
-                        Add a single REDCap field to the specification.
+                        Add a REDCap field to the specification.
                     </td>
                 </tr>
                 
@@ -42,7 +42,16 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-plus-square yes3-action-icon"></i>
                     </td>
                     <td>
-                        Add multiple REDCap fields to the specification.
+                        Add a REDCap form (or all forms) to the specification.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-plus-circle yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Add a new specification.
                     </td>
                 </tr>
                 
@@ -78,7 +87,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-download yes3-action-icon"></i>
                     </td>
                     <td>
-                        Download the data dictionary or a csv file based on this specification.
+                        Download or export the data dictionary and/or data based on this specification.
                     </td>
                 </tr>
                 
@@ -87,7 +96,8 @@ $module->getCodeFor("yes3_export_editor", true);
    </div>
 
    <div class='yes3-panel-row'>
-       Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
+       <span class='yes3-information-em'>Need more help?</span> 
+        Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
    </div>
 
    <div class='yes3-panel-row'>
@@ -449,8 +459,8 @@ $module->getCodeFor("yes3_export_editor", true);
 
                         <td class="yes3-fmapr-export-specification">Selection criterion: value</td>
                         
-                        <td class="yes3-fmapr-export-specification">
-                            <input type="text" name="export_criterion_value" data-setting="export_criterion_value" placeholder="value">
+                        <td class="yes3-fmapr-export-specification yes3-input-integer">
+                            <input type="text" name="export_criterion_value" data-setting="export_criterion_value" class="yes3-input-integer" placeholder="value">
                         </td>
                     </tr>
 

@@ -1,0 +1,198 @@
+<?php
+
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+$module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
+use Yale\Yes3\Yes3;
+
+//$module->updateEventPrefixes(); // creates *default* event prefixes
+
+$HtmlPage = new HtmlPage();
+$HtmlPage->ProjectHeader();
+
+/**
+ * getCodeFor will: 
+ *   (1) output html tags and code for js and css libraries named [param1]
+ *   (2) if [param2] is true, output /html/yes3.html (yes3 dialog panels)
+ *   (3) output js code to build the global yes3ModuleProperties object
+ */
+
+$module->getCodeFor("yes3_export_prefixes", true);
+
+?>
+
+<div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
+
+    <div class="yes3-panel-header-row">
+        <div class="yes3-panel-row-left" id="yes3-help-panel-title">
+            Here's some help
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: YES3.Help_closePanel()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+    </div>
+
+    <div class="yes3-panel-row" style="margin-top: 20px !important">
+        <table>
+            <tbody>               
+                <tr>
+                    <td>
+                        <i class="far fa-save yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Save the export event prefixes.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-undo yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Restore all the settings on this page to their stored values (undo).
+                    </td>
+                </tr>                
+            </tbody>
+        </table>
+    </div>
+
+    <div class='yes3-panel-row yes3-information'>
+
+        <p>
+            <span class='yes3-information-em'>Export Event Prefix:</span>
+            The YES3 Exporter supports a 'horizontal layout' for longitudinal projects,
+            in which fields for forms that are placed on multiple events are all 
+            included on the same row.
+        </p><p> 
+            To make this possible, the field names are altered by prefixing them
+            with the event abbreviations displayed on this page. The export field name
+            will have the form 
+        </p><p>
+            <pre>[event prefix]_[REDCap field name]</pre>
+        </p><p>
+            These prefixes are initialized by an algorithm that seeks to find the smallest run 
+            of (non whitespace) characters from the event labels that will uniquely
+            distinguish the events.
+            You should inspect and edit the default prefixes, for both brevity and clarity.
+        </p>
+        <p>
+            <span class='yes3-information-em'>Field names:</span>
+            As you design a project, you should be aware of any field name length limits 
+            imposed by the statistical package(s) that will process the exported data.
+        </p><p>
+            For example, the variable name limit for SAS and STATA is 32 characters, 
+            for MATLAB it's 63 characters and for R it's 64 characters.
+            You should be okay, even considering the event prefixes, if you adhere to the length
+            warnings broadcast by the REDCap Field Editor.
+        </p><p>
+            Currently the YES3 Exporter will not truncate or otherwise condition the REDCap field name,
+            although we will consider this feature for future releases.
+        </p>
+
+        <p>
+        <span class='yes3-information-em'>Need more help?</span> 
+        Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.            
+        </p>
+
+    </div>
+
+    <div class='yes3-panel-row'>
+        You may leave this help panel open as you use the Yes3 Exporter. 
+        Grab it on the top row to drag it out of the way.
+    </div>
+   
+</div>
+
+<div class="container" id="yes3-container">
+
+    <div class="row yes3-fmapr-controls">
+
+        <div class="col-md-4 yes3-flex-vcenter-hleft">
+
+            <div>
+                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Export Settings</span>
+            </div>
+
+        </div>
+
+        <div class="col-md-4 yes3-flex-vcenter-hcenter">
+
+            <div id="yes3-message"></div>
+
+        </div>
+
+        <div class="col-md-4  yes3-flex-vcenter-hright">
+
+            <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel" id="yes3-fmapr-save-control" action="Exportspecifications_saveSettings" title="Save all settings on this page."></i>
+            <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-dirty" action="Exportspecifications_undoSettings" title="Restore all settings on this page to their stored values (undo)."></i>
+            <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
+
+            <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
+                <input type="checkbox" id="yes3-theme-checkbox" />
+                <div class="yes3-theme-slider round yes3-override"></div>
+            </label>
+
+        </div>
+
+    </div>
+
+    <!-- **** FIELD MAPPER SETUP **** -->
+
+    <div class="row yes3-fmapr">
+
+        <div class="col-md-2">&nbsp;</div>
+
+        <div class="col-md-8 yes3-fmapr-longitudinal-only yes3-fmapr-setup-settings">
+
+            <div class="yes3-information">
+                <h1>Event prefixes</h1>
+                <p>
+                For horizontal export layouts the YES3 Exporter attaches event prefixes to column names.
+                Keep the prefixes as short as you can manage. 
+                Click <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_openPanel" title="get some help"></i> for more information on event prefixes
+                and REDCap field name considerations.
+                </p>
+            </div>
+
+            <table id="yes3-fmapr-setup-events" class="yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-dashboard">
+
+                <thead>
+
+                    <tr class='yes3-fmapr-event-prefixes-header'>
+                        <th>Event</th>
+                        <th>Prefix</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="col-md-2">&nbsp;</div>
+
+    </div>
+
+</div> <!-- container -->
+
+
+<script>
+
+    (function(){
+
+
+
+    })
+
+</script>
+
+
+
+

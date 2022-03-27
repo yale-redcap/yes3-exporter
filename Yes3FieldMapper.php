@@ -78,7 +78,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                         if ( isset( $valuesetItem['value']) && isset( $valuesetItem['label']) ) {
                             $v[] = [
                                 'value' => Yes3::alphaNumericString( $valuesetItem['value'] ),
-                                'label' => Yes3::escapeHtml( $valuesetItem['label'] )
+                                'label' => Yes3::inoffensiveText( $valuesetItem['label'] )
                             ];
                         }
                     }
@@ -130,7 +130,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          */
         $export_specification = $this->getExportSpecification($export_uuid);
 
-        Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
+        //Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
 
         /**
          * export object:
@@ -261,7 +261,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $dd[] = [
                 'var_name' => $export_item->var_name,
-                'var_label' => $export_item->var_label,
+                'var_label' => Yes3::ellipsis( $export_item->var_label, $export->export_max_label_length ),
                 'var_type' => $export_item->var_type,
                 'valueset' => ( $export_item->valueset ) ? json_encode($export_item->valueset) : "",
                 'origin' => $export_item->origin,
@@ -276,6 +276,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 'max_value' => $export_item->max_value,
                 'sum_of_values' => $export_item->sum_of_values,
                 'sum_of_squared_values' => $export_item->sum_of_squared_values, 
+                'mean' => $export_item->mean, 
+                'standard_deviation' => $export_item->standard_deviation, 
+                'formatted_min_value' => $export_item->formatted_min_value,
+                'formatted_max_value' => $export_item->formatted_max_value,
+                'formatted_mean' => $export_item->formatted_mean,
                 'frequency_table' => $export_item->frequency_table   
             ];
         }
@@ -289,7 +294,16 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return [
             'export_uuid' => $export_uuid,
             'export_name' => $export->export_name,
+            'export_layout' => $export->export_layout,
+            'export_selection' => $export->export_selection,
+            'export_criterion_field' => $export->export_criterion_field,
+            'export_criterion_event' => $export->export_criterion_event,
+            'export_criterion_value' => $export->export_criterion_value,
+            'export_target' => $export->export_target,
             'export_target_folder' => $export->export_target_folder,
+            'export_max_label_length' => $export->export_max_label_length,
+            'export_max_text_length' => $export->export_max_text_length,
+            'export_inoffensive_text' => $export->export_inoffensive_text,
             'export_data_dictionary' => $dd
         ];
 
@@ -360,11 +374,21 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         ];
     }
 
-    private function writeExportFiles( $export_uuid, $export_name, $export_target_folder, &$dd, &$bytesWritten=0 )
+    private function writeExportFiles( &$ddPackage, &$bytesWritten=0 )
     {
 
         //exit( print_r($eventSpecs, true) )
-        
+
+        // for code clarity
+        $export_uuid                = $ddPackage['export_uuid'];
+        $export_name                = $ddPackage['export_name'];
+        $export_target_folder       = $ddPackage['export_target_folder'];
+        $export_layout              = $ddPackage['export_layout'];
+        $export_max_text_length     = (int)$ddPackage['export_max_text_length'];
+        $export_inoffensive_text    = (int)$ddPackage['export_inoffensive_text'];
+
+        $dd = $ddPackage['export_data_dictionary'];
+
         if ( !$export_target_folder ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
@@ -402,7 +426,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $eventName[$eventSpec['event_id']] = $eventSpec['event_name'];
         }
 
-        $spec = $this->getExportSpecification( $export_uuid );
+        //$spec = $this->getExportSpecification( $export_uuid );
 
         /**
          * DD pre-processing
@@ -469,11 +493,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $sqlEvent .= ")";
         }
 
-        if ( $spec['export_layout']==="r" ){
+        if ( $ddPackage['export_layout']==="r" ){
 
             $sqlOrderBy = " ORDER BY d.`event_id`, d.`instance`";
         }
-        else if ( $spec['export_layout']==="v" ){
+        else if ( $ddPackage['export_layout']==="v" ){
 
             $sqlOrderBy = "ORDER BY d.`event_id`";
         }
@@ -494,14 +518,14 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $sqlParams = [$this->project_id];
 
-        if ( $spec['export_selection']=='2' && $spec['export_criterion_field'] && $spec['export_criterion_event'] && $spec['export_criterion_value'] ) {
+        if ( $ddPackage['export_selection']=='2' && $ddPackage['export_criterion_field'] && $ddPackage['export_criterion_event'] && $ddPackage['export_criterion_value'] ) {
 
             $critXOperators = [ "=>", "<=", "=", "<", ">"];
 
-            $sqlParams[] = $spec['export_criterion_event'];
-            $sqlParams[] = $spec['export_criterion_field'];
+            $sqlParams[] = $ddPackage['export_criterion_event'];
+            $sqlParams[] = $ddPackage['export_criterion_field'];
 
-            $critXStr = trim( $spec['export_criterion_value'] );
+            $critXStr = trim( $ddPackage['export_criterion_value'] );
 
             $critXOp = "="; // default operator for the SELECT query
             $critXVal = $critXStr; // the value applied to the operator
@@ -583,7 +607,21 @@ WHERE d.`project_id`=?
 
             $sqlSelectParams = array_merge([$this->project_id, $record], $sqlEventParams);
 
-            $bytesWritten += $this->writeExportDataFileRecord( $sqlSelect, $sqlSelectParams, $eventName, $dd, $dd_index, $dd_specmap_index, $h, $spec['export_layout'], $K, $R, $C);
+            $bytesWritten += $this->writeExportDataFileRecord( 
+                $sqlSelect, 
+                $sqlSelectParams, 
+                $eventName, 
+                $dd, 
+                $dd_index, 
+                $dd_specmap_index, 
+                $h, 
+                $export_layout, 
+                $export_max_text_length, 
+                $export_inoffensive_text, 
+                $K, 
+                $R, 
+                $C
+            );
         }
 
         /**
@@ -607,6 +645,8 @@ WHERE d.`project_id`=?
 */        
         
         fclose($h);
+
+        $ddPackage['export_data_dictionary'] = $dd;
 
         $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd);
 
@@ -662,7 +702,7 @@ WHERE d.`project_id`=?
         return $log_id;
     }
 
-    public function getExportLogs($export_uuid)
+    public function getExportLogs($export_uuid, $descending = false)
     {
         $pSql = "
 SELECT log_id, timestamp, username, message
@@ -670,8 +710,16 @@ SELECT log_id, timestamp, username, message
     , filename_data, filename_data_dictionary, filename_zip 
     , exported_bytes, exported_items, exported_rows, exported_columns
 WHERE project_id=? AND export_uuid=? AND log_entry_type=?
-ORDER BY timestamp
         ";
+
+        if ( $descending ){
+
+            $pSql .= " ORDER BY timestamp DESC";
+        }
+        else {
+
+            $pSql .= " ORDER BY timestamp ASC";
+        }
 
         $logRecords = [];
 
@@ -698,6 +746,11 @@ ORDER BY timestamp
 
                 $dd[$i]['min_value'] = "";
                 $dd[$i]['max_value'] = "";
+                $dd[$i]['mean'] = "";
+                $dd[$i]['standard_deviation'] = "";
+                $dd[$i]['formatted_min_value'] = "";
+                $dd[$i]['formatted_max_value'] = "";
+                $dd[$i]['formatted_mean'] = "";
                 $dd[$i]['sum_of_values'] = "";
                 $dd[$i]['sum_of_squared_values'] = "";
 
@@ -710,6 +763,37 @@ ORDER BY timestamp
                 if ( $noCalculations ){
 
                     $dd[$i]['non_missing_count'] = "";
+                }
+            }
+            elseif ( $dd[$i]['non_missing_count'] > 0 ) {
+
+                if ( $dd[$i]['var_type']==="DATE" ){
+
+                    $dd[$i]['formatted_min_value'] = strftime("%F", $dd[$i]['min_value']);
+                    $dd[$i]['formatted_max_value'] = strftime("%F", $dd[$i]['max_value']);
+                    $dd[$i]['formatted_mean']      = strftime("%F", $dd[$i]['mean']);
+                }
+
+                elseif ( $dd[$i]['var_type']==="DATETIME" ){
+
+                    $dd[$i]['formatted_min_value'] = strftime("%F %T", $dd[$i]['min_value']);
+                    $dd[$i]['formatted_max_value'] = strftime("%F %T", $dd[$i]['max_value']);
+                    $dd[$i]['formatted_mean']      = strftime("%F %T", $dd[$i]['mean']);
+                }
+
+                elseif ( $dd[$i]['var_type']==="TIME" ){
+
+                    $dd[$i]['formatted_min_value'] = strftime("%T", $dd[$i]['min_value']);
+                    $dd[$i]['formatted_max_value'] = strftime("%T", $dd[$i]['max_value']);
+                    $dd[$i]['formatted_mean']      = strftime("%T", $dd[$i]['mean']);
+                }
+
+                $dd[$i]['mean'] = (float) $dd[$i]['sum_of_values'] / $dd[$i]['non_missing_count'];
+
+                if ( $dd[$i]['non_missing_count'] > 1 ) {
+
+                    $dd[$i]['standard_deviation'] 
+                        = (float) sqrt(($dd[$i]['sum_of_squared_values'] - ($dd[$i]['sum_of_values']*$dd[$i]['sum_of_values']/$dd[$i]['non_missing_count']))/($dd[$i]['non_missing_count'] - 1));
                 }
             }
 
@@ -727,8 +811,21 @@ ORDER BY timestamp
         }
     }
     
-    private function writeExportDataFileRecord( $sqlSelect, $sqlSelectParams, $eventName, &$dd, $dd_index, $dd_specmap_index, $h, $export_layout, &$K, &$R, &$C)
-    {
+    private function writeExportDataFileRecord( 
+        $sqlSelect, 
+        $sqlSelectParams, 
+        $eventName, 
+        &$dd, 
+        $dd_index, 
+        $dd_specmap_index, 
+        $h, 
+        $export_layout, 
+        $export_max_text_length, 
+        $export_inoffensive_text, 
+        &$K, 
+        &$R, 
+        &$C
+    ){
         $event_id = "?";
         $instance = "?";
         $field_index = -1;
@@ -814,8 +911,10 @@ ORDER BY timestamp
             /**
              * add the value to the record
              */
+
             $event_id = $x['event_id'];
-            $REDCapValue = $x['value'];
+
+            $REDCapValue = $this->conditionREDCapValue( $x['value'], $export_max_text_length, $export_inoffensive_text );
 
             $instance = $x_instance;
 
@@ -825,7 +924,22 @@ ORDER BY timestamp
 
             if ( $field_index > -1 ){
 
-                $y[ $dd[$field_index]['var_name'] ] = $REDCapValue;
+                /**
+                 * goddam multiselects
+                 */
+                if ( $dd[$field_index]['var_type'] === "CHECKBOX" ){
+
+                    if ( strlen($y[ $dd[ $field_index]['var_name'] ]) ) {
+
+                        $y[ $dd[ $field_index]['var_name'] ] .= ",";
+                    }
+
+                    $y[ $dd[ $field_index]['var_name'] ] .= $REDCapValue;
+                }
+                else {
+
+                    $y[ $dd[ $field_index]['var_name'] ] = $REDCapValue;
+                }
 
                 $K++;
 
@@ -889,6 +1003,26 @@ ORDER BY timestamp
         return $bytesWritten;
     }
 
+    private function conditionREDCapValue( $x, $export_max_text_length, $export_inoffensive_text )
+    {
+        if ( !strlen($x) ){
+
+            return "";
+        }
+
+        if ( $export_inoffensive_text ){
+
+            $x = Yes3::inoffensiveText( $x );
+        }
+
+        if ( $export_max_text_length > 0 && strlen($x) > $export_max_text_length ){
+
+            $x = substr( $x, 0, $export_max_text_length );
+        }
+
+        return $x;
+    }
+
     private function doValidationCalculations( &$d, $value )
     {
         $len = strlen($value);
@@ -914,13 +1048,16 @@ ORDER BY timestamp
 
         if ( $var_type === "NOMINAL" ){
 
-            if ( !isset($d['frequency_table'][$value]) ){
+            // force an associative array
+            $vIndex = "{$value}";
 
-                $d['frequency_table'][$value] = 1;
+            if ( !isset($d['frequency_table'][$vIndex]) ){
+
+                $d['frequency_table'][$vIndex] = 1;
             }
             else {
 
-                $d['frequency_table'][$value]++;
+                $d['frequency_table'][$vIndex]++;
             }
         }
         else {
@@ -999,7 +1136,7 @@ ORDER BY timestamp
 
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
-        $results = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], $ddPackage['export_target_folder'], $ddPackage['export_data_dictionary']);
+        $results = $this->writeExportFiles($ddPackage);
 
         $response = $results['export_data_dictionary_message']
                     . "\n\n" 
@@ -1069,7 +1206,7 @@ ORDER BY timestamp
 
         $bytesWritten = 0;
 
-        $xFileResponse = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary'], $bytesWritten);     
+        $xFileResponse = $this->writeExportFiles($ddPackage, $bytesWritten);     
 
         if ( !isset( $xFileResponse['export_data_filename'] ) ) {
 
@@ -1129,7 +1266,7 @@ ORDER BY timestamp
     {
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
-        $xFileResponse = $this->writeExportFiles($ddPackage['export_uuid'], $ddPackage['export_name'], "", $ddPackage['export_data_dictionary']);
+        $xFileResponse = $this->writeExportFiles($ddPackage);
         /*
         print nl2br(print_r($xFileResponse, true));
 
@@ -1312,7 +1449,7 @@ ORDER BY timestamp
      * @return array
      * @throws Exception
      */
-    public function getExportSpecification( $export_uuid ): array
+    public function getExportSpecification( $export_uuid, $log_id=0, $history=false ): array
     {        
         $fields = "log_id, message, timestamp
         , removed
@@ -1334,15 +1471,40 @@ ORDER BY timestamp
         ";
 
         //Yes3::logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
-    
-        $pSql = "
-            SELECT {$fields}
-            WHERE project_id=? AND message=? AND export_uuid=?
-            ORDER BY timestamp DESC LIMIT 1
-        ";
-        $params = [$this->project_id, EMLOG_MSG_EXPORT_SPECIFICATION, $export_uuid];
-    
-        return $this->queryLogs($pSql, $params)->fetch_assoc();
+
+        if ( $log_id ){
+
+            $pSql = "SELECT {$fields} WHERE log_id=?";
+            $params = [ $log_id ];
+        }
+        else {
+            $pSql = "
+                SELECT {$fields}
+                WHERE project_id=? AND message=? AND export_uuid=?
+                ORDER BY timestamp DESC
+            ";
+            $params = [$this->project_id, EMLOG_MSG_EXPORT_SPECIFICATION, $export_uuid];
+        }
+
+        if ( $history ){
+
+            //Yes3::logDebugMessage($this->project_id, $this->getQueryLogsSql($pSql), 'getExportSpecification');
+            //Yes3::logDebugMessage($this->project_id, print_r($params, true), 'getExportSpecification');
+
+            $qResult = $this->queryLogs($pSql, $params);
+
+            $specs = [];
+            while ( $spec = $qResult->fetch_assoc() ){
+
+                $specs[] = $spec;
+            }
+
+            return $specs;
+        }
+        else {
+
+            return $this->queryLogs($pSql." LIMIT 1", $params)->fetch_assoc();
+        }
     }
 
     /**
@@ -1395,7 +1557,7 @@ ORDER BY timestamp
                     
                     $specification = json_decode($specification_settings['export_specification_json']);
 
-                    Yes3::logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecifications:object");
+                    //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecifications:object");
 
                     if ( is_object($specification) ){
 
@@ -1555,8 +1717,8 @@ ORDER BY timestamp
 
                     $events[] = [ 
                         'event_id' => (string)$e['event_id'],
-                        'event_label' => Yes3::escapeHtml($e['descrip']),
-                        'descrip' => Yes3::escapeHtml($e['descrip'])
+                        'event_label' => Yes3::inoffensiveText($e['descrip']),
+                        'descrip' => Yes3::inoffensiveText($e['descrip'])
                     ];      
                 }
             }
@@ -1576,11 +1738,11 @@ ORDER BY timestamp
                 $form_fields[] = $field['field_name'];
             }
     
-            $form_name = Yes3::escapeHtml($m['form_name']);
+            $form_name = Yes3::inoffensiveText($m['form_name']);
 
             $form_metadata[] = [
                 'form_name' => $form_name,
-                'form_label' => Yes3::escapeHtml($m['form_menu_description']),
+                'form_label' => Yes3::inoffensiveText($m['form_menu_description']),
                 'form_events' => $events,
                 'form_fields' => $form_fields,
                 'form_repeating' => ( Yes3::isRepeatingInstrument($m['form_name']) ) ? 1 : 0
@@ -1642,17 +1804,17 @@ ORDER BY timestamp
                 foreach ( $vv as $value => $label) {
                     $valueset[] = [
                         'value' => (string)$value,
-                        'label' => Yes3::ellipsis(Yes3::printableEscHtmlString($label), MAX_LABEL_LEN)
+                        'label' => Yes3::inoffensiveText($label, MAX_LABEL_LEN)
                     ];
                 }
             }
 
-            $field_label = Yes3::ellipsis( Yes3::printableEscHtmlString($field['element_label']), MAX_LABEL_LEN );
+            $field_label = Yes3::inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
 
             $field_metadata[] = [
 
                 'field_name'        => $field['field_name'],
-                'form_name'         => Yes3::escapeHtml($field['form_name']),
+                'form_name'         => Yes3::inoffensiveText($field['form_name']),
                 'field_type'        => $field['element_type'],
                 'field_validation'  => $field['element_validation_type'],
                 'field_label'       => $field_label,

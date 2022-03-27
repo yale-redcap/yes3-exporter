@@ -432,15 +432,19 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
         return $s;       
     }
 
-    public static function escapeHtml( string $s )
+    public static function escapeHtml( $s )
     {
-        return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+        if ( !$s ){
+            return "";
+        }
+
+        return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     }
 
     public static function ellipsis( $s, $len=64 )
     {
         $s = trim($s);
-        if ( strlen($s) > $len-3 ) {
+         if ( $len > 0 &&  strlen($s) > $len-3 ) {
             return substr($s, 0, $len-3)."...";
         }
         return $s;

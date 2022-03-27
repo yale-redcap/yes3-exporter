@@ -22,7 +22,7 @@ td.yes3-fmapr-fieldinsertion-td-right {
 
 .yes3-fmapr-redcap-element {
     color: var(--yes3-fmapr-redcap-element-color);
-    font-style: italic !important;
+    font-style: normal !important;
 }
 
 .yes3-fmapr-redcap-element:hover {
@@ -60,7 +60,7 @@ tr.yes3-fmapr-lov {
  
 div.yes3-fmapr td.yes3-fmapr-lov {
     color: var(--yes3-fmapr-lov-color);
-    font-weight: 400 !important;
+    font-weight: var(--yes3-font-weight) !important;
     font-style: italic;
 }
 
@@ -92,17 +92,16 @@ div.yes3-fmapr-value-picker-wrapper {
 
 tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-element {
     color: var(--yes3-fmapr-redcap-form-color) !important;
-    font-weight: 600;
 }
 
 tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field .yes3-fmapr-redcap-element {
     color: var(--yes3-fmapr-redcap-field-color) !important;
-    font-weight: 600;
+    font-weight: var(--yes3-font-weight) !important;
 }
 
 tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
     color: var(--yes3-fmapr-specmap-color) !important;
-    font-weight: 600;
+    font-weight: var(--yes3-font-weight) !important;
 }
 
 table[name=yes3-fmapr-settings] {
@@ -141,5 +140,10 @@ div#yes3-fmapr-settings div.col-md-6,
 div#yes3-fmapr-footer   div.col-md-6 {
     padding-left: 0 !important;
 }
+
+table[name=yes3-fmapr-settings] tr td:nth-child(1){
+    width: 40%;
+}
+
  
  

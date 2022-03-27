@@ -176,6 +176,8 @@ $html = $md->text( $markdown );
 
         detectColorScheme();
 
+        /*
+
         const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 
         function switchTheme(e) {
@@ -200,14 +202,17 @@ $html = $md->text( $markdown );
             }    
         }
 
+        */
+
         const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
 
         if (currentTheme) {
             document.documentElement.setAttribute('data-theme', currentTheme);
-
+            /*
             if (currentTheme === 'dark') {
                 toggleSwitch.checked = true;
             }
+            */
         }
 
     </script>

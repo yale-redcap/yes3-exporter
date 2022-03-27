@@ -55,24 +55,25 @@
     "links": {
         "project": [
             {
-                "name": "YES3 Export Editor",
+                "name": "YES3 Export Editor and Downloads",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_editor.php"
             },
             {
-                "name": "YES3 Export Settings",
+                "name": "YES3 Export Event Prefixes",
                 "icon": "fab fa-connectdevelop",
-                "url":  "plugins/yes3_fieldmapper_setup.php"
-            },
-            {
-                "name": "YES3 Export Specifications",
-                "icon": "fab fa-connectdevelop",
-                "url":  "plugins/yes3_fieldmapper.php"
+                "url":  "plugins/yes3_export_prefixes.php"
             },
             {
                 "name": "YES3 Export Logs",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_logs.php"
+            },
+            {
+                "name": "YES3 Exporter Documentation",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_exporter_documentation.php",
+                "target": "blank"
             }
         ]
     },

@@ -50,9 +50,9 @@
     --yes3-fmapr-input-border-color: black;
 
     --yes3-fmapr-redcap-element-color: silver;
-    --yes3-fmapr-redcap-field-color: darkcyan;
-    --yes3-fmapr-redcap-form-color: mediumseagreen;
-    --yes3-fmapr-specmap-color: steelblue;
+    --yes3-fmapr-redcap-field-color: rgb(165 203 185);
+    --yes3-fmapr-redcap-form-color: #d1b179;
+    --yes3-fmapr-specmap-color: #d0b9b9;
 
     --yes3-fmapr-gutter-width: 30px;
  
@@ -239,14 +239,6 @@ table.yes3-fmapr:not(.yes3-fmapr-export-specification) input[type=checkbox] {
  div#yes3-fmapr-wrapper div.col-md-4 {
     margin-bottom: calc( 2 * var(--yes3-margin) );
  }
- 
- div.yes3-fmapr-title {
-    font-size: 1.25rem;
-    height: calc(0.8 * var(--yes3-block-height) + 2 * var(--yes3-margin));
-    line-height: calc(0.8 * var(--yes3-block-height) + 2 * var(--yes3-margin));
-    font-weight: 800;
-    float: left;
- }
 
  .yes3-fmapr-title {
     font-size: 2rem;
@@ -335,7 +327,7 @@ div#yes3-fmapr-footer {
 }
 
 div#yes3-fmapr-status {
-   color: var(--yes3-fmapr-message-color-normal);
+   color: var(--yes3-td-color);
    font-size: 1rem;
    width: 100%;
 }
@@ -352,4 +344,9 @@ div#yes3-fmapr-status {
 .yes3-fmapr-beta
 {
     display: none;
+}
+
+/*** HELP PANEL ***/
+div#yes3-help-panel {
+    max-width: 700px !important;
 }

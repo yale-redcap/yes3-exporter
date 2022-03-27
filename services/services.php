@@ -135,7 +135,7 @@ function saveExportSpecification()
         'removed' => ""
         , 'export_uuid' => ""
         , 'export_name' => ""
-        , 'export_username' => ""
+        , 'export_username' => $module->username
         , 'export_layout' => ""
         , 'export_selection' => ""
         , 'export_criterion_field' => ""
@@ -177,8 +177,17 @@ function getExportSpecification()
 
     $export_uuid = $_POST['export_uuid'];
 
+    if ( isset($_POST['log_id']) ){
+
+        $log_id = (int) $_POST['log_id'];
+    }
+    else {
+
+        $log_id = 0;
+    }
+
     return json_encode(
-        $module->getExportSpecification( $export_uuid )
+        $module->getExportSpecification( $export_uuid, $log_id )
     );
 }
 
@@ -505,27 +514,6 @@ function exportData()
     return $module->exportData($export_uuid);
 }
 
-function getEventSettings()
-{
-    global $module;
-
-    return json_encode( $module->getEventSettings() );
-}
-
-function getExportSettings()
-{
-    global $module;
-
-    //$specifications = getExportSpecifications();
-
-    $output = [
-        'specification_settings' => $module->getExportSpecifications(),
-        'event_settings' => $module->getEventSettings()
-    ];
-
-    return json_encode($output);
-}
-
 function getFieldMapRecord($export_uuid)
 {
     global $module;
@@ -636,43 +624,11 @@ function sanitizeUploadSpec( $uSpec )
     return $uSpec;
 }
 
-function saveExportSpecification_legacy( $specification )
+function getEventSettings()
 {
     global $module;
 
-    if ( !isset($specification['mapping_specification']) ){
-
-        $specification['mapping_specification'] = null;
-    }
-    else {
-
-        $specification['mapping_specification'] = sanitizeUploadSpec( $specification['mapping_specification'] );
-    }
-
-    if ( !isset($specification['field_mappings']) ){
-
-        $specification['field_mappings'] = [];
-    }
-  
-    //Yes3::logDebugMessage($module->project_id, print_r($specification, true), "saveExportSpecification");
-        
-    $logId = $module->log(
-        "export_specification",
-        [
-            "user" => $module->username,
-            "setting" => "export-specification",
-            "export_uuid" => $specification['export_uuid'],
-            "removed" => $specification['removed'],
-            "export_specification_json" => json_encode($specification)
-        ]
-    );
-
-    if ( $logId ){
-
-        return 1;
-    }
-
-    return 0;
+    return json_encode( $module->getEventSettings() );
 }
 
 function saveEventSettings()
@@ -726,32 +682,42 @@ function get_wayback_html()
     global $module;
 
     $export_uuid = $_POST['export_uuid'];
-    
-    $fields = "log_id, message, user, timestamp, export_uuid, field_mappings";
-    
-    $pSql = "
-        SELECT {$fields}
-        WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
-        ORDER BY timestamp DESC
-    ";
 
-    $params = [$module->project_id, $export_uuid];
+    $specification_history = $module->getExportSpecification($export_uuid, 0, true);
 
-    $result = $module->queryLogs($pSql, $params);
+    $html = "<option disabled selected value=''>select a backup</option>";
 
-    $html = "";
-
-    while( $x = $result->fetch_assoc() ){
+    foreach ( $specification_history as $x) {
 
         $log_id = $x['log_id'];
-        $bytes = str_pad( strval(strlen($x['field_mappings'])), 6, " ", STR_PAD_LEFT);
-        $user = Yes3::escapeHtml($x['user']);
+
+        $elements = countExportItems($x['export_items_json']);
+
+        $user = Yes3::escapeHtml($x['export_username']);
+
         $time = date("D m/d/Y g:i a",  strtotime($x['timestamp']) );
 
-        $html .= "\n<option value='{$log_id}'>{$time}{$bytes} bytes ({$user})</option>";
+        $html .= "\n<option value='{$log_id}'>{$time} - {$elements} element(s) ({$user})</option>";
     }
 
     return $html;
+}
+
+function countExportItems( $export_items_json )
+{
+    if ( !$export_items_json ){
+
+        return "0";
+    }
+
+    $elements = json_decode( $export_items_json, true );
+
+    if ( !is_array($elements) ){
+
+        return "err";
+    }
+
+    return (string) count( $elements );
 }
 
 /**

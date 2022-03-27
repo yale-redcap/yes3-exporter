@@ -13,7 +13,10 @@ class Yes3Export {
     public $export_criterion_value = "";
     public $export_target = "";
     public $export_target_folder = "";
-    public $export_data_dictionary = [];
+    public $export_max_label_length = "";
+    public $export_max_text_length = "";
+    public $export_inoffensive_text = "";
+    //public $export_data_dictionary = [];
     //public $mapping_specification = "";
 
     public $export_items = [];
@@ -29,6 +32,9 @@ class Yes3Export {
         $this->export_criterion_value = $exportSettings['export_criterion_value'] ?? "";
         $this->export_target = $exportSettings['export_target'] ?? "";
         $this->export_target_folder = $exportSettings['export_target_folder'] ?? "";
+        $this->export_max_label_length = $exportSettings['export_max_label_length'] ?? "0";
+        $this->export_max_text_length = $exportSettings['export_max_text_length'] ?? "0";
+        $this->export_inoffensive_text = $exportSettings['export_inoffensive_text'] ?? "0";
         //$this->mapping_specification = $exportSettings['mapping_specification'] ?? [];
     }
 

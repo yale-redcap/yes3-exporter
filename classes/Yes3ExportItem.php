@@ -22,6 +22,11 @@ class Yes3ExportItem {
     public $max_value = NULL;
     public $sum_of_values = NULL;
     public $sum_of_squared_values = NULL;
+    public $mean = NULL;
+    public $standard_deviation = NULL;
+    public $formatted_min_value = NULL;
+    public $formatted_max_value = NULL;
+    public $formatted_mean = NULL;
     public $frequency_table = [];
 
     public function __construct( $exportItemProperties )

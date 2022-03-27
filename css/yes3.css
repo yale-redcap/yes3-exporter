@@ -1,27 +1,33 @@
 
 html {
     --yes3-font-size: 14px;
+/*
+    --yes3-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-input-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
     --yes3-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
-    --yes3-font-weight: 400;
+    --yes3-input-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
+    --yes3-alert-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+    --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+*/
+    --yes3-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+    --yes3-input-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+    --yes3-alert-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+    --yes3-message-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+    --yes3-button-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+
+    --yes3-font-weight: normal;
+    --yes3-td-font-weight: normal;
+
+    --yes3-button-font-weight: 600;
+    --yes3-input-font-weight: 400;
 
     --yes3-semibold-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
 
     --yes3-padding: 5px;
     --yes3-margin: 10px;
-
- 
-    --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-button-font-weight: 600;
-
-    --yes3-input-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
     --yes3-input-font-size: 1rem;
-    --yes3-input-font-weight: 400;
-
-    --yes3-alert-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-
-    --yes3-td-font-weight: 400;
-     
+      
     --yes3-block-height: 50px;
 
     --yes3-item-description-width: 175px;
@@ -93,6 +99,10 @@ html {
 
     --yes3-selected-color: dodgerblue;
 
+    --yes3-pre-color: black;
+    --yes3-pre-background-color: ghostwhite;
+    --yes3-pre-border-color: grey;
+
     /* -------------------------------------------------------*/
 
     --yes3-message-color: indianred;
@@ -149,7 +159,7 @@ html {
     --yes3-border-color: silver;
     --yes3-divider-color: silver;
 
-    --yes3-input-color: powderblue;
+    --yes3-input-color: #d8d8d8;
     --yes3-input-background-color: black;
     --yes3-input-border-color: rgb(64, 64, 64);
     --yes3-input-label-color: rgb(49, 148, 168);
@@ -203,6 +213,10 @@ html {
 
     --yes3-selected-color: turquoise;
 
+    --yes3-pre-color: #d4fbf8;
+    --yes3-pre-background-color: rgb(24, 24, 24);
+    --yes3-pre-border-color: rgb(64, 64, 64);
+
     /* -------------------------------------------------------*/
 
     --yes3-message-color: lightsalmon;
@@ -237,7 +251,7 @@ html {
 
     --yes3-table-label-color: darksalmon;
     --yes3-table-value-color: darkturquoise;
-    --yes3-td-color: silver;
+    --yes3-td-color: #a4a1a1;
     --yes3-th-color: linen;
     --yes3-th-background-color: black;
     --yes3-th-border-color: linen;
@@ -248,6 +262,12 @@ html {
     --yes3-subtitle-color: lightgray;
  
     --yes3-contextmenu-title-color: darkcyan;
+}
+
+pre {
+    background-color: var(--yes3-pre-background-color) !important;
+    border-color: var(--yes3-pre-border-color) !important;
+    color: var(--yes3-pre-color) !important;
 }
 
 html {
@@ -542,7 +562,6 @@ div#yes3-red-pointer {
  .yes3-config-panel-description {
     width: 100%;
     color: var(--yes3-description-color);
-    font-weight: 800;
     font-style: italic;
     margin-top: var(--yes3-margin);
  }
@@ -1474,6 +1493,8 @@ i.yes3-selected {
  
  table.yes3-dashboard th {
     color: var(--yes3-th-color);
+    font-family: var(--yes3-font-family) !important;
+    font-weight:  var(--yes3-font-weight) !important;
     font-size: 1rem;
     font-weight: 400;
     background-color: transparent;
@@ -1483,7 +1504,8 @@ i.yes3-selected {
     color: var(--yes3-td-color);
     background-color: var(--yes3-table-background-color);
     font-size: 1rem;
-    font-weight: 400;
+    font-family: var(--yes3-font-family) !important;
+    font-weight:  var(--yes3-font-weight) !important;
     border-top: 0;
     border-left: 0;
     border-right: 0;

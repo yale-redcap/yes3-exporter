@@ -106,7 +106,8 @@ String.prototype.truncateAt = function( n ){
 
     let x = ( toTheLeft ) ? 10 : Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft() - dx/2);
 
-    let y = ( atTheTop ) ? 10 : Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop() - dy/2);
+    // we can't let the panel be located too high up, lest the close button be obscured by the bootstrap menu overlay
+    let y = ( atTheTop ) ? 30 : Math.max(30, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop() - dy/2);
 
     this.css("position","absolute");
 
@@ -139,7 +140,7 @@ YES3.openPopupWindow = function(url, w, h, windowNamePrefix) {
 
     let windowName = windowNamePrefix+YES3.windowNumber;
 
-    console.log(url,windowName);
+    //console.log(url,windowName);
 
     // Fixes dual-screen position                         Most browsers      Firefox
     let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;

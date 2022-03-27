@@ -61,6 +61,8 @@ $module->getCodeFor("yes3_export_logs", true);
             
         <tr id="yes3-export-log_id"><td>Log ID</td><td></td></tr>
             
+        <tr id="yes3-export-export_uuid"><td>Export UUID</td><td></td></tr>
+            
         <tr id="yes3-export-timestamp"><td>Time Stamp</td><td></td></tr>
             
         <tr id="yes3-export-username"><td>User</td><td></td></tr>
@@ -70,8 +72,6 @@ $module->getCodeFor("yes3_export_logs", true);
         <tr id="yes3-export-destination"><td>Destination</td><td></td></tr>
             
         <tr id="yes3-export-log_entry_type"><td>Log Entry Type</td><td></td></tr>
-            
-        <tr id="yes3-export-export_uuid"><td>Export UUID</td><td></td></tr>
             
         <tr id="yes3-export-filename_data"><td>Export filename</td><td></td></tr>
             
@@ -104,12 +104,21 @@ $module->getCodeFor("yes3_export_logs", true);
     <div class="yes3-panel-row" style="margin-top: 20px !important">
         <table>
             <tbody>               
-                <tr>
+            <tr>
                     <td>
-                        <i class="far fa-trash-alt yes3-action-icon"></i>
+                    <i class="fas fa-download yes3-action-icon yes3-action-icon-inline" action="downloadExportLog" title="Download all logs for the selected export specification."></i>
                     </td>
                     <td>
-                        Placeholder text.
+                        Download all the logs for the selected export.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <i class="fas fa-eye"></i>
+                    </td>
+                    <td>
+                        View the selected export log record.
                     </td>
                 </tr>
                 
@@ -120,16 +129,44 @@ $module->getCodeFor("yes3_export_logs", true);
     <div class='yes3-panel-row yes3-information'>
 
         <p>
-            <span class='yes3-information-em'>Layout:</span> the export layout can be  <em>horizontal</em> (H), <em>vertical</em> (V) or <em>repeating form</em> (R).
-            A <em>horizontal</em> layout will have one row per record, and one column for each field and event combination.
-            A <em>vertical</em> layout will have one row for each record and event combination, and one column per field.
-            A <em>repeating form</em> layout will have one row for each record, event and instance combination, and one column per field.
+            Every export and download is permanently logged.
+            The export log record includes
+            <ul>
+            <li>
+                    A time stamp
+                </li>
+                <li>
+                    The user who requested the export
+                </li>
+                <li>
+                    The export destination (download or file system)
+                </li>
+                <li>
+                    The export file name, if relevant
+                </li>
+                <li>
+                    The export size (bytes)
+                </li>
+                <li>
+                    Row and column counts
+                </li>
+            </ul>
         </p>
 
-        <div class='yes3-panel-row'>
+        <p>
+            The display can be filtered by user and/or date range.
+        </p>
+
+        <p>
+            You may download a spreadsheet containing all of the export log records by clicking the 
+            <i class="fas fa-download yes3-action-icon yes3-action-icon-inline yes3-loaded" action="downloadExportLog" title="Download all logs for the selected export specification."></i> 
+            icon at the top right.
+        </p>
+
+        <p>
             <span class='yes3-information-em'>Need more help?</span> 
             Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
-        </div>
+        </p>
 
         <div class='yes3-panel-row'>
             You may leave this help panel open as you use the Yes3 Exporter. 

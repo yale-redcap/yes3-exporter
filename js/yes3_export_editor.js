@@ -1,3 +1,10 @@
+FMAPR.insertionRowId = "";
+
+FMAPR.reloadParms = {
+    "export_uuid": "",
+    "wayback": false
+}
+
 /**
  * YES3 FUNCTIONS FOR FMAPR
  * 
@@ -18,9 +25,7 @@ FMAPR.newExportSpecificationExecute = function()
 {
     let new_export_uuid = YES3.uuidv4();
     
-    FMAPR.reloadParms = {
-        "export_uuid": new_export_uuid
-    }
+    FMAPR.reloadParms.export_uuid = new_export_uuid
 
     /**
      * Note that the same callback function is shared by 
@@ -98,36 +103,58 @@ YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
     /**
      * if called with no params, set up for append
      */
-    if ( !rowId ){
+    if ( !rowId.length ){
+
         theRow = $('tr.yes3-fmapr-data-element').last();
-        FMAPR.insertionRowId = theRow.attr('id');
-        field_name = theRow.find('input.yes3-fmapr-input-element').first().val();
-        let theEvent = theRow.find('select.yes3-fmapr-event-select').first();
-        event_name = theEvent.find("option:selected").text();
-        FMAPR.scrollExportItemsTableToBottom();
+
+        if ( theRow ){
+
+            FMAPR.insertionRowId = theRow.attr('id');
+            field_name = theRow.find('input.yes3-fmapr-input-element').first().val();
+            let theEvent = theRow.find('select.yes3-fmapr-event-select').first();
+            event_name = theEvent.find("option:selected").text();
+            FMAPR.scrollExportItemsTableToBottom();
+        }
+        else {
+
+            FMAPR.insertionRowId = "";
+        }
     }
     else {
+
         FMAPR.insertionRowId = rowId;
         theRow = $(`tr#${rowId}`);
     }
 
-    let x = theRow.offset().left - theParent.offset().left;
-    let y = theRow.offset().top - theParent.offset().top;
+    /**
+     * If no 'insert after' element row is found, 
+     * this is the first element and so insertion panel will be centered.
+     * YES3.openPanel will center if (x, y) === (0, 0)
+     */
 
-    //YES3.showRedPointer( theRow );
+    let x = 0;
+    let y = 0;
 
-    if ( y > $(window).innerHeight()/2 ) {
-        y = y - thePanel.outerHeight();
+    if ( theRow.length ) {
+
+        x = theRow.offset().left - theParent.offset().left;
+        y = theRow.offset().top - theParent.offset().top;
+
+        //YES3.showRedPointer( theRow );
+
+        if ( y > $(window).innerHeight()/2 ) {
+            y = y - thePanel.outerHeight();
+        }
+        else {
+            y = y + theRow.outerHeight();
+        }
+
+        YES3.contextMenuClose(null, true);
     }
-    else {
-        y = y + theRow.outerHeight();
-    }
-
-    YES3.contextMenuClose(null, true);
 
     YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false, x, y);
 
-    FMAPR.fieldInsertionFormReady(rowId, field_name, event_name);
+    FMAPR.fieldInsertionFormReady(field_name, event_name);
 }
 
 FMAPR.uSpecEditor = function()
@@ -170,6 +197,8 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
     theRowBefore = theRowBefore || {};
     batchMode = batchMode || false;
     noTrashCan = noTrashCan || false;
+
+    //console.log('addRawREDCapField: theRowBefore = [' + theRowBefore + ']');
 
     let tbl = FMAPR.getExportItemsTable();
      
@@ -291,9 +320,7 @@ YES3.Functions.saveExportSpecification = function()
 {
     let settingsContainer = FMAPR.getExportSettingsContainer();
 
-    FMAPR.reloadParms = {
-        "export_uuid": FMAPR.getExportUUID()
-    }
+    FMAPR.reloadParms.export_uuid = FMAPR.getExportUUID();
 
     let specItems = {};
 
@@ -477,6 +504,7 @@ YES3.Functions.Wayback_openForm = function()
     YES3.openPanel('yes3-fmapr-wayback-panel');
 
     let wrapper = FMAPR.getExportSettingsContainer();
+    //let wrapper = $("div#yes3-container");
 
     let y = wrapper.offset().top;
 
@@ -519,7 +547,7 @@ YES3.Functions.Wayback_openForm = function()
 
 FMAPR.Wayback_openFormCallback = function( response )
 {
-    console.log(response);
+    console.log('Wayback_openFormCallback', response);
     $("select#yes3-fmapr-wayback-select").empty().append(response);
 }
 
@@ -527,15 +555,11 @@ FMAPR.Wayback_Execute = function()
 {
     let log_id = $("select#yes3-fmapr-wayback-select").val();
 
-    FMAPR.specificationElements = [];
-    FMAPR.insertionElements = [];
+    FMAPR.reloadParms.wayback = true;
 
-    YES3.requestService(
-        {
-            "request": "get_field_mappings",
-            "log_id": log_id
-        }, FMAPR.populateFieldMapperTableCallback, true
-    );
+    FMAPR.loadSpecification(log_id);
+
+    FMAPR.Wayback_closeForm();
 }
 
 FMAPR.Wayback_closeForm = function()
@@ -1279,7 +1303,7 @@ FMAPR.isRepeatedLayout = function()
     else return ( FMAPR.export_specification.export_layout === "r" );
 }
 
-FMAPR.fieldInsertionFormReady = function(rowId, field_name, event_name)
+FMAPR.fieldInsertionFormReady = function(field_name, event_name)
 {
     if ( FMAPR.isVerticalLayout() ){
 
@@ -1353,7 +1377,11 @@ FMAPR.fieldInsertionExecute = function()
 {
     let organization = $("input[name=yes3-fmapr-fieldinsertion-org]:checked").val();
     let insertOption = $("input[name=yes3-fmapr-fieldinsertion-option]:checked").val();
-    let theRowBefore = $(`tr#${FMAPR.insertionRowId}`); // set by openFieldInsertionForm
+    let theRowBefore = null;
+
+    if ( FMAPR.insertionRowId ){
+        theRowBefore = $(`tr#${FMAPR.insertionRowId}`); // set by openFieldInsertionForm
+    }
 
     let form_name = $("select#yes3-fmapr-fieldinsertion-form").val();
     let event = $("select#yes3-fmapr-fieldinsertion-event").val();
@@ -1760,16 +1788,26 @@ FMAPR.reportStatus = function()
 
         //s+= `[${FMAPR.project.specification_settings[FMAPR.export_uuid].specification_key}]:`;
 
-        s += ` ${counts.elements} data elements, approx ${counts.columns} export columns.`;
+        s += `Timestamp: ${FMAPR.export_specification.timestamp}`;
 
         s += "<br>";
 
-        s += `Export #${FMAPR.export_specification.export_uuid} saved on ${FMAPR.export_specification.timestamp} by ${FMAPR.export_specification.username}.`;
+        s += `User: ${FMAPR.export_specification.export_username}`;
         
+        s += "<br>";
+
+        s += `Export LogId: ${FMAPR.export_specification.log_id}`;
+        
+        s += "<br>";
+
+        s += `Export UUID: ${FMAPR.export_specification.export_uuid}`;
+
+        s += "<br>";
+
+        s += ` ${counts.elements} element(s), approx ${counts.columns} export column(s)`; 
     }
 
     $('div#yes3-fmapr-status').html(s);
-
 }
 
 FMAPR.showLayoutItems = function()
@@ -2574,11 +2612,14 @@ FMAPR.displayInitializationElements = function()
     }
 }
 
-FMAPR.loadSpecification = function( get_removed )
+FMAPR.loadSpecification = function( log_id )
 {  
+    log_id = log_id || 0;
+    
     YES3.requestService( { 
         "request": "getExportSpecification", 
-        "export_uuid": $('select#export_uuid').val()
+        "export_uuid": $('select#export_uuid').val(),
+        "log_id": log_id
     }, FMAPR.loadSpecificationCallback, true );
 }
 
@@ -2604,15 +2645,22 @@ FMAPR.populateSpecificationTables = function( specification )
 
     FMAPR.populateExportItemsTable( specification );
 
-    FMAPR.resizeExportItemsTable();
-
     FMAPR.mapperLoaded = true;
     FMAPR.markAsClean( true );
     FMAPR.updateStatus();
 
+    FMAPR.resizeExportItemsTable();
+
     FMAPR.postMessage("Export specification loaded.");
 
     FMAPR.markAsBuildCompleted();
+
+    if ( FMAPR.reloadParms.wayback ){
+
+        FMAPR.markAsDirty();
+
+        FMAPR.reloadParms.wayback=false;
+    }
 }
 
 FMAPR.populateSettingsTable = function( specification )
@@ -2725,7 +2773,7 @@ FMAPR.buildExportItemsTableUspecRows = function( specification )
         elementInputHtml = FMAPR.getElementInputHtml( uSpec.elements[i].name, element_origin);
         eventSelectHtml  = FMAPR.getElementEventHtml( uSpec.elements[i].name, element_origin);
     
-        html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${uSpec.elements[i].name}' data-yes3_fmapr_data_element_description="${uSpec.elements[i].label}" data-spec_type='${uSpec.elements[i].type}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap yes3-fmapr-sortable'>`;
+        html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${uSpec.elements[i].name}' data-yes3_fmapr_data_element_description="${uSpec.elements[i].label}" data-spec_type='${uSpec.elements[i].type}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap'>`;
         html += `<td class='yes3-3 yes3-td-left' title='${uSpec.elements[i].label}'><span class='yes3-fmapr-specmap-element'>${uSpec.elements[i].name}</span></td>`;
         html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
         html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
@@ -3167,6 +3215,11 @@ FMAPR.getExportItemsTable = function()
     return $("table#yes3-fmapr-export-items-table");
 }
 
+FMAPR.getExportItemsTableBody = function()
+{
+    return $("tbody#yes3-fmapr-export-items-tbody");
+}
+
 /* === AUDITS === */
 
 FMAPR.validateAndReportExportUspecJson = function()
@@ -3287,7 +3340,8 @@ $( function () {
 
     YES3.hideContextMenuOnClickOutside();
 
-    console.log("onload");
+
+    FMAPR.makeSortable( FMAPR.getExportItemsTableBody() );
 
     /**
      * located in common.js:
