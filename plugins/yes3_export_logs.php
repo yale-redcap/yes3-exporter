@@ -129,7 +129,7 @@ $module->getCodeFor("yes3_export_logs", true);
     <div class='yes3-panel-row yes3-information'>
 
         <p>
-            Every export and download is permanently logged.
+            Every export and download action is permanently logged.
             The export log record includes
             <ul>
             <li>
