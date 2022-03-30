@@ -46,7 +46,7 @@ $module->getCodeFor("yes3_export_logs", true);
    <div class="yes3-panel-header-row">
 
       <div class="yes3-panel-row-left">
-         YES3 Exporter Log Record
+         YES3 Export Log Record
       </div>
 
       <div class="yes3-panel-row-right">
@@ -55,38 +55,40 @@ $module->getCodeFor("yes3_export_logs", true);
 
    </div>
 
-   <div class='yes3-panel-row' id='yes3-record-content'>
+<div class='yes3-panel-row' id='yes3-record-content'>
 
-      <table id="yes3-export-record">
+        <table id="yes3-export-record">
             
-        <tr id="yes3-export-log_id"><td>Log ID</td><td></td></tr>
-            
-        <tr id="yes3-export-export_uuid"><td>Export UUID</td><td></td></tr>
-            
-        <tr id="yes3-export-timestamp"><td>Time Stamp</td><td></td></tr>
-            
-        <tr id="yes3-export-username"><td>User</td><td></td></tr>
-            
-        <tr id="yes3-export-message"><td>Message</td><td></td></tr>
-            
-        <tr id="yes3-export-destination"><td>Destination</td><td></td></tr>
-            
-        <tr id="yes3-export-log_entry_type"><td>Log Entry Type</td><td></td></tr>
-            
-        <tr id="yes3-export-filename_data"><td>Export filename</td><td></td></tr>
-            
-        <tr id="yes3-export-filename_data_dictionary"><td>Data Dictionary filename</td><td></td></tr>
-            
-        <tr id="yes3-export-exported_bytes"><td>Bytes written</td><td></td></tr>
-            
-        <tr id="yes3-export-exported_items"><td>Cells written</td><td></td></tr>
-            
-        <tr id="yes3-export-exported_rows"><td>Rows</td><td></td></tr>
-            
-        <tr id="yes3-export-exported_columns"><td>Columns</td><td></td></tr>
+            <tr id="yes3-export-project_id"><td>Project ID</td><td></td></tr>
+                    
+            <tr id="yes3-export-log_id"><td>Log ID</td><td></td></tr>
+                
+            <tr id="yes3-export-export_uuid"><td>Export UUID</td><td></td></tr>
+                
+            <tr id="yes3-export-timestamp"><td>Time Stamp</td><td></td></tr>
+                
+            <tr id="yes3-export-username"><td>User</td><td></td></tr>
+                
+            <tr id="yes3-export-message"><td>Message</td><td></td></tr>
+                
+            <tr id="yes3-export-destination"><td>Destination</td><td></td></tr>
+                
+            <tr id="yes3-export-log_entry_type"><td>Log Entry Type</td><td></td></tr>
+                
+            <tr id="yes3-export-filename_data"><td>Export filename</td><td></td></tr>
+                
+            <tr id="yes3-export-filename_data_dictionary"><td>Data Dictionary filename</td><td></td></tr>
+                
+            <tr id="yes3-export-exported_bytes"><td>Bytes written</td><td></td></tr>
+                
+            <tr id="yes3-export-exported_items"><td>Cells written</td><td></td></tr>
+                
+            <tr id="yes3-export-exported_rows"><td>Rows</td><td></td></tr>
+                
+            <tr id="yes3-export-exported_columns"><td>Columns</td><td></td></tr>
 
-      </table>
-   </div>
+        </table>
+    </div>
 
 </div>
 
@@ -265,14 +267,6 @@ $module->getCodeFor("yes3_export_logs", true);
             </thead>
 
             <tbody id="yes3-fmapr-export-log-tbody">
-                <tr>
-                    <td class="yes3-td-left   yes3-cw05"><i class="fas fa-eye"></i></td>
-                    <td class="yes3-td-middle yes3-cw10">14</td>
-                    <td class="yes3-td-middle yes3-cw15">2022-03-12 00:00:00</td>
-                    <td class="yes3-td-middle yes3-cw15">flapdoodle</td>
-                    <td class="yes3-td-right  yes3-cw35">Hi mom</td>                    
-                    <td class="yes3-td-middle yes3-cw20">download</td>
-                </tr>
             </tbody>
 
         </table>

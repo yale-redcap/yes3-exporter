@@ -16,6 +16,62 @@ FMAPR.reloadParms = {
  * 
  * Be sure to use the full YES3.Functions namespace
  */
+
+YES3.Functions.NewExport_openPanel = function()
+{
+    YES3.openPanel("yes3-fmapr-new-export-form");
+
+    if ( YES3.moduleProperties.isLongitudinal ){
+
+        //$("input#yes3-fmapr-new-export-layout-h").prop("checked", true);
+    }
+    else {
+
+        $("table#yes3-fmapr-new-export .yes3-longitudinal-only").hide();
+        //$("input#yes3-fmapr-new-export-layout-v").prop("checked", true);
+    }
+}
+
+FMAPR.NewExport_closePanel = function()
+{
+    YES3.closePanel("yes3-fmapr-new-export-form");
+}
+
+FMAPR.NewExport_execute = function()
+{
+    let new_export_uuid = YES3.uuidv4();
+    let new_export_name = $("input#new_export_name").val();
+    let new_export_layout = $("input[type=radio][name=new_export_layout]:checked").val();
+
+    if ( !new_export_name || !new_export_layout ){
+
+        YES3.hello("Please enter both the export name and the export layout.");
+        return false;
+    }
+    
+    FMAPR.reloadParms.export_uuid = new_export_uuid
+
+    /**
+     * Note that the same callback function is shared by 
+     * saveExportSpecification() and newExportSpecification().
+     * 
+     * This callback will load the specification identified in FMAPR.reloadParms,
+     * and perform the required UI prep.
+     */
+    YES3.requestService( 
+        {
+            "request": "addExportSpecification",
+            "export_uuid": new_export_uuid,
+            "export_name": new_export_name,
+            "export_layout": new_export_layout
+        }, 
+        FMAPR.saveExportSpecificationCallback, 
+        false 
+    );
+
+    FMAPR.NewExport_closePanel();
+}
+
 YES3.Functions.newExportSpecification = function() 
 {
     YES3.YesNo("Would you like to add a new Export Specification?", FMAPR.newExportSpecificationExecute );
@@ -484,6 +540,8 @@ FMAPR.downloadDataDictionaryCallback = function( response )
 
 FMAPR.exportData = function()
 {    
+    FMAPR.postMessage("Export underway...");
+
     YES3.requestService(
         {
             'request': 'exportData',
@@ -495,6 +553,7 @@ FMAPR.exportData = function()
 FMAPR.exportDataCallback = function( response )
 {
   YES3.hello(response);
+  FMAPR.clearMessage();
 }
 
 /*** WAYBACK ***/

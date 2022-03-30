@@ -37,7 +37,7 @@ if ( !requestIsValid($request) ) {
  * validate the csrf token
  * which can be passed by AJAX calls in the request header as 'X-CSRF-Token'
  * or as a POST from a redcap form as 'redcap_csrf_token'
- */
+**/
 
 $csrf_token = "";
 
@@ -98,9 +98,9 @@ function addExportSpecification()
     $qParams = [
         'removed' => "0"
         , 'export_uuid' => $_POST['export_uuid']
-        , 'export_name' => "new export"
+        , 'export_name' => $_POST['export_name']
         , 'export_username' => $module->username
-        , 'export_layout' => ""
+        , 'export_layout' => $_POST['export_layout']
         , 'export_selection' => ""
         , 'export_criterion_field' => ""
         , 'export_criterion_event' => ""
@@ -235,7 +235,7 @@ function getExportSpecificationList():string
 function getExportLogRecordSQL( $log_id=0 )
 {
     $sql = "
-    SELECT x.log_id
+    SELECT x.project_id, x.log_id
     , x.`timestamp`
     , ui.username
     , x.`message`

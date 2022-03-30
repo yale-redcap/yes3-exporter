@@ -13,6 +13,86 @@ $module->getCodeFor("yes3_export_editor", true);
 
 ?>
 
+<div id="yes3-fmapr-new-export-form" class="yes3-panel yes3-draggable" style="display:none">
+
+    <div class="yes3-panel-header-row">
+
+        <div class="yes3-panel-row-left" id="yes3-help-panel-title">
+            New Export
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: FMAPR.NewExport_closePanel()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+        
+    </div>
+
+    <div class="yes3-panel-row" style="margin-top: 20px !important">
+    
+        <p class="yes3-panel-subtitle">
+            Please provide a name and an export layout for the Export to be added.
+        </p>
+    
+        <table class="yes3-settings" id="yes3-fmapr-new-export">
+
+            <tr>
+                <td>
+                    Export NAME
+                </td>
+
+                <td>
+                    <input type="text" id="new_export_name" value="new export" class="" placeholder="enter an export name">
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Export LAYOUT
+                </td>
+
+                <td>
+
+                    <input class="balloon yes3-longitudinal-only" type="radio" class="balloon" value="h" name="new_export_layout" id="yes3-fmapr-new-export-layout-h">
+                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record)">Horizontal (longitudinal projects: one row per record)</label>&nbsp;
+
+                    <br class="yes3-longitudinal-only">
+
+                    <input type="radio" class="balloon" value="v" name="new_export_layout" id="yes3-fmapr-new-export-layout-v">
+                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical layout (one row per record+event)">Vertical (one row per record+event)</label>&nbsp;
+
+                    <br>
+
+                    <input type="radio" class="balloon" value="r" name="new_export_layout" id="yes3-fmapr-new-export-layout-r">
+                    <label for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>&nbsp;
+
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <!--div class="yes3-panel-row">
+        <em>Note: you cannot change the export layout once you have added the export.</em>
+    </div-->
+
+    <div class="yes3-panel-row">
+
+        <div class="yes3-flex-container-evenly-distributed">
+
+            <div class="yes3-flex-vcenter-hleft">
+                <input type="button" value="make it so" onClick="FMAPR.NewExport_execute();" class="yes3-panel-button" />
+            </div>
+
+            <div class="yes3-flex-vcenter-hright">
+                <input type="button" value="nah" onClick="FMAPR.NewExport_closePanel();" class="yes3-panel-button" />
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
 <div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
 
    <div class="yes3-panel-header-row">
@@ -175,10 +255,6 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <div class="yes3-flex-vcenter-hleft">
                 <input type="button" value="make it so" onClick="FMAPR.exportExecute();" class="yes3-panel-button" />
-            </div>
-
-            <div class="yes3-flex-vcenter-hleft yes3-panel-between-the-buttons">
-                <div>Hi Mom</div>
             </div>
 
             <div class="yes3-flex-vcenter-hright">
@@ -357,7 +433,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
                 Click&nbsp;
 
-                <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-inline yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-fmapr-display-when-clean yes3-fmapr-when-uninitialized" action="newExportSpecification" title="Add a new export specification."></i>
+                <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-inline yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-fmapr-display-when-clean yes3-fmapr-when-uninitialized" action="NewExport_openPanel" title="Add a new export specification."></i>
 
                 &nbsp;to add a new Export Specification.
 
@@ -369,7 +445,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-not-repeating" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
             <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-bulk-insert" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
-            <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-clean" action="newExportSpecification" title="Add a new export specification."></i>
+            <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-clean" action="NewExport_openPanel" title="Add a new export specification."></i>
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" id="yes3-fmapr-save-control" action="saveExportSpecification" title="Save the export specification."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
             <!--i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-loaded yes3-fmapr-display-when-clean" action="printSpecification" title="Print the specification."></i-->
@@ -411,11 +487,11 @@ $module->getCodeFor("yes3_export_editor", true);
                         <td class="yes3-fmapr-export-specification">Export layout:</td>
                         
                         <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
-                            <input type="radio" class="balloon" value="h" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-h">
-                                <label for="yes3-fmapr-export-layout-h" title="Horizontal layout">Horiz</label>&nbsp;
-                            <input type="radio" class="balloon" value="v" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-v">
-                                <label for="yes3-fmapr-export-layout-v" title="Vertical layout">Vert</label>&nbsp;
-                            <input type="radio" class="balloon" value="r" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-r">
+                            <input  type="radio" class="balloon" value="h" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-h">
+                                <label  for="yes3-fmapr-export-layout-h" title="Horizontal layout">Horiz</label>&nbsp;
+                            <input  type="radio" class="balloon" value="v" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-v">
+                                <label  for="yes3-fmapr-export-layout-v" title="Vertical layout">Vert</label>&nbsp;
+                            <input  type="radio" class="balloon" value="r" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-r">
                                 <label for="yes3-fmapr-export-layout-r" title="Repeating Form layout">Repeat</label>&nbsp;
                         </td>
                     

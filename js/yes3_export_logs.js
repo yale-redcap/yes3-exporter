@@ -105,7 +105,9 @@ FMAPR.exportUUIDSelectCallback = function( response )
 
     fmaprTableBody.empty().append(rowHtml);
 
-    FMAPR.resizeExportLogTable();
+    $(window).trigger('resize');
+
+    //FMAPR.resizeExportLogTable();
 }
 
 FMAPR.inspectLogRecord = function(log_id)
@@ -128,7 +130,7 @@ FMAPR.inspectLogRecord = function(log_id)
 
 FMAPR.inspectLogRecordCallback = function( response )
 {
-    console.log(response);
+    console.log("inspectLogRecordCallback", response);
 
     let tr = {};
 
@@ -147,7 +149,7 @@ FMAPR.inspectLogRecordCallback = function( response )
                 .html( escapeHTML( ''+response[item] ) );
         }
 
-        console.log(item, response[item]);
+        //console.log(item, response[item]);
     }
 
 
@@ -166,9 +168,7 @@ FMAPR.resizeExportLogTable = function()
 
     let parentSection = $("div#yes3-container").parent();
 
-    if ( !fmaprTable.length ){
-        return false;
-    }
+    fmaprTable.show();
 
     let windowHeight = $(window).innerHeight();
 
@@ -213,8 +213,6 @@ FMAPR.resizeExportLogTable = function()
     fmaprTable.find('.yes3-cw35').css({'width': cw35+'px', 'max-width': cw35+'px'});
     fmaprTable.find('.yes3-cw40').css({'width': cw40+'px', 'max-width': cw40+'px'});
     fmaprTable.find('.yes3-cw50').css({'width': cw50+'px', 'max-width': cw50+'px'});
-
-    fmaprTable.show();
 }
 
 FMAPR.getExportUUID = function()
@@ -264,13 +262,12 @@ FMAPR.loadSpecificationsCallback = function( response )
     select.empty().append(html);
 }
 
+$(window).resize( function(){
+
+    FMAPR.resizeExportLogTable();
+});
 
 $( function(){
-
-    $(window).resize( function(){
-
-        FMAPR.resizeExportLogTable();
-    });
 
     YES3.contentLoaded = false;
 

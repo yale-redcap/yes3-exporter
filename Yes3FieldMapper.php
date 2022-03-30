@@ -328,11 +328,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return fopen( $filename, "w+" );
     }
 
-    private function writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, &$bytesWritten=0 )
+    private function writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination, &$bytesWritten=0 )
     {
         $delim = ",";
         
-        if ( !$export_target_folder ) {
+        if ( !$export_target_folder || $destination==="download" ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
         }
@@ -374,7 +374,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         ];
     }
 
-    private function writeExportFiles( &$ddPackage, &$bytesWritten=0 )
+    private function writeExportFiles( &$ddPackage, $destination="", &$bytesWritten=0)
     {
 
         //exit( print_r($eventSpecs, true) )
@@ -389,7 +389,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $dd = $ddPackage['export_data_dictionary'];
 
-        if ( !$export_target_folder ) {
+        if ( !$export_target_folder || $destination==="download" ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
 
@@ -648,7 +648,7 @@ WHERE d.`project_id`=?
 
         $ddPackage['export_data_dictionary'] = $dd;
 
-        $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd);
+        $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination );
 
         $this->logExport(
             "export files written",
@@ -736,7 +736,28 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
     private function tidyUpDD( &$dd, $noCalculations=false )
     {
         for ( $i=0; $i<count($dd); $i++ ){
-        
+
+            /**
+             * dang "complete" fields
+             */
+            if ( $dd[$i]['redcap_field_name'] === $dd[$i]['redcap_form_name']."_complete" ){
+
+                $dd[$i]['valueset'] = [
+                    [
+                        'value'=>"0",
+                        'label'=>"incomplete"
+                    ],
+                    [
+                        'value'=>"1",
+                        'label'=>"unverified"
+                    ],
+                    [
+                        'value'=>"2",
+                        'label'=>"complete"
+                    ]
+                ];
+            }     
+            
             if ( is_array($dd[$i]['valueset']) && count($dd[$i]['valueset']) > 0 ){
 
                 $dd[$i]['valueset'] = json_encode($dd[$i]['valueset']);
@@ -767,27 +788,6 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             }
             elseif ( $dd[$i]['non_missing_count'] > 0 ) {
 
-                if ( $dd[$i]['var_type']==="DATE" ){
-
-                    $dd[$i]['formatted_min_value'] = strftime("%F", $dd[$i]['min_value']);
-                    $dd[$i]['formatted_max_value'] = strftime("%F", $dd[$i]['max_value']);
-                    $dd[$i]['formatted_mean']      = strftime("%F", $dd[$i]['mean']);
-                }
-
-                elseif ( $dd[$i]['var_type']==="DATETIME" ){
-
-                    $dd[$i]['formatted_min_value'] = strftime("%F %T", $dd[$i]['min_value']);
-                    $dd[$i]['formatted_max_value'] = strftime("%F %T", $dd[$i]['max_value']);
-                    $dd[$i]['formatted_mean']      = strftime("%F %T", $dd[$i]['mean']);
-                }
-
-                elseif ( $dd[$i]['var_type']==="TIME" ){
-
-                    $dd[$i]['formatted_min_value'] = strftime("%T", $dd[$i]['min_value']);
-                    $dd[$i]['formatted_max_value'] = strftime("%T", $dd[$i]['max_value']);
-                    $dd[$i]['formatted_mean']      = strftime("%T", $dd[$i]['mean']);
-                }
-
                 $dd[$i]['mean'] = (float) $dd[$i]['sum_of_values'] / $dd[$i]['non_missing_count'];
 
                 if ( $dd[$i]['non_missing_count'] > 1 ) {
@@ -795,13 +795,50 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                     $dd[$i]['standard_deviation'] 
                         = (float) sqrt(($dd[$i]['sum_of_squared_values'] - ($dd[$i]['sum_of_values']*$dd[$i]['sum_of_values']/$dd[$i]['non_missing_count']))/($dd[$i]['non_missing_count'] - 1));
                 }
+
+                if ( $dd[$i]['var_type']==="DATE" ){
+
+                    $dd[$i]['formatted_min_value'] = strftime("%F", $dd[$i]['min_value']);
+                    $dd[$i]['formatted_max_value'] = strftime("%F", $dd[$i]['max_value']);
+                    $dd[$i]['formatted_mean']      = strftime("%F", round($dd[$i]['mean']));
+                }
+
+                elseif ( $dd[$i]['var_type']==="DATETIME" ){
+
+                    $dd[$i]['formatted_min_value'] = strftime("%F %T", $dd[$i]['min_value']);
+                    $dd[$i]['formatted_max_value'] = strftime("%F %T", $dd[$i]['max_value']);
+                    $dd[$i]['formatted_mean']      = strftime("%F %T", round($dd[$i]['mean']));
+                }
+
+                elseif ( $dd[$i]['var_type']==="TIME" ){
+
+                    $dd[$i]['formatted_min_value'] = strftime("%T", $dd[$i]['min_value']);
+                    $dd[$i]['formatted_max_value'] = strftime("%T", $dd[$i]['max_value']);
+                    $dd[$i]['formatted_mean']      = strftime("%T", round($dd[$i]['mean']));
+                }
             }
 
             if ( is_array($dd[$i]['frequency_table']) && count($dd[$i]['frequency_table']) > 0 ){
 
-                ksort($dd[$i]['frequency_table'], SORT_NATURAL || SORT_FLAG_CASE );
+                $frqTbl = [];
 
-                $dd[$i]['frequency_table'] = Yes3::json_encode_pretty($dd[$i]['frequency_table']);
+                $j = 0;
+
+                foreach($dd[$i]['frequency_table'] as $key=>$count ){
+                
+                    $frqTbl[$j] = [
+                        "value" => $key,
+                        "count" => $count
+                    ];
+                    $j++;
+                }
+
+                $arVal = array_column($frqTbl, 'value');
+
+                array_multisort($arVal, SORT_ASC, SORT_NATURAL, $frqTbl);
+
+                //$dd[$i]['frequency_table'] = Yes3::json_encode_pretty($dd[$i]['frequency_table']);
+                $dd[$i]['frequency_table'] = json_encode($frqTbl);
             }
 
             else {
@@ -809,6 +846,16 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 $dd[$i]['frequency_table'] = "";
             }
         }
+    }
+
+    private function sortByValue($a, $b)
+    {
+        if ( is_numeric($a['value']) && is_numeric($b['value']) ){
+
+            return intval($a['value']) > intval($b['value']);
+        }
+
+        return $a['value'] > $b['value'];
     }
     
     private function writeExportDataFileRecord( 
@@ -1049,7 +1096,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         if ( $var_type === "NOMINAL" ){
 
             // force an associative array
-            $vIndex = "{$value}";
+            $vIndex = (string) $value;
 
             if ( !isset($d['frequency_table'][$vIndex]) ){
 
@@ -1143,7 +1190,9 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                     . $results['export_data_message']
         ;
 
-        $response .= "\n\nElapsed time: " . time() - $t . " seconds.";
+        $t = time() - $t;
+
+        $response .= "\n\nElapsed time: {$t} seconds.";
 
         return nl2br($response);
     }
@@ -1204,9 +1253,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
     {
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
-        $bytesWritten = 0;
-
-        $xFileResponse = $this->writeExportFiles($ddPackage, $bytesWritten);     
+        $xFileResponse = $this->writeExportFiles($ddPackage, "download");     
 
         if ( !isset( $xFileResponse['export_data_filename'] ) ) {
 
@@ -1266,7 +1313,9 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
     {
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
-        $xFileResponse = $this->writeExportFiles($ddPackage);
+        $bytesWritten = 0;
+
+        $xFileResponse = $this->writeExportFiles($ddPackage, "download", $bytesWritten);
         /*
         print nl2br(print_r($xFileResponse, true));
 
@@ -1880,7 +1929,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 $export->addExportItem([
                     'var_name' => $uspec_element['name'],
                     'var_label' => $uspec_element['label'],
-                    'var_type' => $uspec_element['type'],
+                    'var_type' => $this->specificationTypeToVarType( $uspec_element['type'], $valueset ),
                     'valueset' => $valueset,
                     'origin' => "specification",
                     'redcap_field_name' => $element['redcap_field_name'],
@@ -2075,6 +2124,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         if ( $field_type === "checkbox" ) return "CHECKBOX";
         if ( $field_type === "select" ) return "NOMINAL";
         if ( $field_type === "slider" ) return "INTEGER";
+        if ( $field_type === "calc" ) return "FLOAT";
 
         if ( $field_validation === "date_mdy" ) return "DATE";
         if ( $field_validation === "date_ymd" ) return "DATE";

@@ -83,7 +83,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
             imposed by the statistical package(s) that will process the exported data.
         </p><p>
             For example, the variable name limit for SAS and STATA is 32 characters, 
-            for MATLAB it's 63 characters and for R it's 64 characters.
+            for MATLAB the limit is 63 characters and for R the limit is 64 characters.
             You should be okay, even considering the event prefixes, if you adhere to the length
             warnings broadcast by the REDCap Field Editor.
         </p><p>
