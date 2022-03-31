@@ -1,3 +1,7 @@
+@import "{{ site.theme }}";
+
+#forkme_banner{ display: none !important; }
+
 #header nav {
     display: none !important;
 }
