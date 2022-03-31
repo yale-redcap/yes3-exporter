@@ -1,1 +1,3 @@
 show-downloads: false;
+
+theme: jekyll-theme-midnight
