@@ -434,21 +434,16 @@ YES3.detectColorScheme = function(){
         if(localStorage.getItem("theme") == "dark"){
             var theme = "dark";
         }
-    } else if(!window.matchMedia) {
-        //matchMedia method not supported
-        return false;
-    } else if(window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    } else if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
         //OS theme setting detected as dark
         var theme = "dark";
     }
 
-    //dark theme preferred, set document with a `data-theme` attribute
-    if (theme=="dark") {
-        document.documentElement.setAttribute("data-theme", "dark");
-    } else {
-        document.documentElement.setAttribute("data-theme", "light");
-    }
+    localStorage.setItem('theme', theme);
 
+    document.documentElement.setAttribute("data-theme", theme);
+
+    YES3.setThemeObjects();
     YES3.applyThemeBackgroundToParent();
 }
 
@@ -462,7 +457,23 @@ YES3.switchTheme = function(e) {
         localStorage.setItem('theme', 'light'); //add this
     }
 
+    YES3.setThemeObjects();
     YES3.applyThemeBackgroundToParent();
+}
+
+YES3.setThemeObjects = function()
+{
+
+    if ( localStorage.getItem('theme')==="dark" ) {
+
+        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_Black_v1.1.png"));
+        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_Black_v3.png"));
+    }
+    else {
+        
+        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_White_v1.1.png"));
+        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_White_v3.png"));
+    }    
 }
 
 YES3.applyThemeBackgroundToParent = function(){

@@ -416,6 +416,8 @@ $module->getCodeFor("yes3_export_editor", true);
 
         <div class="col-md-4 yes3-flex-vcenter-hleft">
 
+            <img class="yes3-square-logo" style="margin-right:20px" height="50px" />
+
             <div>
                 <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Export Editor</span>
             </div>
