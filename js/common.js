@@ -96,16 +96,7 @@ FMAPR.getProjectSettingsCallback = function(response)
 
     FMAPR.project = response;
 
-    // In the process of deprecating FMAPR.displayActionIcons
-
-    if ( FMAPR.useYes3Functions ) {
-
-        YES3.displayActionIcons();
-    }
-    else {
-
-        FMAPR.displayActionIcons();
-    }
+    YES3.displayActionIcons();
 
     // handler must defined in plugin JS
     $(document).trigger('yes3-fmapr.settings');
@@ -147,17 +138,17 @@ FMAPR.populateExportSpecificationSelect = function()
 
 /*** ACTION ICONS ***/
 
-FMAPR.displayActionIcons = function()
+FMAPR.displayActionIconsAndInputs = function()
 {
     if ( !FMAPR.mapperLoaded ){
 
-        $('i.yes3-fmapr-loaded').addClass('yes3-action-disabled');
+        $('i.yes3-loaded').addClass('yes3-action-disabled');
     }
     else {
 
         $('i.yes3-action-icon:not(.yes3-fmapr-clean)').removeClass('yes3-action-disabled');
 
-        if ( FMAPR.dirty ){
+        if ( YES3.dirty ){
             $('i.yes3-fmapr-display-when-clean').addClass('yes3-action-disabled');
             $('i.yes3-fmapr-display-when-dirty').removeClass('yes3-action-disabled');
             $('i#yes3-fmapr-save-control').addClass('yes3-fmapr-dirty');
@@ -187,13 +178,12 @@ FMAPR.displayActionIcons = function()
     }
 
     YES3.setActionIconListeners( YES3.container() );
-
-    //FMAPR.reportStatus();
 }
 
+// RENAME
 FMAPR.displayActionInputs = function()
 {
-    if ( FMAPR.dirty ){
+    if ( YES3.dirty ){
         $('input.yes3-fmapr-display-when-clean').hide();
         $('input.yes3-fmapr-display-when-dirty').show();
     }
@@ -201,16 +191,34 @@ FMAPR.displayActionInputs = function()
         $('input.yes3-fmapr-display-when-clean').show();
         $('input.yes3-fmapr-display-when-dirty').hide();
     }
+
+    if ( FMAPR.export_specification && FMAPR.export_specification.export_layout=== "r" ){
+
+        $('i.yes3-fmapr-display-when-not-repeating').addClass('yes3-action-disabled');
+
+        /**
+         * only one repeating form allowed
+         */
+        if ( $('tr.yes3-fmapr-data-element').length > 1 ){
+
+            $('i.yes3-fmapr-bulk-insert').addClass('yes3-action-disabled');
+        }
+        else {
+
+            $('i.yes3-fmapr-bulk-insert').removeClass('yes3-action-disabled');
+        }
+    }
 }
 
 FMAPR.markAsClean = function( forceRedisplay )
 {
     forceRedisplay = forceRedisplay | false;
     
-    if ( FMAPR.dirty || forceRedisplay ) {
+    if ( YES3.dirty || forceRedisplay ) {
 
-        FMAPR.dirty = false;
-        FMAPR.displayActionIcons();
+        YES3.dirty = false;
+        //FMAPR.displayActionIconsAndInputs();
+        YES3.displayActionIcons();
         FMAPR.displayActionInputs();
     }
 }
@@ -220,13 +228,26 @@ FMAPR.markAsDirty = function()
     if ( FMAPR.buildInProgress ){
         return true;
     }
+
+    if ( !YES3.userRights.isDesigner ){
+
+        YES3.hello("Because you are not a designer on this project, this editor is READ-ONLY and you will not be able to save any changes to the specification.");
+        FMAPR.postMessage("READ ONLY", true);
+        return false;
+    }
     
-    if ( !FMAPR.dirty ) {
-        FMAPR.dirty = true;
-        FMAPR.displayActionIcons();
+    if ( !YES3.dirty ) {
+        YES3.dirty = true;
+        //FMAPR.displayActionIconsAndInputs();
+
+        YES3.displayActionIcons();
+
         FMAPR.displayActionInputs();
+
         FMAPR.postMessage("Be sure to save your changes.", true);
     }
+
+    return true;
 
     //FMAPR.reportStatus();
 }

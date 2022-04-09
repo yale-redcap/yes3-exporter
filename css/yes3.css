@@ -37,6 +37,7 @@ html {
 }
 
 [data-theme="light"] {
+
     color-scheme: light;
 
     --yes3-color: rgb(7, 55, 65);
@@ -151,6 +152,7 @@ html {
 }
 
 [data-theme="dark"] {
+
     color-scheme: dark;
 
     --yes3-color: rgb(49, 148, 168);
@@ -272,7 +274,6 @@ pre {
 }
 
 html {
-
     font-family: var(--yes3-font-family) !important;
     font-size: var(--yes3-font-size) !important;
 }
@@ -349,6 +350,11 @@ input:checked + .yes3-theme-slider:before {
 
 /* === ACTION ICON SUPPORT === */
 
+.yes3-dirty {
+    color: var(--yes3-alert-color) !important;
+    font-size: 2.5rem !important;
+}
+
 i.yes3-action-icon:not(.yes3-action-icon-light) {
     color: var(--yes3-action-icon-color);
 }
@@ -386,6 +392,27 @@ i.yes3-action-icon-gutter {
 i.yes3-action-disabled {
     opacity: 0.3 !important;
 }
+
+/* === YES3 LOGO === */
+
+img.yes3-logo {
+    height: 40px;
+    margin-left: 20px;
+}
+
+img.yes3-logo:hover {
+    cursor: pointer;
+    /*animation: 3s infinite alternate yes3-logo-glow;*/
+    /* box-shadow: 0 0 8px 0 #aef4af;*/
+}
+
+@keyframes yes3-logo-glow {
+    from {
+    }
+    to {
+      box-shadow: 0 0 5px 5px #aef4af;
+    }
+  }
 
 /* === CONTAINER === */
 
@@ -914,21 +941,22 @@ div#yes3-message {
 }
 
 .yes3-error {
-    color: indianred !important;
+    color: var(--yes3-error-color) !important;
     /*background-color: transparent !important;*/
-    font-weight: 600 !important;
+    /*font-weight: 600 !important;*/
 }
 
+/* frowny face for spotlighting errors */
 td:nth-child(1).yes3-error::before {
     content: "\2639"; /* frowny face */
-    font-size: 2rem;
+    font-size: calc( 2 * var(--yes3-input-font-size) - 4px );
     margin-right: 4px;
     font-weight: 400 !important;
     vertical-align: middle;
 }
 
 input.yes3-error, select.yes3-error {
-    border-color: indianred !important;
+    border-color: var(--yes3-error-color) !important;
 }
 
 table:not(.yes3-removed) .yes3-if-removed {
@@ -1505,12 +1533,13 @@ i.yes3-selected {
  table.yes3-dashboard td {
     color: var(--yes3-td-color);
     background-color: var(--yes3-table-background-color);
-    font-size: 1rem;
+    font-size: var(--yes3-font-size);
     font-family: var(--yes3-font-family) !important;
     font-weight:  var(--yes3-font-weight) !important;
     border-top: 0;
     border-left: 0;
     border-right: 0;
+    height: calc( 2 * var(--yes3-input-font-size) + 2 * var(--yes3-padding) + 2px );
  }
 
  table.yes3-dashboard tr:not(:last-child) td {
@@ -1518,25 +1547,47 @@ i.yes3-selected {
     border-bottom: 1px solid var(--yes3-table-border-color);
  }
 
-table.yes3-dashboard td input[type=text], 
-table.yes3-dashboard td select, 
-table.yes3-settings td input[type=text], 
-table.yes3-settings td select 
-{
-    font-family: var(--yes3-input-font-family);
-    font-size: var(--yes3-input-font-size);
-    font-weight: var(--yes3-input-font-weight);
-    color: var(--yes3-input-color);
-    background-color: var(--yes3-input-background-color);
-    border: 1px solid var(--yes3-input-border-color);
-    border-radius: 4px;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    width: 100%;
+ table.yes3-dashboard td input[type=text], 
+ table.yes3-settings td input[type=text] 
+ {
+     font-family: var(--yes3-input-font-family);
+     font-size: var(--yes3-input-font-size);
+     font-weight: var(--yes3-input-font-weight);
+     color: var(--yes3-input-color);
+     background-color: var(--yes3-input-background-color);
+     border: 1px solid var(--yes3-input-border-color);
+     border-radius: 0;
+     padding-left: var(--yes3-input-font-size);
+     padding-right: var(--yes3-input-font-size);
+     padding-top: var(--yes3-padding);
+     padding-bottom: var(--yes3-padding);
+     width: 100%;
+ }
+
+ table.yes3-dashboard td select,  
+ table.yes3-settings td select 
+ {
+     font-family: var(--yes3-input-font-family);
+     font-size: var(--yes3-input-font-size);
+     font-weight: var(--yes3-input-font-weight);
+     color: var(--yes3-input-color);
+     background-color: var(--yes3-input-background-color);
+     border: 1px solid var(--yes3-input-border-color);
+     border-radius: 0;
+     padding-left: calc(var(--yes3-input-font-size) - 4px); /* ?? helps to align with input element padding */
+     padding-right: var(--yes3-input-font-size);
+     padding-top: var(--yes3-padding);
+     padding-bottom: var(--yes3-padding);
+     width: 100%;
+ }
+  
+.yes3-when-loaded {
+    display: none;
 }
 
- .yes3-when-loaded {
-     display: none;
- }
+.yes3-invisible {
+    visibility: hidden;
+}
+.yes3-visible {
+    visibility: visible;
+}

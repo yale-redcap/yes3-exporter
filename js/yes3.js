@@ -2,7 +2,9 @@ let YES3 = {
     maxZ: 1000,
     Functions: {},
     contentLoaded: true,
-    dirty: false
+    contentExpanded: true,
+    dirty: false,
+    projectUrl: "https://portal.redcap.yale.edu/news/redcapyale-team-secures-nih-funding-support-redcap-external-modules"
 };
  
 String.prototype.truncateAt = function( n ){
@@ -350,6 +352,8 @@ YES3.displayActionIcons = function( listenersLater )
 {
     listenersLater = listenersLater || false;
 
+    $('i.yes3-action-disabled').removeClass('yes3-action-disabled');
+
     if ( !YES3.contentLoaded ){
 
         $('i.yes3-loaded').addClass('yes3-action-disabled');
@@ -362,14 +366,51 @@ YES3.displayActionIcons = function( listenersLater )
 
             $('i.yes3-display-when-clean').addClass('yes3-action-disabled');
             $('i.yes3-display-when-dirty').removeClass('yes3-action-disabled');
-            $('i#yes3-save-control').addClass('yes3-dirty');
+            $('i.yes3-save-control').addClass('yes3-dirty');
         }
         else {
 
             $('i.yes3-display-when-clean').removeClass('yes3-action-disabled');
             $('i.yes3-display-when-dirty').addClass('yes3-action-disabled');
-            $('i#yes3-save-control').removeClass('yes3-dirty');
+            $('i.yes3-save-control').removeClass('yes3-dirty');
         }
+    }
+
+    if ( YES3.contentExpanded && YES3.contentLoaded ){
+
+        //$('i.yes3-collapsed').addClass('yes3-action-disabled');
+        //$('i.yes3-expanded').removeClass('yes3-action-disabled');
+        $('i.yes3-expanded').show();
+        $('i.yes3-collapsed').hide();
+    }
+    else if ( !YES3.contentExpanded && YES3.contentLoaded ){
+
+        //$('i.yes3-collapsed').removeClass('yes3-action-disabled');
+        //$('i.yes3-expanded').addClass('yes3-action-disabled');
+        $('i.yes3-expanded').hide();
+        $('i.yes3-collapsed').show();
+    }
+    else {
+
+        //$('i.yes3-collapsed').removeClass('yes3-action-disabled');
+        //$('i.yes3-expanded').addClass('yes3-action-disabled');
+        $('i.yes3-collapsed').hide();
+        $('i.yes3-expanded').show().addClass('yes3-action-disabled');
+    }
+
+    // disable based on permissions
+    if ( !YES3.userRights.isDesigner ){
+
+        $('i.yes3-designer-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
+
+        $('.yes3-designer-only:not(.yes3-action-disabled)').hide();
+        $('.yes3-editor input, .yes3-editor select').off().prop('disabled', true);
+        $('.yes3-editor i').addClass('yes3-action-disabled').off();
+    }
+
+    if ( !YES3.userRights.export ){
+
+        $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
     if ( !listenersLater ) {
@@ -404,10 +445,26 @@ YES3.setActionIconListeners = function(parentElement)
  * This function is called via the YES3 'action icon' mechanism,
  * so it is registered in the YES3 namespace
  */
- YES3.Functions.Help_openPanel = function()
- {
-     YES3.openPanel('yes3-help-panel', true)
- }
+YES3.Functions.Help_openPanel = function()
+{
+    YES3.openPanel('yes3-help-panel', true);
+
+    if ( YES3.contentExpanded && YES3.contentLoaded ){
+
+        $('div#yes3-help-panel .yes3-expanded').show();
+        $('div#yes3-help-panel .yes3-collapsed').hide();
+    }
+    else if ( !YES3.contentExpanded && YES3.contentLoaded ){
+
+        $('div#yes3-help-panel .yes3-expanded').hide();
+        $('div#yes3-help-panel .yes3-collapsed').show();
+    }
+    else {
+
+        $('div#yes3-help-panel .yes3-expanded').show();
+        $('div#yes3-help-panel .yes3-collapsed').show();
+    }
+}
  
  YES3.Help_closePanel = function()
  {
@@ -429,7 +486,7 @@ YES3.setActionIconListeners = function(parentElement)
 YES3.detectColorScheme = function(){
     var theme="light";    //default to light
 
-    //local storage is used to override OS theme settings
+    //local storage is used to override OS theme settingsvgb 
     if(localStorage.getItem("theme")){
         if(localStorage.getItem("theme") == "dark"){
             var theme = "dark";
@@ -441,20 +498,26 @@ YES3.detectColorScheme = function(){
 
     localStorage.setItem('theme', theme);
 
-    document.documentElement.setAttribute("data-theme", theme);
+    //document.documentElement.setAttribute("data-theme", theme);
+    YES3.getYes3ParentElement().attr('data-theme', theme);
 
     YES3.setThemeObjects();
     YES3.applyThemeBackgroundToParent();
 }
 
 YES3.switchTheme = function(e) {
+
     if (e.target.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark'); //add this
+
+        //document.documentElement.setAttribute('data-theme', 'dark');
+        YES3.getYes3ParentElement().attr('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
     }
     else {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light'); //add this
+
+        //document.documentElement.setAttribute('data-theme', 'light');
+        YES3.getYes3ParentElement().attr('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
     }
 
     YES3.setThemeObjects();
@@ -466,18 +529,24 @@ YES3.setThemeObjects = function()
 
     if ( localStorage.getItem('theme')==="dark" ) {
 
-        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_Black_v1.1.png"));
-        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_Black_v3.png"));
+        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_Black.png"));
+        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_Black.png"));
     }
     else {
-        
-        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_White_v1.1.png"));
-        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_White_v3.png"));
-    }    
+
+        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_White.png"));
+        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_White.png"));
+    }
+    
+    $("img.yes3-logo").off().on("click", function(){
+
+        window.open(YES3.projectUrl, "popup=yes");
+    })
 }
 
-YES3.applyThemeBackgroundToParent = function(){
-    $("#yes3-container").parent().css("background-color", $("#yes3-container").css("background-color"));
+YES3.applyThemeBackgroundToParent = function()
+{
+    YES3.getYes3ParentElement().css("background-color", $("#yes3-container").css("background-color"));
 }
 
 /* === UUID GENERATOR === */
@@ -488,39 +557,6 @@ YES3.uuidv4 = function() {
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
 }
-
- /*
- * the approved alternative to $(document).ready()
- */
-$( function () {
-
-    YES3.detectColorScheme();
-
-    const toggleSwitch = document.querySelector('.yes3-theme-switch input[type="checkbox"]');
-
-    toggleSwitch.addEventListener('change', YES3.switchTheme, false);
-
-    const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
-
-    if (currentTheme) {
-        document.documentElement.setAttribute('data-theme', currentTheme);
-
-        if (currentTheme === 'dark') {
-            toggleSwitch.checked = true;
-        }
-    }
-
-    /*
-    attach the csrf token to every AJAX request
-    https://stackoverflow.com/questions/22063612/adding-csrftoken-to-ajax-request
-    */
-    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-       jqXHR.setRequestHeader('X-CSRF-Token', redcap_csrf_token);
-    });
- 
-    $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});
-
-})
 
 function listAllEventListeners() {
     const allElements = Array.prototype.slice.call(document.querySelectorAll('*'));
@@ -599,3 +635,43 @@ YES3.isNonEmptyObject = function( o )
     return ( typeof o === "object" && Object.keys(o).length > 0 );
 }
 
+YES3.getYes3ParentElement = function()
+{
+    return $("div#yes3-container").parent();
+}
+
+/*
+* the approved alternative to $(document).ready()
+*/
+$( function () {
+
+    YES3.detectColorScheme();
+
+    const toggleSwitch = document.querySelector('.yes3-theme-switch input[type="checkbox"]');
+
+    toggleSwitch.addEventListener('change', YES3.switchTheme, false);
+
+    const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+
+    if (currentTheme) {
+
+        //document.documentElement.setAttribute('data-theme', currentTheme);
+
+        YES3.getYes3ParentElement().attr('data-theme', currentTheme);
+
+        if (currentTheme === 'dark') {
+            toggleSwitch.checked = true;
+        }
+    }
+
+    /*
+    attach the csrf token to every AJAX request
+    https://stackoverflow.com/questions/22063612/adding-csrftoken-to-ajax-request
+    */
+    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+    jqXHR.setRequestHeader('X-CSRF-Token', redcap_csrf_token);
+    });
+
+    $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});
+
+})

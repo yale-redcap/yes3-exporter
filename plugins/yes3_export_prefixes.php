@@ -125,8 +125,8 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
         <div class="col-md-4  yes3-flex-vcenter-hright">
 
-            <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel" id="yes3-fmapr-save-control" action="Exportspecifications_saveSettings" title="Save all settings on this page."></i>
-            <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-dirty" action="Exportspecifications_undoSettings" title="Restore all settings on this page to their stored values (undo)."></i>
+            <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-designer-only" id="yes3-fmapr-save-control" action="Exportspecifications_saveSettings" title="Save all settings on this page."></i>
+            <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-dirty yes3-designer-only" action="Exportspecifications_undoSettings" title="Restore all settings on this page to their stored values (undo)."></i>
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
 
             <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
@@ -156,7 +156,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
                 </p>
             </div>
 
-            <table id="yes3-fmapr-setup-events" class="yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-dashboard">
+            <table id="yes3-fmapr-setup-events" class="yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-dashboard yes3-editor">
 
                 <thead>
 

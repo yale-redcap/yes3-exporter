@@ -1,5 +1,5 @@
 [data-theme="light"] {
-    color-scheme: light;
+    /*color-scheme: light;*/
 
     --yes3-fmapr-divider-color: sandybrown;
     --yes3-fmapr-title-color: rgb(7, 55, 65);
@@ -34,10 +34,12 @@
     --yes3-fmapr-lov-color: steelblue;
 
     --yes3-fmapr-action-icon-color: rgb(7, 55, 65);
+
+    --yes3-fmapr-new-item-label-color: dodgerblue;
 }
 
 [data-theme="dark"] {
-    color-scheme: dark;
+    /*color-scheme: dark;*/
 
     --yes3-fmapr-divider-color: sandybrown;
     --yes3-fmapr-title-color: rgb(49, 148, 168);
@@ -74,6 +76,8 @@
     --yes3-fmapr-lov-color: aliceblue;
 
     --yes3-fmapr-action-icon-color: linen;
+
+    --yes3-fmapr-new-item-label-color: mediumseagreen;
 }
 
 div.yes3-fmapr td.yes3-gutter-left, div.yes3-fmapr th.yes3-gutter-left {
@@ -263,8 +267,8 @@ input.yes3-fmapr-button {
 
 div.row.yes3-fmapr-controls {
 
-    border-bottom: 1px solid var(--yes3-th-border-color);
-    padding-bottom: 1rem;
+    /*border-bottom: 1px solid var(--yes3-th-border-color);
+    padding-bottom: 1rem;*/
 }
 
 .yes3-fmapr-controls select {

@@ -20,27 +20,51 @@ td.yes3-fmapr-fieldinsertion-td-right {
     width: 70%;
 }
 
-.yes3-fmapr-redcap-element {
+/**
+ * all this to determine the color of the export item row label
+ */
+
+tr:not(.yes3-fmapr-new-field) span.yes3-fmapr-redcap-element {
     color: var(--yes3-fmapr-redcap-element-color);
     font-style: normal !important;
 }
 
-.yes3-fmapr-redcap-element:hover {
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-form-color) !important;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-element {
+    color: var(--yes3-fmapr-redcap-field-color) !important;
+    font-weight: var(--yes3-font-weight) !important;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field.yes3-fmapr-new-field .yes3-fmapr-redcap-element {
+    font-style: italic !important;
+    color: var(--yes3-fmapr-new-item-label-color) !important;
+    font-weight: var(--yes3-font-weight) !important;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
+    color: var(--yes3-fmapr-specmap-color) !important;
+    font-weight: var(--yes3-font-weight) !important;
+}
+
+tr:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-element:hover {
     cursor: pointer;
     color: var(--yes3-alert-color);
 }
 
- .yes3-fmapr-row-selected {
-     background-color: rgb(9, 63, 73, 0.25);
- }
+.yes3-fmapr-row-selected {
+    background-color: rgb(9, 63, 73, 0.25);
+}
 
- a.yes3-fmapr-value-picker-toggler, a.yes3-fmapr-lov-toggler {
+a.yes3-fmapr-value-picker-toggler, a.yes3-fmapr-lov-toggler {
     opacity: 50% !important;
- }
- 
- a.yes3-fmapr-value-picker-toggler {
+}
+
+a.yes3-fmapr-value-picker-toggler {
     display:none;
- }
+}
 
 tr.yes3-row-selected span.yes3-fmapr-redcap-element::before {
     /*content: "\25B6"; arrow */
@@ -90,28 +114,25 @@ div.yes3-fmapr-value-picker-wrapper {
     display: none;
 }
 
-tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-element {
-    color: var(--yes3-fmapr-redcap-form-color) !important;
+div#yes3-fmapr-settings {
+
+    margin-top: var(--yes3-margin);
 }
 
-tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field .yes3-fmapr-redcap-element {
-    color: var(--yes3-fmapr-redcap-field-color) !important;
-    font-weight: var(--yes3-font-weight) !important;
-}
-
-tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
-    color: var(--yes3-fmapr-specmap-color) !important;
-    font-weight: var(--yes3-font-weight) !important;
-}
-
-table[name=yes3-fmapr-settings] {
+.yes3-fmapr-settings-block {
 
     display: none;
 }
 
-table[name=yes3-fmapr-settings] td {
+table.yes3-fmapr-settings td {
 
     height: 3.2rem;
+}
+
+div.yes3-fmapr-filter-option {
+    margin-top: calc( 0.5 * var(--yes3-margin) );
+    margin-bottom: calc( 0.5 * var(--yes3-margin) );
+    width: 100%;
 }
 
 div#yes3-fmapr-uspec-editor textarea {
@@ -141,7 +162,7 @@ div#yes3-fmapr-footer   div.col-md-6 {
     padding-left: 0 !important;
 }
 
-table[name=yes3-fmapr-settings] tr td:nth-child(1){
+table.yes3-fmapr-settings tr td:nth-child(1){
     width: 40%;
 }
 

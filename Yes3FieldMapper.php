@@ -19,6 +19,7 @@ require "defines/yes3_defines.php";
 use Exception;
 use REDCap;
 use ZipArchive;
+use Project;
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
@@ -29,10 +30,15 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $serviceUrl = "";
     public $documentationUrl = "";
     private $token = "";
+    private $salt = "";
+    private $project_salt = "";
+    private $date_shift_max = "";
 
     use Yes3Trait;
 
     public function __construct() {
+
+        global $salt;
 
         parent::__construct(); // call parent (AbstractExternalModule) constructor
 
@@ -44,57 +50,73 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->serviceUrl = $this->getUrl('services/services.php');
             $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php');
 
-            $this->RecordIdField = \REDCap::getRecordIdField();
-            $this->isLongitudinal = \REDCap::isLongitudinal();
+            $this->RecordIdField = REDCap::getRecordIdField();
+            $this->isLongitudinal = REDCap::isLongitudinal();
 
             $this->token = "this-should-be-private";
+
+            $Proj = new Project();
+
+            $this->salt = $salt;
+            $this->project_salt = $Proj->project['__SALT__'];
+            $this->date_shift_max = (int)$Proj->project['date_shift_max'];
+
+            //Yes3::logDebugMessage($this->project_id, "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
         }
     }
 
     /**
-     * ensures a valid data_elements specification, no matter what the user put into the EM setting
+     * Hash and Date shifting code from Record class, REDCap 11.3.4
+     * Copied here to remove dependency on class def
      */
-    public function validated_data_elements( $elements )
+
+    /**
+     * formula from Records::getData
+     * 
+     * function: hash_record
+     * 
+     * @param mixed $record
+     * 
+     * @return string
+     */
+    private function hash_record($record)
     {
-        if ( !is_array( $elements ) ){
-            return [];
-        }
-        
-        $t = [];
-
-        foreach ($elements as $element){
-
-            if ( isset($element['name']) && isset($element['type']) && isset($element['label']) ){
-
-                $e = [
-                    'name' => Yes3::alphaNumericString( $element['name'] )
-                    , 'type' => Yes3::alphaNumericString( $element['type'] )
-                    , 'label' => Yes3::alphaNumericString( $element['label'] )
-                ];
-
-                if ( isset($element['valueset']) && is_array($element['valueset']) ) {
-                    $v = [];
-                    foreach( $element['valueset'] as $valuesetItem ){
-                        if ( isset( $valuesetItem['value']) && isset( $valuesetItem['label']) ) {
-                            $v[] = [
-                                'value' => Yes3::alphaNumericString( $valuesetItem['value'] ),
-                                'label' => Yes3::inoffensiveText( $valuesetItem['label'] )
-                            ];
-                        }
-                    }
-
-                    if ( count($v) > 0 ){
-                        $e['valueset'] = $v;
-                        $e['type'] = "nominal";
-                    } 
-                }
-
-                $t[] = $e;
-            }
-        }
-
-        return $t;
+        return md5($this->salt . $record . $this->project_salt);
     }
+  
+	/**
+	 * DATE SHIFTING: Get number of days to shift for a record
+	 */
+	private function get_shift_days($idnumber)
+	{
+		$dec = hexdec(substr(md5($this->salt . $idnumber . $this->project_salt), 10, 8));
+		// Set as integer between 0 and $date_shift_max
+		$days_to_shift = round($dec / pow(10,strlen($dec)) * $this->date_shift_max);
+		return $days_to_shift;
+	}
+
+	/**
+	 * DATE SHIFTING: Shift a date by providing the number of days to shift
+	 */
+	private function shift_date_format($date, $days_to_shift)
+	{
+		if ($date == "") return $date;
+
+        if ( strlen($date) < 10 ) return $date;
+
+		// Explode into date/time pieces (in case a datetime field)
+		list ($date, $time) = explode(' ', $date, 2);
+		// Separate date into components
+		$mm   = (int)substr($date, 5, 2);
+		$dd   = (int)substr($date, 8, 2);
+		$yyyy = (int)substr($date, 0, 4);
+		// Shift the date
+		$newdate = date("Y-m-d", mktime(0, 0, 0, $mm , $dd - $days_to_shift, $yyyy));
+		// Re-add time component (if applicable)
+		$newdate = trim("$newdate $time");
+		// Return new date/time
+		return $newdate;
+	}
 
     public function buildExportDataDictionary( $export_uuid )
     {
@@ -172,6 +194,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *          field_label
          *          form_name
          *          field_type: REDCap element_type
+         *          field_validation
+         *          field_phi
          *          field_valueset: list of valueset objects {value, label}
          *      }
          * 
@@ -179,7 +203,56 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * 
          */
         $fields = $this->getFieldMetadataStructures();
-    
+
+        /**
+         * uRights: a curated set of rights and permissions
+         * 
+         *  username
+         *  isDesigner
+         *  isSuper
+         *  group_id
+         *  dag:    unique group name
+         *  export: data_export_tool permission
+         *  import: data_import_tool permission
+         *  api_export
+         *  api_import
+         *  form_permissions: assoc array of (1,0) read permission, keyed by form_name
+         * 
+        */
+        $uRights = $this->yes3UserRights();
+
+        if ( !$uRights['export'] ){
+
+            throw new Exception("ERROR: User does not have permission to export data.");
+        }
+
+        $allowed = [
+            'group_id' => 0,
+            'forms' => [],
+            'phi' => ( $export->export_remove_phi ) ? 0 : (($uRights['export']==1) ? 1:0),
+            'dates' => ( $export->export_remove_dates ) ? 0 : (($uRights['export']==1 || $uRights['export']==3) ? 1:0),
+            'smalltext' => ( $export->export_remove_freetext ) ? 0 : (($uRights['export']==1 || $uRights['export']==3) ? 1:0),
+            'largetext' => ( $export->export_remove_freetext || $export->export_remove_largetext) ? 0 : (($uRights['export']==1 || $uRights['export']==3) ? 1:0)
+        ];
+
+        foreach ($uRights['form_permissions'] as $form_name => $readWrite ){
+
+            if ( (int)$readWrite ){
+
+                $allowed['forms'][] = $form_name;
+            }
+        }
+
+        if ( $uRights['group_id'] ){
+
+            $allowed['group_id'] = $uRights['group_id'];
+        }
+
+        Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary: export_specification");
+        Yes3::logDebugMessage($this->project_id, print_r($export, true), "buildExportDataDictionary: export");
+        Yes3::logDebugMessage($this->project_id, print_r($allowed, true), "buildExportDataDictionary: allowed");
+        throw new Exception("Have a nice day");
+   
         /**
          * DATA DICTIONARY
          * 
@@ -213,24 +286,25 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         /**
          * Start with recordid field; always the first column
          */
-        $field_name = \REDCap::getRecordIdField();
+        $field_name = REDCap::getRecordIdField();
 
-        $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings );
+        $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings, $allowed );
 
-        /**
-         * If not horizontal, event is next column
-         */
-        if ( $export->export_layout !== "h" ){
+        if ( REDCap::getGroupNames() ) {
 
-            $this->addExportItem_otherProperty($export, "redcap_event", "REDCap Event");
+            $this->addExportItem_otherProperty($export, VARNAME_GROUP_ID,   "REDCap Data Access Group Id", "INTEGER");
+            $this->addExportItem_otherProperty($export, VARNAME_GROUP_NAME, "REDCap Data Access Group Name", "TEXT");
+        }
 
-            /**
-             * If repeating, instance is next
-             */
-            if ( $export->export_layout === "r" ){
+        if ( $export->export_layout !== "h" && REDCap::isLongitudinal() ) {
 
-                $this->addExportItem_otherProperty($export, "redcap_repeat_instance", "REDCap Repeat Instance");
-            }
+            $this->addExportItem_otherProperty($export, VARNAME_EVENT_ID,   "REDCap Event Id", "INTEGER");
+            $this->addExportItem_otherProperty($export, VARNAME_EVENT_NAME, "REDCap Event Name", "TEXT");
+        }
+
+        if ( $export->export_layout !== "r" ) {
+
+            $this->addExportItem_otherProperty($export, VARNAME_INSTANCE, "REDCap Repeat Instance", "INTEGER");
         }
 
         $export_items = json_decode( $export_specification['export_items_json'], true);
@@ -246,16 +320,21 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     
             elseif ( $element['redcap_field_name'] ) {
     
-                $this->addExportItem_REDCapField( $export, $element['redcap_field_name'], $element['redcap_event_id'], $fields, $forms, $event_settings );
+                $this->addExportItem_REDCapField( $export, $element['redcap_field_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed );
             }
     
             elseif ( $element['redcap_form_name'] ) {
     
-                $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element['redcap_event_id'], $fields, $forms, $event_settings );
+                $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed );
             }
         }
 
         $dd = [];
+
+        $fields_rejected = 0;
+
+        //Yes3::logDebugMessage($this->project_id, print_r($uRights['form_permissions'], true), "buildExportDataDictionary:fp");
+        //Yes3::logDebugMessage($this->project_id, print_r($export->export_items, true), "buildExportDataDictionary:fp");
 
         foreach( $export->export_items as $export_item ){
 
@@ -267,8 +346,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 'origin' => $export_item->origin,
                 'redcap_field_name' => $export_item->redcap_field_name,
                 'redcap_form_name' => $export_item->redcap_form_name,
-                'redcap_event_id' => $export_item->redcap_event_id,
-                'redcap_event_name' => $export_item->redcap_event_name,
+                VARNAME_EVENT_ID => $export_item->redcap_event_id,
+                VARNAME_EVENT_NAME => $export_item->redcap_event_name,
                 'non_missing_count' => $export_item->non_missing_count,
                 'min_length' => $export_item->min_length,
                 'max_length' => $export_item->max_length,
@@ -304,7 +383,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'export_max_label_length' => $export->export_max_label_length,
             'export_max_text_length' => $export->export_max_text_length,
             'export_inoffensive_text' => $export->export_inoffensive_text,
-            'export_data_dictionary' => $dd
+            'export_hash_recordid' => $export->export_hash_recordid,
+            'export_shift_dates' => $export->export_shift_dates,
+            'export_group_id' => $allowed['group_id'],
+            'export_data_dictionary' => $dd,
+            'export_fields_rejected' => $fields_rejected
         ];
 
         //$this->download($export->export_name . "_dd", $dd);
@@ -376,7 +459,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
     private function writeExportFiles( &$ddPackage, $destination="", &$bytesWritten=0)
     {
-
         //exit( print_r($eventSpecs, true) )
 
         // for code clarity
@@ -386,6 +468,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_layout              = $ddPackage['export_layout'];
         $export_max_text_length     = (int)$ddPackage['export_max_text_length'];
         $export_inoffensive_text    = (int)$ddPackage['export_inoffensive_text'];
+        $export_shift_dates         = (int)$ddPackage['export_shift_dates'];
+        $export_group_id            = (int)$ddPackage['export_group_id'];
+        $export_hash_recordid       = (int)$ddPackage['export_hash_recordid'];
 
         $dd = $ddPackage['export_data_dictionary'];
 
@@ -426,6 +511,16 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $eventName[$eventSpec['event_id']] = $eventSpec['event_name'];
         }
 
+        /**
+         * get an assoc array of dag names
+        **/
+
+        $dagNameForGroupId = REDCap::getGroupNames(true);
+        if ( !$dagNameForGroupId ){
+
+            $dagNameForGroupId = [];
+        }
+
         //$spec = $this->getExportSpecification( $export_uuid );
 
         /**
@@ -444,23 +539,43 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $dd_index = [];
         $dd_specmap_index = [];
 
+        //Yes3::logDebugMessage($this->project_id, print_r($dd, true), "writeExportFiles: dd");
+
         for ($i=0; $i<count($dd); $i++){
 
-            if ( $dd[$i]['redcap_field_name'] && $dd[$i]['redcap_event_id'] && is_numeric($dd[$i]['redcap_event_id']) ){
+            if ( $export_layout==="h" ){
 
-                if ( $dd[$i]['origin'] === "redcap" ){
+                if ( $dd[$i]['redcap_field_name'] && $dd[$i][VARNAME_EVENT_ID] && is_numeric($dd[$i][VARNAME_EVENT_ID]) ){
 
-                    $dd_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_event_id']] = $i;
+                    if ( $dd[$i]['origin'] === "redcap" ){
+
+                        $dd_index[$dd[$i]['redcap_field_name']][$dd[$i][VARNAME_EVENT_ID]] = $i;
+                    }
+
+                    elseif ( $dd[$i]['origin'] === "specification" ){
+
+                        $dd_specmap_index[$dd[$i]['redcap_field_name']][$dd[$i][VARNAME_EVENT_ID]] = $i;
+                    }
+                    
+                    if ( !in_array($dd[$i][VARNAME_EVENT_ID], $events) ){
+
+                        $events[] = $dd[$i][VARNAME_EVENT_ID];
+                    }
                 }
+            }
+            else {
 
-                elseif ( $dd[$i]['origin'] === "specification" ){
+                if ( $dd[$i]['redcap_field_name'] ){
 
-                    $dd_specmap_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_event_id']] = $i;
-                }
-                
-                if ( !in_array($dd[$i]['redcap_event_id'], $events) ){
+                    if ( $dd[$i]['origin'] === "redcap" ){
 
-                    $events[] = $dd[$i]['redcap_event_id'];
+                        $dd_index[$dd[$i]['redcap_field_name']] = $i;
+                    }
+
+                    elseif ( $dd[$i]['origin'] === "specification" ){
+
+                        $dd_specmap_index[$dd[$i]['redcap_field_name']] = $i;
+                    }
                 }
             }
 
@@ -522,8 +637,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $critXOperators = [ "=>", "<=", "=", "<", ">"];
 
-            $sqlParams[] = $ddPackage['export_criterion_event'];
-            $sqlParams[] = $ddPackage['export_criterion_field'];
+            $sqlCritXParams = [];
 
             $critXStr = trim( $ddPackage['export_criterion_value'] );
 
@@ -544,7 +658,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 foreach ( $valParts as $val){
 
                     $critXQList .= (( $critXQList ) ? "," : "") . "?";
-                    $sqlParams[] = $val;
+                    $sqlCritXParams[] = $val;
                 }
                 $critXQ = "IN({$critXQList})";
             }
@@ -560,34 +674,65 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                 $critXQ = $critXOp . "?";
 
-                $sqlParams[] = $critXVal;
+                $sqlCritXParams[] = $critXVal;
             }
 
-            $sql = "
-SELECT d.`record` 
-FROM redcap_data d
-WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` {$critXQ}                    
-            ";
+            if ( $export_group_id ){
+
+                $sql = "
+                SELECT DISTINCT d.`record`
+                FROM redcap_data d
+                INNER JOIN redcap_data dg ON dg.`project_id`=d.`project_id` AND dg.`event_id`=d.`event_id` AND dg.`record`=d.`record` AND dg.`field_name`='__GROUPID__'
+                WHERE d.`project_id`=? AND dg.`value`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` {$critXQ}";
+
+                $sqlParams = array_merge([ $this->project_id, $export_group_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
+            }
+            else {
+
+                $sql = "
+                SELECT DISTINCT d.`record`
+                FROM redcap_data d
+                WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` {$critXQ}";
+
+                $sqlParams = array_merge([$this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
+            }
         }
         else {
 
-            $sql = "       
-SELECT DISTINCT d.`record`
-FROM redcap_data d
-WHERE d.`project_id`=?
-            ";
+            if ( $export_group_id ){
+
+                $sql = "       
+                SELECT DISTINCT d.`record`
+                FROM redcap_data d
+                INNER JOIN redcap_data dg ON dg.`project_id`=d.`project_id` AND dg.`event_id`=d.`event_id` AND dg.`record`=d.`record` AND dg.`field_name`='__GROUPID__'
+                WHERE d.`project_id`=? AND dg.`value`=?";
+
+                $sqlParams = [ $this->project_id, $export_group_id ];
+            }
+            else {
+
+                $sql = "       
+                SELECT DISTINCT d.`record`
+                FROM redcap_data d
+                WHERE d.`project_id`=?";
+
+                $sqlParams = [ $this->project_id ];                
+            }
         }
+
+        //$sql .= " LIMIT 10";
 
         $records = [];
         $all_numeric = true;
         foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
 
             $records[] = $x['record'];
+
             if ( $all_numeric && !is_numeric($x['record']) ){
 
                 $all_numeric = false;
             }
-        }
+         }
 
         if ( $all_numeric ){
 
@@ -607,17 +752,21 @@ WHERE d.`project_id`=?
 
             $sqlSelectParams = array_merge([$this->project_id, $record], $sqlEventParams);
 
-            $bytesWritten += $this->writeExportDataFileRecord( 
+            $bytesWritten += $this->writeExportDataFileRecord(
+                $record, 
                 $sqlSelect, 
                 $sqlSelectParams, 
                 $eventName, 
                 $dd, 
                 $dd_index, 
-                $dd_specmap_index, 
+                $dd_specmap_index,
+                $dagNameForGroupId, 
                 $h, 
                 $export_layout, 
                 $export_max_text_length, 
-                $export_inoffensive_text, 
+                $export_inoffensive_text,
+                $export_hash_recordid,
+                $export_shift_dates,
                 $K, 
                 $R, 
                 $C
@@ -628,7 +777,7 @@ WHERE d.`project_id`=?
          * DD post-processing
          * 
          * (1) repack the valueset
-         * (1) Tidy up the dd validation section
+         * (2) Tidy up the dd validation section
          */
 
         $this->tidyUpDD($dd);
@@ -857,18 +1006,32 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
         return $a['value'] > $b['value'];
     }
+
+    private function isDateOrTimeType( $varType )
+    {
+        return in_array( $varType, ['DATE', 'TIME', 'DATETIME']);
+    }
+
+    private function isDateType( $varType )
+    {
+        return in_array( $varType, ['DATE', 'DATETIME']);
+    }
     
     private function writeExportDataFileRecord( 
+        $record,
         $sqlSelect, 
         $sqlSelectParams, 
         $eventName, 
         &$dd, 
         $dd_index, 
         $dd_specmap_index, 
+        $dagNameForGroupId, 
         $h, 
         $export_layout, 
         $export_max_text_length, 
-        $export_inoffensive_text, 
+        $export_inoffensive_text,
+        $export_hash_recordid,
+        $export_shift_dates,
         &$K, 
         &$R, 
         &$C
@@ -876,14 +1039,30 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         $event_id = "?";
         $instance = "?";
         $field_index = -1;
+        $days_to_shift = 0;
+
+        if ( $export_shift_dates ){
+
+            $days_to_shift = $this->get_shift_days($record);
+        }
+
+        if ( $export_hash_recordid ){
+
+            $record = $this->hash_record($record);
+        }
 
         $y = [];
 
         $BOR = true;
 
-        $RecordIdField = \REDCap::getRecordIdField();
+        $RecordIdField = REDCap::getRecordIdField();
 
         $bytesWritten = 0;
+
+        $exportValues = 0;
+
+        //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
+        //Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
 
         foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
         //$xx = Yes3::fetchRecords($sql, $sqlParams);
@@ -912,30 +1091,30 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             
             if ( $BOR ) {
 
-                if ( $y ){
+                if ( $y && $exportValues ){
 
                     $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);
                 }
                     
                 $y = [
-                    $RecordIdField => $x['record']
+                    $RecordIdField => $record
                 ];
 
-                if ( $export_layout==="v" ) {
+                if ( $export_layout!=="h" && REDCap::isLongitudinal() ) {
     
-                    $y['event_id'] = $x['event_id'];
-                    $y['event_name'] = $eventName[$x['event_id']];
+                    $y[VARNAME_EVENT_ID  ] = $x['event_id'];
+                    $y[VARNAME_EVENT_NAME] = $eventName[$x['event_id']];
                 }
-                elseif ( $export_layout==="r" ) {
+
+                if ( $export_layout==="r" ) {
     
-                    $y['event_id'] = $x['event_id'];
-                    $y['event_name'] = $eventName[$x['event_id']];
-                    $y['instance'] = $x_instance;
+                    $y[VARNAME_INSTANCE  ] = $x_instance;
                 }
 
                 /**
                  * fill out the record
                  */
+
                 foreach ($dd as $d){
 
                     if ( !isset($y[$d['var_name']]) ){
@@ -952,6 +1131,8 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                     }
                 }
 
+                $exportValues = 0;
+
                 $BOR = false;
             }
 
@@ -961,15 +1142,32 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
             $event_id = $x['event_id'];
 
+            $field_name = $x['field_name'];
+
             $REDCapValue = $this->conditionREDCapValue( $x['value'], $export_max_text_length, $export_inoffensive_text );
+
+            if ( $field_name === "__GROUPID__" ) {
+
+                $y[VARNAME_GROUP_ID  ]   = $x['value'];
+                $y[VARNAME_GROUP_NAME] = $dagNameForGroupId[ $x['value'] ];
+            }
 
             $instance = $x_instance;
 
-            $field_index = $dd_index[$x['field_name']][$event_id] ?? -1;
+            if ( $export_layout==="h" ){
 
-            $specmap_field_index = $dd_specmap_index[$x['field_name']][$event_id] ?? -1;
+                $field_index = $dd_index[$field_name][$event_id] ?? -1;
+                $specmap_field_index = $dd_specmap_index[$field_name][$event_id] ?? -1;
+            }
+            else {
 
-            if ( $field_index > -1 ){
+                $field_index = $dd_index[$field_name] ?? -1;
+                $specmap_field_index = $dd_specmap_index[$field_name] ?? -1;
+            }
+
+            if ( $field_index > -1 && $field_name !== $RecordIdField ){
+
+                $exportValues++;
 
                 /**
                  * goddam multiselects
@@ -985,7 +1183,14 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 }
                 else {
 
-                    $y[ $dd[ $field_index]['var_name'] ] = $REDCapValue;
+                    if ( $this->isDateOrTimeType($dd[$field_index]['var_type']) && $days_to_shift > 0 ) {
+
+                        $y[ $dd[ $field_index]['var_name'] ] = $this->shift_date_format($REDCapValue, $days_to_shift);
+                    }
+                    else {
+
+                        $y[ $dd[ $field_index]['var_name'] ] = $REDCapValue;
+                    }
                 }
 
                 $K++;
@@ -995,7 +1200,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
             if ( $specmap_field_index > -1 ){
 
-                //print "<br>Specification block entered for [{$x['record']}] [{$x['event_id']}] [{$x['field_name']}] [{$x['value']}] [{$specmap_field_index}]";
+                //print "<br>Specification block entered for [{$record}] [{$x['event_id']}] [{$field_name}] [{$x['value']}] [{$specmap_field_index}]";
 
                 $specValue = "";
 
@@ -1042,7 +1247,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
         }
 
-        if ( $y ){
+        if ( $y && $exportValues ){
 
             $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);
         }
@@ -1114,7 +1319,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 $v = $value;
             }
 
-            elseif ( $var_type==="DATE" || $var_type==="TIME" || $var_type==="DATETIME" ){
+            elseif ( $this->isDateOrTimeType($var_type) ){
 
                 $v = strtotime($value);
             }
@@ -1181,11 +1386,18 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
     {
         $t = time();
 
+        $response = "";
+
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
         $results = $this->writeExportFiles($ddPackage);
 
-        $response = $results['export_data_dictionary_message']
+        if ( $ddPackage['export_fields_rejected'] ){
+
+            $response .= "Note: " . $ddPackage['export_fields_rejected'] . " fields were rejected because of form permissions." . "\n\n";
+        }
+
+        $response .= $results['export_data_dictionary_message']
                     . "\n\n" 
                     . $results['export_data_message']
         ;
@@ -1447,7 +1659,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
     public function getEventSettings()
     {
-        if ( !\REDCap::isLongitudinal() ){
+        if ( !REDCap::isLongitudinal() ){
 
             return [
                 [
@@ -1515,6 +1727,12 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         , export_max_label_length
         , export_max_text_length
         , export_inoffensive_text
+        , export_remove_phi
+        , export_remove_freetext
+        , export_remove_largetext
+        , export_remove_dates
+        , export_shift_dates
+        , export_hash_recordid
         , export_uspec_json
         , export_items_json
         ";
@@ -1631,11 +1849,11 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
     public function getDefaultExportEvents()
     {
-        if ( !\REDCap::isLongitudinal() ){
+        if ( !REDCap::isLongitudinal() ){
             return [];
         }
 
-        $events = \REDCap::getEventNames(true);
+        $events = REDCap::getEventNames(true);
 
         $maxUniquePrefixLen = 8;
         $uniquePrefixLen = 0;
@@ -1709,7 +1927,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
     {
         $events = [];
 
-        if ( $isLong = \REDCap::isLongitudinal() ) {
+        if ( $isLong = REDCap::isLongitudinal() ) {
 
             $sql = "
             SELECT DISTINCT m.form_name, m.field_order, m.form_menu_description
@@ -1810,10 +2028,10 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
     public function getFieldMetadataStructures(): array
     {
-        if ( \REDCap::isLongitudinal() ){
+        if ( REDCap::isLongitudinal() ){
 
             $sql = "
-            SELECT DISTINCT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type
+            SELECT DISTINCT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type, m.field_phi
             FROM redcap_metadata m
                 INNER JOIN redcap_events_forms ef ON ef.form_name=m.form_name
                 INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id
@@ -1826,7 +2044,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         else {
 
             $sql = "
-            SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type
+            SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type, m.field_phi
             FROM redcap_metadata m
             WHERE m.project_id=?
             AND m.element_type NOT IN('descriptive')
@@ -1866,6 +2084,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 'form_name'         => Yes3::inoffensiveText($field['form_name']),
                 'field_type'        => $field['element_type'],
                 'field_validation'  => $field['element_validation_type'],
+                'field_phi'         => $field['field_phi'],
                 'field_label'       => $field_label,
                 'field_valueset'    => $valueset
 
@@ -1933,9 +2152,9 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                     'valueset' => $valueset,
                     'origin' => "specification",
                     'redcap_field_name' => $element['redcap_field_name'],
-                    'redcap_form_name' => Yes3::getREDCapFormForField($element['redcap_field_name']),
-                    'redcap_event_id' => $element['redcap_event_id'],
-                    'redcap_event_name' => $this->getEventName($element['redcap_event_id'], $event_settings)
+                    'redcap_form_name'  => Yes3::getREDCapFormForField($element['redcap_field_name']),
+                    VARNAME_EVENT_ID    => $element[VARNAME_EVENT_ID],
+                    VARNAME_EVENT_NAME  => $this->getEventName($element[VARNAME_EVENT_ID], $event_settings)
                 ]);
 
                 break;    
@@ -1943,11 +2162,69 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         }
     }
 
-    private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings )
+    private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed )
     {
         $field_index = $fields['field_index'][$redcap_field_name];
 
         $form_name = $fields['field_metadata'][$field_index]['form_name'];
+
+        if ( !in_array($form_name, $allowed['forms']) ){
+
+            return 0;
+        }
+
+        $field_type = $fields['field_metadata'][$field_index]['field_type'];
+
+        $field_validation = $fields['field_metadata'][$field_index]['field_validation'];
+
+        $field_phi = ( $fields['field_metadata'][$field_index]['field_phi'] == "1" );
+
+        $field_largetext = ( $fields['field_metadata'][$field_index]['field_type']==="textarea" );
+
+        $field_smalltext = false;
+
+        $field_date = false;
+
+        if ( $field_type === "text" ){
+
+            if ( !$field_validation ){
+
+                $field_smalltext = true;
+            }
+            elseif ( $this->isDateType($this->REDCapFieldTypeToVarType( $field_type, $field_validation )) ) {
+
+                $field_date = true;
+            }
+        }
+
+        $msg = "redcap_field_name={$redcap_field_name}: form_name={$form_name}, field_type={$field_type}, field_validation={$field_validation}, field_phi={$field_phi}"
+        .", field_largetext={$field_largetext}"
+        .", field_smalltext={$field_smalltext}"
+        .", field_date={$field_date}."
+        ."\nallowed: phi={$allowed['phi']} largetext={$allowed['largetext']} smalltext={$allowed['smalltext']} dates={$allowed['dates']}."
+        ;
+
+        //Yes3::logDebugMessage($this->project_id, $msg, "addExportItem_REDCapField");
+
+        if ( $field_phi && !$allowed['phi'] ){
+
+            return 0;
+        }
+
+        if ( $field_largetext && !$allowed['largetext'] ){
+
+            return 0;
+        }
+
+        if ( $field_smalltext && !$allowed['smalltext'] ){
+
+            return 0;
+        }
+
+        if ( $field_date && !$allowed['dates'] ){
+
+            return 0;
+        }
 
         $event_ids = [];
 
@@ -1974,16 +2251,18 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 $export->addExportItem([
                     'var_name' => $var_name,
                     'var_label' => $fields['field_metadata'][$field_index]['field_label'],
-                    'var_type' => $this->REDCapFieldTypeToVarType($redcap_field_name, $fields),
+                    'var_type' => $this->REDCapFieldTypeToVarType($field_type, $field_validation),
                     'valueset' => $fields['field_metadata'][$field_index]['field_valueset'],
                     'origin' => "redcap",
                     'redcap_field_name' => $redcap_field_name,
                     'redcap_form_name' => $form_name,
-                    'redcap_event_id' => $event_id,
-                    'redcap_event_name' => $this->getEventName($event_id, $event_settings)
+                    VARNAME_EVENT_ID => $event_id,
+                    VARNAME_EVENT_NAME => $this->getEventName($event_id, $event_settings)
                 ]);
             }
         }
+
+        return 1;
     }
 
     private function addExportItem_otherProperty( $export, $property_name, $property_label, $property_type="TEXT" )
@@ -1996,22 +2275,23 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             'origin' => "other",
             'redcap_field_name' => "",
             'redcap_form_name' => "",
-            'redcap_event_id' => "",
-            'redcap_event_name' => ""
+            VARNAME_EVENT_ID => "",
+            VARNAME_EVENT_NAME => ""
         ]);
     }
 
-    private function addExportItem_REDCapForm( $export, $redcap_form_name, $redcap_event_id, $fields, $forms, $event_settings )
+    private function addExportItem_REDCapForm( $export, $redcap_form_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed )
     {
+
         $form_names = [];
 
         if ( $redcap_form_name === ALL_OF_THEM ){
 
             foreach ( $forms['form_metadata'] as $form ){
 
-                if ( !$form['form_repeating'] ) {
+                if ( in_array($form['form_name'], $allowed['forms']) && !$form['form_repeating']) {
 
-                    $includeForm = ( $redcap_event_id === ALL_OF_THEM || !\REDCap::isLongitudinal() );
+                    $includeForm = ( $redcap_event_id === ALL_OF_THEM || !REDCap::isLongitudinal() );
 
                     if ( !$includeForm ){
 
@@ -2029,12 +2309,15 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                         
                         $form_names[] = $form['form_name'];
                     }
-                } // no repeaters allowed in 'all' forms
+                }
             }
         }
         else {
 
-            $form_names = [ $redcap_form_name ];
+            if ( in_array($redcap_form_name, $allowed['forms']) ){
+    
+                $form_names = [ $redcap_form_name ];
+            }
         }
 
         foreach ( $form_names as $form_name ){
@@ -2059,15 +2342,17 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
                 foreach ( $forms['form_metadata'][$form_index]['form_fields'] as $field_name ){
 
-                    $this->addExportItem_REDCapField($export, $field_name, $event_id, $fields, $forms, $event_settings);
+                    $this->addExportItem_REDCapField($export, $field_name, $event_id, $fields, $forms, $event_settings, $allowed);
                 }
             }
         }
+
+        return count($form_names);
     }
 
     private function exportFieldName( $export, $field_name, $event_id, $event_settings)
     {
-        if ( $export->export_layout==="h" && $field_name !== \REDCap::getRecordIdField() ) {
+        if ( $export->export_layout==="h" && $field_name !== REDCap::getRecordIdField() ) {
     
             return $this->eventPrefixForEventId($event_id, $event_settings) . "_" . $field_name;
         }
@@ -2111,12 +2396,8 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         return "TEXT";
     }
 
-    private function REDCapFieldTypeToVarType( $field_name, $fields )
+    private function REDCapFieldTypeToVarType( $field_type, $field_validation )
     {
-        $field_index = $fields['field_index'][$field_name];
-        $field_type = $fields['field_metadata'][$field_index]['field_type'];
-        $field_validation = $fields['field_metadata'][$field_index]['field_validation'];
-
         if ( $field_type === "radio" ) return "NOMINAL";
         if ( $field_type === "dropdown" ) return "NOMINAL";
         if ( $field_type === "yesno" ) return "NOMINAL";

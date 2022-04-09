@@ -2,6 +2,8 @@
 
 namespace Yale\Yes3FieldMapper;
 
+use REDCap;
+
 trait Yes3Trait {
 
     public $greetingsFromYes3Trait = "hi mom";
@@ -44,6 +46,38 @@ trait Yes3Trait {
         return $json;
     }
 
+    public function yes3UserRights()
+    {
+        $user = $this->getUser()->getRights();
+
+        $formPermString = str_replace("[", "", $user['data_entry']);
+
+        $formPerms = explode("]", $formPermString);
+        $formPermissions = [];
+        foreach( $formPerms as $formPerm){
+
+            if ( $formPerm ){
+                
+                $formPermParts = explode(",", $formPerm);
+                $formPermissions[ $formPermParts[0] ] = $formPermParts[1];
+            }
+        }
+
+        return [
+
+            'username' => $this->getUser()->getUsername(),
+            'isDesigner' => ( $this->getUser()->hasDesignRights() ) ? 1:0,
+            'isSuper' => ( $this->getUser()->isSuperUser() ) ? 1:0,
+            'group_id' => (int)$user['group_id'],
+            'dag' => ( $user['group_id'] ) ? REDCap::getGroupNames(true, $user['group_id']) : "",
+            'export' => (int)$user['data_export_tool'],
+            'import' => (int)$user['data_import_tool'],
+            'api_export' => (int)$user['api_export'],
+            'api_import' => (int)$user['api_import'],
+            'form_permissions' => $formPermissions
+        ];
+    }
+
     public function getCodeFor( string $libname, bool $includeHtml=false ):string
     {
         $s = "";
@@ -64,7 +98,9 @@ trait Yes3Trait {
 
         $js .= "\nYES3.moduleProperties = " . $this->objectProperties() . ";\n";
 
-        $js .= "\nYES3.userRights = " . json_encode($this->getUser()->getRights()) . ";\n";
+        //$js .= "\nYES3.REDCapUserRights = " . json_encode( $this->getUser()->getRights() ) . ";\n";
+
+        $js .= "\nYES3.userRights = " . json_encode( $this->yes3UserRights() ) . ";\n";
 
         $css .= file_get_contents( $this->getModulePath()."css/yes3.css" );
         $css .= file_get_contents( $this->getModulePath()."css/common.css" );

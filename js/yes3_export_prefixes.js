@@ -109,7 +109,7 @@ FMAPR.populateAllSettings = function()
 
     YES3.setActionIconListeners( YES3.container() );
 
-    FMAPR.markAsClean();
+    FMAPR.markAsClean(true);
 
     FMAPR.postMessage("All event prefix settings loaded.");
 }
@@ -205,7 +205,7 @@ $( function () {
 
     /**
      * This variable is not relevant to this plugin
-     * but is required by FMAPR.displayActionIcons (located in FMAPR.yes3_fieldmapper_common.js)
+     * but is required by FMAPR.displayActionIconsAndInputs (located in FMAPR.yes3_fieldmapper_common.js)
      */
     FMAPR.mapperLoaded = true;
 

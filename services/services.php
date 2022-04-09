@@ -146,6 +146,12 @@ function saveExportSpecification()
         , 'export_max_label_length' => ""
         , 'export_max_text_length' => ""
         , 'export_inoffensive_text' => ""
+        , 'export_remove_phi' => ""
+        , 'export_remove_freetext' => ""
+        , 'export_remove_largetext' => ""
+        , 'export_remove_dates' => ""
+        , 'export_shift_dates' => ""
+        , 'export_hash_recordid' => ""
         , 'export_uspec_json' => ""
         , 'export_items_json' => ""
     ];

@@ -16,6 +16,14 @@ class Yes3Export {
     public $export_max_label_length = "";
     public $export_max_text_length = "";
     public $export_inoffensive_text = "";
+    public $export_shift_dates = "";
+    public $export_hash_recordid = "";
+
+    public $export_remove_phi = "";
+    public $export_remove_dates = "";
+    public $export_remove_freetext = "";
+    public $export_remove_largetext = "";
+
     //public $export_data_dictionary = [];
     //public $mapping_specification = "";
 
@@ -35,6 +43,14 @@ class Yes3Export {
         $this->export_max_label_length = $exportSettings['export_max_label_length'] ?? "0";
         $this->export_max_text_length = $exportSettings['export_max_text_length'] ?? "0";
         $this->export_inoffensive_text = $exportSettings['export_inoffensive_text'] ?? "0";
+        $this->export_shift_dates = $exportSettings['export_shift_dates'] ?? "0";
+        $this->export_hash_recordid = $exportSettings['export_hash_recordid'] ?? "0";
+
+        $this->export_remove_phi = $exportSettings['export_remove_phi'] ?? "0";
+        $this->export_remove_dates = $exportSettings['export_remove_dates'] ?? "0";
+        $this->export_remove_freetext = $exportSettings['export_remove_freetext'] ?? "0";
+        $this->export_remove_largetext = $exportSettings['export_remove_largetext'] ?? "0";
+        
         //$this->mapping_specification = $exportSettings['mapping_specification'] ?? [];
     }
 

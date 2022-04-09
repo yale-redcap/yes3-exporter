@@ -3,6 +3,7 @@
 namespace Yale\Yes3FieldMapper;
 
 use Exception;
+use REDCap;
 use ExternalModules\ExternalModules;
 
 /*
@@ -23,17 +24,34 @@ class Yes3 {
       return "hello world!";
    }
 
-   # too bad this logic is private in ExternalModules
-   public static function getREDCapProjectId()
-   {
-      if (defined('PROJECT_ID')) {
-         return (int) PROJECT_ID;
-      }
-      if (isset($_GET['pid'])) {
-         return (int) $_GET['pid'];
-      }
-      return 0;
-   }
+    // too bad this logic is private in ExternalModules
+    public static function getREDCapProjectId()
+    {
+        if (defined('PROJECT_ID')) {
+            return (int) PROJECT_ID;
+        }
+        if (isset($_GET['pid'])) {
+            return (int) $_GET['pid'];
+        }
+        return 0;
+    }
+
+    // the framework getDAG crashes for longitudinal studies
+    // this version accepts ANY event_id and assumes no database issues
+    public static function getGroupIdForRecord($recordId, $pid=0){
+
+        if ( !$pid ){
+
+            $pid = self::getREDCapProjectId();
+        }
+
+        if ( !$pid ){
+
+            return null;
+        }
+
+        return self::fetchValue('select value from redcap_data where project_id = ? and record = ? and field_name = ? limit 1', [$pid, $recordId, '__GROUPID__']);
+    }
 
    public static function query($sql, $parameters = [])
    {    
@@ -154,7 +172,7 @@ class Yes3 {
           $project_id = self::getREDCapProjectId();
        }
  
-       if ( \REDCap::isLongitudinal() ) {     
+       if ( REDCap::isLongitudinal() ) {     
           $sql = "SELECT e.event_id
           FROM redcap_events_metadata e
             INNER JOIN redcap_events_arms a ON a.arm_id=e.arm_id
@@ -238,7 +256,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
          $params['events'] = $event_id;
       }
 
-      $data = \REDCap::getData( $params );
+      $data = REDCap::getData( $params );
       
       if ( $event_id ) {
          return $data[$REDCapRecordId][$event_id];
@@ -260,7 +278,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
 
    public static function saveREDCapDataForRecord(string $REDCapRecordId, array $x, int $event_id=0): int
    {    
-        if ( !$event_id && \REDCap::isLongitudinal() ){
+        if ( !$event_id && REDCap::isLongitudinal() ){
 
             $event_id = self::getFirstREDCapEventId();
         }
@@ -280,7 +298,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
             'commitData'=>TRUE
         ];
 
-        $rc = \REDCap::saveData( $params );
+        $rc = REDCap::saveData( $params );
 
         if ( !is_array($rc['ids']) ){
             return -1;
@@ -402,7 +420,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
      */
     public static function inoffensiveText( string $s, $maxLen=0 ):string
     {
-        $s = trim(strip_tags(preg_replace('/[\x00-\x1F\x7F]/u', ' ', self::straightQuoter($s)))); 
+        $s = REDCap::filterHtml(preg_replace('/[\x00-\x1F\x7F]/u', ' ', self::straightQuoter($s))); 
 
         if ( $maxLen ) return self::ellipsis($s, $maxLen);
 
@@ -425,20 +443,17 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
 
     public static function printableEscHtmlString( string $s, $maxLen=0)
     {
-        $s = preg_replace('/[\x00-\x1F\x7F]/u', '', self::escapeHtml(strip_tags($s)));
+        $s = preg_replace('/[\x00-\x1F\x7F]/u', '', REDCap::escapeHtml($s));
  
         if ( $maxLen ) return self::ellipsis($s, $maxLen);
 
         return $s;       
     }
 
-    public static function escapeHtml( $s )
+    public static function escapeHtml( $s, $removeAllTags=false )
     {
-        if ( !$s ){
-            return "";
-        }
 
-        return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+        return REDCap::escapeHtml($s, $removeAllTags);
     }
 
     public static function ellipsis( $s, $len=64 )
