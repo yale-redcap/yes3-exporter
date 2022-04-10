@@ -137,7 +137,7 @@ YES3.Functions.openExportForm = function()
 {
     YES3.openPanel("yes3-fmapr-export-panel");
 
-    if ( FMAPR.export_specification.export_target==="filesystem" ){
+    if ( FMAPR.export_specification.export_target==="filesystem" && YES3.userRights.export===1 ){
 
         $(".yes3-fmapr-target-filesystem").show();
     }

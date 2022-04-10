@@ -247,12 +247,12 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $allowed['group_id'] = $uRights['group_id'];
         }
-
+/*
         Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary: export_specification");
         Yes3::logDebugMessage($this->project_id, print_r($export, true), "buildExportDataDictionary: export");
         Yes3::logDebugMessage($this->project_id, print_r($allowed, true), "buildExportDataDictionary: allowed");
         throw new Exception("Have a nice day");
-   
+*/   
         /**
          * DATA DICTIONARY
          * 
@@ -2425,6 +2425,14 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
     public function redcap_module_link_check_display( $project_id, $link )
     {
-        return $link; // noop for now
+    
+        $uRights =  $this->yes3UserRights();
+
+        if ( $uRights['export'] || $uRights['isDesigner'] ){
+
+            return $link;
+        }
+
+        return false;
     }
 }
