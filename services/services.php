@@ -101,12 +101,11 @@ function addExportSpecification()
         , 'export_name' => $_POST['export_name']
         , 'export_username' => $module->username
         , 'export_layout' => $_POST['export_layout']
-        , 'export_selection' => ""
+        , 'export_selection' => "1"
         , 'export_criterion_field' => ""
         , 'export_criterion_event' => ""
         , 'export_criterion_value' => ""
-        , 'export_target' => ""
-        , 'export_target_folder' => ""
+        , 'export_target' => "download"
         , 'export_max_label_length' => ""
         , 'export_max_text_length' => ""
         , 'export_inoffensive_text' => ""
@@ -142,7 +141,6 @@ function saveExportSpecification()
         , 'export_criterion_event' => ""
         , 'export_criterion_value' => ""
         , 'export_target' => ""
-        , 'export_target_folder' => ""
         , 'export_max_label_length' => ""
         , 'export_max_text_length' => ""
         , 'export_inoffensive_text' => ""
@@ -177,6 +175,18 @@ function saveExportSpecification()
     return "FAIL: The export specification could not be saved.";
 }
 
+/**
+ * Returns the requested export specification, json-encoded.
+ * 
+ * Adds a 'permission' property that will be 'allowed' or 'denied'. 
+ * If denied, this will be the ONLY property returned.
+ * 
+ * function: getExportSpecification
+ * 
+ * 
+ * @return string|false
+ * @throws Exception
+ */
 function getExportSpecification()
 {
     global $module;
@@ -192,9 +202,20 @@ function getExportSpecification()
         $log_id = 0;
     }
 
-    return json_encode(
-        $module->getExportSpecification( $export_uuid, $log_id )
-    );
+    $specification = $module->getExportSpecification( $export_uuid, $log_id );
+
+    if ( !$module->confirmSpecificationPermissions($specification)){
+
+        $specification = [
+            'permission'=>"denied"
+        ];
+    }
+    else {
+
+        $specification['permission'] = "allowed";
+    }
+
+    return json_encode( $specification );
 }
 
 function getExportSpecificationList():string
@@ -885,7 +906,9 @@ function get_project_settings():string
         'event_metadata' => get_event_metadata(),
         'project_event_metadata' => get_project_event_metadata(),
         'default_event_id' => get_first_event_id(),
-        'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0
+        'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0,
+        'host_filesystem_exports_enabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" ) ? 1 : 0,
+        'host_filesystem_target' => $module->getProjectSetting('export-target-folder')
         //, 'specification_settings' => get_specification_settings()
         //, 'event_abbreviations_settings' => get_event_abbreviation_settings()
     ] );

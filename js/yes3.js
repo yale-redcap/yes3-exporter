@@ -4,6 +4,7 @@ let YES3 = {
     contentLoaded: true,
     contentExpanded: true,
     dirty: false,
+    initial_help_offered: false,
     projectUrl: "https://portal.redcap.yale.edu/news/redcapyale-team-secures-nih-funding-support-redcap-external-modules"
 };
  
@@ -408,7 +409,7 @@ YES3.displayActionIcons = function( listenersLater )
         $('.yes3-editor i').addClass('yes3-action-disabled').off();
     }
 
-    if ( !YES3.userRights.export ){
+    if ( !YES3.userRights.exporter ){
 
         $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
@@ -438,6 +439,11 @@ YES3.setActionIconListeners = function(parentElement)
     })
 }
 
+/*** REGISTER NAMESPACE */
+YES3.RegisterApplicationNameSpace = function( nameSpace )
+{
+    YES3.applicationNameSpace = nameSpace;
+}
 
 /*** HELP ***/
 
@@ -445,9 +451,25 @@ YES3.setActionIconListeners = function(parentElement)
  * This function is called via the YES3 'action icon' mechanism,
  * so it is registered in the YES3 namespace
  */
-YES3.Functions.Help_openPanel = function()
+YES3.Functions.Help_openPanel = function( onlyIfNotGotIt )
 {
+    onlyIfNotGotIt = onlyIfNotGotIt || false;
+
+    if ( onlyIfNotGotIt && YES3.Help_hasGotIt() ){
+
+        return true;
+    }
+    
     YES3.openPanel('yes3-help-panel', true);
+
+    if ( onlyIfNotGotIt ){
+
+        $('div#yes3-help-panel div.yes3-help-panel-got-it').show();
+    }
+    else {
+
+        $('div#yes3-help-panel div.yes3-help-panel-got-it').hide();
+    }
 
     if ( YES3.contentExpanded && YES3.contentLoaded ){
 
@@ -466,10 +488,22 @@ YES3.Functions.Help_openPanel = function()
     }
 }
  
- YES3.Help_closePanel = function()
- {
-     YES3.closePanel('yes3-help-panel');
- }
+YES3.Help_closePanel = function()
+{
+    YES3.closePanel('yes3-help-panel');
+}
+
+YES3.Help_setGotIt = function()
+{
+    localStorage.setItem(`Yes3HelpGotIt_${YES3.applicationNameSpace}`, 'got-it');
+}
+
+YES3.Help_hasGotIt = function()
+{
+    let gotIt = localStorage.getItem(`Yes3HelpGotIt_${YES3.applicationNameSpace}`);
+
+    return (typeof gotIt === "string" && gotIt === 'got-it') ? true : false;
+}
  
  YES3.Help_openReadMe = function()
  {
@@ -524,20 +558,15 @@ YES3.switchTheme = function(e) {
     YES3.applyThemeBackgroundToParent();
 }
 
-YES3.setThemeObjects = function()
+YES3.setThemeObjects = function(theme)
 {
 
-    if ( localStorage.getItem('theme')==="dark" ) {
+    theme = localStorage.getItem('theme');
 
-        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_Black.png"));
-        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_Black.png"));
-    }
-    else {
+    $("img.yes3-square-logo").attr('src', YES3.moduleProperties.imageUrl[theme].logo_square);
 
-        $("img.yes3-square-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Square_White.png"));
-        $("img.yes3-horizontal-logo").attr('src', YES3.moduleObject.getUrl("images/YES3_Logo_Horizontal_White.png"));
-    }
-    
+    $("img.yes3-horizontal-logo").attr('src', YES3.moduleProperties.imageUrl[theme].logo_horizontal);
+
     $("img.yes3-logo").off().on("click", function(){
 
         window.open(YES3.projectUrl, "popup=yes");

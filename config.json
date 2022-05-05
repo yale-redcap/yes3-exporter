@@ -98,6 +98,34 @@
                     "name":"Yes"
                 }
             ]
+        },
+        {
+            "key": "enable-host-filesystem-exports",
+            "name": "Enable export to host file system<br>(must be set by a super user)",
+            "type": "radio",
+            "required": false,
+            "super-users-only": true,
+            "choices":[
+                {
+                    "value":"N",
+                    "name":"No"
+                },
+                {
+                    "value":"Y",
+                    "name":"Yes"
+                }
+            ]
+        },
+        {
+            "key": "export-target-folder",
+            "name": "Host file system mount point<br>(must be set by a super user)",
+            "type": "textarea",
+            "super-users-only": true,
+            "required": false,
+            "branchingLogic": {
+                "field": "enable-host-file-system-exports",
+                "value": "Y"
+            }
         }
     ],
 

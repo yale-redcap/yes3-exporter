@@ -50,6 +50,16 @@ trait Yes3Trait {
     {
         $user = $this->getUser()->getRights();
 
+        /**
+         * The rank order of export permission codes
+         * 
+         * 0 - no access (export code = 0)
+         * 1 - de-identified: no identifiers, dates or text fields (export code = 2)
+         * 2 - no identifiers (export code = 3)
+         * 3 - full access (export code = 1)
+         */
+        $exportPermRank = [0, 3, 1, 2];
+
         $formPermString = str_replace("[", "", $user['data_entry']);
 
         $formPerms = explode("]", $formPermString);
@@ -63,6 +73,68 @@ trait Yes3Trait {
             }
         }
 
+        /**
+         * Export permissions differ as of REDCap v12(!)
+         */
+
+        $formExportPermissions = [];
+
+        $export_tool = (int)$user['data_export_tool']; // this is always blank in v12, have to use form-specific
+
+        $exporter = 0;
+
+        if ( isset($user['data_export_instruments'])) {
+
+            $export_tool = 0; // assume no access, will be set to most permissive setting
+
+            $formExportPermString = str_replace("[", "", $user['data_export_instruments']);
+
+            $formExportPerms = explode("]", $formExportPermString);
+
+            foreach( $formExportPerms as $formExportPerm){
+
+                if ( $formExportPerm ){
+
+                    $formExportPermParts = explode(",", $formExportPerm);
+
+                    $xPerm = (int)$formExportPermParts[1];
+
+                    if ( $exportPermRank[$xPerm] > $exportPermRank[$export_tool] ){
+
+                        $export_tool = $xPerm;
+                    }
+
+                    if ( $xPerm > 0 && $exporter === 0 ){
+
+                        $exporter = 1;
+                    }
+                    
+                    $formExportPermissions[ $formExportPermParts[0] ] = $xPerm;
+                }
+            }
+        }
+        // pre-v12
+        else {
+
+            // create the v12-style form export permission array, with each instrument having the global permission
+            foreach ( array_keys($formPermissions) as $instrument){
+
+                $formExportPermissions[$instrument] = $export_tool;
+            }
+            $exporter = ( $export_tool > 0 ) ? 1 : 0;
+        }
+
+        /**
+         * set export permission to "none" for any form the user is not allowed to view
+         */
+        foreach ( $formPermissions as $form_name=>$formperm){
+
+            if ( !$formperm ){
+
+                $formExportPermissions[$form_name] = 0;
+            }
+        }
+        
         return [
 
             'username' => $this->getUser()->getUsername(),
@@ -70,11 +142,13 @@ trait Yes3Trait {
             'isSuper' => ( $this->getUser()->isSuperUser() ) ? 1:0,
             'group_id' => (int)$user['group_id'],
             'dag' => ( $user['group_id'] ) ? REDCap::getGroupNames(true, $user['group_id']) : "",
-            'export' => (int)$user['data_export_tool'],
+            'export' => $export_tool,
             'import' => (int)$user['data_import_tool'],
             'api_export' => (int)$user['api_export'],
             'api_import' => (int)$user['api_import'],
-            'form_permissions' => $formPermissions
+            'form_permissions' => $formPermissions,
+            'form_export_permissions' => $formExportPermissions,
+            'exporter' => $exporter
         ];
     }
 

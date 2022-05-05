@@ -317,8 +317,18 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
       return strftime("%y%m%d%H%M%S");
    }
 
-    public static function inoffensiveFieldName( string $s )
+    public static function inoffensiveFieldName( $s )
     {
+
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
 
         /**
          * @psalm-suppress InvalidReturnStatement
@@ -333,12 +343,22 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
     * 
     * function: normalized_string
     * 
-    * @param string $s
+    * @param $s
     * 
     * @return string
     */
-    public static function normalized_string( string $s )
+    public static function normalized_string( $s )
     {
+
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
 
        /**
         * @psalm-suppress InvalidReturnStatement
@@ -354,13 +374,19 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
      * 
      * function: straightQuoter
      * 
-     * @param string $s
+     * @param $s
      * 
      * @return string
      */
-    public static function straightQuoter( string $s ):string
+    public static function straightQuoter( $s ):string
     {  
-        if (!strlen($s) ) {
+
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
 
             return "";
         }
@@ -413,13 +439,23 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
      * 
      * function: inoffensiveText
      * 
-     * @param string $s
+     * @param $s
      * @param int $maxLen
      * 
      * @return string
      */
-    public static function inoffensiveText( string $s, $maxLen=0 ):string
+    public static function inoffensiveText( $s, $maxLen=0 ):string
     {
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
+        
         $s = REDCap::filterHtml(preg_replace('/[\x00-\x1F\x7F]/u', ' ', self::straightQuoter($s))); 
 
         if ( $maxLen ) return self::ellipsis($s, $maxLen);
@@ -432,17 +468,37 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
      * 
      * function: alphaNumericString
      * 
-     * @param string $s
+     * @param $s
      * 
      * @return string
      */
-    public static function alphaNumericString( string $s ):string
+    public static function alphaNumericString( $s ):string
     {
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
+        
         return preg_replace("/[^a-zA-Z0-9_ ]+/", "", $s);
     }
 
-    public static function printableEscHtmlString( string $s, $maxLen=0)
+    public static function printableEscHtmlString( $s, $maxLen=0)
     {
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
+
         $s = preg_replace('/[\x00-\x1F\x7F]/u', '', REDCap::escapeHtml($s));
  
         if ( $maxLen ) return self::ellipsis($s, $maxLen);
@@ -452,12 +508,31 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
 
     public static function escapeHtml( $s, $removeAllTags=false )
     {
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
 
         return REDCap::escapeHtml($s, $removeAllTags);
     }
 
     public static function ellipsis( $s, $len=64 )
     {
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
+
         $s = trim($s);
          if ( $len > 0 &&  strlen($s) > $len-3 ) {
             return substr($s, 0, $len-3)."...";
@@ -472,44 +547,53 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
     *
     */
 
-   public static function sql_string($x)
-   {
-      if (strlen($x) == 0) {
-         return "null";
-      } else if (is_numeric($x)) {
-         return "'" . $x . "'";
-      } else {
-         return "'" . db_real_escape_string($x) . "'";
-      }
-   }
+    public static function sql_string($x)
+    {
+        if (is_null($x)) {
 
-   public static function sql_datetime_string($x)
-   {
-      if (!$x) {
-         return "null";
-      } else {
-         return "'" . strftime("%F %T", strtotime($x)) . "'";
-      }
-   }
-
-   public static function sql_date_string($x)
-   {
-      if (!$x) {
-         return "null";
-      } else {
-         $d = strtotime($x);
-         // if this didn't work, could be due to mm-dd-yyyy which doesn't fly
-         if (!$d) {
-            $date = str_replace('-', '/', $x);
-            $d = strtotime($date);
-         }
-         if ($d) {
-            return "'" . strftime("%F", $d) . "'";
-         } else {
             return "null";
-         }
-      }
-   }
+        } 
+        else if (strlen($x) == 0) {
+
+            return "null";
+        } 
+        else if (is_numeric($x)) {
+
+            return "'" . $x . "'";
+        } 
+        else {
+            
+            return "'" . db_real_escape_string($x) . "'";
+        }
+    }
+
+    public static function sql_datetime_string($x)
+    {
+        if (!$x) {
+            return "null";
+        } else {
+            return "'" . strftime("%F %T", strtotime($x)) . "'";
+        }
+    }
+
+    public static function sql_date_string($x)
+    {
+        if (!$x) {
+            return "null";
+        } else {
+            $d = strtotime($x);
+            // if this didn't work, could be due to mm-dd-yyyy which doesn't fly
+            if (!$d) {
+                $date = str_replace('-', '/', $x);
+                $d = strtotime($date);
+            }
+            if ($d) {
+                return "'" . strftime("%F", $d) . "'";
+            } else {
+                return "null";
+            }
+        }
+    }
 
    public static function sql_timestamp_string()
    {

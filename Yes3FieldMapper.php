@@ -28,7 +28,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $isLongitudinal = "";
     public $username = "";
     public $serviceUrl = "";
+    public $imageUrl = [];
     public $documentationUrl = "";
+    public $form_export_permissions = [];
     private $token = "";
     private $salt = "";
     private $project_salt = "";
@@ -49,7 +51,16 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/services.php');
             $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php');
-
+            $this->imageUrl = [
+                'dark' => [
+                    'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
+                    'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_Black.png')
+                ],
+                'light' => [
+                    'logo_square' => $this->getUrl('images/YES3_Logo_Square_White.png'),
+                    'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_White.png')
+                ]
+            ];
             $this->RecordIdField = REDCap::getRecordIdField();
             $this->isLongitudinal = REDCap::isLongitudinal();
 
@@ -60,6 +71,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->salt = $salt;
             $this->project_salt = $Proj->project['__SALT__'];
             $this->date_shift_max = (int)$Proj->project['date_shift_max'];
+
+            $this->form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
 
             //Yes3::logDebugMessage($this->project_id, "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
         }
@@ -141,7 +154,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      export_criterion_event,
          *      export_criterion_value,
          *      export_target,
-         *      export_target_folder,
          *      export_max_label_length,
          *      export_max_text_length,
          *      export_inoffensive_text,
@@ -151,6 +163,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      
          */
         $export_specification = $this->getExportSpecification($export_uuid);
+
+        // add filesystem target, which is stored in EM settings
+        $export_specification['export_target_folder'] = $this->get_export_target_folder();
+
 
         //Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
 
@@ -221,11 +237,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         */
         $uRights = $this->yes3UserRights();
 
-        if ( !$uRights['export'] ){
+        if ( !$uRights['exporter'] ){
 
             throw new Exception("ERROR: User does not have permission to export data.");
         }
-
+        /*
         $allowed = [
             'group_id' => 0,
             'forms' => [],
@@ -234,10 +250,22 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'smalltext' => ( $export->export_remove_freetext ) ? 0 : (($uRights['export']==1 || $uRights['export']==3) ? 1:0),
             'largetext' => ( $export->export_remove_freetext || $export->export_remove_largetext) ? 0 : (($uRights['export']==1 || $uRights['export']==3) ? 1:0)
         ];
+        */
+        $allowed = [
+            'group_id' => 0,
+            'forms' => [],
+            'phi' => ( $export->export_remove_phi ) ? 0 : 1,
+            'dates' => ( $export->export_remove_dates ) ? 0 : 1,
+            'smalltext' => ( $export->export_remove_freetext ) ? 0 : 1,
+            'largetext' => ( $export->export_remove_freetext || $export->export_remove_largetext) ? 0 : 1
+        ];
 
-        foreach ($uRights['form_permissions'] as $form_name => $readWrite ){
+        /**
+         * list of forms for which the user has at least some export rights
+         */
+        foreach ($uRights['form_export_permissions'] as $form_name => $xPerm ){
 
-            if ( (int)$readWrite ){
+            if ( (int)$xPerm > 0 ){
 
                 $allowed['forms'][] = $form_name;
             }
@@ -288,7 +316,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          */
         $field_name = REDCap::getRecordIdField();
 
-        $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings, $allowed );
+        $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
 
         if ( REDCap::getGroupNames() ) {
 
@@ -320,12 +348,12 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     
             elseif ( $element['redcap_field_name'] ) {
     
-                $this->addExportItem_REDCapField( $export, $element['redcap_field_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed );
+                $this->addExportItem_REDCapField( $export, $element['redcap_field_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
             }
     
             elseif ( $element['redcap_form_name'] ) {
     
-                $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed );
+                $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
             }
         }
 
@@ -457,6 +485,22 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         ];
     }
 
+    public function get_export_target_folder()
+    {
+        $enable_host_filesystem_exports = $this->getProjectSetting("enable-host-filesystem-exports");
+
+        if ( $enable_host_filesystem_exports !== "Y" ){
+
+            return "";
+        }
+
+        $etf = $this->getProjectSetting("export-target-folder");
+
+        if ( !$etf ) $etf = "";
+
+        return $etf;
+    }
+
     private function writeExportFiles( &$ddPackage, $destination="", &$bytesWritten=0)
     {
         //exit( print_r($eventSpecs, true) )
@@ -464,7 +508,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         // for code clarity
         $export_uuid                = $ddPackage['export_uuid'];
         $export_name                = $ddPackage['export_name'];
-        $export_target_folder       = $ddPackage['export_target_folder'];
+        $export_target_folder       = $this->get_export_target_folder();
         $export_layout              = $ddPackage['export_layout'];
         $export_max_text_length     = (int)$ddPackage['export_max_text_length'];
         $export_inoffensive_text    = (int)$ddPackage['export_inoffensive_text'];
@@ -1070,7 +1114,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
             $K++;
 
-            $x_instance = $x['instance'] || "1";
+            $x_instance = $x['instance']; if ( !$x_instance ) $x_instance=1;
 
             /**
              * $BOR: beginning of record
@@ -1088,7 +1132,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
                 $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
             }
-            
+           
             if ( $BOR ) {
 
                 if ( $y && $exportValues ){
@@ -1142,6 +1186,8 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
             $event_id = $x['event_id'];
 
+            $instance = $x_instance;
+
             $field_name = $x['field_name'];
 
             $REDCapValue = $this->conditionREDCapValue( $x['value'], $export_max_text_length, $export_inoffensive_text );
@@ -1151,8 +1197,6 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 $y[VARNAME_GROUP_ID  ]   = $x['value'];
                 $y[VARNAME_GROUP_NAME] = $dagNameForGroupId[ $x['value'] ];
             }
-
-            $instance = $x_instance;
 
             if ( $export_layout==="h" ){
 
@@ -1701,6 +1745,155 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
     }
 
     /**
+     * Confirms that the user has permission to access an export specification
+     * 
+     * Relies on getFormMetadataStructures() and getFieldMetadataStructures()
+     * which return form and field metadata as allowed by user export permissions
+     * 
+     * function: confirmSpecificationPermissions
+     * 
+     * @param mixed $specification
+     * 
+     * @return bool
+     * @throws Exception
+     */
+    public function confirmSpecificationPermissions( $specification )
+    {
+        $uRights = $this->yes3UserRights();
+
+        /**
+         * specification properties useful here:
+         * 
+         * export_remove_phi
+         * export_remove_freetext
+         * export_remove_largetext
+         * export_remove_dates
+         * 
+         */
+
+        // designers and superusers always have permission
+        if ( $uRights['isDesigner'] || $uRights['isSuper'] ){
+
+            //return true;
+        }
+
+        /**
+         * The structures returned by getFormMetadataStructures() will include
+         * only the forms for which the user has export permission.
+         * 
+         * We will use form_index, which is keyed by form_name
+         */
+        $allowed_forms = array_keys( $this->getFormMetadataStructures()['form_index'] );
+
+        if ( !$allowed_forms ) {
+
+            Yes3::logDebugMessage($this->project_id, "no form access", "confirmSpecificationPermissions: denied");
+
+            return false; // user has no form access
+        }
+
+        /**
+         * similarly, the list of allowed fields is field_index returned by getFieldMetadataStructures()
+         */
+        $allowed_fields = array_keys( $this->getFieldMetadataStructures()['field_index'] );
+ 
+        /**
+         * the forms and fields to be exported are recorded in spec.export_items
+         */
+        $export_items = json_decode( $specification['export_items_json'], true );
+
+        foreach($export_items as $export_item){
+
+            if ( isset($export_item['redcap_form_name']) && $export_item['redcap_form_name'] ) {
+
+                // form is not exportable by user
+                if ( !in_array($export_item['redcap_form_name'], $allowed_forms) ){
+
+                    Yes3::logDebugMessage($this->project_id, $export_item['redcap_form_name'], "confirmSpecificationPermissions: disallowed item form");
+
+                    return false;
+                }
+
+                // now we have to check the fields
+
+                $fields = $this->getFormDataEntryFieldMetadata( $export_item['redcap_form_name'] );
+
+                foreach($fields as $field){
+
+                    if ( !$this->fieldExcludedByExportOptions( $specification, $field ) && !in_array($field['field_name'], $allowed_fields) ){
+
+                        Yes3::logDebugMessage($this->project_id, $field['field_name'], "confirmSpecificationPermissions: disallowed form field");
+
+                        return false;
+                    }
+                }
+            }
+
+            if ( isset($export_item['redcap_field_name']) && $export_item['redcap_field_name'] && !$this->isConstantExpression($export_item['redcap_field_name']) ){
+
+                $field_name = $export_item['redcap_field_name'];
+
+                $field = $this->getFieldMetadata($field_name);
+
+                if ( !$this->fieldExcludedByExportOptions( $specification, $field ) && !in_array($field_name, $allowed_fields) ){
+
+                    Yes3::logDebugMessage($this->project_id, $export_item['redcap_field_name'], "confirmSpecificationPermissions: disallowed item field");
+                    
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private function isConstantExpression($s){
+
+        return ( stripos( $s, "constant:") !== FALSE ) ? true : false;
+    }
+
+    /**
+     * Determines if a field will be excluded based on export specification options.
+     * NOTE: This logic is largely repeated in addExportItem_REDCapField(). It would be good to harmonize.
+     * 
+     * function: fieldExcludedByExportOptions
+     * 
+     * @param mixed $specification - export specification. Must have properties:
+     *              export_remove_phi
+     *              export_remove_dates
+     *              export_remove_largetext
+     *              export_remove_freetext
+     * 
+     * @param mixed $field - REDCap field metadata. Must have properties:
+     *              element_type
+     *              element_validation_type
+     *              field_phi
+     * 
+     * @return bool
+     */
+    private function fieldExcludedByExportOptions( $specification, $field )
+    {
+        if ( $specification['export_remove_phi'] && $field['field_phi'] ){
+
+            return true;
+        }
+        elseif ( $specification['export_remove_dates'] && $this->isDateOrTimeType($this->REDCapFieldTypeToVarType($field['element_type'], $field['element_validation_type'])) ){
+
+            return true;
+        }
+        elseif ( $specification['export_remove_largetext'] && $field['element_type']==="textarea" ){
+
+            return true;
+        }
+        elseif ( $specification['export_remove_freetext'] && $field['element_type']==="text" && !$field['element_validation_type'] ){
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 
      * 
      * function: getExportSpecification
@@ -1723,7 +1916,6 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         , export_criterion_event
         , export_criterion_value
         , export_target
-        , export_target_folder
         , export_max_label_length
         , export_max_text_length
         , export_inoffensive_text
@@ -1770,7 +1962,16 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         }
         else {
 
-            return $this->queryLogs($pSql." LIMIT 1", $params)->fetch_assoc();
+            $spec = $this->queryLogs($pSql." LIMIT 1", $params)->fetch_assoc();
+
+            if ( $spec['export_selection']=="1" ){
+
+                $spec['export_criterion_field'] = "";
+                $spec['export_criterion_event'] = "";
+                $spec['export_criterion_value'] = "";
+            }
+
+            return $spec;
         }
     }
 
@@ -1925,6 +2126,8 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
     public function getFormMetadataStructures():array
     {
+        $form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
+
         $events = [];
 
         if ( $isLong = REDCap::isLongitudinal() ) {
@@ -1964,6 +2167,11 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         $form_index = [];
 
         foreach ($mm as $m){
+
+            if ( !$form_export_permissions[$m['form_name']] ){
+
+                continue;
+            }
 
             if ( $isLong ){
 
@@ -2026,8 +2234,34 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         ];
     }
 
+    private function getFormDataEntryFieldMetadata($form_name)
+    {
+        $sql = "
+        SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type, m.field_phi
+        FROM redcap_metadata m
+        WHERE m.project_id=? AND m.form_name=?
+        AND m.element_type NOT IN('descriptive')
+        ORDER BY m.field_order   
+        ";
+
+        return Yes3::fetchRecords($sql, [$this->project_id, $form_name]);
+    }
+
+    private function getFieldMetadata($field_name)
+    {
+        $sql = "
+        SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type, m.field_phi
+        FROM redcap_metadata m
+        WHERE m.project_id=? AND m.field_name=?
+        ";
+
+        return Yes3::fetchRecords($sql, [$this->project_id, $field_name]);
+    }
+
     public function getFieldMetadataStructures(): array
     {
+        $form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
+        
         if ( REDCap::isLongitudinal() ){
 
             $sql = "
@@ -2064,6 +2298,29 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
         foreach ($fields as $field){
 
+            $form_export_permission = (int)$form_export_permissions[$field['form_name']];
+
+            // phi only allowed for full access
+            if ( $form_export_permission !== 1 && $field['field_phi'] === "1" ){
+
+                continue;
+            }
+
+            $field_type = $field['element_type'];
+            $field_validation = $field['element_validation_type'];
+
+            // large text, small text, dates not allowed for de-identified access
+            if ( $form_export_permission === 2 ){
+
+                if ( $field_type === "textarea"
+                    || ($field_type === "text" && !$field_validation)
+                    || $this->isDateType($this->REDCapFieldTypeToVarType( $field_type, $field_validation )) 
+                ) {
+
+                    continue;
+                }
+            }
+
             $valueset = [];
 
             if ( $field['element_type']==="radio" || $field['element_type']==="select" || $field['element_type']==="checkbox"){
@@ -2074,6 +2331,22 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                         'label' => Yes3::inoffensiveText($label, MAX_LABEL_LEN)
                     ];
                 }
+            }
+
+            elseif ( $field['element_type']==="yesno" ){
+
+                $valueset = [
+                    ['value' =>" 0", "label" => "No"],
+                    ['value' =>" 1", "label" => "Yes"]
+                ];
+            }
+
+            elseif ( $field['element_type']==="truefalse" ){
+
+                $valueset = [
+                    ['value' =>" 0", "label" => "False"],
+                    ['value' =>" 1", "label" => "True"]
+                ];
             }
 
             $field_label = Yes3::inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
@@ -2090,7 +2363,12 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
             ];
 
-            if ( !Yes3::isRepeatingInstrument($field['form_name'])) {
+            /**
+             * (1) Fields from repeating instruments are not selectable, 
+             *     since only forms are allowed on repeating layouts.
+             * (2) The record ID field is not selectable. Its inclusion is determined at export time.
+             */
+            if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== \REDCap::getRecordIdField() ) {
                 $field_autoselect_source[] = [
                     'value' => $field['field_name'],
                     'label' => "[" . $field['field_name'] . "] " . $field_label
@@ -2162,7 +2440,29 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         }
     }
 
-    private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed )
+    /**
+     * Adds a REDCap field item to an export. 
+     * The parameters are set in buildExportDataDictionary(), 
+     * and passed either directly or through addExportItem_REDCapForm().
+     * 
+     * NOTE: see harmonization comment for fieldExcludedByExportOptions().
+     * 
+     * function: addExportItem_REDCapField
+     * 
+     * @param mixed $export - the export object
+     * @param mixed $redcap_field_name - from export specification
+     * @param mixed $redcap_event_id - from export specification
+     * @param mixed $fields - the fields metadata array returned by getFieldMetadataStructures()
+     * @param mixed $forms - the forms metadata array returned by getFormMetadataStructures()
+     * @param mixed $event_settings - the array returned by getEventSettings()
+     * @param mixed $allowed - array of allowed DAGs, forms, field types etc. Set in buildExportDataDictionary()
+     * @param mixed $form_export_permissions - array of form permissions for the user. 
+     *              Keyed by form_name. Values: 1=Full dataset, 2=Deidentified, 3=No PHI, 0=No access
+     * 
+     * @return int
+     * @throws Exception
+     */
+    private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed, $form_export_permissions )
     {
         $field_index = $fields['field_index'][$redcap_field_name];
 
@@ -2173,9 +2473,11 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             return 0;
         }
 
-        $field_type = $fields['field_metadata'][$field_index]['field_type'];
+        $form_export_permission = $form_export_permissions[$form_name];
 
-        $field_validation = $fields['field_metadata'][$field_index]['field_validation'];
+        $field_type = $fields['field_metadata'][$field_index]['field_type']; // aka element_type
+
+        $field_validation = $fields['field_metadata'][$field_index]['field_validation']; // aka element_validation_type
 
         $field_phi = ( $fields['field_metadata'][$field_index]['field_phi'] == "1" );
 
@@ -2197,31 +2499,36 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             }
         }
 
+        /*
         $msg = "redcap_field_name={$redcap_field_name}: form_name={$form_name}, field_type={$field_type}, field_validation={$field_validation}, field_phi={$field_phi}"
         .", field_largetext={$field_largetext}"
         .", field_smalltext={$field_smalltext}"
         .", field_date={$field_date}."
         ."\nallowed: phi={$allowed['phi']} largetext={$allowed['largetext']} smalltext={$allowed['smalltext']} dates={$allowed['dates']}."
         ;
+        Yes3::logDebugMessage($this->project_id, $msg, "addExportItem_REDCapField");
+        */
 
-        //Yes3::logDebugMessage($this->project_id, $msg, "addExportItem_REDCapField");
+        /**
+         * data dictionary inclusion depends on the export options and the user's form export permissions
+         */
 
-        if ( $field_phi && !$allowed['phi'] ){
-
-            return 0;
-        }
-
-        if ( $field_largetext && !$allowed['largetext'] ){
-
-            return 0;
-        }
-
-        if ( $field_smalltext && !$allowed['smalltext'] ){
+        if ( $field_phi && (!$allowed['phi'] || $form_export_permission != 1) ){
 
             return 0;
         }
 
-        if ( $field_date && !$allowed['dates'] ){
+        if ( $field_largetext && (!$allowed['largetext'] || $form_export_permission == 2 ) ){
+
+            return 0;
+        }
+
+        if ( $field_smalltext && (!$allowed['smalltext'] || $form_export_permission == 2 ) ){
+
+            return 0;
+        }
+
+        if ( $field_date && (!$allowed['dates'] || $form_export_permission == 2 ) ){
 
             return 0;
         }
@@ -2245,6 +2552,8 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         foreach ( $event_ids as $event_id ){
 
             $var_name = $this->exportFieldName($export, $redcap_field_name, $event_id, $event_settings);
+
+            //print "\n" . $redcap_field_name . ", var_name=" . $var_name . "\nexport=" . print_r($export, true);
 
             if ( !$export->itemInExport($var_name) ){
 
@@ -2280,7 +2589,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         ]);
     }
 
-    private function addExportItem_REDCapForm( $export, $redcap_form_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed )
+    private function addExportItem_REDCapForm( $export, $redcap_form_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed, $form_export_permissions )
     {
 
         $form_names = [];
@@ -2342,7 +2651,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
                 foreach ( $forms['form_metadata'][$form_index]['form_fields'] as $field_name ){
 
-                    $this->addExportItem_REDCapField($export, $field_name, $event_id, $fields, $forms, $event_settings, $allowed);
+                    $this->addExportItem_REDCapField($export, $field_name, $event_id, $fields, $forms, $event_settings, $allowed, $form_export_permissions);
                 }
             }
         }
@@ -2420,15 +2729,12 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         return "TEXT";
     }
    
-
     /* ==== HOOKS ==== */
 
     public function redcap_module_link_check_display( $project_id, $link )
     {
     
-        $uRights =  $this->yes3UserRights();
-
-        if ( $uRights['export'] || $uRights['isDesigner'] ){
+        if ( $this->yes3UserRights()['exporter'] ){
 
             return $link;
         }

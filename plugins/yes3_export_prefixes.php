@@ -125,7 +125,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
         <div class="col-md-4  yes3-flex-vcenter-hright">
 
-            <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-designer-only" id="yes3-fmapr-save-control" action="Exportspecifications_saveSettings" title="Save all settings on this page."></i>
+            <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-designer-only yes3-save-control" id="yes3-fmapr-save-control" action="Exportspecifications_saveSettings" title="Save all settings on this page."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-dirty yes3-designer-only" action="Exportspecifications_undoSettings" title="Restore all settings on this page to their stored values (undo)."></i>
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
 

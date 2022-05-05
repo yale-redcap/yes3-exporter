@@ -188,19 +188,35 @@ $module->getCodeFor("yes3_export_editor", true);
                         Expand the top settings section, and shrink the lower fields/forms section.
                     </td>
                 </tr>
+
+                <tr>
+                    <td>
+                        <i class="fas fa-question yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Display this Help panel.
+                    </td>
+                </tr>
                 
             </tbody>
         </table>
    </div>
 
-   <div class='yes3-panel-row'>
-       <span class='yes3-information-em'>Need more help?</span> 
-        Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
-   </div>
+    <div class='yes3-panel-row'>
+        <span class='yes3-information-em'>Need more help?</span> 
+            Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
+    </div>
 
-   <div class='yes3-panel-row'>
-       You may leave this help panel open as you use the Yes3 Exporter. Grab it on the top row to drag it out of the way.
-   </div>
+    <div class='yes3-panel-row'>
+        You may leave this help panel open as you use the Yes3 Exporter. Grab it on the top row to drag it out of the way.
+    </div>
+
+    <div class='yes3-panel-row yes3-help-panel-got-it'>
+        <label class="yes3-checkmarkContainer">
+            <input type="checkbox" name="yes3_got_it" onclick="YES3.Help_setGotIt()">
+            <span class="yes3-checkmark"></span>Got it! Do not automatically display this panel again.
+        </label>
+    </div>
    
 </div>
 
@@ -589,14 +605,14 @@ $module->getCodeFor("yes3_export_editor", true);
                             </td>
                         </tr>
 
-                        <tr class="yes3-fmapr-target-filesystem-only yes3-fmapr-skipped-over">
+                        <!--tr class="yes3-fmapr-target-filesystem-only yes3-fmapr-skipped-over">
 
                             <td class="yes3-fmapr-export-specification">Folder or automount name:</td>
 
                             <td class="yes3-fmapr-export-specification">
                                 <input type="text" name="export_target_folder" data-setting="export_target_folder" value="" class="" placeholder="enter a folder or automount name">
                             </td>
-                        </tr>
+                        </tr-->
 
                         <tr>
 
@@ -631,7 +647,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
                         <tr class="yes3-fmapr-beta">
 
-                            <td class="yes3-fmapr-export-specification">BETA upload specification:</td>
+                            <td class="yes3-fmapr-export-specification">Upload crosswalk specifications:</td>
 
                             <td class="yes3-fmapr-export-specification yes3-fmapr-uspec-link">
                                 <textarea class="yes3-fmapr-hidden" name="export_uspec_json" data-setting="export_uspec_json"></textarea>
@@ -725,7 +741,7 @@ $module->getCodeFor("yes3_export_editor", true);
             <thead>
 
                 <tr>
-                    <th class='yes3-header yes3-3'>Specification data element</th>
+                    <th class='yes3-header yes3-3'>Export specification element</th>
                     <th class='yes3-header yes3-3'>REDCap study field</th>
                     <th class='yes3-header yes3-3'><span class='yes3-fmapr-horizontal-only'>REDCap event(s)</span></th>
                     <th class='yes3-header yes3-gutter-right'>&nbsp;</th>

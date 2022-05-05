@@ -1195,7 +1195,7 @@ i.yes3-selected {
      color: var(--yes3-alert-color);
  }
  
- .yes3-panel label {
+ .yes3-panel label:not(.yes3-checkmarkContainer) {
     font-weight: 600;
     color: var(--yes3-input-label-color);
  }
