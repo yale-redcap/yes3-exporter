@@ -89,13 +89,41 @@ div.yes3-fmapr td.yes3-gutter-left, div.yes3-fmapr th.yes3-gutter-left {
     text-align: left;
 }
  
-div.yes3-fmapr td.yes3-gutter-right, div.yes3-fmapr th.yes3-gutter-right {
+div.yes3-fmapr td.yes3-gutter-right, 
+div.yes3-fmapr th.yes3-gutter-right
+{
     width: var(--yes3-fmapr-gutter-width); 
     min-width: var(--yes3-fmapr-gutter-width); 
     max-width: var(--yes3-fmapr-gutter-width); 
  
     vertical-align: middle;
     text-align: center;
+}
+
+th.yes3-fmapr-row-number,
+td.yes3-fmapr-row-number {
+
+    width: var(--yes3-fmapr-gutter-width) !important; 
+    min-width: var(--yes3-fmapr-gutter-width) !important; 
+    max-width: var(--yes3-fmapr-gutter-width) !important; 
+ 
+    vertical-align: middle !important;
+    text-align: center !important;
+
+    font-size: 0.8rem !important;
+
+    opacity: 0.5 !important;
+}
+/*
+td.yes3-fmapr-row-number {
+
+    border-left:  1px solid var(--yes3-table-border-color) !important;
+    border-right: 1px solid var(--yes3-table-border-color) !important;
+}
+*/
+td.yes3-fmapr-row-number:hover {
+    background-color: var(--yes3-fmapr-row-selected-color) !important;
+    cursor: pointer;
 }
  
 div.yes3-fmapr td.yes3-gutter-right-top, div.yes3-fmapr th.yes3-gutter-right-top {

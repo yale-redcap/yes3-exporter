@@ -741,6 +741,7 @@ $module->getCodeFor("yes3_export_editor", true);
             <thead>
 
                 <tr>
+                    <th class='yes3-header yes3-fmapr-row-number'>&nbsp;</th>
                     <th class='yes3-header yes3-3'>Export specification element</th>
                     <th class='yes3-header yes3-3'>REDCap study field</th>
                     <th class='yes3-header yes3-3'><span class='yes3-fmapr-horizontal-only'>REDCap event(s)</span></th>

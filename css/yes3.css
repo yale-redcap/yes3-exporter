@@ -940,6 +940,10 @@ div#yes3-message {
     -webkit-font-smoothing: antialiased;
 }
 
+.yes3-command-disabled {
+    opacity: 0.5;
+}
+
 .yes3-error {
     color: var(--yes3-error-color) !important;
     /*background-color: transparent !important;*/

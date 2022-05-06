@@ -220,6 +220,9 @@ FMAPR.markAsClean = function( forceRedisplay )
         //FMAPR.displayActionIconsAndInputs();
         YES3.displayActionIcons();
         FMAPR.displayActionInputs();
+
+        window.onbeforeunload = null;
+
     }
 }
 
@@ -245,6 +248,10 @@ FMAPR.markAsDirty = function()
         FMAPR.displayActionInputs();
 
         FMAPR.postMessage("Be sure to save your changes.", true);
+
+        window.onbeforeunload = function() {
+            return "";
+        }
     }
 
     return true;

@@ -48,14 +48,19 @@ tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
     color: var(--yes3-fmapr-specmap-color) !important;
     font-weight: var(--yes3-font-weight) !important;
 }
-
+/*
 tr:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-element:hover {
     cursor: pointer;
     color: var(--yes3-alert-color);
 }
-
+*/
 .yes3-fmapr-row-selected {
     background-color: rgb(9, 63, 73, 0.25);
+}
+
+.yes3-fmapr-insertion-row {
+    background-color: rgb(9, 63, 73, 0.25);
+    border-top: 2px solid indianred;
 }
 
 a.yes3-fmapr-value-picker-toggler, a.yes3-fmapr-lov-toggler {
@@ -66,12 +71,22 @@ a.yes3-fmapr-value-picker-toggler {
     display:none;
 }
 
-tr.yes3-row-selected span.yes3-fmapr-redcap-element::before {
+tr.yes3-row-copied span.yes3-fmapr-redcap-element::before {
     /*content: "\25B6"; arrow */
     content: "\2714"; /* checkmark */
-    font-size: 1.5rem;
+    font-size: 2rem;
+    font-style: normal !important;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+tr.yes3-row-cut span.yes3-fmapr-redcap-element::before {
+    /*content: "\25B6"; arrow */
+    content: "\2702"; /* scissors */
+    font-size: 2rem;
     font-style: normal !important;
     margin-right: 10px;
+    vertical-align: middle;
 }
 
 tr.yes3-lov {

@@ -1,5 +1,7 @@
 FMAPR.insertionRowId = "";
 
+FMAPR.rowCount = 0;
+
 FMAPR.reloadParms = {
     "export_uuid": "",
     "wayback": false
@@ -7,7 +9,8 @@ FMAPR.reloadParms = {
 
 FMAPR.tooltips = {
 
-    "event_select": "After a REDCap field or form is selected, this drop-down will include all the REDCap events assigned to it."
+    "event_select": "After a REDCap field or form is selected, this drop-down will include all the REDCap events assigned to it.",
+    "row_selector": "Click to select single row; crtl-click to select multiple rows; shift-click to select range; right-click for cut/paste/delete menu"
 
 }
 
@@ -313,6 +316,14 @@ FMAPR.ensureNewFieldRowAtEnd = function()
     }
 }
 
+FMAPR.rowSelectorHtml = function()
+{
+    return '<label class="yes3-checkmarkContainer">'
+        + '<input type="checkbox" class="yes3-row-selector">'
+        + '<span class="yes3-checkmark"></span></label>'
+    ;
+}
+
 YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, noTrashCan, noScroll )
 {   
 
@@ -355,7 +366,12 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
 
     let elementClass = ( $.isEmptyObject(element) ) ? 'yes3-fmapr-new-field' : '';
 
-    let html = `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable ${elementClass}' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description='(non-specification) REDCap field' id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="field">`;
+    let html = "";
+
+    let tooltip = ( noTrashCan ) ? "" : FMAPR.tooltips.row_selector;
+
+    html += `<tr class='yes3-fmapr-redcap-field yes3-fmapr-data-element yes3-fmapr-sortable ${elementClass}' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description='(non-specification) REDCap field' id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="field">`;
+    html += `<td class='yes3-fmapr-row-number' title='${tooltip}'>&nbsp;</td>`;
     html += `<td class='yes3-3 yes3-td-left' title="(non-specification) REDcap field"><span class='yes3-fmapr-redcap-element'>add a REDCap field to the export</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
 
@@ -397,6 +413,8 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
     if ( $.isEmptyObject(element) ){
 
         FMAPR.doExportItemsTableHousekeeping();
+
+        FMAPR.renumberRows();
 
         if ( !noScroll ) {
 
@@ -452,6 +470,7 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
     //let eventSelectHtml  = FMAPR.getElementEventHtml( yes3_fmapr_data_element_name, 'redcap');
 
     let html = `<tr class='yes3-fmapr-redcap-form yes3-fmapr-data-element yes3-fmapr-sortable' data-yes3_fmapr_data_element_name="${yes3_fmapr_data_element_name}" data-yes3_fmapr_data_element_description="REDCap form" id="${rowId}" data-required="0" data-element_origin="redcap" data-object_type="form" data-form_name="${form_name}">`;
+    html += `<td class='yes3-fmapr-row-number' title='${FMAPR.tooltips.row_selector}'>&nbsp;</td>`;
     html += `<td class='yes3-3 yes3-td-left' title="REDcap form"><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>up to ${field_count} fields</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
@@ -846,6 +865,7 @@ FMAPR.makeSortable = function( parentElement )
                 ui.item.after(FMAPR.rowsToMove[j-1]);
             }
             FMAPR.markAsDirty();
+            FMAPR.renumberRows();
         }
     });
 
@@ -894,7 +914,9 @@ FMAPR.doExportItemsTableHousekeeping = function( isClean )
 
     FMAPR.setEventSelectListeners();
         
-    FMAPR.setContextMenuListeners();
+    //FMAPR.setContextMenuListeners();
+
+    FMAPR.setRowSelectorListeners();
 
     FMAPR.setREDCapElementListeners();
 
@@ -915,6 +937,7 @@ FMAPR.removeDataElement = function(element_name)
 
     YES3.displayActionIcons();
     FMAPR.displayActionIcons();
+    FMAPR.renumberRows();
 }
 
 FMAPR.scrollExportItemsTableToBottom = function()
@@ -971,7 +994,7 @@ FMAPR.resizeExportItemsTable = function()
     //let tableWidth = $('div#yes3-fmapr-wrapper').width();
     let tableWidth = fmaprTable.width();
 
-    let cellWidth3 = (tableWidth - scrollbarWidth - gutterWidth) / 3;
+    let cellWidth3 = (tableWidth - scrollbarWidth - 2*gutterWidth) / 3;
 
     //fmaprTable.css({'width': tableWidth+'px', 'height': tableHeight+'px'});
     fmaprTable.css({'height': tableHeight+'px'});
@@ -1187,9 +1210,103 @@ FMAPR.getFormEventHtml = function( form_name, yes3_fmapr_data_element_name ){
     ;
 }
 
+FMAPR.rowIsCut = function(theRow)
+{
+    return theRow.hasClass('yes3-row-cut');
+}
+
+FMAPR.cutRow = function(theRow)
+{
+    theRow.addClass('yes3-row-cut');
+}
+
+FMAPR.setRowSelectorListeners = function()
+{
+    $('td.yes3-fmapr-row-number')
+        .off()
+        .on("contextmenu", function(e){
+            //console.log( 'contextmenu', e );
+
+            FMAPR.REDCapFieldContextMenu($(this), e);
+
+            return false;
+        })
+        .on("click", function(e){
+
+            //console.log( 'click', e );
+
+            let theRow = $(this).parent();
+
+            if ( e.shiftKey ){
+
+                e.preventDefault();
+
+                //FMAPR.toggleSelected( $(this) );
+
+                if ( FMAPR.isSelectionRangeStart(theRow) && FMAPR.isSelectionRangeEnd(theRow) ) {
+
+                    FMAPR.clearSelectionRange( true );
+                }
+                else {
+
+                    FMAPR.markRowSelected( theRow );
+                    
+                    if ( !FMAPR.selectionRangeStartDefined() ){
+                        FMAPR.markSelectionRangeStart( theRow );
+                    }
+                    else {
+                        FMAPR.markSelectionRangeEnd( theRow );
+                    }
+
+                    FMAPR.markSelectionRange();
+                }
+
+                e.stopPropagation();
+
+                //YES3.contextMenuClose();
+
+                return false;
+            }
+            else if ( e.ctrlKey ){
+
+                e.preventDefault();
+
+                FMAPR.toggleSelected( theRow, true );
+
+                //YES3.contextMenuClose();
+
+                e.stopPropagation();
+
+                return false;
+            }
+            else {
+
+                if ( FMAPR.cutRowCount() + FMAPR.copiedRowCount() > 0 ) {
+
+                    FMAPR.markInsertionRow( theRow );
+                }
+                else {
+
+                    // ignore the last 'new field' row
+                    if ( !theRow.hasClass('yes3-fmapr-new-field') ){
+
+                        FMAPR.clearSelections( true );
+                        FMAPR.markRowSelected( theRow );
+                        FMAPR.markSelectionRangeStart( theRow );
+                    }
+                }
+            }
+
+            return true;
+            //return false;
+        })
+    ;
+
+}
+
 FMAPR.setContextMenuListeners = function()
 {
-    $('tr.yes3-fmapr-redcap-field:not(.yes3-fmapr-new-field), tr.yes3-fmapr-redcap-form')
+     $('tr.yes3-fmapr-redcap-field:not(.yes3-fmapr-new-field), tr.yes3-fmapr-redcap-form')
         .off()
         .on("contextmenu", function(e){
             //console.log( 'contextmenu', e );
@@ -1249,6 +1366,74 @@ FMAPR.setContextMenuListeners = function()
             //return false;
         })
     ;
+}
+
+FMAPR.setSpecialKeyListeners = function() {
+
+    $(document).keydown(function(e) {
+
+        if ( !e.ctrlKey ){ 
+            
+            return  true; 
+        }
+
+        var ch = String.fromCharCode(e.which).toUpperCase();
+
+        if ( ch === 'X') {
+
+            if ( FMAPR.selectedRowCount()===0 ){
+
+                return true;
+            }
+
+            FMAPR.contextMenuCutRowSelections();
+
+            //console.log('Ctrl+X pressed');
+        }
+        /*
+        else if ( ch === 'C') {
+
+            if ( FMAPR.selectedRowCount()===0 ){
+
+                return true;
+            }
+
+            FMAPR.contextMenuCopyRowSelections();
+
+            console.log('Ctrl+C pressed');
+        }
+        */
+        else if ( ch === 'V') {
+
+            if ( FMAPR.selectedRowCount()===0 ){
+
+                return true;
+            }
+
+            FMAPR.contextMenuPasteRowSelections();
+
+            //console.log('Ctrl+V pressed');
+        }
+
+        else if ( ch === 'Z') {
+
+            if ( FMAPR.selectedRowCount()===0 ){
+
+                return true;
+            }
+
+            FMAPR.contextMenuClearRowSelections();
+
+            //console.log('Ctrl+Z pressed');
+        }
+
+        else {
+
+            return true;
+        }
+
+        e.preventDefault();
+    });
 }
 
 FMAPR.markSelectionRange = function()
@@ -1317,6 +1502,9 @@ FMAPR.clearSelectionRange = function( boundariesToo )
         $('tr.yes3-selection-range-start').removeClass('yes3-selection-range-start');
         $('tr.yes3-selection-range-end').removeClass('yes3-selection-range-end');
     }
+
+    FMAPR.clearInsertionRow();
+
     //else {
     //    FMAPR.markRowSelected( $('tr.yes3-selection-range-start') );
     //    FMAPR.markRowSelected( $('tr.yes3-selection-range-end') );
@@ -1327,6 +1515,10 @@ FMAPR.removeSelections = function( stickyToo )
 {
     $("tr.yes3-row-selected").off().remove();
 
+    FLAPR.clearInsertionRow();
+
+    FMAPR.renumberRows();
+
     FMAPR.markAsDirty();  
 }
 
@@ -1336,12 +1528,18 @@ FMAPR.clearSelections = function( stickyToo )
 
     FMAPR.clearSelectionRangeBoundaries();
 
-    $("tr.yes3-row-selected").removeClass("yes3-row-selected");  
+    $("tr.yes3-row-selected")
+    .removeClass("yes3-row-selected")
+    .removeClass("yes3-row-cut")
+    .removeClass("yes3-row-copied")
+    ;  
 
     if ( stickyToo ){
 
         $("tr.yes3-row-sticky").removeClass("yes3-row-sticky");       
     }
+
+    FMAPR.clearInsertionRow();
 }
 
 FMAPR.clearSelectionRangeBoundaries = function() {
@@ -1350,6 +1548,13 @@ FMAPR.clearSelectionRangeBoundaries = function() {
     $("tr.yes3-selection-range-end").removeClass("yes3-selection-range-end");
 }
 
+FMAPR.clearRowTagsButLeaveSelected = function()
+{
+    $("tr.yes3-selection-range-start").removeClass("yes3-selection-range-start");
+    $("tr.yes3-selection-range-end").removeClass("yes3-selection-range-end");
+    $("tr.yes3-row-cut").removeClass("yes3-row-cut");
+    $("tr.yes3-row-copied").removeClass("yes3-row-copied");
+}
 
 FMAPR.selectionRangeStartDefined = function()
 {
@@ -1432,6 +1637,24 @@ FMAPR.rowIsSelected = function( ele )
     return ele.hasClass( 'yes3-row-selected' );
 }
 
+FMAPR.clearInsertionRow = function() 
+{
+    $('tr.yes3-fmapr-insertion-row').removeClass('yes3-fmapr-insertion-row');
+    FMAPR.insertionRowId = "";
+}
+
+FMAPR.markInsertionRow = function( theRow )
+{
+    if ( FMAPR.rowIsSelected(theRow) ){
+
+        return true;
+    }
+    
+    FMAPR.clearInsertionRow();
+    theRow.addClass('yes3-fmapr-insertion-row');
+    FMAPR.insertionRowId = theRow.attr('id');
+}
+
 FMAPR.markRowSelected = function( ele, sticky )
 {
     sticky = sticky || false;
@@ -1441,6 +1664,8 @@ FMAPR.markRowSelected = function( ele, sticky )
     if ( sticky ){
         ele.addClass( 'yes3-row-sticky' );
     }
+
+    FMAPR.clearInsertionRow();
 }
 
 FMAPR.markRowUnSelected = function( ele, sticky )
@@ -1597,6 +1822,8 @@ FMAPR.insertionWrapup = function()
     FMAPR.markAsDirty();
 
     FMAPR.ensureNewFieldRowAtEnd();
+
+    FMAPR.renumberRows();
 }
 
 FMAPR.insertFields = function(theRowBefore, callback)
@@ -1997,7 +2224,7 @@ FMAPR.reportStatus = function()
 
         s += "<br>";
 
-        s += ` ${counts.elements} element(s), approx ${counts.columns} export column(s)`; 
+        s += ` ${FMAPR.rowCount} element(s), approx ${counts.columns} export column(s)`; 
     }
 
     $('div#yes3-fmapr-status').html(s);
@@ -2150,6 +2377,11 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
 
     html = FMAPR.REDCapFieldContextMenuContent( thisRow.prop('id'), field_name, element_name, event_name, rowSelected );
 
+    if ( !html.length ){
+
+        return false;
+    }
+
     theMenuPanel.css({'top': 0, 'left': 0});
 
     theMenu.html(html);
@@ -2171,12 +2403,67 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
 
     YES3.contextMenuOpen(x,y);
 
-    YES3.showRedPointer( thisRow );
+    //YES3.showRedPointer( thisRow );
 
     return false;
 }
 
 FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, element_name, event_name, rowSelected )
+{
+    let k = FMAPR.cutRowCount();
+
+    if ( !rowSelected && rowId !== FMAPR.insertionRowId ){
+
+        return "";
+    }
+
+    let theRow = $(`tr#${rowId}`);
+
+    let theNexRow = theRow.next('tr');
+
+    let html = "";
+
+    html += "<div id='yes3-contextmenu-panel-title' class='yes3-contextmenu-panel-row yes3-drag-handle'>";
+
+    //html += "<div class='yes3-float-left'>" + redcap_objname + "</div><div class='yes3-float-right yes3-ellipsis' style='max-width: 150px'>" + event_name + "</div>";
+
+    html += "command menu</div>";
+
+    html += "<div class='yes3-contextmenu-panel-row'>";
+
+    html += "<table><tbody>";
+
+    html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+
+    if ( !rowSelected ){
+
+        html += `<tr class='yes3-command-disabled'><td>cut selection</td><td>ctrl+x</td></tr>`;
+        html += `<tr><td><a href="javascript:FMAPR.contextMenuPasteRowSelections();">paste selection</a></td><td>ctrl+v</td></tr>`;
+        html += `<tr class='yes3-command-disabled'><td>delete selection</td><td>&nbsp;</td></tr>`;
+        html += `<tr class='yes3-command-disabled'><td>clear selection</td><td>ctrl+z</td></tr>`;
+    }
+    else {
+        if ( k===0 ){
+            html += `<tr><td><a href="javascript:FMAPR.contextMenuCutRowSelections();">cut selection</a></td><td>ctrl+x</td></tr>`;
+        }
+        else {
+
+            html += `<tr class='yes3-command-disabled'><td>cut selection</td><td>ctrl+x</td></tr>`;
+        }
+        html += `<tr class='yes3-command-disabled'><td>paste selection</td><td>ctrl+v</td></tr>`;
+        html += `<tr><td><a href="javascript:FMAPR.contextMenuRemoveRowSelections();">delete selection</a></td><td>&nbsp;</td></tr>`;
+        html += `<tr><td><a href="javascript:FMAPR.contextMenuClearRowSelections();">clear selection</a></td><td>ctrl+z</td></tr>`;
+    }
+
+    html += "</tbody></table>";
+
+    html += "</div>";
+
+    return html;   
+}
+
+
+FMAPR.REDCapFieldContextMenuContent_v050 = function( rowId, field_name, element_name, event_name, rowSelected )
 {
     let k = FMAPR.selectedRowCount();
 
@@ -2224,7 +2511,7 @@ FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, element_name,
         if ( !theNextRowIsSelected ){
 
             html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
-            html += `<tr><td><a href="javascript:FMAPR.contextMenuMoveRowSelections('${rowId}');">move ${k} selected field(s)</a></td><td>&nbsp;</td></tr>`;
+            html += `<tr><td><a href="javascript:FMAPR.contextMenuPasteRowSelections('${rowId}');">move ${k} selected field(s)</a></td><td>&nbsp;</td></tr>`;
          
             //html += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
             //html += `<tr><td>remove ${k} selected field(s)</td><td>&nbsp;</td></tr>`;
@@ -2253,29 +2540,32 @@ FMAPR.REDCapFieldContextMenuContent = function( rowId, field_name, element_name,
     return html;   
 }
 
-FMAPR.contextMenuMoveRowSelections = function(rowId)
+FMAPR.contextMenuPasteRowSelections = function(rowId)
 {
     let theRows = $('tr.yes3-row-selected');
 
     let theRow = null;
 
-    let theRowBefore = $(`tr#${rowId}`);
+    let theRowAfter = $(`tr#${FMAPR.insertionRowId}`);
 
     for (let i=0; i<theRows.length; i++){
 
         theRow = $(theRows[i]);
-        theRow.insertAfter( theRowBefore );
-        theRowBefore = theRow;
+        theRow.insertBefore( theRowAfter );
     }
 
-    // clear range tags bu leave rows selected
-    FMAPR.clearSelectionRangeBoundaries();
+    FMAPR.clearInsertionRow();
 
-    //console.log('contextMenuMoveRowSelections', theRows);
+    // clear range, cut and copied tags bu leave rows selected
+    FMAPR.clearRowTagsButLeaveSelected();
+
+    //console.log('contextMenuPasteRowSelections', theRows);
 
     FMAPR.markAsDirty();
 
     YES3.contextMenuClose();
+
+    FMAPR.renumberRows();
 }
 
 FMAPR.contextMenuRemoveRowSelections = function()
@@ -2292,6 +2582,24 @@ FMAPR.contextMenuRemoveRowSelections = function()
 FMAPR.contextMenuClearRowSelections = function()
 {
     FMAPR.clearSelections(true);
+
+    YES3.contextMenuClose();
+}
+
+FMAPR.contextMenuCutRowSelections = function()
+{
+    $('tr.yes3-row-selected')
+    .removeClass('yes3-row-copied')
+    .addClass('yes3-row-cut');
+
+    YES3.contextMenuClose();
+}
+
+FMAPR.contextMenuCopyRowSelections = function()
+{
+    $('tr.yes3-row-selected')
+    .removeClass('yes3-row-cut')
+    .addClass('yes3-row-copied');
 
     YES3.contextMenuClose();
 }
@@ -2365,6 +2673,16 @@ FMAPR.deSelectRow = function( theRow )
 FMAPR.selectedRowCount = function()
 {
     return $('tr.yes3-row-selected').length;
+}
+
+FMAPR.cutRowCount = function()
+{
+    return $('tr.yes3-row-cut').length;
+}
+
+FMAPR.copiedRowCount = function()
+{
+    return $('tr.yes3-row-copied').length;
 }
 
  FMAPR.setValuePickers = function( yes3_fmapr_data_element_name, redcap_field_name ) {
@@ -3121,6 +3439,7 @@ FMAPR.buildExportItemsTableUspecRows = function( specification )
         eventSelectHtml  = FMAPR.getElementEventHtml( uSpec.elements[i].name, element_origin);
     
         html += `<tr id='${rowId}' data-yes3_fmapr_data_element_name='${uSpec.elements[i].name}' data-yes3_fmapr_data_element_description="${uSpec.elements[i].label}" data-spec_type='${uSpec.elements[i].type}' data-required='${req}' data-element_origin='${element_origin}' class='yes3-fmapr-data-element yes3-fmapr-specmap'>`;
+        html += `<td class='yes3-fmapr-row-number'>&nbsp;</td>`;
         html += `<td class='yes3-3 yes3-td-left' title='${uSpec.elements[i].label}'><span class='yes3-fmapr-specmap-element'>${uSpec.elements[i].name}</span></td>`;
         html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
         html += `<td class='yes3-3 yes3-td-middle'>${eventSelectHtml}</td>`;
@@ -3138,6 +3457,7 @@ FMAPR.buildExportItemsTableUspecRows = function( specification )
                 lovInputHtml = FMAPR.getLovInputHtml( yes3_fmapr_data_element_name, value );
 
                 html += `<tr id="yes3_fmapr_lov_value-${uSpec.elements[i].name}-${value}" data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}' data-yes3_fmapr_lov_value="${value}" data-yes3_fmapr_lov_label="${label}" data-required='${req}'}' class='yes3-fmapr-lov'>`;
+                html += `<td class='yes3-fmapr-row-number'>&nbsp;</td>`;
                 html += `<td class='yes3-3 yes3-td-left yes3-fmapr-lov' title="${label}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="Make this the value for all FMAPR submissions" href="javascript:FMAPR.setLovConstant('${yes3_fmapr_data_element_name}', '${value}')">${label}</a></td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'>${lovInputHtml}</td>`;
                 html += `<td class='yes3-3 yes3-td-middle yes3-fmapr-lov'></td>`;
@@ -3169,6 +3489,8 @@ FMAPR.populateExportItemsTable = function( specification )
     FMAPR.markAsBuildCompleted();
 
     FMAPR.ensureNewFieldRowAtEnd();
+
+    FMAPR.renumberRows();
 
     YES3.displayActionIcons();
     FMAPR.displayActionIcons();
@@ -3411,6 +3733,20 @@ FMAPR.exportSettingsTableSkipper = function ()
         }
     */
     })    
+}
+
+FMAPR.renumberRows = function()
+{
+    //FMAPR.rowCount = $('tr.yes3-fmapr-data-element:not(.yes3-fmapr-new-field)').length;
+    
+    FMAPR.rowCount = 0;
+
+    $('tr.yes3-fmapr-data-element:not(.yes3-fmapr-new-field)').each(function(){
+
+        FMAPR.rowCount++;
+        $(this).find('td.yes3-fmapr-row-number').html(FMAPR.rowCount);
+    })
+    
 }
 
 FMAPR.getExportUUID = function()
@@ -3719,6 +4055,8 @@ $( function () {
     YES3.hideContextMenuOnClickOutside();
 
     FMAPR.makeSortable( FMAPR.getExportItemsTableBody() );
+
+    FMAPR.setSpecialKeyListeners();
 
     YES3.contentLoaded = false;
 
