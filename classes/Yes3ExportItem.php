@@ -11,6 +11,7 @@ class Yes3ExportItem {
 
     public $origin = "";
     public $redcap_field_name = "";
+    public $redcap_events = [];
     public $redcap_form_name = "";
     public $redcap_event_id = "";
     public $redcap_event_name = "";

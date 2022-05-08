@@ -103,9 +103,9 @@ div.yes3-fmapr th.yes3-gutter-right
 th.yes3-fmapr-row-number,
 td.yes3-fmapr-row-number {
 
-    width: var(--yes3-fmapr-gutter-width) !important; 
-    min-width: var(--yes3-fmapr-gutter-width) !important; 
-    max-width: var(--yes3-fmapr-gutter-width) !important; 
+    width: calc(2 * var(--yes3-fmapr-gutter-width)) !important; 
+    min-width: calc(2 * var(--yes3-fmapr-gutter-width)) !important; 
+    max-width: calc(2 * var(--yes3-fmapr-gutter-width)) !important; 
  
     vertical-align: middle !important;
     text-align: center !important;

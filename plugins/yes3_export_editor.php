@@ -1,8 +1,10 @@
 <?php
 
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
+*/
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 
@@ -80,11 +82,11 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="yes3-flex-container-evenly-distributed">
 
             <div class="yes3-flex-vcenter-hleft">
-                <input type="button" value="make it so" onClick="FMAPR.NewExport_execute();" class="yes3-panel-button" />
+                <input type="button" onClick="FMAPR.NewExport_execute();" class="yes3-panel-button yes3-button-caption-okay" />
             </div>
 
             <div class="yes3-flex-vcenter-hright">
-                <input type="button" value="nah" onClick="FMAPR.NewExport_closePanel();" class="yes3-panel-button" />
+                <input type="button" onClick="FMAPR.NewExport_closePanel();" class="yes3-panel-button yes3-button-caption-cancel" />
             </div>
 
         </div>
@@ -198,6 +200,24 @@ $module->getCodeFor("yes3_export_editor", true);
                     </td>
                 </tr>
                 
+                <tr class="yes3-light-theme-only">
+                    <td>
+                        <i class="fas fa-moon yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Switch to dark theme.
+                    </td>
+                </tr>   
+                
+                <tr class="yes3-dark-theme-only">
+                    <td>
+                        <i class="fas fa-sun yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Switch to light theme.
+                    </td>
+                </tr>   
+                
             </tbody>
         </table>
    </div>
@@ -237,10 +257,10 @@ $module->getCodeFor("yes3_export_editor", true);
 
    <div class="yes3-panel-row">
       <div style='float:left'>
-         <input type="button" value="make it so" onClick="FMAPR.Wayback_Execute();" class="yes3-panel-button" />
+         <input type="button" onClick="FMAPR.Wayback_Execute();" class="yes3-panel-button yes3-button-caption-okay" />
       </div>
       <div style='float:right'>
-         <input type="button" value="nah" onClick="FMAPR.Wayback_closeForm();" class="yes3-panel-button" />
+         <input type="button" onClick="FMAPR.Wayback_closeForm();" class="yes3-panel-button yes3-button-caption-cancel" />
       </div>
    </div>
 
@@ -288,11 +308,11 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="yes3-flex-container-evenly-distributed">
 
             <div class="yes3-flex-vcenter-hleft">
-                <input type="button" value="make it so" onClick="FMAPR.exportExecute();" class="yes3-panel-button" />
+                <input type="button" onClick="FMAPR.exportExecute();" class="yes3-panel-button yes3-button-caption-okay" />
             </div>
 
             <div class="yes3-flex-vcenter-hright">
-                <input type="button" value="nah" onClick="FMAPR.closeExportForm();" class="yes3-panel-button" />
+                <input type="button" onClick="FMAPR.closeExportForm();" class="yes3-panel-button yes3-button-caption-cancel" />
             </div>
 
         </div>
@@ -310,33 +330,12 @@ $module->getCodeFor("yes3_export_editor", true);
       </div>
    </div>
 
+   <div id="yes3-fmapr-bulkinsert-where" class="yes3-panel-row" style="margin-top: 20px !important">
+   </div>
+
    <div class="yes3-panel-row" style="margin-top: 20px !important">
 
         <table><tbody>
-
-            <tr>
-                <td class="yes3-fmapr-fieldinsertion-td-left">
-                    Insert fields after:
-                </td>
-                <td class="yes3-fmapr-fieldinsertion-td-right">
-                    <div class="yes3-panel-row" id="yes3-fmapr-fieldinsertion-direction">
-                    </div>
-                </td>
-            </tr>
-
-            <tr id='yes3-fmapr-fieldinsertion-org-block' class="yes3-fmapr-horizontal-only">
-                <td>
-                    Organize by:
-                </td>
-                <td>
-                    <div class="yes3-panel-row">
-                        <input type="radio" class="balloon" value="form" name="yes3-fmapr-fieldinsertion-org" id="yes3-fmapr-fieldinsertion-org-form" checked />
-                        <label for="yes3-fmapr-fieldinsertion-org-form">Form</label>&nbsp;
-                        <input type="radio" class="balloon" value="event" name="yes3-fmapr-fieldinsertion-org" id="yes3-fmapr-fieldinsertion-org-event" />
-                        <label for="yes3-fmapr-fieldinsertion-org-event">Event</label>
-                    </div>
-                </td>
-            </tr>
 
             <tr id='yes3-fmapr-fieldinsertion-form-block' class='yes3-fmapr-fieldinsertion-block'>
                 <td>
@@ -349,7 +348,7 @@ $module->getCodeFor("yes3_export_editor", true);
                 </td>
             </tr>
 
-            <tr id='yes3-fmapr-fieldinsertion-event-block' class='yes3-fmapr-fieldinsertion-block yes3-fmapr-horizontal-only'>
+            <tr id='yes3-fmapr-fieldinsertion-event-block' class='yes3-fmapr-fieldinsertion-block yes3-fmapr-horizontal-only-xxx'>
                 <td>
                     Event(s):
                 </td>
@@ -362,16 +361,16 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <tr>
                 <td>
-                    Insertion options:
+                    Insert as:
                 </td>
                 <td>
                     <div class="yes3-panel-row">
                         <input type="radio" class="balloon" value="default" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-default" checked />
-                        <label for="yes3-fmapr-fieldinsertion-option-default">as above</label>&nbsp;
-                        <input type="radio" class="balloon" value="forms" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-forms" />
-                        <label for="yes3-fmapr-fieldinsertion-option-forms">expand to forms</label>
+                        <label for="yes3-fmapr-fieldinsertion-option-default">a single item</label>&nbsp;
+                        <input type="radio" class="balloon yes3-fmapr-allforms-only" value="forms" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-forms" />
+                        <label for="yes3-fmapr-fieldinsertion-option-forms" class="yes3-fmapr-allforms-only">individual forms</label>
                         <input type="radio" class="balloon" value="fields" name="yes3-fmapr-fieldinsertion-option" id="yes3-fmapr-fieldinsertion-option-fields" />
-                        <label for="yes3-fmapr-fieldinsertion-option-fields">expand to fields</label>
+                        <label for="yes3-fmapr-fieldinsertion-option-fields">fields</label>
                     </div>
                 </td>
             </tr>
@@ -392,7 +391,7 @@ $module->getCodeFor("yes3_export_editor", true);
    <div class="yes3-flex-container-evenly-distributed">
 
       <div class="yes3-flex-vcenter-hleft">
-         <input type="button" value="make it so" onClick="FMAPR.fieldInsertionExecute();" class="yes3-panel-button" />
+         <input type="button" onClick="FMAPR.fieldInsertionExecute();" class="yes3-panel-button yes3-button-caption-okay" />
       </div>
 
       <div class="yes3-flex-vcenter-hleft yes3-panel-between-the-buttons">
@@ -400,7 +399,7 @@ $module->getCodeFor("yes3_export_editor", true);
       </div>
 
       <div class="yes3-flex-vcenter-hright">
-         <input type="button" value="nah" onClick="FMAPR.closeFieldInsertionForm();" class="yes3-panel-button" />
+         <input type="button" onClick="FMAPR.closeFieldInsertionForm();" class="yes3-panel-button yes3-button-caption-cancel" />
       </div>
 
    </div>
@@ -432,10 +431,10 @@ $module->getCodeFor("yes3_export_editor", true);
 
     <div class="yes3-panel-row">
       <div style='float:left'>
-         <input type="button" value="done" onClick="FMAPR.uSpecEditor_saveAndClose();" class="yes3-panel-button" title="Close the Export Mappings Editor" />
+         <input type="button" value="done" onClick="FMAPR.uSpecEditor_saveAndClose();" class="yes3-panel-button yes3-button-caption-done" title="Close the Export Mappings Editor" />
       </div>
       <div style='float:right'>
-         <input type="button" value="cancel" onClick="FMAPR.uSpecEditor_closeForm();" class="yes3-panel-button" title="Discard any changes and close." />
+         <input type="button" onClick="FMAPR.uSpecEditor_closeForm();" class="yes3-panel-button yes3-button-caption-cancel" title="Discard any changes and close." />
       </div>
    </div>
    
@@ -476,8 +475,8 @@ $module->getCodeFor("yes3_export_editor", true);
 
         <div class="col-md-4  yes3-flex-vcenter-hright" style="padding-right:0">
 
-            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-display-when-not-repeating yes3-designer-only yes3-fmapr-settings-okay" action="addRawREDCapField" title="Add a single REDCap field to the specification."></i>
-            <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-bulk-insert yes3-designer-only yes3-fmapr-settings-okay" action="openFieldInsertionForm" title="Add multiple REDCap fields to the specification."></i>
+            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-display-when-not-repeating yes3-designer-only yes3-fmapr-settings-okay" action="addRawREDCapField" title="Add a single REDCap field to the export specification."></i>
+            <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-bulk-insert yes3-designer-only yes3-fmapr-settings-okay" action="openFieldInsertionForm" title="Add a form (or all forms) to the export specification."></i>
             <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-controlpanel yes3-display-when-clean yes3-designer-only" action="NewExport_openPanel" title="Add a new export specification."></i>
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-save-control" id="yes3-fmapr-save-control" action="saveExportSpecification" title="Save the export specification."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
@@ -489,10 +488,8 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="Get some help"></i>
 
-            <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox" title="Switch between dark and light theme">
-                <input type="checkbox" id="yes3-theme-checkbox" />
-                <div class="yes3-theme-slider round yes3-override"></div>
-            </label>
+            <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
+            <i class="fas fa-sun yes3-action-icon yes3-action-icon-controlpanel yes3-dark-theme-only" action="Theme_light" title="Switch to the sunny side"></i>
 
             <img class="yes3-square-logo yes3-logo" alt="YES3 Logo" title="More about YES3..." />
 
@@ -744,7 +741,7 @@ $module->getCodeFor("yes3_export_editor", true);
                     <th class='yes3-header yes3-fmapr-row-number'>&nbsp;</th>
                     <th class='yes3-header yes3-3'>Export specification element</th>
                     <th class='yes3-header yes3-3'>REDCap study field</th>
-                    <th class='yes3-header yes3-3'><span class='yes3-fmapr-horizontal-only'>REDCap event(s)</span></th>
+                    <th class='yes3-header yes3-3'><span class='yes3-fmapr-horizontal-only-xxx'>REDCap event(s)</span></th>
                     <th class='yes3-header yes3-gutter-right'>&nbsp;</th>
                 </tr>
                 

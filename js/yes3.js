@@ -5,8 +5,17 @@ let YES3 = {
     contentExpanded: true,
     dirty: false,
     initial_help_offered: false,
-    projectUrl: "https://portal.redcap.yale.edu/news/redcapyale-team-secures-nih-funding-support-redcap-external-modules"
+    projectUrl: "https://portal.redcap.yale.edu/news/redcapyale-team-secures-nih-funding-support-redcap-external-modules",
+    button_captions: {
+        "yes" : "yes",
+        "okay" : "make it so",
+        "done" : "done",
+        "no": "no",
+        "cancel": "cancel"
+    }
+
 };
+
  
 String.prototype.truncateAt = function( n ){
     if ( this.length > n-3 ) return this.substr(0, n-3) + "...";
@@ -414,6 +423,18 @@ YES3.displayActionIcons = function( listenersLater )
         $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
+    if ( localStorage.getItem('theme')==='dark'){
+
+        $('.yes3-light-theme-only').hide();
+        $('.yes3-dark-theme-only').show();
+    }
+    else {
+
+        $('.yes3-light-theme-only').show();
+        $('.yes3-dark-theme-only').hide();
+    }
+
+
     if ( !listenersLater ) {
 
         YES3.setActionIconListeners( YES3.container() );
@@ -530,11 +551,25 @@ YES3.detectColorScheme = function(){
         var theme = "dark";
     }
 
-    localStorage.setItem('theme', theme);
+    YES3.setTheme(theme);
+}
 
-    //document.documentElement.setAttribute("data-theme", theme);
+YES3.Functions.Theme_light = function()
+{
+    YES3.setTheme('light');
+    YES3.displayActionIcons();
+}
+
+YES3.Functions.Theme_dark = function()
+{
+    YES3.setTheme('dark');
+    YES3.displayActionIcons();
+}
+
+YES3.setTheme = function(theme)
+{
     YES3.getYes3ParentElement().attr('data-theme', theme);
-
+    localStorage.setItem('theme', theme);
     YES3.setThemeObjects();
     YES3.applyThemeBackgroundToParent();
 }
@@ -669,36 +704,30 @@ YES3.getYes3ParentElement = function()
     return $("div#yes3-container").parent();
 }
 
+YES3.setCaptions = function()
+{
+    $("input[type=button].yes3-button-caption-yes").val(YES3.button_captions.yes);
+    $("input[type=button].yes3-button-caption-okay").val(YES3.button_captions.okay);
+    $("input[type=button].yes3-button-caption-done").val(YES3.button_captions.done);
+    $("input[type=button].yes3-button-caption-no").val(YES3.button_captions.no);
+    $("input[type=button].yes3-button-caption-cancel").val(YES3.button_captions.cancel);
+}
+
 /*
 * the approved alternative to $(document).ready()
 */
 $( function () {
 
+    YES3.setCaptions();
+
     YES3.detectColorScheme();
-
-    const toggleSwitch = document.querySelector('.yes3-theme-switch input[type="checkbox"]');
-
-    toggleSwitch.addEventListener('change', YES3.switchTheme, false);
-
-    const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
-
-    if (currentTheme) {
-
-        //document.documentElement.setAttribute('data-theme', currentTheme);
-
-        YES3.getYes3ParentElement().attr('data-theme', currentTheme);
-
-        if (currentTheme === 'dark') {
-            toggleSwitch.checked = true;
-        }
-    }
 
     /*
     attach the csrf token to every AJAX request
     https://stackoverflow.com/questions/22063612/adding-csrftoken-to-ajax-request
     */
     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-    jqXHR.setRequestHeader('X-CSRF-Token', redcap_csrf_token);
+        jqXHR.setRequestHeader('X-CSRF-Token', redcap_csrf_token);
     });
 
     $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});

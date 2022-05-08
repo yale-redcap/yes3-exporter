@@ -1,8 +1,9 @@
 <?php
-
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
+*/
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 use Yale\Yes3\Yes3;
@@ -36,7 +37,8 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
     <div class="yes3-panel-row" style="margin-top: 20px !important">
         <table>
-            <tbody>               
+            <tbody>  
+
                 <tr>
                     <td>
                         <i class="far fa-save yes3-action-icon"></i>
@@ -53,7 +55,35 @@ $module->getCodeFor("yes3_export_prefixes", true);
                     <td>
                         Restore all the settings on this page to their stored values (undo).
                     </td>
-                </tr>                
+                </tr>   
+
+                <tr>
+                    <td>
+                        <i class="fas fa-question yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Display this Help panel.
+                    </td>
+                </tr>
+                
+                <tr class="yes3-light-theme-only">
+                    <td>
+                        <i class="fas fa-moon yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Switch to dark theme.
+                    </td>
+                </tr>   
+                
+                <tr class="yes3-dark-theme-only">
+                    <td>
+                        <i class="fas fa-sun yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Switch to light theme.
+                    </td>
+                </tr>   
+
             </tbody>
         </table>
     </div>
@@ -129,10 +159,8 @@ $module->getCodeFor("yes3_export_prefixes", true);
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-dirty yes3-designer-only" action="Exportspecifications_undoSettings" title="Restore all settings on this page to their stored values (undo)."></i>
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
 
-            <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
-                <input type="checkbox" id="yes3-theme-checkbox" />
-                <div class="yes3-theme-slider round yes3-override"></div>
-            </label>
+            <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
+            <i class="fas fa-sun yes3-action-icon yes3-action-icon-controlpanel yes3-dark-theme-only" action="Theme_light" title="Switch to the sunny side"></i>
 
         </div>
 
@@ -153,6 +181,9 @@ $module->getCodeFor("yes3_export_prefixes", true);
                 Keep the prefixes as short as you can manage. 
                 Click <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_openPanel" title="get some help"></i> for more information on event prefixes
                 and REDCap field name considerations.
+                </p>
+                <p>
+                    Click <a href="javascript:FMAPR.restoreToDefaultValues()">here</a> to restore your event prefixes to their default values.
                 </p>
             </div>
 

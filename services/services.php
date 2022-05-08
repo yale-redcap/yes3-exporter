@@ -4,13 +4,11 @@ namespace Yale\Yes3FieldMapper;
 
 use Exception;
 
-/**
- * Enable PHP error message output to browser.
- * DISABLE IN PRODUCTION!
- */
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
+*/
 
 $request = "";
   
@@ -75,12 +73,19 @@ if ( !in_array( $csrf_token, $_SESSION['redcap_csrf_token']) ){
  */
 exit ( call_user_func( __NAMESPACE__."\\".$request ) );
 
+function getDefaultEventPrefixes()
+{
+    global $module;
+
+    return json_encode( $module->getDefaultExportEvents() );
+}
+
 /**
  * Handle the reported error by going toes-up.
  */
 function toesUp($errmsg)
 {
-    throw new \Exception("ARHH! YES3 Services reports ".$errmsg);  
+    throw new \Exception("YES3 Services reports ".$errmsg);  
 }
  
  /**
@@ -419,7 +424,7 @@ WHERE x.project_id=? AND p1.`value`=? AND p2.`value`=?
 
     $subSql .= " ORDER BY timestamp DESC LIMIT {$LIMIT}";
 
-    $sql = "SELECT * FROM ( " . $subSql . " ) y ORDER BY y.timestamp ASC";
+    $sql = "SELECT * FROM ( " . $subSql . " ) y ORDER BY y.log_id ASC";
 
     //exit( json_encode( ['sql'=>$sql] ) );
 

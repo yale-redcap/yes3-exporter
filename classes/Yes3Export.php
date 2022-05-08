@@ -24,6 +24,8 @@ class Yes3Export {
     public $export_remove_freetext = "";
     public $export_remove_largetext = "";
 
+    public $export_event_list = [];
+
     //public $export_data_dictionary = [];
     //public $mapping_specification = "";
 
@@ -57,7 +59,18 @@ class Yes3Export {
     public function addExportItem( $exportItemProperties )
     {
 
+        // the record ID field should not be associated with an event
+        if ( isset($exportItemProperties['redcap_field_name']) && $exportItemProperties['redcap_field_name']===\REDCap::getRecordIdField() ){
+
+            $exportItemProperties['redcap_event_id'] = 0;
+        }
+
         $this->export_items[] = new Yes3ExportItem($exportItemProperties);
+
+        if ( isset($exportItemProperties['redcap_event_id']) ) {
+
+            $this->updateEventList( $exportItemProperties['redcap_event_id'] );
+        }
     }
 
     public function itemInExport($var_name)
@@ -70,5 +83,41 @@ class Yes3Export {
             }
         }
         return false;
+    }
+
+    public function updateExportItemEvents($var_name, $event_id)
+    {
+        $event_id = (int) $event_id;
+
+        if ( !$event_id ){
+
+            return false;
+        }
+
+        $this->updateEventList( $event_id );
+        
+        for ( $i=0; $i<count($this->export_items); $i++){
+
+            if ( $var_name===$this->export_items[$i]->var_name ){
+                
+                $this->export_items[$i]->redcap_events[] = $event_id;
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function updateEventList($event_id)
+    {
+        $event_id = (int) $event_id;
+
+        if ( $event_id ){
+
+            if ( !in_array($event_id, $this->export_event_list) ){
+
+                $this->export_event_list[] = $event_id;
+            }
+        }
     }
 }

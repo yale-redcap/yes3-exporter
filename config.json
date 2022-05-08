@@ -55,17 +55,17 @@
     "links": {
         "project": [
             {
-                "name": "YES3 Export Editor and Downloads",
+                "name": "YES3 Exporter Editor and Downloads",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_editor.php"
             },
             {
-                "name": "YES3 Export Event Prefixes",
+                "name": "YES3 Exporter Event Prefixes",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_prefixes.php"
             },
             {
-                "name": "YES3 Export Logs",
+                "name": "YES3 Exporter Logs",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_logs.php"
             },
@@ -82,10 +82,14 @@
     ],
 
     "project-settings": [
-
         {
-            "key": "beta",
-            "name": "Access to beta features",
+            "key": "email-notifications-header",
+            "type" : "descriptive",
+            "name": "<h5>EMAIL NOTIFICATIONS</h5><p>You may elect to receive email notifactions of YES3 Exporter actions.</p>"
+        },
+        {
+            "key": "enable-email-notifications",
+            "name": "Enable email notifications",
             "type": "radio",
             "required": false,
             "choices":[
@@ -97,7 +101,30 @@
                     "value":"Y",
                     "name":"Yes"
                 }
-            ]
+            ],
+            "branchingLogic": {
+                "field": "enable-host-filesystem-exports",
+                "value": "Y"
+            }
+        },
+        {
+            "key": "notification-email",
+            "name": "Email address for notifications",
+            "type": "email",
+            "required": false,
+            "branchingLogic": {
+                "conditions": [
+                    {
+                        "field": "enable-email-notifications",
+                        "value": "Y"        
+                    }
+                ]
+            }
+        },
+        {
+            "key": "toast-the-host",
+            "type" : "descriptive",
+            "name": "<h5>HOST FILE SYSTEM EXPORTS</h5><p>YES3 Exporter can export to the host file system, n.b. to automounts pointing to secure institutional file shares. This will require services from the REDCap host system administrator.</p>"
         },
         {
             "key": "enable-host-filesystem-exports",
@@ -118,18 +145,47 @@
         },
         {
             "key": "export-target-folder",
-            "name": "Host file system mount point<br>(must be set by a super user)",
-            "type": "textarea",
+            "name": "Host file system folder<br>(must be set by a super user)",
+            "type": "text",
             "super-users-only": true,
             "required": false,
             "branchingLogic": {
-                "field": "enable-host-file-system-exports",
+                "field": "enable-host-filesystem-exports",
                 "value": "Y"
             }
+        },
+        {
+            "key": "buyer-beware",
+            "type" : "descriptive",
+            "name": "<h5>CAVEAT EMPTOR</h5><p>See the documention, under 'beta features', for brief descriptions of features under development that are available to designers. There is no guarantee that any beta feature will be moved to production.</p>"
+        },
+        {
+            "key": "beta",
+            "name": "Access to beta features",
+            "type": "radio",
+            "required": false,
+            "choices":[
+                {
+                    "value":"N",
+                    "name":"No"
+                },
+                {
+                    "value":"Y",
+                    "name":"Yes"
+                }
+            ]
         }
+
     ],
 
     "crons":[
+        {
+            "cron_name": "cron_dailymail",
+            "cron_description": "Sends 24-hour export log summaries",
+            "method": "cron_dailymail",
+            "cron_frequency": "360",
+            "cron_max_run_time": "18000"
+        }
     ],
 
     "no-auth-pages": [

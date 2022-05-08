@@ -1,11 +1,15 @@
 <?php
 
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
+*/
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 use Yale\Yes3\Yes3;
+
+//$module->emailDailyLog();
 
 $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();
@@ -206,10 +210,9 @@ $module->getCodeFor("yes3_export_logs", true);
 
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="get some help"></i>
 
-            <label class="yes3-theme-switch yes3-override" for="yes3-theme-checkbox">
-                <input type="checkbox" id="yes3-theme-checkbox" />
-                <div class="yes3-theme-slider round yes3-override"></div>
-            </label>
+            <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
+            <i class="fas fa-sun yes3-action-icon yes3-action-icon-controlpanel yes3-dark-theme-only" action="Theme_light" title="Switch to the light theme"></i>
+
 
         </div>
 

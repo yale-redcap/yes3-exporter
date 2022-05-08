@@ -1,10 +1,11 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
+*/
 
 /**
  * an autoloader for Yes3 classes and traits
@@ -16,6 +17,7 @@ require "autoload.php";
  */
 require "defines/yes3_defines.php";
 
+use Aws\Result;
 use Exception;
 use REDCap;
 use ZipArchive;
@@ -289,6 +291,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      var_type ( INTEGER, FLOAT, NOMINAL, TEXT, DATE, DATETIME, TIME )
          *      var_label
          *      valueset [{value, label}, ...] as JSON string (NOMINAL only)
+         *      events [event_id, ...]
          * 
          *      for computation:
          * 
@@ -330,7 +333,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->addExportItem_otherProperty($export, VARNAME_EVENT_NAME, "REDCap Event Name", "TEXT");
         }
 
-        if ( $export->export_layout !== "r" ) {
+        if ( $export->export_layout === "r" ) {
 
             $this->addExportItem_otherProperty($export, VARNAME_INSTANCE, "REDCap Repeat Instance", "INTEGER");
         }
@@ -374,6 +377,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 'origin' => $export_item->origin,
                 'redcap_field_name' => $export_item->redcap_field_name,
                 'redcap_form_name' => $export_item->redcap_form_name,
+                'redcap_events' => json_encode($export_item->redcap_events),
                 VARNAME_EVENT_ID => $export_item->redcap_event_id,
                 VARNAME_EVENT_NAME => $export_item->redcap_event_name,
                 'non_missing_count' => $export_item->non_missing_count,
@@ -414,6 +418,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'export_hash_recordid' => $export->export_hash_recordid,
             'export_shift_dates' => $export->export_shift_dates,
             'export_group_id' => $allowed['group_id'],
+            'export_event_list' => $export->export_event_list,
             'export_data_dictionary' => $dd,
             'export_fields_rejected' => $fields_rejected
         ];
@@ -439,7 +444,124 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return fopen( $filename, "w+" );
     }
 
-    private function writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination, &$bytesWritten=0 )
+    /**
+     * Returns a non-assoc array suitable for CSV export
+     * Utility columns removed
+     * 
+     * function: dataDictionaryForExport
+     * 
+     * @param mixed $dd
+     * @param mixed $export_layout
+     * 
+     * @return void
+     */
+    private function dataDictionaryForExport( $dd, $export_layout):array
+    {
+
+        // delete event columns as needed
+        $columns_to_delete = [];
+
+        $colnames = array_keys($dd[0]);
+
+        $xx = [
+            []
+        ];
+
+        for ($i=0; $i<count($colnames); $i++){
+
+            if ( $colnames[$i]==="redcap_events") {
+
+                $columns_to_delete[] = $i;
+            }
+
+            elseif ( $export_layout !== "h" && ($colnames[$i]==="redcap_event_id" || $colnames[$i]==="redcap_event_name")){
+
+                $columns_to_delete[] = $i;  
+            }
+
+            else {
+
+                $xx[0][] = $colnames[$i];
+            }
+        }
+
+        foreach ($dd as $dditem ){
+
+            $v = array_values($dditem);
+
+            $x = [];
+
+            for ($i=0; $i<count($v); $i++){
+
+                if ( !in_array($i, $columns_to_delete) ){
+
+                    $x[] = $v[$i];
+                }
+            }
+
+            $xx[] = $x;
+        }
+
+        return $xx;
+    }
+
+    private function writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $bytesWritten, $R, $C, $data_file_path, $destination){
+       
+        if ( !$export_target_folder || $destination==="download" ) {
+
+            $path = tempnam(sys_get_temp_dir(), "ys3");
+        }
+        else {
+
+            if ( substr($export_target_folder, -1) !== DIRECTORY_SEPARATOR ){
+
+                $export_target_folder .= DIRECTORY_SEPARATOR;
+            }
+
+            $path = $export_target_folder . $this->exportInfoFilename($export_name, $destination);           
+        }
+
+        $h = fopen( $path, "w+" );
+
+        if ( $h===false ){
+
+            throw new Exception("Fail: could not create export file {$path}");
+        }
+
+        $project = $this->getProject();
+
+        $info = [
+            "timestamp" => strftime("%F %T"),
+            "username" => $this->username,
+            "project_id" => $project->getProjectId(),
+            "project_title" => $project->getTitle(),
+            "export_name" => $export_name,
+            "export_uuid" => $export_uuid,
+            "export_target_folder" => $export_target_folder,
+            "path" => $data_file_path,
+            "bytes_written" => $bytesWritten,
+            "columns" => $C,
+            "rows" => $R,
+            "destination" => $destination,
+            "notification_email" => $this->getProjectSetting("notification-email")
+        ];
+
+        $json = Yes3::json_encode_pretty($info);
+
+        $bytesWritten = fwrite($h, $json);
+
+        fclose($h);
+
+        return [
+            'export_info_filename' => $path,
+            'export_info_message' => "Success: {$bytesWritten} bytes written to {$path}.",
+            'export_info_filename' => $path,
+            'export_info_file_size' => $bytesWritten,
+            'export_info' => $info
+        ];
+    }
+
+    private function writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination, $export_layout, &$bytesWritten=0 )
     {
         $delim = ",";
         
@@ -466,13 +588,15 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $R = 0;
 
-        $C = count($dd[0]);
-           
-        $bytesWritten = fputcsv($h, array_keys($dd[0]), $delim);
-     
-        foreach ( $dd as $x ) {
+        $xx = (array) $this->dataDictionaryForExport($dd, $export_layout);
 
-            $bytesWritten += fputcsv($h, array_values($x), $delim);
+        $C = count($xx[0]);
+           
+        $bytesWritten = 0;
+     
+        foreach ( $xx as $x ) {
+
+            $bytesWritten += fputcsv($h, $x, $delim);
             $R++;
         }
      
@@ -515,6 +639,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_shift_dates         = (int)$ddPackage['export_shift_dates'];
         $export_group_id            = (int)$ddPackage['export_group_id'];
         $export_hash_recordid       = (int)$ddPackage['export_hash_recordid'];
+        $export_event_list          = $ddPackage['export_event_list'];
 
         $dd = $ddPackage['export_data_dictionary'];
 
@@ -531,7 +656,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $export_target_folder .= DIRECTORY_SEPARATOR;
             }
 
-            $path = $export_target_folder . $this->exportDataFilename($export_name, "filesystem");
+            $path = $export_target_folder . $this->exportDataFilename($export_name, "filesystem");          
 
             $destination = "filesystem";
         }
@@ -579,7 +704,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * Most likely too many fields for the IN() approach to be efficient,
          * but perhaps worth testing.
          */
-        $events = [];
+        //$events = [];
         $dd_index = [];
         $dd_specmap_index = [];
 
@@ -601,10 +726,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                         $dd_specmap_index[$dd[$i]['redcap_field_name']][$dd[$i][VARNAME_EVENT_ID]] = $i;
                     }
                     
-                    if ( !in_array($dd[$i][VARNAME_EVENT_ID], $events) ){
+                    //if ( !in_array($dd[$i][VARNAME_EVENT_ID], $events) ){
 
-                        $events[] = $dd[$i][VARNAME_EVENT_ID];
-                    }
+                        //$events[] = $dd[$i][VARNAME_EVENT_ID];
+                    //}
                 }
             }
             else {
@@ -638,15 +763,15 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $sqlEventParams = [];
         $sqlOrderBy = "";
 
-        if ( $events ){
+        if ( $export_event_list ){
             
             $sqlEvent = "AND d.`event_id` IN(";
 
-            for($e=0; $e<count($events); $e++){
+            for($e=0; $e<count($export_event_list); $e++){
 
                 $sqlEvent .= ( $e===0 ) ? "?":",?";
 
-                $sqlEventParams[] = $events[$e];
+                $sqlEventParams[] = $export_event_list[$e];
             }
 
             $sqlEvent .= ")";
@@ -787,6 +912,26 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             sort($records, SORT_NATURAL | SORT_FLAG_CASE);
         }
 
+        /**
+         * For v and r layouts, we need to account for the events for this field
+         * to include
+         */
+        $field_events = [];
+
+        if ( $export_layout !== "h" ){
+
+            foreach ( $dd as $d ){
+
+                if ( $d['redcap_field_name'] && $d['redcap_events']){
+
+                    $field_events[$d['redcap_field_name']] = json_decode($d['redcap_events'], true);
+                }
+            }
+        }
+
+        //Yes3::logDebugMessage($this->project_id, $sqlSelect, 'writeX:sqlSelect');
+        //Yes3::logDebugMessage($this->project_id, print_r($sqlEventParams, true), 'writeX:sqlEventParams');
+
         $K = 0; // datum count
         $R = 0; // export row count
         $C = 0; // col count
@@ -804,6 +949,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $dd, 
                 $dd_index, 
                 $dd_specmap_index,
+                $field_events,
                 $dagNameForGroupId, 
                 $h, 
                 $export_layout, 
@@ -841,7 +987,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $ddPackage['export_data_dictionary'] = $dd;
 
-        $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination );
+        $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination, $export_layout );
+
+        $export_info_file_response = $this->writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $bytesWritten, $R, $C, $path, $destination);
 
         $this->logExport(
             "export files written",
@@ -866,7 +1014,12 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'export_data_columns' => $C,
             'export_data_dictionary_message' => $export_data_dictionary_response['export_data_dictionary_message'],
             'export_data_dictionary_filename' => $export_data_dictionary_response['export_data_dictionary_filename'],
-            'export_data_dictionary_file_size' => $export_data_dictionary_response['export_data_dictionary_file_size']
+            'export_data_dictionary_file_size' => $export_data_dictionary_response['export_data_dictionary_file_size'],
+            'export_info_message' => $export_info_file_response['export_info_message'],
+            'export_info_filename' => $export_info_file_response['export_info_filename'],
+            'export_info_file_size' => $export_info_file_response['export_info_file_size'],
+            'export_info' => $export_info_file_response['export_info']
+            
         ];
     }
 
@@ -895,28 +1048,47 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return $log_id;
     }
 
-    public function getExportLogs($export_uuid, $descending = false)
+    public function getExportLogs($export_uuid, $descending = false, $sinceWhen = 0)
     {
         $pSql = "
-SELECT log_id, timestamp, username, message
+SELECT project_id, log_id, timestamp, username, message
     , log_entry_type, destination, export_uuid, export_name
     , filename_data, filename_data_dictionary, filename_zip 
     , exported_bytes, exported_items, exported_rows, exported_columns
-WHERE project_id=? AND export_uuid=? AND log_entry_type=?
+WHERE project_id=? AND log_entry_type=?
         ";
+
+        $params = [ 
+            $this->getProjectId(), 
+            EMLOG_LOG_ENTRY_TYPE 
+        ];
+
+        if ( $export_uuid ){
+
+            $pSql .= " AND export_uuid=?";
+
+            $params[] = $export_uuid;
+        }
+
+        if ( $sinceWhen ){
+
+            $pSql .= " AND TIMEDIFF(timestamp, ?) >= 0";
+
+            $params[] = $sinceWhen;
+        }
 
         if ( $descending ){
 
-            $pSql .= " ORDER BY timestamp DESC";
+            $pSql .= " ORDER BY log_id DESC";
         }
         else {
 
-            $pSql .= " ORDER BY timestamp ASC";
+            $pSql .= " ORDER BY log_id ASC";
         }
 
         $logRecords = [];
 
-        $result = $this->queryLogs($pSql, [ $this->project_id, $export_uuid, EMLOG_LOG_ENTRY_TYPE ]);
+        $result = $this->queryLogs($pSql, $params);
 
         while ($logRecord = $result->fetch_assoc()){
 
@@ -1069,6 +1241,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         &$dd, 
         $dd_index, 
         $dd_specmap_index, 
+        $field_events,
         $dagNameForGroupId, 
         $h, 
         $export_layout, 
@@ -1209,7 +1382,17 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                 $specmap_field_index = $dd_specmap_index[$field_name] ?? -1;
             }
 
-            if ( $field_index > -1 && $field_name !== $RecordIdField ){
+            $acceptable = ( $field_index > -1 && $field_name !== $RecordIdField );
+
+            if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name])){
+
+                //Yes3::logDebugMessage($this->project_id, $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
+                //Yes3::logDebugMessage($this->project_id, print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
+
+                $acceptable = in_array((int)$event_id, $field_events[$field_name]);
+            }
+
+            if ( $acceptable ){
 
                 $exportValues++;
 
@@ -1442,15 +1625,60 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         }
 
         $response .= $results['export_data_dictionary_message']
-                    . "\n\n" 
-                    . $results['export_data_message']
+        . "\n\n" 
+        . $results['export_data_message']
+        . "\n\n" 
+        . $results['export_info_message']
         ;
 
         $t = time() - $t;
 
         $response .= "\n\nElapsed time: {$t} seconds.";
+        /*
+        if ( $results['export_info']['notification_email'] && $this->getProjectSetting('enable-email-notifications')==="Y") {
+
+            $this->emailExportNotice( $results['export_info'] );
+        }
+        */
 
         return nl2br($response);
+    }
+
+    private function emailExportNotice( $info ){
+
+        $msg = '<html><body style="font-family:arial,helvetica;">';
+
+        $msg .= '<p>You are receiving this email because you have enabled notifications from the REDCap YES3 Exporter.</p>';
+
+        $msg .= '<p style="text-decoration:underline;">Summary of export</p>';
+
+        $msg .= '<table><tbody>';
+
+        $msg .= "<tr><td>REDCap host</td><td>"              . APP_PATH_WEBROOT_FULL         . "</td></tr>";
+        $msg .= "<tr><td>Date and time</td><td>"            . $info['timestamp']            . "</td></tr>";
+        $msg .= "<tr><td>Username</td><td>"                 . $info['username']             . "</td></tr>";
+        $msg .= "<tr><td>REDCap project id (pid)</td><td>"  . $info['project_id']           . "</td></tr>";
+        $msg .= "<tr><td>REDCap project title</td><td>"     . $info['project_title']        . "</td></tr>";
+        $msg .= "<tr><td>Export name</td><td>"              . $info['export_name']          . "</td></tr>";
+        $msg .= "<tr><td>Export uuid</td><td>"              . $info['export_uuid']          . "</td></tr>";
+        $msg .= "<tr><td>Target folder</td><td>"            . $info['export_target_folder'] . "</td></tr>";
+        $msg .= "<tr><td>Path</td><td>"                     . $info['path']                 . "</td></tr>";
+        $msg .= "<tr><td>File size (bytes)</td><td>"        . $info['bytes_written']        . "</td></tr>";
+        $msg .= "<tr><td>Columns</td><td>"                  . $info['columns']              . "</td></tr>";
+        $msg .= "<tr><td>Rows</td><td>"                     . $info['rows']                 . "</td></tr>";
+
+        $msg .= '</tbody></table>';
+
+        $msg .= "</body></html>";
+
+        $result = \REDCap::email( 
+            
+            $info['notification_email'],
+            $info['notification_email'],
+            "Notice of YES3 Data export",
+            $msg
+
+        );
     }
 
     public function downloadDataDictionary($export_uuid)
@@ -1470,6 +1698,8 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         $this->tidyUpDD($ddPackage['export_data_dictionary'], true);
 
         $delim = ",";
+
+        $xx = (array) $this->dataDictionaryForExport($ddPackage['export_data_dictionary'], $ddPackage['export_layout']);
 
         $this->logExport(
             "export data dictionary downloaded",
@@ -1491,11 +1721,9 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         header("Cache-Control: no-store, no-cache");
         header('Content-Disposition: attachment; filename="'.$filename.'"');
      
-        fputcsv($h, array_keys($ddPackage['export_data_dictionary'][0]), $delim);
-     
-        foreach ( $ddPackage['export_data_dictionary'] as $x ) {
+        foreach ( $xx as $x ) {
 
-            fputcsv($h, array_values($x), $delim);
+            fputcsv($h, $x, $delim);
         }
      
         fclose($h);
@@ -1524,7 +1752,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         }
 
         $filename = $this->exportDataFilename( $ddPackage['export_name'], "download" );
-
+    
         $chunksize = 1024 * 1024; // 1MB per one chunk of file.
 
         $size = intval(sprintf("%u", $xFileResponse['export_data_file_size']));
@@ -1583,15 +1811,19 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             throw new Exception("Fail: download export file(s) not written");
         }
 
+        $timestamp = Yes3::timeStampString();
+
         $zipFilename = tempnam(sys_get_temp_dir(), "ys3");
 
         $zip = new ZipArchive;
 
         $zip->open($zipFilename, ZipArchive::CREATE);
 
-        $zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download"));
+        $zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download", $timestamp));
+    
+        $zip->addFile($xFileResponse['export_data_filename'], $this->exportDataFilename($ddPackage['export_name'], "download", $timestamp));
 
-        $zip->addFile($xFileResponse['export_data_filename'], $this->exportDataFilename($ddPackage['export_name'], "download"));
+        $zip->addFile($xFileResponse['export_info_filename'], $this->exportInfoFilename($ddPackage['export_name'], "download", $timestamp));
 
         $zip->close();
 
@@ -1659,46 +1891,42 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
     public function exportDataFilename( $export_name, $target="download")
     {
-        $extension = "csv"; // will work on this later
-
-        if ( $target==="download") {
-            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_" . Yes3::timeStampString() . "." . $extension;
-        }
-
-        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "." . $extension;
+        return $this->exportFilename($export_name, "data", "csv", $target);
     }
 
     public function exportDataDictionaryFilename( $export_name, $target="download")
     {
-        $extension = "csv"; // will work on this later
-
-        if ( $target==="download") {
-            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_dd_" . Yes3::timeStampString() . "." . $extension;
-        }
-
-        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_dd." . $extension;
+        return $this->exportFilename($export_name, "dd", "csv", $target);
     }
 
     public function exportZipFilename( $export_name, $target="download")
     {
-        $extension = "zip"; // will work on this later
-
-        if ( $target==="download") {
-            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_" . Yes3::timeStampString() . "." . $extension;
-        }
-
-        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "." . $extension;
+        return $this->exportFilename($export_name, "package", "zip", $target);
     }
 
     public function exportLogFilename( $export_name, $target="download")
     {
-        $extension = "csv"; // will work on this later
+        return $this->exportFilename($export_name, "log", "csv", $target);
+    }
 
+    public function exportInfoFilename( $export_name, $target="download")
+    {
+        return $this->exportFilename($export_name, "info", "json", $target);
+    }
+
+    public function exportFilename( $export_name, $type, $extension, $target="download", $timestamp="")
+    {
         if ( $target==="download") {
-            return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_log_" . Yes3::timeStampString() . "." . $extension;
+
+            if ( !$timestamp ){
+
+                $timestamp = Yes3::timeStampString();
+            }
+
+            return Yes3::normalized_string($export_name, 80) . "_". $type . "_" . $timestamp . "." . $extension;
         }
 
-        return substr(Yes3::alphaNumericString(str_replace(" ", "_", strtolower(trim($export_name)))), 0, 64) . "_log_." . $extension;
+        return Yes3::normalized_string($export_name, 80) . "_". $type . "." . $extension;
     }
 
     public function getEventSettings()
@@ -2310,11 +2538,12 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
             $field_validation = $field['element_validation_type'];
 
             // large text, small text, dates not allowed for de-identified access
+            // note: for now we are 
             if ( $form_export_permission === 2 ){
 
                 if ( $field_type === "textarea"
                     || ($field_type === "text" && !$field_validation)
-                    || $this->isDateType($this->REDCapFieldTypeToVarType( $field_type, $field_validation )) 
+                    || $this->isDateOrTimeType($this->REDCapFieldTypeToVarType( $field_type, $field_validation )) 
                 ) {
 
                     continue;
@@ -2464,6 +2693,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
      */
     private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed, $form_export_permissions )
     {
+                
         $field_index = $fields['field_index'][$redcap_field_name];
 
         $form_name = $fields['field_metadata'][$field_index]['form_name'];
@@ -2493,7 +2723,7 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
 
                 $field_smalltext = true;
             }
-            elseif ( $this->isDateType($this->REDCapFieldTypeToVarType( $field_type, $field_validation )) ) {
+            elseif ( $this->isDateOrTimeType($this->REDCapFieldTypeToVarType( $field_type, $field_validation )) ) {
 
                 $field_date = true;
             }
@@ -2564,10 +2794,15 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
                     'valueset' => $fields['field_metadata'][$field_index]['field_valueset'],
                     'origin' => "redcap",
                     'redcap_field_name' => $redcap_field_name,
+                    'redcap_events' => [ (int)$event_id ],
                     'redcap_form_name' => $form_name,
                     VARNAME_EVENT_ID => $event_id,
                     VARNAME_EVENT_NAME => $this->getEventName($event_id, $event_settings)
                 ]);
+            }
+            else {
+
+                $export->updateExportItemEvents($var_name, $event_id);
             }
         }
 
@@ -2727,6 +2962,98 @@ WHERE project_id=? AND export_uuid=? AND log_entry_type=?
         if ( $field_validation === "int" ) return "INTEGER";
 
         return "TEXT";
+    }
+
+    /* ==== CRONS ==== */
+
+    public function cron_dailymail($cronInfo){
+
+        $originalPid = $_GET['pid'];
+    
+        foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
+
+            $_GET['pid'] = $localProjectId;
+ 
+            $this->emailDailyLog();
+        }
+    
+        // Put the pid back the way it was before this cron job (likely doesn't matter, but is good housekeeping practice)
+        $_GET['pid'] = $originalPid;
+    
+        return "The \"{$cronInfo['cron_description']}\" cron job completed successfully.";
+    }
+
+    public function emailDailyLog(){
+
+        if ( $this->getProjectSetting('enable-email-notifications')!=="Y" || !$this->getProjectSetting('notification-email') ){
+
+            return true;
+        }
+
+        $sincewhen = strftime("%F %T", time()-ONE_DAY);
+
+        $email = $this->getProjectSetting('notification-email');
+
+        $export_logs = $this->getExportLogs("", false, $sincewhen);
+
+        if ( !$export_logs ) $export_logs = [];
+
+        $msg = '<html><body style="font-family:arial,helvetica;">';
+
+        $msg .= '<style>td,th{padding-right: 10px;text-align:left;}</style>';
+
+        $msg .= '<p>You are receiving this email because you have enabled notifications from the REDCap YES3 Exporter.</p>';
+
+        $msg .= '<table><tbody>';
+        $msg .= "<tr><td>REDCap host</td><td>"              . APP_PATH_WEBROOT_FULL             . "</td></tr>";
+        $msg .= "<tr><td>Date and time of report</td><td>"  . strftime("%F %T")                 . "</td></tr>";
+        $msg .= "<tr><td>REDCap project id (pid)</td><td>"  . $this->getProjectId()             . "</td></tr>";
+        $msg .= "<tr><td>REDCap project title</td><td>"     . $this->getProject()->getTitle()   . "</td></tr>";
+        $msg .= '</tbody></table>';
+
+        $msg .= '<p style="text-decoration:underline;">Export logging activity</p>';
+
+        $msg .= '<p>' . count($export_logs) . ' export events were logged in the past 24 hours. Use the YES3 Exporter Log plugin for details.</p>';
+
+        $msg .= '<table><tbody>';
+
+        $msg .= '<tr>';
+
+        $msg .= '<th>log id</th>';
+        $msg .= '<th>timestamp</th>';
+        $msg .= '<th>user</th>';
+        $msg .= '<th>log message</th>';
+        $msg .= '<th>destination</th>';
+
+        $msg .= '</tr>';
+
+        foreach ($export_logs as $log){
+
+            $msg .= '<tr>';
+
+            $msg .= '<td>' . $log['log_id'] . '</td>';
+            $msg .= '<td>' . $log['timestamp'] . '</td>';
+            $msg .= '<td>' . $log['username'] . '</td>';
+            $msg .= '<td>' . $log['message'] . '</td>';
+            $msg .= '<td>' . $log['destination'] . '</td>';
+
+            $msg .= '</tr>';
+        }
+
+        $msg .= '</tbody></table>';
+
+        $msg .= "</body></html>";
+
+        $result = \REDCap::email( 
+            
+            $email,
+            $email,
+            "YES3 Exporter daily log report",
+            $msg
+
+        );
+
+        return $result;
     }
    
     /* ==== HOOKS ==== */

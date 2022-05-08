@@ -1,5 +1,7 @@
 FMAPR.insertionRowId = "";
 
+FMAPR.selectionRowId = "";
+
 FMAPR.rowCount = 0;
 
 FMAPR.reloadParms = {
@@ -375,14 +377,14 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
     html += `<td class='yes3-3 yes3-td-left' title="(non-specification) REDcap field"><span class='yes3-fmapr-redcap-element'>add a REDCap field to the export</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>${elementInputHtml}</td>`;
 
-    if ( FMAPR.export_specification.export_layout==="h" ){
+    //-xxxif ( FMAPR.export_specification.export_layout==="h" ){
 
-        html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
-    }
-    else {
+        html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only-xxx">${eventSelectHtml}</span></td>`;
+    //}
+    //else {
 
-        html += `<td class='yes3-3 yes3-td-middle'>&nbsp;</td>`;
-    }
+    //   html += `<td class='yes3-3 yes3-td-middle'>&nbsp;</td>`;
+    //}
 
     if ( noTrashCan ){
 
@@ -433,14 +435,14 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
 
         FMAPR.REDCapFieldOnChange( itemREDCapField, true );
 
-        if ( FMAPR.export_specification.export_layout==="h" ){
+        //-xxx if ( FMAPR.export_specification.export_layout==="h" ){
         
             let itemREDCapEvent = elementRow.find('select[data-mapitem=redcap_event_id]:first');
 
             itemREDCapEvent.val(element.redcap_event_id);
 
             FMAPR.REDCapEventOnChange(itemREDCapEvent, batchMode);
-        }
+        //}
     }
 
     return yes3_fmapr_data_element_name;
@@ -473,7 +475,7 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
     html += `<td class='yes3-fmapr-row-number' title='${FMAPR.tooltips.row_selector}'>&nbsp;</td>`;
     html += `<td class='yes3-3 yes3-td-left' title="REDcap form"><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>up to ${field_count} fields</td>`;
-    html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only">${eventSelectHtml}</span></td>`;
+    html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only-xxx">${eventSelectHtml}</span></td>`;
     html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
     html += "</tr>";
 
@@ -994,7 +996,7 @@ FMAPR.resizeExportItemsTable = function()
     //let tableWidth = $('div#yes3-fmapr-wrapper').width();
     let tableWidth = fmaprTable.width();
 
-    let cellWidth3 = (tableWidth - scrollbarWidth - 2*gutterWidth) / 3;
+    let cellWidth3 = (tableWidth - scrollbarWidth - 3*gutterWidth) / 3;
 
     //fmaprTable.css({'width': tableWidth+'px', 'height': tableHeight+'px'});
     fmaprTable.css({'height': tableHeight+'px'});
@@ -1515,7 +1517,7 @@ FMAPR.removeSelections = function( stickyToo )
 {
     $("tr.yes3-row-selected").off().remove();
 
-    FLAPR.clearInsertionRow();
+    FMAPR.clearInsertionRow();
 
     FMAPR.renumberRows();
 
@@ -1708,74 +1710,53 @@ FMAPR.isRepeatedLayout = function()
     else return ( FMAPR.export_specification.export_layout === "r" );
 }
 
-FMAPR.fieldInsertionFormReady = function(field_name, event_name)
+FMAPR.fieldInsertionFormReady = function()
 {
-    if ( FMAPR.isVerticalLayout() ){
+    let insertionRow = null;
+    let insertionRowObjName = "";
+    let insertionRowObjType = "";
+    let insertionRowEvent = "";
+    let insertionLocation = "";
 
-        let formSelector = $("select#yes3-fmapr-fieldinsertion-form");
+    let formSelector = $("select#yes3-fmapr-fieldinsertion-form");
+    let eventSelector = $("select#yes3-fmapr-fieldinsertion-event");
 
-        let eventSelector = $("select#yes3-fmapr-fieldinsertion-event");
+    if ( FMAPR.selectedRowCount()===1 ){
 
-        eventSelector.prop('disabled', true);
-        $("input[type=radio][name='yes3-fmapr-fieldinsertion-org']").prop('disabled', true);
+        insertionRow = FMAPR.firstSelectedRow();
+        insertionRowObjType = insertionRow.data("object_type");
+        insertionLocation = "The insertion will be <em>before</em> item #" + insertionRow.find("td.yes3-fmapr-row-number").text();
 
-        formSelector.empty().append( FMAPR.getFormOptionsHtml() );
-        eventSelector.empty().off();
+        if ( insertionRowObjType==="form"){
 
-        $(".yes3-fmapr-horizontal-only").hide();
+            insertionLocation += ` (form '${insertionRow.data("form_name")}').`;
+        }
+        else if ( insertionRowObjType==="field"){
 
-        FMAPR.fieldInsertionSetCounterListeners();
-        FMAPR.fieldInsertionReportCounts();
+            insertionLocation += ` (field '${insertionRow.find("input.yes3-fmapr-input-element").val()}'`;
+            insertionLocation += `, event '${insertionRow.find("select.yes3-fmapr-field-event option:selected").val()}').`;
+        }
     }
-    else {
 
-        $(".yes3-fmapr-horizontal-only").show();
+    if ( !insertionLocation.length ){
 
-        $("select#yes3-fmapr-fieldinsertion-event").prop('disabled', false);
-        $("input[type=radio][name='yes3-fmapr-fieldinsertion-org']").prop('disabled', false);
-
-        $("div#yes3-fmapr-fieldinsertion-direction").html(`[${field_name}, ${event_name}]`);
-
-        $("input[type=radio][name='yes3-fmapr-fieldinsertion-org']")
-            .off()
-            .on("click", function(){
-
-                let orgBlock = $('tr#yes3-fmapr-fieldinsertion-org-block');
+        insertionLocation = "The insertion will be at end of the list.";
+    }
     
-                let formBlock = $('tr#yes3-fmapr-fieldinsertion-form-block');
-                
-                let eventBlock = $('tr#yes3-fmapr-fieldinsertion-event-block');
-                
-                let org = $("input[type=radio][name='yes3-fmapr-fieldinsertion-org']:checked").val();
+    $("div#yes3-fmapr-bulkinsert-where").html(insertionLocation);
 
-                let formSelector = $("select#yes3-fmapr-fieldinsertion-form");
+    //$("div#yes3-fmapr-bulk-insertion-progress").css('visibility', 'hidden');
+    let progBar = $("div#yes3-fmapr-bulk-insertion-progress");
+    progBar.parent().css({"visibility": "hidden"});
 
-                let eventSelector = $("select#yes3-fmapr-fieldinsertion-event");
-                
-                if ( org==="form"){
-                    formBlock.insertAfter( orgBlock );
-                    eventBlock.insertAfter( formBlock );
-                    formSelector.empty().append( FMAPR.getFormOptionsHtml() );
-                    eventSelector.empty().off();
-                    FMAPR.fieldInsertionSetFormSelectListener();
-                    formSelector.trigger('change');
-                }
-                else {
-                    eventBlock.insertAfter( orgBlock );                
-                    formBlock.insertAfter( eventBlock );
-                    eventSelector.empty().append( FMAPR.getEventOptionsHtml() );
-                    formSelector.off().empty();
-                    FMAPR.fieldInsertionSetEventSelectListener();
-                    eventSelector.trigger('change');
-                }
 
-                FMAPR.fieldInsertionSetCounterListeners();
-                FMAPR.fieldInsertionReportCounts();
-            })
-        ;
+    formSelector.empty().append( FMAPR.getFormOptionsHtml() );
+    eventSelector.empty().off();
+    FMAPR.fieldInsertionSetFormSelectListener();
+    formSelector.trigger('change');
 
-        $('input[type=radio]#yes3-fmapr-fieldinsertion-org-form').trigger("click");
-    }
+    FMAPR.fieldInsertionSetCounterListeners();
+    FMAPR.fieldInsertionReportCounts();
 }
 
 FMAPR.fieldInsertionExecute = function()
@@ -1813,6 +1794,8 @@ FMAPR.insertionWrapup = function()
 {
     FMAPR.closeFieldInsertionForm();
 
+    FMAPR.renumberRows();
+
     FMAPR.doExportItemsTableHousekeeping( true );
 
     FMAPR.enumerateSpecificationElements();
@@ -1822,8 +1805,6 @@ FMAPR.insertionWrapup = function()
     FMAPR.markAsDirty();
 
     FMAPR.ensureNewFieldRowAtEnd();
-
-    FMAPR.renumberRows();
 }
 
 FMAPR.insertFields = function(theRowBefore, callback)
@@ -1927,9 +1908,18 @@ FMAPR.fieldInsertionSetFormSelectListener = function()
 {
     $('select#yes3-fmapr-fieldinsertion-form').off().on("change", function(){
 
-        if ( !FMAPR.isVerticalLayout() ){
+        //-xxxif ( !FMAPR.isVerticalLayout() ){
     
             $("select#yes3-fmapr-fieldinsertion-event").empty().append( FMAPR.getEventOptionsHtml($(this).val()) );
+        //}
+
+        if ( $(this).val()==="all" ){
+
+            $(".yes3-fmapr-allforms-only").show();
+        }
+        else {
+
+            $(".yes3-fmapr-allforms-only").hide();
         }
     });
 }
@@ -1944,9 +1934,9 @@ FMAPR.fieldInsertionSetEventSelectListener = function()
 
 FMAPR.enumerateInsertionElements = function(form_name, event_id)
 {
-    if ( FMAPR.isVerticalLayout() ){
+    //-xxxif ( FMAPR.isVerticalLayout() ){
         event_id = "all";
-    }
+    //}
     
     if ( !form_name || !event_id ) {
         return {'fields':0, 'columns':0};
@@ -1995,14 +1985,14 @@ FMAPR.enumerateInsertionElements = function(form_name, event_id)
 
                     fields++;
 
-                    if ( FMAPR.isVerticalLayout() ){
+                    //-xxxif ( FMAPR.isVerticalLayout() ){
 
-                        columns++;
-                    }
-                    else {
+                    //    columns++;
+                    //}
+                    //else {
 
                         columns += element_events.length;
-                    }
+                    //}
 
                     FMAPR.insertionElements.push({
                         redcap_field_name: this_field_name,
@@ -2670,6 +2660,11 @@ FMAPR.deSelectRow = function( theRow )
     YES3.contextMenuClose();
 }
 
+FMAPR.firstSelectedRow = function()
+{
+    return $('tr.yes3-row-selected:first');
+}
+
 FMAPR.selectedRowCount = function()
 {
     return $('tr.yes3-row-selected').length;
@@ -2980,7 +2975,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
         return false;
     }
 
-    if ( !isRawREDCapField || FMAPR.export_specification.export_layout==="h" ){
+    //-xxxif ( !isRawREDCapField || FMAPR.export_specification.export_layout==="h" ){
     
         let formEvents = FMAPR.project.form_metadata[form_index].form_events;
 
@@ -3000,7 +2995,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
 
             FMAPR.setValuePickers( yes3_fmapr_data_element_name, field_name );
         }
-    }
+    //}
 
     if ( isRawREDCapField ){
 
@@ -3836,10 +3831,10 @@ FMAPR.getExportItemsJSON = function()
             /**
              * events are recorded only for horiz layouts
              */
-            if ( FMAPR.isHorizontalLayout() ) {
+            //-xxxif ( FMAPR.isHorizontalLayout() ) {
 
                 item.redcap_event_id = itemRow.find("select.yes3-fmapr-event-select").val();
-            }
+            //}
         }
         // uSpec elements
         else {

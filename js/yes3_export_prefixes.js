@@ -40,6 +40,22 @@ FMAPR.eventPrefixesTable = function()
     return $("table#yes3-fmapr-setup-events");
 }
 
+FMAPR.restoreToDefaultValues = function()
+{
+    YES3.requestService({"request": "getDefaultEventPrefixes"}, FMAPR.restoreToDefaultValuesCallback, true);
+}
+
+FMAPR.restoreToDefaultValuesCallback = function(response)
+{
+    console.log("restoreToDefaultValuesCallback",response);
+
+    FMAPR.event_settings = response;
+
+    FMAPR.populateAllSettings();
+    
+    FMAPR.markAsDirty();
+}
+
 FMAPR.saveExportSettings = function()
 {
     let events = [];
@@ -143,6 +159,34 @@ FMAPR.setExportEventPrefixListeners = function() {
     FMAPR.eventPrefixesTable().find('input')
         .off()
         .on('change', function(){
+
+            let prefix = '' + $(this).val();
+
+            let onlyLetters = /^[a-z]+$/;
+
+            if ( !prefix ){
+
+                $(this.closest('tr')).find('td,input').addClass('yes3-error');
+            }
+            else {
+
+                prefix = prefix.toLowerCase();
+
+                if ( !onlyLetters.test(prefix.charAt(0)) ){
+
+                    $(this.closest('tr')).find('td,input').addClass('yes3-error');
+
+                    $(this).val("");
+
+                    YES3.hello(`Hold on there: '${prefix}' is an invalid prefix. A prefix must start with an alphabetic character.`);
+                }
+                else {
+
+                    $(this).val(prefix);
+                    $(this.closest('tr')).find('td,input').removeClass('yes3-error');
+                }
+            }
+
     
             FMAPR.markAsDirty();
         })

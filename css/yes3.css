@@ -34,6 +34,8 @@ html {
     --yes3-item-gutter-width: 30px;
 
     --yes3-contextmenu-font-size: 14px;
+
+    --yes3-panel-font-size: 15px;
 }
 
 [data-theme="light"] {
@@ -1010,7 +1012,7 @@ i.yes3-selected {
     padding-bottom: calc(2*var(--yes3-padding));
     position: relative;
     max-width: 400px;
-    border: 1px solid lightgrey;
+    border: 0;
     border-radius: 0;
     box-shadow: 0 0 8px 1px rgb(175, 175, 175);
  }
@@ -1039,6 +1041,7 @@ i.yes3-selected {
     padding-bottom: calc( 2 * var(--yes3-padding) );
     padding-left: calc( 4 * var(--yes3-padding) );
     padding-right: calc( 4 * var(--yes3-padding) );
+    font-size: var(--yes3-panel-font-size);
     /*border: 1px solid black;*/
     min-height: 100px;
     min-width: 360px;
@@ -1270,7 +1273,7 @@ i.yes3-selected {
 */
 .yes3-panel-between-the-buttons {
     width: calc(100% - 300px);
-    border: 1px solid var(--yes3-panel-form-button-color);
+    border: 1px solid var(--yes3-input-border-color);
     background-color: transparent;
     visibility: hidden;
 }
