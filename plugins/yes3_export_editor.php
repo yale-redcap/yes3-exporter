@@ -31,8 +31,9 @@ $module->getCodeFor("yes3_export_editor", true);
     <div class="yes3-panel-row" style="margin-top: 20px !important">
     
         <p class="yes3-panel-subtitle">
-            Please provide a name and an export layout for the Export to be added.
+            Please provide a name and and layout for the export to be added.
         </p>
+        <p>Note that while you can change the name later, you cannot change the layout once the export has been created.</p>
     
         <table class="yes3-settings" id="yes3-fmapr-new-export">
 
@@ -54,17 +55,17 @@ $module->getCodeFor("yes3_export_editor", true);
                 <td>
 
                     <input class="balloon yes3-longitudinal-only" type="radio" class="balloon" value="h" name="new_export_layout" id="yes3-fmapr-new-export-layout-h">
-                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record)">Horizontal (longitudinal projects: one row per record)</label>&nbsp;
+                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record)">Horizontal (longitudinal projects: one row per record)</label>
 
                     <br class="yes3-longitudinal-only">
 
                     <input type="radio" class="balloon" value="v" name="new_export_layout" id="yes3-fmapr-new-export-layout-v">
-                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical layout (one row per record+event)">Vertical (one row per record+event)</label>&nbsp;
+                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical layout (one row per record+event)">Vertical (one row per record+event)</label>
 
                     <br>
 
                     <input type="radio" class="balloon" value="r" name="new_export_layout" id="yes3-fmapr-new-export-layout-r">
-                    <label for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>&nbsp;
+                    <label for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>
 
                 </td>
             </tr>
@@ -522,14 +523,14 @@ $module->getCodeFor("yes3_export_editor", true);
 
                         <tr>
 
-                            <td class="yes3-fmapr-export-specification">Export layout:</td>
+                            <td class="yes3-fmapr-export-specification">Export layout (read only):</td>
                             
                             <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
-                                <input  type="radio" class="balloon" value="h" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-h">
+                                <input disabled  type="radio" class="balloon" value="h" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-h">
                                     <label  for="yes3-fmapr-export-layout-h" title="Horizontal layout">Horiz</label>&nbsp;
-                                <input  type="radio" class="balloon" value="v" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-v">
+                                <input disabled type="radio" class="balloon" value="v" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-v">
                                     <label  for="yes3-fmapr-export-layout-v" title="Vertical layout">Vert</label>&nbsp;
-                                <input  type="radio" class="balloon" value="r" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-r">
+                                <input disabled type="radio" class="balloon" value="r" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-r">
                                     <label for="yes3-fmapr-export-layout-r" title="Repeating Form layout">Repeat</label>&nbsp;
                             </td>                       
                         </tr>
@@ -731,7 +732,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
     <!-- **** FIELD MAPPER **** -->
 
-    <div class="row yes3-fmapr yes3-divider yes3-designer-only yes3-editor" id="yes3-fmapr-wrapper" style="margin-top:10px">
+    <div class="row yes3-fmapr yes3-divider yes3-designer-only-xxx yes3-editor" id="yes3-fmapr-wrapper" style="margin-top:10px">
 
         <table class='yes3-fmapr yes3-fmapr-specification yes3-fmapr-item yes3-scrollable yes3-dashboard' id='yes3-fmapr-export-items-table'>
             

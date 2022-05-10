@@ -3275,6 +3275,18 @@ FMAPR.displayActionIcons = function()
 
         $('i.yes3-fmapr-bulk-insert').removeClass('yes3-action-disabled');
     }
+
+    // disable based on permissions
+    if ( !YES3.userRights.isDesigner ){
+
+        $('i.yes3-designer-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
+    }
+
+    if ( !YES3.userRights.exporter ){
+
+        $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
+    }
+
 }
 
 FMAPR.someBadSettings = function()

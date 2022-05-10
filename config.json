@@ -85,10 +85,10 @@
         {
             "key": "email-notifications-header",
             "type" : "descriptive",
-            "name": "<h5>EMAIL NOTIFICATIONS</h5><p>You may elect to receive email notifactions of YES3 Exporter actions.</p>"
+            "name": "<h5>DAILY EMAIL NOTIFICATIONS</h5><p>You may elect to receive daily summaries of YES3 Exporter actions by email.</p>"
         },
         {
-            "key": "enable-email-notifications",
+            "key": "notification-email-enable",
             "name": "Enable email notifications",
             "type": "radio",
             "required": false,
@@ -101,11 +101,7 @@
                     "value":"Y",
                     "name":"Yes"
                 }
-            ],
-            "branchingLogic": {
-                "field": "enable-host-filesystem-exports",
-                "value": "Y"
-            }
+            ]
         },
         {
             "key": "notification-email",
@@ -115,7 +111,62 @@
             "branchingLogic": {
                 "conditions": [
                     {
-                        "field": "enable-email-notifications",
+                        "field": "notification-email-enable",
+                        "value": "Y"        
+                    }
+                ]
+            }
+        },
+        {
+            "key": "notification-email-runat",
+            "name": "When to send notifications (default is midnight)",
+            "type": "dropdown",
+            "choices": [
+                {"name":"midnight", "value":"0"},
+                {"name":"1am",  "value":"1"},
+                {"name":"2am",  "value":"2"},
+                {"name":"3am",  "value":"3"},
+                {"name":"4am",  "value":"4"},
+                {"name":"5am",  "value":"5"},
+                {"name":"6am",  "value":"6"},
+                {"name":"7am",  "value":"7"},
+                {"name":"8am",  "value":"8"},
+                {"name":"9am",  "value":"9"},
+                {"name":"10am", "value":"10"},
+                {"name":"11am", "value":"11"},
+                {"name":"noon", "value":"12"},
+                {"name":"1pm",  "value":"13"},
+                {"name":"2pm",  "value":"14"},
+                {"name":"3pm",  "value":"15"},
+                {"name":"4pm",  "value":"16"},
+                {"name":"5pm",  "value":"17"},
+                {"name":"6pm",  "value":"18"},
+                {"name":"7pm",  "value":"19"},
+                {"name":"8pm",  "value":"20"},
+                {"name":"9pm",  "value":"21"},
+                {"name":"10pm", "value":"22"},
+                {"name":"11pm", "value":"23"}
+            ],
+            "required": false,
+            "branchingLogic": {
+                "conditions": [
+                    {
+                        "field": "notification-email-enable",
+                        "value": "Y"        
+                    }
+                ]
+            }
+        },
+        {
+            "key": "notification-email-lastranat",
+            "name": "Time email notifications were last sent",
+            "type": "text",
+            "required": false,
+            "super-users-only": true,
+            "branchingLogic": {
+                "conditions": [
+                    {
+                        "field": "notification-email-enable",
                         "value": "Y"        
                     }
                 ]
@@ -124,11 +175,12 @@
         {
             "key": "toast-the-host",
             "type" : "descriptive",
-            "name": "<h5>HOST FILE SYSTEM EXPORTS</h5><p>YES3 Exporter can export to the host file system, n.b. to automounts pointing to secure institutional file shares. This will require services from the REDCap host system administrator.</p>"
+            "name": "<h5>HOST FILE SYSTEM EXPORTS</h5><p>YES3 Exporter can export to the host file system, n.b. to automounts pointing to secure institutional file shares. This will require services from the REDCap host system administrator.</p>",
+            "super-users-only": true
         },
         {
             "key": "enable-host-filesystem-exports",
-            "name": "Enable export to host file system<br>(must be set by a super user)",
+            "name": "Enable export to host file system",
             "type": "radio",
             "required": false,
             "super-users-only": true,
@@ -145,7 +197,7 @@
         },
         {
             "key": "export-target-folder",
-            "name": "Host file system folder<br>(must be set by a super user)",
+            "name": "Host file system folder",
             "type": "text",
             "super-users-only": true,
             "required": false,
@@ -180,11 +232,11 @@
 
     "crons":[
         {
-            "cron_name": "cron_dailymail",
-            "cron_description": "Sends 24-hour export log summaries",
-            "method": "cron_dailymail",
-            "cron_frequency": "360",
-            "cron_max_run_time": "18000"
+            "cron_name": "yes3_exporter_cron",
+            "cron_description": "YES3 Exporter cron manager",
+            "method": "yes3_exporter_cron",
+            "cron_frequency": "60",
+            "cron_max_run_time": "7200"
         }
     ],
 

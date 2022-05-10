@@ -2035,7 +2035,7 @@ WHERE project_id=? AND log_entry_type=?
             if ( isset($export_item['redcap_form_name']) && $export_item['redcap_form_name'] ) {
 
                 // form is not exportable by user
-                if ( !in_array($export_item['redcap_form_name'], $allowed_forms) ){
+                if ( $export_item['redcap_form_name'] !== ALL_OF_THEM && !in_array($export_item['redcap_form_name'], $allowed_forms) ){
 
                     Yes3::logDebugMessage($this->project_id, $export_item['redcap_form_name'], "confirmSpecificationPermissions: disallowed item form");
 
@@ -2467,12 +2467,28 @@ WHERE project_id=? AND log_entry_type=?
         $sql = "
         SELECT m.field_order, m.form_name, m.field_name, m.element_type, m.element_label, m.element_enum, m.element_validation_type, m.field_phi
         FROM redcap_metadata m
-        WHERE m.project_id=? AND m.form_name=?
-        AND m.element_type NOT IN('descriptive')
-        ORDER BY m.field_order   
-        ";
+        WHERE m.project_id=?
+        AND m.element_type NOT IN('descriptive')";
 
-        return Yes3::fetchRecords($sql, [$this->project_id, $form_name]);
+        $params = [$this->project_id];
+
+        if ( $form_name === ALL_OF_THEM ){
+
+            if ( \REDCap::isLongitudinal() ) {
+
+                $sql .= " AND m.form_name IN(SELECT DISTINCT form_name FROM redcap_events_forms WHERE project_id=?)";
+                $params[] = $this->project_id;
+            }
+        }
+        else {
+
+            $sql .= " AND m.form_name=?";
+            $params[] = $form_name;
+        }
+
+        $sql .= " ORDER BY m.field_order";
+
+        return Yes3::fetchRecords($sql, $params);
     }
 
     private function getFieldMetadata($field_name)
@@ -2966,33 +2982,96 @@ WHERE project_id=? AND log_entry_type=?
 
     /* ==== CRONS ==== */
 
-    public function cron_dailymail($cronInfo){
+    public function yes3_exporter_cron( $cronInfo )
+    {
+        //Yes3::logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
 
         $originalPid = $_GET['pid'];
-    
+
         foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
 
+            //Yes3::logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
+
             $_GET['pid'] = $localProjectId;
- 
-            $this->emailDailyLog();
+
+            // DAILY EMAIL
+
+            $settingPrefix = "notification-email";
+
+            if ( $this->okayToRunJob( $settingPrefix ) ){
+
+                if ( $this->emailDailyLog() ) {
+
+                    $this->setProjectSetting($settingPrefix . "-lastranat", strftime("%F %T"));
+                }
+            }
         }
     
-        // Put the pid back the way it was before this cron job (likely doesn't matter, but is good housekeeping practice)
         $_GET['pid'] = $originalPid;
     
         return "The \"{$cronInfo['cron_description']}\" cron job completed successfully.";
     }
 
+    private function okayToRunJob( $settingPrefix )
+    {
+        if ( $this->getProjectSetting($settingPrefix . "-enable") !== "Y" ){
+
+            return false;
+        }
+
+        // the hour of day to run this job
+        $runAt = (int) $this->getProjectSetting($settingPrefix . "-runat") ?? 0;
+
+        $theTime = time();
+
+        $theDay = strftime("%F", $theTime);
+
+        $theHour = (int)strftime("%H", $theTime);
+
+        $lastRunTime = strtotime($this->getProjectSetting($settingPrefix . "-lastranat"));
+
+        //Yes3::logDebugMessage($this->getProjectId(), "{$runAt}, {$theDay}, {$theHour}, {$lastRunTime}", "yes3_exporter_cron");
+
+        // never run
+        if ( !$lastRunTime ){
+
+            return ( $theHour >= $runAt ) ? true:false;
+            //return true; // run immediately
+        }
+
+        $lastRunDay = strftime("%F", $lastRunTime);
+
+        // last run yesterday or earlier
+        return ( $theDay > $lastRunDay && $theHour >= $runAt ) ? true:false;
+    }
+
     public function emailDailyLog(){
 
-        if ( $this->getProjectSetting('enable-email-notifications')!=="Y" || !$this->getProjectSetting('notification-email') ){
+        if ( !$to = $this->getProjectSetting('notification-email') ){
 
-            return true;
+            return false;
         }
 
         $sincewhen = strftime("%F %T", time()-ONE_DAY);
 
-        $email = $this->getProjectSetting('notification-email');
+        $cc = "";
+
+        $bcc = "";
+
+        $project_contact = $this->getProjectContact();
+
+        if ( $project_contact['project_contact_email'] ){
+
+            $from = $project_contact['project_contact_email'];
+        }
+        else {
+
+            $from = $to;
+        }
+
+        $fromName = "YES3 Exporter";
+
+        $subject = "YES3 Exporter Daily Log Report";
 
         $export_logs = $this->getExportLogs("", false, $sincewhen);
 
@@ -3004,26 +3083,28 @@ WHERE project_id=? AND log_entry_type=?
 
         $msg .= '<p>You are receiving this email because you have enabled notifications from the REDCap YES3 Exporter.</p>';
 
-        $msg .= '<table><tbody>';
-        $msg .= "<tr><td>REDCap host</td><td>"              . APP_PATH_WEBROOT_FULL             . "</td></tr>";
-        $msg .= "<tr><td>Date and time of report</td><td>"  . strftime("%F %T")                 . "</td></tr>";
-        $msg .= "<tr><td>REDCap project id (pid)</td><td>"  . $this->getProjectId()             . "</td></tr>";
-        $msg .= "<tr><td>REDCap project title</td><td>"     . $this->getProject()->getTitle()   . "</td></tr>";
+        $msg .= '<table style="border-collapse:collapse;"><tbody>';
+
+        $msg .= "<tr>" . $this->emailTableCell("td", "Date and time of report") . $this->emailTableCell("td", strftime("%F %T")) . "</tr>";
+        $msg .= "<tr>" . $this->emailTableCell("td", "REDCap host") . $this->emailTableCell("td", APP_PATH_WEBROOT_FULL) . "</tr>";
+        $msg .= "<tr>" . $this->emailTableCell("td", "REDCap project id (pid)") . $this->emailTableCell("td", $this->getProjectId()) . "</tr>";
+        $msg .= "<tr>" . $this->emailTableCell("td", "REDCap project title") . $this->emailTableCell("td", $this->getProject()->getTitle()) . "</tr>";
+
         $msg .= '</tbody></table>';
 
-        $msg .= '<p style="text-decoration:underline;">Export logging activity</p>';
+        //$msg .= '<p style="text-decoration:underline;">Export logging activity</p>';
 
-        $msg .= '<p>' . count($export_logs) . ' export events were logged in the past 24 hours. Use the YES3 Exporter Log plugin for details.</p>';
+        $msg .= '<p>' . count($export_logs) . ' export events were logged in the past 24 hours. Use the YES3 Exporter Log plugin to inspect and/or print the detailed log entries.</p>';
 
-        $msg .= '<table><tbody>';
+        $msg .= '<table style="border-collapse:collapse;"><tbody>';
 
         $msg .= '<tr>';
 
-        $msg .= '<th>log id</th>';
-        $msg .= '<th>timestamp</th>';
-        $msg .= '<th>user</th>';
-        $msg .= '<th>log message</th>';
-        $msg .= '<th>destination</th>';
+        $msg .= $this->emailTableCell("th", "log_id");
+        $msg .= $this->emailTableCell("th", "timestamp");
+        $msg .= $this->emailTableCell("th", "user");
+        $msg .= $this->emailTableCell("th", "log_message");
+        $msg .= $this->emailTableCell("th", "destination");
 
         $msg .= '</tr>';
 
@@ -3031,11 +3112,11 @@ WHERE project_id=? AND log_entry_type=?
 
             $msg .= '<tr>';
 
-            $msg .= '<td>' . $log['log_id'] . '</td>';
-            $msg .= '<td>' . $log['timestamp'] . '</td>';
-            $msg .= '<td>' . $log['username'] . '</td>';
-            $msg .= '<td>' . $log['message'] . '</td>';
-            $msg .= '<td>' . $log['destination'] . '</td>';
+            $msg .= $this->emailTableCell("td", $log['log_id']);
+            $msg .= $this->emailTableCell("td", $log['timestamp']);
+            $msg .= $this->emailTableCell("td", $log['username']);
+            $msg .= $this->emailTableCell("td", $log['message']);
+            $msg .= $this->emailTableCell("td", $log['destination']);
 
             $msg .= '</tr>';
         }
@@ -3046,24 +3127,46 @@ WHERE project_id=? AND log_entry_type=?
 
         $result = \REDCap::email( 
             
-            $email,
-            $email,
-            "YES3 Exporter daily log report",
-            $msg
+            $to,
+            $from,
+            $subject,
+            $msg,
+            $cc,
+            $bcc,
+            $fromName
 
         );
 
         return $result;
     }
+
+    private function getProjectContact()
+    {
+        $sql = "
+        SELECT c1.value AS `project_contact_email`, c2.value AS `project_contact_name` 
+        FROM redcap_config c1
+          LEFT JOIN redcap_config c2 ON c2.field_name = 'project_contact_name'
+        WHERE c1.field_name = 'project_contact_email'
+        ";
+
+        return Yes3::fetchRecord( $sql );
+    }
+
+    private function emailTableCell( $TdOrTh, $content ){
+
+        return "<{$TdOrTh} style='padding-right:15px;text-align:left'>{$content}</{$TdOrTh}>";
+    }
    
     /* ==== HOOKS ==== */
 
     public function redcap_module_link_check_display( $project_id, $link )
-    {
-    
+    {  
         if ( $this->yes3UserRights()['exporter'] ){
 
-            return $link;
+            if ( \REDCap::isLongitudinal() || $link['name'] !== "YES3 Exporter Event Prefixes" ){ 
+
+                return $link;
+            }
         }
 
         return false;
