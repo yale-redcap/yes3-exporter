@@ -441,7 +441,20 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             unlink($filename);
         });
 
-        return fopen( $filename, "w+" );
+        //return fopen( $filename, "w+" );
+        return $this->fopen_w_utf8( $filename );
+    }
+
+    public function fopen_w_utf8( $filename, $mode="w" )
+    {
+        $h = fopen( $filename, $mode );
+
+        if ( $h !== false ){
+
+            fwrite($h, "\xEF\xBB\xBF" );
+        }
+
+        return $h;
     }
 
     /**
@@ -521,7 +534,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $path = $export_target_folder . $this->exportInfoFilename($export_name, $destination);           
         }
 
-        $h = fopen( $path, "w+" );
+        //$h = fopen( $path, "w+" );
+        $h = $this->fopen_w_utf8( $path, "w+" );
 
         if ( $h===false ){
 
@@ -579,7 +593,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $path = $export_target_folder . $this->exportDataDictionaryFilename($export_name, "filesystem");           
         }
 
-        $h = fopen( $path, "w+" );
+        //$h = fopen( $path, "w+" );
+        $h = $this->fopen_w_utf8( $path );
 
         if ( $h===false ){
 
@@ -661,7 +676,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $destination = "filesystem";
         }
 
-        $h = fopen( $path, "w+" );
+        //$h = fopen( $path, "w+" );
+        $h = $this->fopen_w_utf8( $path );
 
         if ( $h===false ){
 
@@ -1684,7 +1700,8 @@ WHERE project_id=? AND log_entry_type=?
     public function downloadDataDictionary($export_uuid)
     {
      
-        $h = fopen('php://output', 'w');
+        //$h = fopen('php://output', 'w');
+        $h = $this->fopen_w_utf8('php://output');
 
         if ( $h===false ){
 

@@ -58,7 +58,7 @@ class Yes3 {
       return ExternalModules::query($sql, $parameters);
    }
 
-   public static function recordGenerator($sql, $parameters = [])
+   public static function recordGenerator( $sql, $parameters = [] )
    {
         $resultSet = self::query($sql, $parameters);
     
@@ -392,6 +392,8 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
         }
 
         $qSearch = [
+
+            '"',
 
             // Windows codepage 1252
 

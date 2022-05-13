@@ -371,12 +371,14 @@ i.yes3-action-icon:hover {
 }
 
 i.yes3-action-icon-controlpanel {
-    font-size: 1.25rem;
-    line-height: 1.25rem;
     margin-top:0;
     margin-bottom: 0;
     margin-right: 0;
-    margin-left: 0.5rem;
+    margin-left: 1rem;
+}
+
+i.yes3-action-icon:not(.yes3-action-icon-inline){
+    font-size: 1.5rem !important;
 }
 
 i.yes3-action-icon-inline {
@@ -422,6 +424,16 @@ div#yes3-container {
     min-width: 400px;
     color: var(--yes3-color);
     background-color: var(--yes3-background-color);
+    font-size: var(--yes3-font-size);   
+}
+
+div#yes3-container div,
+div#yes3-container p,
+div#yes3-container li,
+div#yes3-container td,
+div#yes3-container th {
+
+    font-size: var(--yes3-font-size);       
 }
 
 tr.yes3-row-selected, tr.yes3-row-selected input, tr.yes3-row-selected select {
@@ -474,7 +486,7 @@ div#yes3-red-pointer {
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
-    align-content: space-between;   
+    align-content: space-between;  
  }
  
  .yes3-flex-container {
@@ -484,7 +496,7 @@ div#yes3-red-pointer {
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: stretch;
-    align-content: flex-start;
+    align-content: flex-start; 
     /*border: 1px solid lightgrey;*/
  }
  
@@ -497,19 +509,19 @@ div#yes3-red-pointer {
 .yes3-flex-vcenter-hleft {
     display: flex;
     justify-content: left;
-    align-items: center;
+    align-items: center;  
 }
 
 .yes3-flex-vcenter-hright {
     display: flex;
     justify-content: right;
-    align-items: center;
+    align-items: center; 
 }
 
 .yes3-flex-vcenter-hcenter {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; 
 }
 
  .yes3-highlight {

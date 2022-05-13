@@ -113,6 +113,15 @@ $module->getCodeFor("yes3_export_editor", true);
 
                 <tr>
                     <td>
+                        <i class="fas fa-list-alt yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Add a new export specification.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
                         <i class="fas fa-plus yes3-action-icon"></i>
                     </td>
                     <td>
@@ -126,15 +135,6 @@ $module->getCodeFor("yes3_export_editor", true);
                     </td>
                     <td>
                         Add a REDCap form (or all forms) to the specification.
-                    </td>
-                </tr>
-                
-                <tr>
-                    <td>
-                        <i class="fas fa-plus-circle yes3-action-icon"></i>
-                    </td>
-                    <td>
-                        Add a new specification.
                     </td>
                 </tr>
                 
@@ -170,7 +170,16 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-download yes3-action-icon"></i>
                     </td>
                     <td>
-                        Download or export the data dictionary and/or data based on this specification.
+                        Download the data dictionary and/or data based on this specification.
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="fas fa-file-export yes3-action-icon"></i>
+                    </td>
+                    <td>
+                        Export the data and data disctionary to the host file system (if configured; requires super user and IT support).
                     </td>
                 </tr>
                 
@@ -200,7 +209,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         Display this Help panel.
                     </td>
                 </tr>
-                
+                            
                 <tr class="yes3-light-theme-only">
                     <td>
                         <i class="fas fa-moon yes3-action-icon"></i>
@@ -447,44 +456,55 @@ $module->getCodeFor("yes3_export_editor", true);
 
     <div class="row yes3-fmapr-controls">
 
-        <div class="col-md-4 yes3-flex-vcenter-hleft" style="padding-left:0">
+        <div class="col-md-3 yes3-flex-vcenter-hleft" style="padding-left:0">
 
             <div>
-                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Export Editor</span>
+                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Export&nbsp;Editor</span>
             </div>
             
             <!--input type="button" value="new export" class="yes3-display-when-clean" onclick="YES3.Functions.newExportSpecification()" /-->
 
         </div>
 
-        <div class="col-md-4  yes3-flex-vcenter-hcenter">
+        <div class="col-md-5 yes3-flex-vcenter-hcenter">
 
-            <select id="export_uuid" class="yes3-fmapr-when-initialized yes3-flex-vcenter-hcenter" onchange="FMAPR.loadSpecification()">
+            <select id="export_uuid" class="yes3-fmapr-when-initialized yes3-flex-vcenter-hleft" onchange="FMAPR.loadSpecification()">
             </select>
 
-            <div class="yes3-fmapr-when-uninitialized yes3-single-spaced-vcenter">
+            <i class="fas fa-list-alt yes3-action-icon yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-display-when-clean yes3-designer-only" action="NewExport_openPanel" title="Add a new export specification."></i>
+
+            <div class="yes3-flex-vcenter-hleft">            
+                &nbsp;new&nbsp;export
+            </div>  
+
+            <!--div class="yes3-fmapr-when-uninitialized yes3-single-spaced-vcenter">
 
                 Click&nbsp;
 
-                <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-inline yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-display-when-clean yes3-fmapr-when-uninitialized" action="NewExport_openPanel" title="Add a new export specification."></i>
+                <i class="fas fa-list-alt yes3-action-icon yes3-action-icon-inline yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-display-when-clean yes3-fmapr-when-uninitialized" action="NewExport_openPanel" title="Add a new export specification."></i>
 
                 &nbsp;to add a new Export Specification.
 
-            </div>
+            </div-->
 
         </div>
 
         <div class="col-md-4  yes3-flex-vcenter-hright" style="padding-right:0">
 
             <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-display-when-not-repeating yes3-designer-only yes3-fmapr-settings-okay" action="addRawREDCapField" title="Add a single REDCap field to the export specification."></i>
+            
             <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-bulk-insert yes3-designer-only yes3-fmapr-settings-okay" action="openFieldInsertionForm" title="Add a form (or all forms) to the export specification."></i>
-            <i class="fas fa-plus-circle yes3-action-icon yes3-action-icon-controlpanel yes3-display-when-clean yes3-designer-only" action="NewExport_openPanel" title="Add a new export specification."></i>
+            
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-save-control" id="yes3-fmapr-save-control" action="saveExportSpecification" title="Save the export specification."></i>
+            
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
-            <!--i class="fas fa-print yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean" action="printSpecification" title="Print the specification."></i-->
+            
             <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean yes3-exporter-only yes3-fmapr-settings-okay" action="openExportForm" title="Download a data dictionary or export data based on this specification."></i>
+            
+            <i class="fas fa-file-export yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean yes3-exporter-only yes3-fmapr-settings-okay yes3-fmapr-if-host-filesystem" action="exportToHost" title="Export to host file system (if configured)."></i>
 
             <i class="fas fa-angle-double-down yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-collapsed yes3-fmapr-settings-okay" action="expandSettingsPanel"   title="Expand the upper settings panel" style="display:none"></i>
+            
             <i class="fas fa-angle-double-up   yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-expanded yes3-fmapr-settings-okay"  action="collapseSettingsPanel" title="Collapse the upper settings panel"></i>
 
             <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="Get some help"></i>
