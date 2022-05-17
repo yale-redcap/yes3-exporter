@@ -15,6 +15,8 @@ $module->getCodeFor("yes3_export_editor", true);
 
 ?>
 
+<!-- NEW EXPORT FORM -->
+
 <div id="yes3-fmapr-new-export-form" class="yes3-panel yes3-draggable" style="display:none">
 
     <div class="yes3-panel-header-row">
@@ -96,16 +98,23 @@ $module->getCodeFor("yes3_export_editor", true);
 
 </div>
 
+<!-- HELP -->
+
 <div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
 
-   <div class="yes3-panel-header-row">
-      <div class="yes3-panel-row-left" id="yes3-help-panel-title">
-         Here's some help
-      </div>
-      <div class="yes3-panel-row-right">
-         <a href="javascript: YES3.Help_closePanel()"><i class="fas fa-times fa-2x"></i></a>
-      </div>
-   </div>
+    <div class="yes3-panel-header-row">
+        <div class="yes3-panel-row-left" id="yes3-help-panel-title">
+            Here's some help
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: YES3.Help_closePanel()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+    </div>
+
+    <div class='yes3-panel-row'>
+        Access to YES3 Export Editor features is through clicking on 'action icons'.
+        Each action icon is listed below, along with the feature it invokes.
+    </div>
 
    <div class="yes3-panel-row" style="margin-top: 20px !important">
         <table>
@@ -125,7 +134,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-plus yes3-action-icon"></i>
                     </td>
                     <td>
-                        Add a REDCap field to the specification.
+                        Add a REDCap field to the export specification.
                     </td>
                 </tr>
                 
@@ -134,7 +143,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-plus-square yes3-action-icon"></i>
                     </td>
                     <td>
-                        Add a REDCap form (or all forms) to the specification.
+                        Add a REDCap form (or all forms) to the export specification.
                     </td>
                 </tr>
                 
@@ -143,7 +152,16 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="far fa-save yes3-action-icon"></i>
                     </td>
                     <td>
-                        Save the specification.
+                        Save the export specification (no unsaved changes).
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <i class="far fa-save yes3-action-icon yes3-dirty"></i>
+                    </td>
+                    <td>
+                    Save the export specification (unsaved changes detected).
                     </td>
                 </tr>
                 
@@ -170,7 +188,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-download yes3-action-icon"></i>
                     </td>
                     <td>
-                        Download the data dictionary and/or data based on this specification.
+                        Download the data dictionary and/or data spreadsheet.
                     </td>
                 </tr>
                 
@@ -179,25 +197,25 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-file-export yes3-action-icon"></i>
                     </td>
                     <td>
-                        Export the data and data disctionary to the host file system (if configured; requires super user and IT support).
+                        Export data dictionary and data spreadsheet to the file system (if configured; requires super user and IT support).
                     </td>
                 </tr>
                 
-                <tr class="yes3-expanded">
+                <tr class="yes3-expanded--xxx">
                     <td>
                         <i class="fas fa-angle-double-up yes3-action-icon"></i>
                     </td>
                     <td>
-                        Collapse (hide) the top settings section, and expand the lower fields/forms section.
+                        Hide the top settings section, and expand the lower fields/forms section.
                     </td>
                 </tr>
                 
-                <tr class="yes3-collapsed">
+                <tr class="yes3-collapsed--xxx">
                     <td>
                         <i class="fas fa-angle-double-down yes3-action-icon"></i>
                     </td>
                     <td>
-                        Expand the top settings section, and shrink the lower fields/forms section.
+                        Show the top settings section, and shrink the lower fields/forms section.
                     </td>
                 </tr>
 
@@ -206,11 +224,11 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-question yes3-action-icon"></i>
                     </td>
                     <td>
-                        Display this Help panel.
+                        Display a Help panel (like this one).
                     </td>
                 </tr>
                             
-                <tr class="yes3-light-theme-only">
+                <tr class="yes3-light-theme-only--xxx">
                     <td>
                         <i class="fas fa-moon yes3-action-icon"></i>
                     </td>
@@ -219,7 +237,7 @@ $module->getCodeFor("yes3_export_editor", true);
                     </td>
                 </tr>   
                 
-                <tr class="yes3-dark-theme-only">
+                <tr class="yes3-dark-theme-only--xxx">
                     <td>
                         <i class="fas fa-sun yes3-action-icon"></i>
                     </td>
@@ -250,6 +268,106 @@ $module->getCodeFor("yes3_export_editor", true);
    
 </div>
 
+<!-- CRITERION VALUE HELP -->
+
+<div id="yes3-fmapr-criterion-value-help-panel" class="yes3-panel yes3-help-panel yes3-draggable" style="display:none">
+
+    <div class="yes3-panel-header-row">
+        <div class="yes3-panel-row-left">
+            Selection criterion: value(s)
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: FMAPR.closeHelpCriterionValueForm()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+    </div>
+
+    <div class="yes3-information">
+        <p>
+            This entry is used to select records based on the value of the criterion field.
+        </p>
+        <p>
+            You may enter a single value, in which case only records having this value will be downloaded and/or exported.
+        </p>
+        <p>
+            You may also enter a <em>criterion expression</em> to select based on a range of values.
+            <br>Here are examples of valid criterion expression syntax: 
+        </p>
+        <ul>
+            <li><span class="yes3-information-em">1</span> - select records having a value of 1</li>
+            <li><span class="yes3-information-em">3,1,4,5,9</span> - select records having a value of 3, 1, 4, 5 or 9</li>
+            <li><span class="yes3-information-em">< 10</span> - select records having a non-blank value less than 10</li>
+            <li><span class="yes3-information-em"><= 10</span> - select records having a non-blank value less than or equal to 10</li>
+            <li><span class="yes3-information-em">> 10</span> - select records having a non-blank value greater than 10</li>
+            <li><span class="yes3-information-em">>= 10</span> - select records having a non-blank value greater than or equal to 10</li>
+        </ul>
+
+        <p>
+            <span class="yes3-information-em-light">string values</span>: if your criterion value is non-numeric, do not enclose it in quotes.
+            <br>Use this: <span class="yes3-information-em-light">apple, table, penny</span>,
+            <br>not this: <span class="yes3-information-em-light">'apple', 'table', 'penny'</span>.
+        </p>
+        
+        <p>
+            <span class="yes3-information-em-light">date values</span>: Dates behave like strings, but you must use the format yyyy-mm-dd.
+            For example, to select based on a date being on or after June 5, 1952 use this expression:
+            <br><span class="yes3-information-em-light">>= 1952-06-05</span>.
+        </p>
+
+        <p>
+            <span class="yes3-information-em-light">Criterion field properties</span>: below is a table of REDCap properties for the criterion field you have selected.
+            Your selection criterion must be consistent with the field type and, if noted, the possible values that the field can take on.
+        </p>
+
+    </div>
+
+    <div class="yes3-panel-bottom-row yes3-panel-row-border-top">
+
+        <table class='yes3-fmapr-panel-table'>
+            <tbody>
+        
+                <tr property="field_name">
+                    <td>
+                        REDCap field name
+                    </td>
+                    <td class="propvalue"></td>
+                </tr>
+       
+                <tr property="field_label">
+                    <td>
+                        REDCap field label
+                    </td>
+                    <td class="propvalue"></td>
+                </tr>
+                 
+                <tr property="field_type" class="yes3-fmapr-criterion-field-defined">
+                    <td>
+                        REDCap field type
+                    </td>
+                    <td class="propvalue"></td>
+                </tr>
+                 
+                <tr property="field_valueset" class="yes3-fmapr-criterion-field-defined yes3-fmapr-nominal">
+                    <td>
+                        Values
+                    </td>
+                    <td class="propvalue">
+                        <table class="yes3-scrollable yes3-fmapr-help-valueset">
+                            <tbody style="height:8rem" >
+
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<!-- WAYBACK -->
+
 <div id="yes3-fmapr-wayback-panel" class="yes3-panel yes3-draggable" style="display:none">
 
    <div class="yes3-panel-header-row">
@@ -276,14 +394,16 @@ $module->getCodeFor("yes3_export_editor", true);
 
 </div>
 
-<div id="yes3-fmapr-export-panel" class="yes3-panel yes3-draggable" style="display:none">
+<!-- DOWNLOAD -->
+
+<div id="yes3-fmapr-download-panel" class="yes3-panel yes3-draggable" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left">
-            YES3 Exporter: Export Options
+            YES3 Exporter: Download Options
         </div>
         <div class="yes3-panel-row-right">
-            <a href="javascript: FMAPR.closeExportForm()"><i class="fas fa-times fa-2x"></i></a>
+            <a href="javascript: FMAPR.closeDownloadForm()"><i class="fas fa-times fa-2x"></i></a>
         </div>
     </div>
 
@@ -296,20 +416,15 @@ $module->getCodeFor("yes3_export_editor", true);
         <input type="radio" class="balloon" value="datadictionary" name="yes3-fmapr-export" id="yes3-fmapr-export-datadictionary" checked />
         <label for="yes3-fmapr-export-datadictionary">Download the data dictionary file</label>
 
-        <br />
+        <br class="yes3-fmapr-data-download-enabled">
 
-        <input type="radio" class="balloon" value="data" name="yes3-fmapr-export" id="yes3-fmapr-export-data" />
-        <label for="yes3-fmapr-export-data">Download the data file</label>
+        <input type="radio" class="balloon yes3-fmapr-data-download-enabled" value="data" name="yes3-fmapr-export" id="yes3-fmapr-export-data" />
+        <label for="yes3-fmapr-export-data" class="yes3-fmapr-data-download-enabled">Download the data file</label>
 
-        <br />
+        <br class="yes3-fmapr-data-download-enabled">
 
-        <input type="radio" class="balloon" value="zip" name="yes3-fmapr-export" id="yes3-fmapr-export-zip" />
-        <label for="yes3-fmapr-export-zip">Download a zip of the data dictionary and data files</label>
-        
-        <br class="yes3-fmapr-target-filesystem" />
-
-        <input type="radio" class="balloon yes3-fmapr-target-filesystem" value="filesystem" name="yes3-fmapr-export" id="yes3-fmapr-export-filesystem" />
-        <label for="yes3-fmapr-export-filesystem" class="yes3-fmapr-target-filesystem">Export the data dictionary and data files to host file system</label>
+        <input type="radio" class="balloon yes3-fmapr-data-download-enabled" value="zip" name="yes3-fmapr-export" id="yes3-fmapr-export-zip" />
+        <label for="yes3-fmapr-export-zip" class="yes3-fmapr-data-download-enabled">Download a zip of the data dictionary and data files</label>
 
     </div>
 
@@ -318,16 +433,18 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="yes3-flex-container-evenly-distributed">
 
             <div class="yes3-flex-vcenter-hleft">
-                <input type="button" onClick="FMAPR.exportExecute();" class="yes3-panel-button yes3-button-caption-okay" />
+                <input type="button" onClick="FMAPR.downloadExecute();" class="yes3-panel-button yes3-button-caption-okay" />
             </div>
 
             <div class="yes3-flex-vcenter-hright">
-                <input type="button" onClick="FMAPR.closeExportForm();" class="yes3-panel-button yes3-button-caption-cancel" />
+                <input type="button" onClick="FMAPR.closeDownloadForm();" class="yes3-panel-button yes3-button-caption-close" />
             </div>
 
         </div>
     </div>
 </div>
+
+<!-- BULK INSERTION -->
 
 <div id="yes3-fmapr-fieldinsertion-panel" class="yes3-panel yes3-draggable" style="display:none">
 
@@ -491,7 +608,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
         <div class="col-md-4  yes3-flex-vcenter-hright" style="padding-right:0">
 
-            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-display-when-not-repeating yes3-designer-only yes3-fmapr-settings-okay" action="addRawREDCapField" title="Add a single REDCap field to the export specification."></i>
+            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay" action="addRawREDCapField" title="Add a single REDCap field to the export specification."></i>
             
             <i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-bulk-insert yes3-designer-only yes3-fmapr-settings-okay" action="openFieldInsertionForm" title="Add a form (or all forms) to the export specification."></i>
             
@@ -499,9 +616,9 @@ $module->getCodeFor("yes3_export_editor", true);
             
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only" action="Wayback_openForm" title="Restore the specification from a stored backup."></i>
             
-            <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean yes3-exporter-only yes3-fmapr-settings-okay" action="openExportForm" title="Download a data dictionary or export data based on this specification."></i>
+            <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean yes3-exporter-only yes3-fmapr-settings-okay" action="openDownloadForm" title="Download the data dictionary and/or data."></i>
             
-            <i class="fas fa-file-export yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean yes3-exporter-only yes3-fmapr-settings-okay yes3-fmapr-if-host-filesystem" action="exportToHost" title="Export to host file system (if configured)."></i>
+            <i class="fas fa-file-export yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-display-when-clean yes3-exporter-only yes3-fmapr-settings-okay  yes3-export-to-host-filesystem-enabled" action="exportToHost" title="Export to host file system."></i>
 
             <i class="fas fa-angle-double-down yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-collapsed yes3-fmapr-settings-okay" action="expandSettingsPanel"   title="Expand the upper settings panel" style="display:none"></i>
             
@@ -543,20 +660,6 @@ $module->getCodeFor("yes3_export_editor", true);
 
                         <tr>
 
-                            <td class="yes3-fmapr-export-specification">Export layout (read only):</td>
-                            
-                            <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
-                                <input disabled  type="radio" class="balloon" value="h" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-h">
-                                    <label  for="yes3-fmapr-export-layout-h" title="Horizontal layout">Horiz</label>&nbsp;
-                                <input disabled type="radio" class="balloon" value="v" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-v">
-                                    <label  for="yes3-fmapr-export-layout-v" title="Vertical layout">Vert</label>&nbsp;
-                                <input disabled type="radio" class="balloon" value="r" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-r">
-                                    <label for="yes3-fmapr-export-layout-r" title="Repeating Form layout">Repeat</label>&nbsp;
-                            </td>                       
-                        </tr>
-
-                        <tr>
-
                             <td class="yes3-fmapr-export-specification">Include:</td>
                             
                             <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
@@ -590,10 +693,11 @@ $module->getCodeFor("yes3_export_editor", true);
 
                         <tr class="yes3-fmapr-if-selected yes3-fmapr-skipped-over">
 
-                            <td class="yes3-fmapr-export-specification">Selection criterion: value</td>
+                            <td class="yes3-fmapr-export-specification">Selection criterion: value(s)</td>
                             
                             <td class="yes3-fmapr-export-specification yes3-input-integer">
                                 <input type="text" name="export_criterion_value" data-setting="export_criterion_value" class="yes3-input-integer" placeholder="value">
+                                <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_criterionValue" title="Guidance for entering the criterion value expression."></i>
                             </td>
                         </tr>
 
@@ -609,6 +713,23 @@ $module->getCodeFor("yes3_export_editor", true);
                     <tbody class="yes3-fmapr-export-specification">
 
                         <tr>
+                            <td class="yes3-fmapr-export-specification">Export layout:</td>
+                            
+                            <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
+                                <!-- input control is hidden from view -->
+                                <div style="display:none" class="hidden">
+                                    <input disabled  type="radio" class="balloon" value="h" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-h">
+                                        <label  for="yes3-fmapr-export-layout-h" title="Horizontal layout">Horiz</label>&nbsp;
+                                    <input disabled type="radio" class="balloon" value="v" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-v">
+                                        <label  for="yes3-fmapr-export-layout-v" title="Vertical layout">Vert</label>&nbsp;
+                                    <input disabled type="radio" class="balloon" value="r" name="export_layout" data-setting="export_layout" id="yes3-fmapr-export-layout-r">
+                                        <label for="yes3-fmapr-export-layout-r" title="Repeating Form layout">Repeat</label>&nbsp;
+                                </div>
+                                <div class="yes3-fmapr-export-layout-text"></div>
+                            </td>                       
+                        </tr>
+
+                        <!--tr>
 
                             <td class="yes3-fmapr-export-specification">Export target:</td>
 
@@ -621,7 +742,7 @@ $module->getCodeFor("yes3_export_editor", true);
                                 <label for="yes3-fmapr-export-target-filesystem" title="Host file system: file, automount or symlink">Host file system</label>&nbsp;
 
                             </td>
-                        </tr>
+                        </tr-->
 
                         <!--tr class="yes3-fmapr-target-filesystem-only yes3-fmapr-skipped-over">
 

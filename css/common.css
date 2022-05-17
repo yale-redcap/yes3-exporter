@@ -378,7 +378,42 @@ div#yes3-fmapr-status {
     display: none;
 }
 
-/*** HELP PANEL ***/
-div#yes3-help-panel {
+/*** HELP PANELS ***/
+
+div#yes3-help-panel, div.yes3-help-panel {
     max-width: 700px !important;
 }
+
+table.yes3-fmapr-panel-table td {
+    text-align: left;
+    vertical-align: top;
+    font-family: var(--yes3-font-family) !important;
+    font-weight: 400 !important;
+    font-size: var(--yes3-font-size) !important;
+}
+
+table.yes3-fmapr-panel-table td.propvalue {
+    color: var(--yes3-information-em-color) !important;
+    width: 70%;
+}
+
+table.yes3-fmapr-help-valueset {
+    width: 100%;
+    padding: 0;
+}
+
+table.yes3-fmapr-help-valueset tbody {
+    width: calc(100% - 20px);
+}
+
+table.yes3-fmapr-help-valueset td {
+    padding-top: 3px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 10px;
+}
+
+table.yes3-fmapr-help-valueset tr td:first-child{
+    color: var(--yes3-information-em-color) !important;
+}
+

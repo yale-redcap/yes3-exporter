@@ -5,21 +5,29 @@ let YES3 = {
     contentExpanded: true,
     dirty: false,
     initial_help_offered: false,
+    busy: false,
     projectUrl: "https://portal.redcap.yale.edu/news/redcapyale-team-secures-nih-funding-support-redcap-external-modules",
-    button_captions: {
+
+    captions: {
         "yes" : "yes",
         "okay" : "make it so",
         "done" : "done",
         "no": "no",
-        "cancel": "cancel"
+        "cancel": "cancel",
+        "close": "close",
+        "proceed": "proceed",
+        "wait": "PLEASE WAIT",
+        "wait_loading_specifications": "PLEASE WAIT: loading all export specifications",
+        "wait_loading_specification": "PLEASE WAIT: loading the export specification",
+        "wait_reloading_specification": "PLEASE WAIT: reloading the export specification",
+        "wait_saving_specification": "PLEASE WAIT: saving the export specification",
+        "wait_exporting_data": "PLEASE WAIT: exporting data",
     }
-
 };
 
- 
 String.prototype.truncateAt = function( n ){
-    if ( this.length > n-3 ) return this.substr(0, n-3) + "...";
-    else if ( this.length > n ) return this.substr(0, n);
+    if ( this.length > n-3 ) return this.substring(0, n-3) + "...";
+    else if ( this.length > n ) return this.substring(0, n);
     else return this;
 }
  
@@ -96,6 +104,7 @@ String.prototype.truncateAt = function( n ){
  
  /*
   * replaces REDCap's escapeHtml which crashes (in this context anyway)
+  * probably deprecated, since we added this function to the string prototype
   */
  const escapeHTML = str =>
     str.replace(
@@ -178,24 +187,40 @@ YES3.openPopupWindow = function(url, w, h, windowNamePrefix) {
 };
 
 // === PANEL FUNCTIONS ==================================================================================
- 
- YES3.hello = function(msg, fn, nonmodal) {
+
+YES3.hello = function(msg, fn, nonmodal) {
     if ( fn ) {
-       YES3.helloFunction = fn;
-   } else {
-       YES3.helloFunction = null;
-   }
+    YES3.helloFunction = fn;
+} else {
+    YES3.helloFunction = null;
+}
     $('#yes3-hello-message').html(msg);
     YES3.openPanel('yes3-hello-panel', nonmodal);
 };
  
- YES3.helloClose = function() {
+YES3.helloClose = function() {
     YES3.closePanel('yes3-hello-panel');
     if ( typeof YES3.helloFunction == "function" ) {
-       //console.log("hello: executing function");
-       YES3.helloFunction();
-   }
+        YES3.helloFunction();
+    }
 };
+
+YES3.isBusy = function(message) 
+{
+    YES3.openPanel("yes3-busy")
+        .text(message)
+        .parent().css('cursor', 'wait');
+
+    YES3.busy = true;      
+}
+
+YES3.notBusy = function() 
+{
+    YES3.closePanel("yes3-busy")
+        .parent().css('cursor', 'default');
+
+    YES3.busy = false;  
+}
 
 YES3.getContextMenuElement = function()
 {
@@ -297,8 +322,8 @@ YES3.YesNo = function(question, fnYes, fnNo) {
   * @param {*} x 
   * @param {*} y 
   */
- YES3.openPanel = function(panelName, nonmodal, x, y, atTheTop, toTheLeft) 
- {
+YES3.openPanel = function(panelName, nonmodal, x, y, atTheTop, toTheLeft) 
+{
     atTheTop = atTheTop || false;
     toTheLeft = toTheLeft || false;
     
@@ -307,7 +332,7 @@ YES3.YesNo = function(question, fnYes, fnNo) {
     y = y || 0;
     
     let panel = $('#'+panelName);
-   
+
     let theParent = $('#'+panelName).parent();
 
     YES3.maxZ += 1;
@@ -315,20 +340,21 @@ YES3.YesNo = function(question, fnYes, fnNo) {
     if ( !nonmodal ) $('#yes3-screen-cover').css({'z-index':YES3.maxZ-1}).show(); // places the full-screen overlay just below the panel -->
     
     if ( x || y ) {
-       panel.situate( x, y );
-   } else {
-       panel.center(theParent.offset().left, theParent.offset().top, atTheTop, toTheLeft);
-   }
+        panel.situate( x, y );
+    } else {
+        panel.center(theParent.offset().left, theParent.offset().top, atTheTop, toTheLeft);
+    }
 
     panel.css({'z-index': YES3.maxZ}).show();
-    //if ( nonmodal ) {
-    //    hideOnClickOutside(panel);
-    //}
+
+    return panel;
 };
  
 YES3.closePanel = function(panelName) {
-    $(`#${panelName}`).hide();
+    let panel = $(`#${panelName}`);
+    panel.hide();
     $('#yes3-screen-cover').hide();
+    return panel;
 };
 
 YES3.hideContextMenuOnClickOutside = function()
@@ -682,21 +708,24 @@ YES3.requestService = function( params, doneFn, json )
 
 YES3.isEmptyArray = function( x )
 {
-   //console.log('isEmptyArray', typeof x, x);
-   if ( typeof x === "undefined" ) return true;
-   return !x.length;
+    return YES3.isEmptyObject( x );
 }
 
-YES3.isTruthy = function( x )
+YES3.isEmptyObject = function( x )
 {
-   //console.log('isEmptyArray', typeof x, x);
-   if ( typeof x === "undefined" ) return false;
-   return x;
+    if ( typeof x !== "object" ) return true;
+    if ( Array.isArray(x) ) return ( !x.length );
+    return ( !Object.keys(x).length );
 }
 
 YES3.isNonEmptyObject = function( o )
 {
     return ( typeof o === "object" && Object.keys(o).length > 0 );
+}
+
+YES3.isNonEmptyArray = function( o )
+{
+    return ( typeof o === "object" && Array.isArray(o) && o.length > 0 );
 }
 
 YES3.getYes3ParentElement = function()
@@ -706,11 +735,13 @@ YES3.getYes3ParentElement = function()
 
 YES3.setCaptions = function()
 {
-    $("input[type=button].yes3-button-caption-yes").val(YES3.button_captions.yes);
-    $("input[type=button].yes3-button-caption-okay").val(YES3.button_captions.okay);
-    $("input[type=button].yes3-button-caption-done").val(YES3.button_captions.done);
-    $("input[type=button].yes3-button-caption-no").val(YES3.button_captions.no);
-    $("input[type=button].yes3-button-caption-cancel").val(YES3.button_captions.cancel);
+    $("input[type=button].yes3-button-caption-yes").val(YES3.captions.yes);
+    $("input[type=button].yes3-button-caption-okay").val(YES3.captions.okay);
+    $("input[type=button].yes3-button-caption-done").val(YES3.captions.done);
+    $("input[type=button].yes3-button-caption-no").val(YES3.captions.no);
+    $("input[type=button].yes3-button-caption-cancel").val(YES3.captions.cancel);
+    $("input[type=button].yes3-button-caption-close").val(YES3.captions.close);
+    $("input[type=button].yes3-button-caption-proceed").val(YES3.captions.proceed);
 }
 
 /*

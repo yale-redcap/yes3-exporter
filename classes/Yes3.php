@@ -431,6 +431,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
 
     /**
      * Tries to guarantee inoffensive text, suitable for labels or SAS text fields
+     * Should be UTF-8 compatible
      * 
      * - trimmed
      * - stripped of HTML tags
@@ -458,15 +459,15 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
             return "";
         }
         
-        $s = REDCap::filterHtml(preg_replace('/[\x00-\x1F\x7F]/u', ' ', self::straightQuoter($s))); 
+        $s = preg_replace('/[\x00-\x1F\x7F]/u', ' ', self::straightQuoter( strip_tags($s)) ); 
 
-        if ( $maxLen ) return self::ellipsis($s, $maxLen);
+        if ( $maxLen ) return self::truncate($s, $maxLen);
 
         return $s;       
     }
 
     /**
-     * Removes non-alphanumerics from string
+     * Allows ASCII alphanumerics
      * 
      * function: alphaNumericString
      * 
@@ -489,6 +490,17 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
         return preg_replace("/[^a-zA-Z0-9_ ]+/", "", $s);
     }
 
+    /**
+     * Strips control characters, allows all UTF-8
+     * all HTML tags stripped
+     * 
+     * function: printableEscHtmlString
+     * 
+     * @param mixed $s
+     * @param int $maxLen
+     * 
+     * @return string|false|string[]|null
+     */
     public static function printableEscHtmlString( $s, $maxLen=0)
     {
         if ( is_null($s) ){
@@ -501,14 +513,14 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
             return "";
         }
 
-        $s = preg_replace('/[\x00-\x1F\x7F]/u', '', REDCap::escapeHtml($s));
+        $s = preg_replace('/[\x00-\x1F\x7F]/u', '', strip_tags($s));
  
-        if ( $maxLen ) return self::ellipsis($s, $maxLen);
+        if ( $maxLen ) return self::truncate($s, $maxLen);
 
         return $s;       
     }
 
-    public static function escapeHtml( $s, $removeAllTags=false )
+    public static function escapeHtml( $s )
     {
         if ( is_null($s) ){
 
@@ -520,7 +532,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
             return "";
         }
 
-        return REDCap::escapeHtml($s, $removeAllTags);
+        return REDCap::escapeHtml($s);
     }
 
     public static function ellipsis( $s, $len=64 )
@@ -538,6 +550,25 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
         $s = trim($s);
          if ( $len > 0 &&  strlen($s) > $len-3 ) {
             return substr($s, 0, $len-3)."...";
+        }
+        return $s;
+    }
+
+    public static function truncate( $s, $len=64 )
+    {
+        if ( is_null($s) ){
+
+            return "";
+        }
+
+        if ( !strlen($s) ){
+
+            return "";
+        }
+
+        $s = trim($s);
+         if ( $len > 0 && strlen($s) > $len) {
+            return substr($s, 0, $len);
         }
         return $s;
     }
@@ -656,7 +687,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
          $url .= "?type=module&prefix={$module_prefix}&page={$module_page}";
 
          if ( $noauth ) $url .= "&NOAUTH";
-
+         
       }
 
       $ch = curl_init();

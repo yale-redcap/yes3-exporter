@@ -118,7 +118,9 @@ html {
     --yes3-information-color: darkslategray;
     
     --yes3-information-em-color: black;
- 
+   
+    --yes3-information-em-light-color: indianred;
+  
     --yes3-nonessential-information-color: gray;
 
     --yes3-select-color: steelblue;
@@ -233,6 +235,8 @@ html {
     --yes3-information-color: silver;
     
     --yes3-information-em-color: linen;
+
+    --yes3-information-em-light-color: lightsalmon;
  
     --yes3-nonessential-information-color: gray;
  
@@ -377,7 +381,7 @@ i.yes3-action-icon-controlpanel {
     margin-left: 1rem;
 }
 
-i.yes3-action-icon:not(.yes3-action-icon-inline){
+i.yes3-action-icon:not(.yes3-action-icon-inline):not(.yes3-dirty){
     font-size: 1.5rem !important;
 }
 
@@ -906,9 +910,15 @@ div.yes3-information p {
 }
 
 .yes3-information-em {
-    color: var(--yes3-information-em-color);
-    font-family: var(--yes3-font-family);
-    font-weight: 600;
+    color: var(--yes3-information-em-color) !important;
+    font-family: var(--yes3-font-family) !important;
+    font-weight: 600 !important;
+}
+
+.yes3-information-em-light {
+    color: var(--yes3-information-em-color) !important;
+    font-family: var(--yes3-font-family) !important;
+    font-weight: 400 !important;
 }
 
 .yes3-information a {
@@ -1087,7 +1097,7 @@ i.yes3-selected {
  .yes3-panel-header-row {
     font-family: inherit;
     font-size: 2rem;
-    color: var(--yes3-panel-color);
+    color: var(--yes3-panel-title-color);
     font-weight: 200;
     float: left;
     clear: both;
@@ -1171,6 +1181,10 @@ i.yes3-selected {
  .yes3-panel-bottom-row {
     margin-top: var(--yes3-margin);
     margin-bottom: 0;
+ }
+
+ .yes3-panel-row-border-top {
+     border-top: 1px solid var(--yes3-border-color);
  }
  
  .yes3-panel-message {

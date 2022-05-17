@@ -511,6 +511,31 @@ function getExportLogs()
     ));
 }
 
+function checkDownloadPermission()
+{
+    global $module;
+
+    $enable_host_filesystem_exports = $module->getProjectSetting("enable-host-filesystem-exports");
+    $enable_user_data_downloads = $module->getProjectSetting("enable-user-data-downloads");
+
+    if ( $enable_host_filesystem_exports==="Y" && $enable_user_data_downloads !== "Y" ) {
+
+        throw new Exception("User data downloads are not enabled for this project.");
+    }
+}
+
+function checkExportPermission()
+{
+    global $module;
+
+    $enable_host_filesystem_exports = $module->getProjectSetting("enable-host-filesystem-exports");
+
+    if ( $enable_host_filesystem_exports!=="Y" ) {
+
+        throw new Exception("File system exports are not enabled for this project.");
+    }
+}
+
 function downloadDataDictionary()
 {
     global $module;
@@ -524,6 +549,8 @@ function downloadData()
 {
     global $module;
 
+    checkDownloadPermission();
+
     $export_uuid = $_POST['export_uuid'] ?? $_GET['export_uuid'];
 
     return $module->downloadData($export_uuid);
@@ -533,6 +560,8 @@ function downloadZip()
 {
     global $module;
 
+    checkDownloadPermission();
+
     $export_uuid = $_POST['export_uuid'] ?? $_GET['export_uuid'];
 
     return $module->downloadZip($export_uuid);
@@ -541,6 +570,8 @@ function downloadZip()
 function exportData()
 {
     global $module;
+
+    checkExportPermission();
 
     $export_uuid = $_POST['export_uuid'];
 
@@ -913,6 +944,7 @@ function get_project_settings():string
         'project_event_metadata' => get_project_event_metadata(),
         'default_event_id' => get_first_event_id(),
         'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0,
+        'user_data_downloads_disabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" && $module->getProjectSetting('enable-user-data-downloads')!=="Y" ) ? 1 : 0,
         'host_filesystem_exports_enabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" ) ? 1 : 0,
         'host_filesystem_target' => $module->getProjectSetting('export-target-folder')
         //, 'specification_settings' => get_specification_settings()
@@ -980,13 +1012,13 @@ ORDER BY m.`field_order`
          foreach ( $vv as $value => $label) {
             $choices[] = [
                'value' => $value,
-               'label' => Yes3::escapeHtml(strip_tags($label))
+               'label' => Yes3::truncate(Yes3::printableEscHtmlString($label), MAX_LABEL_LEN)
             ];
          }
       }
       $xx[] = [
          'field_name' => $field['field_name'],
-         'field_label' => ellipsis(Yes3::printableEscHtmlString($field['element_label']), MAX_LABEL_LEN),
+         'field_label' => Yes3::truncate(Yes3::printableEscHtmlString($field['element_label']), MAX_LABEL_LEN),
          'field_type' => $field['element_type'],
          'field_choices' => $choices
       ];
@@ -1000,15 +1032,6 @@ function get_field_metadata_structures(): array
     global $module;
 
     return $module->getFieldMetadataStructures();
-}
-
-function ellipsis( $s, $len=64 )
-{
-    $s = trim($s);
-    if ( strlen($s) > $len-3 ) {
-        return substr($s, 0, $len-3)."...";
-    }
-    return $s;
 }
 
 /**

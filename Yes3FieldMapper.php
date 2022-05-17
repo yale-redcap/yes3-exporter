@@ -371,7 +371,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $dd[] = [
                 'var_name' => $export_item->var_name,
-                'var_label' => Yes3::ellipsis( $export_item->var_label, $export->export_max_label_length ),
+                'var_label' => Yes3::truncate( $export_item->var_label, $export->export_max_label_length ),
                 'var_type' => $export_item->var_type,
                 'valueset' => ( $export_item->valueset ) ? json_encode($export_item->valueset) : "",
                 'origin' => $export_item->origin,
@@ -818,7 +818,14 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $sqlParams = [$this->project_id];
 
-        if ( $ddPackage['export_selection']=='2' && $ddPackage['export_criterion_field'] && $ddPackage['export_criterion_event'] && $ddPackage['export_criterion_value'] ) {
+        if ( $ddPackage['export_selection']=='2' ) {
+
+            if ( !strlen($ddPackage['export_criterion_field']) ||
+                !strlen($ddPackage['export_criterion_event']) ||
+                !strlen($ddPackage['export_criterion_value']) ){
+
+                throw new Exception("Cannot proceed with the export or download, because the selection field, event and/or value is missing.");
+            }
 
             $critXOperators = [ "=>", "<=", "=", "<", ">"];
 
@@ -882,7 +889,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $sqlParams = array_merge([$this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
             }
         }
-        else {
+        else if ( $ddPackage['export_selection']=='1' ) {
 
             if ( $export_group_id ){
 
@@ -903,6 +910,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                 $sqlParams = [ $this->project_id ];                
             }
+        }
+        else {
+
+            throw new Exception("Cannot proceed with the export or download, because the record selection option is not specified.");
         }
 
         //$sql .= " LIMIT 10";
@@ -945,6 +956,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
         }
 
+        //Yes3::logDebugMessage($this->project_id, print_r($field_events, true), 'writeX:field_events');
         //Yes3::logDebugMessage($this->project_id, $sqlSelect, 'writeX:sqlSelect');
         //Yes3::logDebugMessage($this->project_id, print_r($sqlEventParams, true), 'writeX:sqlEventParams');
 
@@ -973,6 +985,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $export_inoffensive_text,
                 $export_hash_recordid,
                 $export_shift_dates,
+                $export_group_id,
                 $K, 
                 $R, 
                 $C
@@ -1265,6 +1278,7 @@ WHERE project_id=? AND log_entry_type=?
         $export_inoffensive_text,
         $export_hash_recordid,
         $export_shift_dates,
+        $export_group_id,
         &$K, 
         &$R, 
         &$C
@@ -1328,26 +1342,11 @@ WHERE project_id=? AND log_entry_type=?
 
                     $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);
                 }
-                    
-                $y = [
-                    $RecordIdField => $record
-                ];
-
-                if ( $export_layout!=="h" && REDCap::isLongitudinal() ) {
-    
-                    $y[VARNAME_EVENT_ID  ] = $x['event_id'];
-                    $y[VARNAME_EVENT_NAME] = $eventName[$x['event_id']];
-                }
-
-                if ( $export_layout==="r" ) {
-    
-                    $y[VARNAME_INSTANCE  ] = $x_instance;
-                }
 
                 /**
                  * fill out the record
                  */
-
+                $y = [];
                 foreach ($dd as $d){
 
                     if ( !isset($y[$d['var_name']]) ){
@@ -1362,6 +1361,19 @@ WHERE project_id=? AND log_entry_type=?
 
                         $y[$d['var_name']] = str_replace("'", "", trim(substr($d['redcap_field_name'], 9)));
                     }
+                }
+
+                $y[$RecordIdField] = $record;
+
+                if ( $export_layout!=="h" && REDCap::isLongitudinal() ) {
+    
+                    $y[VARNAME_EVENT_ID  ] = $x['event_id'];
+                    $y[VARNAME_EVENT_NAME] = $eventName[$x['event_id']];
+                }
+
+                if ( $export_layout==="r" ) {
+    
+                    $y[VARNAME_INSTANCE  ] = $x_instance;
                 }
 
                 $exportValues = 0;
@@ -1381,7 +1393,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $REDCapValue = $this->conditionREDCapValue( $x['value'], $export_max_text_length, $export_inoffensive_text );
 
-            if ( $field_name === "__GROUPID__" ) {
+            if ( $field_name === "__GROUPID__" && isset($y[VARNAME_GROUP_ID])) {
 
                 $y[VARNAME_GROUP_ID  ]   = $x['value'];
                 $y[VARNAME_GROUP_NAME] = $dagNameForGroupId[ $x['value'] ];
@@ -2798,7 +2810,8 @@ WHERE project_id=? AND log_entry_type=?
 
         $event_ids = [];
 
-        if ( $redcap_event_id === ALL_OF_THEM && $export->export_layout === "h" ){
+        //if ( $redcap_event_id === ALL_OF_THEM && $export->export_layout === "h" ){
+        if ( $redcap_event_id === ALL_OF_THEM ){
 
             $form_index = $forms['form_index'][$form_name];
 

@@ -18,11 +18,11 @@ $cssUrl = $module->getUrl("css/github-markdown-v2.css");
 
 $markdown = file_get_contents( $module->getModulePath() . 'README.md' );
 
-$urlBase = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/images/";
+$urlBase = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/media/";
 
 //exit ( $urlBase );
 
-$markdown = str_replace( "(images/", "(" . $urlBase, $markdown);
+$markdown = str_replace( "(media/", "(" . $urlBase, $markdown);
 
 //$markdown = file_get_contents($fileName);
 

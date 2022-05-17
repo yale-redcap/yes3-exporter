@@ -9,6 +9,8 @@ FMAPR.reloadParms = {
     "wayback": false
 }
 
+FMAPR.constrainedAutocompleteSource = [];
+
 FMAPR.tooltips = {
 
     "event_select": "After a REDCap field or form is selected, this drop-down will include all the REDCap events assigned to it.",
@@ -27,6 +29,80 @@ FMAPR.tooltips = {
  * 
  * Be sure to use the full YES3.Functions namespace
  */
+
+YES3.Functions.Help_criterionValue = function()
+{
+    let thePanel = YES3.openPanel("yes3-fmapr-criterion-value-help-panel", true);
+    let export_criterion_field = $('input#export_criterion_field').val() || "";
+    let export_criterion_value = $('input#export_criterion_value').val() || "";
+    let m = {};
+    let field_type = "";
+    let field_valueset_list = "";
+
+    if ( !export_criterion_field.length ){
+
+        thePanel.find("td[property=field_name]").html("(no field selected)");
+        thePanel.find("tr.yes3-fmapr-criterion-field-defined").hide();
+    }
+    else {
+        m = FMAPR.project.field_metadata[FMAPR.project.field_index[export_criterion_field]];
+        field_type = m.field_type;
+        if ( m.field_validation ){
+
+            field_type += " (" + m.field_validation + ")";
+        }
+        thePanel.find("tr[property=field_name] td.propvalue").html(export_criterion_field);       
+        thePanel.find("tr[property=field_type] td.propvalue").html(field_type);
+        thePanel.find("tr[property=field_label] td.propvalue").html(m.field_label);
+        thePanel.find("tr.yes3-fmapr-criterion-field-defined").show();
+        
+        field_valueset_list = FMAPR.valueSetList( m.field_type, m.field_valueset );
+
+        if ( field_valueset_list.length ){
+
+            thePanel.find('tr[property=field_valueset]')
+                .show()
+                .find("td.propvalue table tbody").html(field_valueset_list)
+            ;
+        }
+        else {
+
+            thePanel.find('tr[property=field_valueset]').hide();
+        }
+    }
+}
+
+FMAPR.closeHelpCriterionValueForm = function()
+{
+    YES3.closePanel("yes3-fmapr-criterion-value-help-panel");
+}
+
+FMAPR.valueSetList = function( field_type, field_valueset )
+{
+    if ( field_type === "yesno" ){
+
+        return "<tr><td>1</td><td>Yes</td></tr><tr><td>0</td><td>No</td></tr>";
+    }
+
+    if ( field_type === "truefalse" ){
+
+        return "<tr><td>1</td><td>True</td></tr><tr><td>0</td><td>False</td></tr>";
+    }
+
+    if ( YES3.isEmptyArray(field_valueset) ){
+
+        return "";
+    }
+
+    let s = "";
+
+    for (let i=0; i<field_valueset.length; i++ ){
+
+        s += `<tr><td>${field_valueset[i].value}</td><td>${field_valueset[i].label}</td></tr>`;
+    }
+
+    return s;
+}
 
 YES3.Functions.expandSettingsPanel = function()
 {
@@ -163,23 +239,23 @@ YES3.Functions.uSpecEditor_openForm = function()
     YES3.openPanel("yes3-fmapr-uspec-editor");
 }
  
-YES3.Functions.openExportForm = function()
+YES3.Functions.openDownloadForm = function()
 {
-    YES3.openPanel("yes3-fmapr-export-panel");
+    let thePanel = YES3.openPanel("yes3-fmapr-download-panel");
 
-    if ( FMAPR.export_specification.export_target==="filesystem" && YES3.userRights.export===1 ){
+    if ( FMAPR.project.user_data_downloads_disabled ){
 
-        $(".yes3-fmapr-target-filesystem").show();
+        thePanel.find(".yes3-fmapr-data-download-enabled").hide();
     }
     else {
-        
-        $(".yes3-fmapr-target-filesystem").hide();
+
+        thePanel.find(".yes3-fmapr-data-download-enabled").show();
     }
 }
 
-FMAPR.closeExportForm = function()
+FMAPR.closeDownloadForm = function()
 {
-    YES3.closePanel('yes3-fmapr-export-panel');
+    YES3.closePanel('yes3-fmapr-download-panel');
 }
 
 /**
@@ -189,7 +265,7 @@ FMAPR.closeExportForm = function()
  * @param {*} field_name 
  * @param {*} event_name
  */
-YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
+YES3.Functions.openFieldInsertionForm_lagacy = function(rowId, field_name, event_name)
 {
     rowId = rowId || "";
     field_name = field_name || "";
@@ -201,6 +277,10 @@ YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
 
     // clear the progress bar
     $("div#yes3-fmapr-bulk-insertion-progress").css("width", 0);
+
+    /**
+     * if rowId is not provided and if only one row is selected, make that the insertion point
+     */
 
     /**
      * if called with no params, set up for append
@@ -259,6 +339,14 @@ YES3.Functions.openFieldInsertionForm = function(rowId, field_name, event_name)
     FMAPR.fieldInsertionFormReady(field_name, event_name);
 }
 
+YES3.Functions.openFieldInsertionForm = function()
+{
+    YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false);
+
+    FMAPR.fieldInsertionFormReady();
+}
+
+
 FMAPR.uSpecEditor = function()
 {
     return $("div#yes3-fmapr-uspec-editor");
@@ -303,19 +391,119 @@ FMAPR.countNewFieldRows = function()
  */
 FMAPR.ensureNewFieldRowAtEnd = function()
 {
-    // not relevant for repeating layouts
+    // make sure constraints applied before row is inserted
     if ( FMAPR.export_specification.export_layout==="r" ){
 
-        return false;
+        FMAPR.setRepeatLayoutConstraints();
     }    
     
     // get rid of any new field row that has become 'trapped' by a bulk insertion
-    $('tr.yes3-fmapr-redcap-field.yes3-fmapr-new-field:not(:last-child)').remove();
+    //$('tr.yes3-fmapr-redcap-field.yes3-fmapr-new-field:not(:last-child)').remove();
+
+    // get rid of all of em
+    $('tr.yes3-fmapr-redcap-field.yes3-fmapr-new-field').remove();
     
-    if ( !FMAPR.countNewFieldRows() && !FMAPR.someBadSettings() ){
+    //if ( !FMAPR.countNewFieldRows() && !FMAPR.someBadSettings() ){
+    if ( !FMAPR.someBadSettings() ){
 
         YES3.Functions.addRawREDCapField({}, {}, false, true, true);
     }
+}
+
+FMAPR.setRepeatLayoutConstraints = function()
+{
+    let form_name = "";
+
+    if ( FMAPR.isRepeatedLayout() ){
+
+        let currentConstraint = FMAPR.formNameConstraint;
+
+        let field_name = $(`input[data-mapitem=redcap_field_name]:first`).val();
+
+        if (typeof field_name !== "undefined" ){
+
+            form_name = FMAPR.getFormForField( field_name );
+        }
+        
+        if ( typeof form_name === "undefined" || !form_name.length ){
+
+            form_name = $("tr[data-object_type=form]:first").attr("data-form_name");
+        }
+
+        if ( typeof form_name !== "undefined" && form_name.length > 0 ){
+
+            if ( form_name !== FMAPR.formNameConstraint ) {
+            
+                FMAPR.formNameConstraint = form_name;
+                FMAPR.postMessage(`Note: all further additions must be from the '${FMAPR.formNameConstraint}' form.`, true);
+            }
+        }
+        else {
+
+            FMAPR.formNameConstraint = "";
+            FMAPR.clearMessage();
+        }
+
+        if ( FMAPR.formNameConstraint !== currentConstraint || FMAPR.constrainedAutocompleteSource.length === 0 ){
+            
+            FMAPR.setConstrainedAutocompleteSource();
+            //FMAPR.ensureNewFieldRowAtEnd(); // ensure 'add field' item has the right autocomplete source
+            FMAPR.displayActionIcons(); // make sure the bulk insertion icon is disabled, if constraint active
+            
+            // constrain the autocompleters
+            $("input.yes3-fmapr-listener-set.ui-autocomplete-input").each(function(){
+
+                FMAPR.setExportItemFieldAutoselectInput( $(this) );
+            });
+        }
+
+    }
+    else {
+
+        FMAPR.formNameConstraint = "";
+    }
+
+    return FMAPR.formNameConstraint;
+}
+
+FMAPR.setConstrainedAutocompleteSource = function(){
+
+    FMAPR.constrainedAutocompleteSource = [];
+
+    if ( !FMAPR.isRepeatedLayout() ){
+
+        return true;
+    }
+
+    let okay = 0;
+    let form_name = "";
+
+    for (let i=0; i<FMAPR.project.field_metadata.length; i++){
+
+        form_name = FMAPR.project.field_metadata[i].form_name;
+
+        okay = 0;
+
+        if ( FMAPR.formNameConstraint.length > 0 ){
+
+            okay = ( form_name === FMAPR.formNameConstraint ) ? 1 : 0;
+        }
+        else {
+
+            okay = FMAPR.project.form_metadata[FMAPR.project.form_index[form_name]].form_repeating;
+            //console.log('setConstrainedAutocompleteSource', FMAPR.project.field_autoselect_source[i].value, form_name, okay);
+        }
+
+        if ( okay===1 ){
+
+            FMAPR.constrainedAutocompleteSource.push({
+                "value": FMAPR.project.field_metadata[i].field_name,
+                "label": "[" + FMAPR.project.field_metadata[i].field_name + "] " + FMAPR.project.field_metadata[i].field_label
+            });
+        }
+    }
+
+    console.log('setConstrainedAutocompleteSource', FMAPR.constrainedAutocompleteSource.length + "items");
 }
 
 FMAPR.rowSelectorHtml = function()
@@ -439,7 +627,17 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
         
             let itemREDCapEvent = elementRow.find('select[data-mapitem=redcap_event_id]:first');
 
-            itemREDCapEvent.val(element.redcap_event_id);
+            /**
+             * handles the case where 'all events' are requested but the form has just one event
+             */
+            if ( itemREDCapEvent.find("option").length === 1 ){
+
+                itemREDCapEvent.val(itemREDCapEvent.find("option").first().val());
+            }
+            else {
+
+                itemREDCapEvent.val(element.redcap_event_id);
+            }
 
             FMAPR.REDCapEventOnChange(itemREDCapEvent, batchMode);
         //}
@@ -495,7 +693,17 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
 
     FMAPR.REDCapEventOnChange(itemREDCapEvent);
 
-    itemREDCapEvent.val(event);
+    /**
+     * handling for case where 'all events' is requested but there is just one event for the form
+     */
+    if ( event==='all' && itemREDCapEvent.find('option').length===1 ){
+
+        itemREDCapEvent.val( itemREDCapEvent.find('option').first().val() );
+    }
+    else {
+
+        itemREDCapEvent.val(event);
+    }
 
     return yes3_fmapr_data_element_name;
 }
@@ -503,6 +711,8 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
 YES3.Functions.saveExportSpecification = function(auditOnly) 
 {
     auditOnly = auditOnly || false;
+
+    YES3.isBusy( YES3.captions.wait_saving_specification );
     
     let settingsContainer = FMAPR.getExportSettingsContainer();
 
@@ -552,6 +762,9 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
         }
     });
 
+    /**
+     * each setting becomes a POST parameter for the save request
+     */
     for (const settingName in specItems){
 
         if ( typeof postParams[settingName] === "undefined" ){
@@ -601,10 +814,12 @@ FMAPR.saveExportSpecificationCallback = function( response ){
 
         FMAPR.markAsClean(true);
     }
+
+    YES3.notBusy();
 }
 
 /*** EXPORT ***/
-FMAPR.exportExecute = function()
+FMAPR.downloadExecute = function()
 {
     let exportOption = $("input[type=radio][name=yes3-fmapr-export]:checked").val();
 
@@ -620,11 +835,7 @@ FMAPR.exportExecute = function()
         FMAPR.downloadZip();
     }
 
-    else if ( exportOption==="filesystem"){
-        FMAPR.exportData();
-    }
-
-    FMAPR.closeExportForm();
+    FMAPR.closeDownloadForm();
 }
 
 FMAPR.downloadDataDictionary = function()
@@ -671,8 +882,16 @@ FMAPR.downloadDataDictionaryCallback = function( response )
   console.log(response);
 }
 
-FMAPR.exportData = function()
-{    
+YES3.Functions.exportToHost = function()
+{
+    YES3.YesNo("This action will replace the data for this export currently stored on the file system. Okay to proceed?",
+    FMAPR.exportToHostGo );
+}
+
+FMAPR.exportToHostGo = function()
+{     
+    YES3.isBusy( YES3.captions.wait_exporting_data );
+
     FMAPR.postMessage("Export underway...");
 
     YES3.requestService(
@@ -687,6 +906,7 @@ FMAPR.exportDataCallback = function( response )
 {
   YES3.hello(response);
   FMAPR.clearMessage();
+  YES3.notBusy();
 }
 
 /*** WAYBACK ***/
@@ -1127,7 +1347,7 @@ FMAPR.getFormEventHtml = function( form_name, yes3_fmapr_data_element_name ){
 
     let element_origin = 'redcap';
 
-    let optionsHtml = '<option value="all">all events</option>';
+    let optionsHtml = '';
 
     let formEvents = [];
 
@@ -1143,7 +1363,11 @@ FMAPR.getFormEventHtml = function( form_name, yes3_fmapr_data_element_name ){
 
             formEvents = FMAPR.project.form_metadata[form_index].form_events;
         }
+    }
 
+    if ( formEvents.length > 1 ){
+
+        optionsHtml = '<option value="all">all events for form</option>';
     }
 
     for ( let e=0; e<formEvents.length; e++ ){
@@ -1210,6 +1434,18 @@ FMAPR.getFormEventHtml = function( form_name, yes3_fmapr_data_element_name ){
           //console.log('LovInputListener', yes3_fmapr_data_element_name, value );
        })
     ;
+}
+
+FMAPR.getFormForField = function( field_name )
+{
+    let field_index = FMAPR.project.field_index[field_name];
+
+    if ( typeof field_index === "number" ){
+
+        return FMAPR.project.field_metadata[field_index].form_name;
+    }
+
+    return "";
 }
 
 FMAPR.rowIsCut = function(theRow)
@@ -1721,6 +1957,9 @@ FMAPR.fieldInsertionFormReady = function()
     let formSelector = $("select#yes3-fmapr-fieldinsertion-form");
     let eventSelector = $("select#yes3-fmapr-fieldinsertion-event");
 
+    // clear the progress bar
+    $("div#yes3-fmapr-bulk-insertion-progress").css("width", 0);
+
     if ( FMAPR.selectedRowCount()===1 ){
 
         insertionRow = FMAPR.firstSelectedRow();
@@ -1738,10 +1977,13 @@ FMAPR.fieldInsertionFormReady = function()
         }
     }
 
-    if ( !insertionLocation.length ){
+    if ( !insertionRow ){
 
+        insertionRow = theRow = $('tr.yes3-fmapr-data-element').last();
         insertionLocation = "The insertion will be at end of the list.";
     }
+
+    FMAPR.insertionRowId = insertionRow.attr('id');
     
     $("div#yes3-fmapr-bulkinsert-where").html(insertionLocation);
 
@@ -1749,10 +1991,12 @@ FMAPR.fieldInsertionFormReady = function()
     let progBar = $("div#yes3-fmapr-bulk-insertion-progress");
     progBar.parent().css({"visibility": "hidden"});
 
-
     formSelector.empty().append( FMAPR.getFormOptionsHtml() );
     eventSelector.empty().off();
+    
     FMAPR.fieldInsertionSetFormSelectListener();
+    FMAPR.fieldInsertionSetEventSelectListener();
+
     formSelector.trigger('change');
 
     FMAPR.fieldInsertionSetCounterListeners();
@@ -1761,16 +2005,32 @@ FMAPR.fieldInsertionFormReady = function()
 
 FMAPR.fieldInsertionExecute = function()
 {
-    let organization = $("input[name=yes3-fmapr-fieldinsertion-org]:checked").val();
     let insertOption = $("input[name=yes3-fmapr-fieldinsertion-option]:checked").val();
+    let theRowAfter = null;
     let theRowBefore = null;
 
+    /**
+     * unlike copy/paste, the selected row is the row after the insertion
+     */
     if ( FMAPR.insertionRowId ){
-        theRowBefore = $(`tr#${FMAPR.insertionRowId}`); // set by openFieldInsertionForm
+        theRowAfter = $(`tr#${FMAPR.insertionRowId}`);
+        if ( theRowAfter.length ){
+
+            theRowBefore = theRowAfter.prev();
+            if ( !theRowBefore.length ){
+
+                theRowBefore = null;
+            }
+        }
     }
 
     let form_name = $("select#yes3-fmapr-fieldinsertion-form").val();
     let event = $("select#yes3-fmapr-fieldinsertion-event").val();
+
+    //console.log('fieldInsertionExecute: FMAPR.insertionRowId=', FMAPR.insertionRowId);
+    //console.log('fieldInsertionExecute: theRowBefore=', theRowBefore);
+
+    let forms = FMAPR.formsAllowedForEvent( event );
 
     if ( insertOption==="fields" ) {
 
@@ -1805,6 +2065,8 @@ FMAPR.insertionWrapup = function()
     FMAPR.markAsDirty();
 
     FMAPR.ensureNewFieldRowAtEnd();
+
+    //FMAPR.setRepeatLayoutConstraints();
 }
 
 FMAPR.insertFields = function(theRowBefore, callback)
@@ -1852,34 +2114,18 @@ FMAPR.insertFields = function(theRowBefore, callback)
 FMAPR.insertAllFormsForEvent = function(event, theRowBefore)
 {
     let yes3_fmapr_data_element_name = "";
-    let allowed = false;
-    let j=0;
 
-    for (let k=0; k<FMAPR.project.form_metadata.length; k++){
+    let forms = FMAPR.formsAllowedForEvent(event);
 
-        // insert form if registered for this event
-        allowed = ( event === "all" );
+    for (let k=0; k<forms.length; k++){
 
-        //if ( !allowed ){
+        yes3_fmapr_data_element_name = FMAPR.addREDCapForm( 
+            forms[k], 
+            event, 
+            theRowBefore
+        );
 
-            for (j=0; j<FMAPR.project.form_metadata[k].form_events.length && !allowed; j++){
-
-                if ( event == FMAPR.project.form_metadata[k].form_events[j].event_id ) {
-                    allowed = true;
-                }
-            }
-        //}
-
-        if ( allowed ){
-
-            yes3_fmapr_data_element_name = FMAPR.addREDCapForm( 
-                FMAPR.project.form_metadata[k].form_name, 
-                event, 
-                theRowBefore
-            );
-
-            theRowBefore = $(`tr#${FMAPR.dataElementRowId(yes3_fmapr_data_element_name)}`);
-        }
+        theRowBefore = $(`tr#${FMAPR.dataElementRowId(yes3_fmapr_data_element_name)}`);
     }
 }
 
@@ -1896,11 +2142,12 @@ FMAPR.fieldInsertionReportCounts = function()
 {
     let form_name = $('select#yes3-fmapr-fieldinsertion-form').val();
     let event_id = $('select#yes3-fmapr-fieldinsertion-event').val();
+
     let statusDiv = $('div#yes3-fmapr-fieldinsertion-counts');
 
     let counts = FMAPR.enumerateInsertionElements(form_name, event_id);
 
-    // statusDiv.html(`up to ${counts.fields} fields, ${counts.columns} export columns will be inserted.`);
+    statusDiv.html(`Up to ${counts.forms} forms, ${counts.fields} fields and ${counts.columns} columns.`);
 
 }
 
@@ -1935,76 +2182,88 @@ FMAPR.fieldInsertionSetEventSelectListener = function()
 FMAPR.enumerateInsertionElements = function(form_name, event_id)
 {
     //-xxxif ( FMAPR.isVerticalLayout() ){
-        event_id = "all";
+    //    event_id = "all";
     //}
     
     if ( !form_name || !event_id ) {
         return {'fields':0, 'columns':0};
     }
 
-    let fields = 0;
-    let columns = 0;
-    let this_field_name = "";
-    let this_event_id = "";
+    let field_count = 0;
+    let column_count = 0;
     let this_form_name = "";
-    let this_form_index = 0;
-    let element_events = [];
-    let element_event_id = "";
+    let i = 0;
+    let j = 0;
     let k = 0;
+    let forms = [form_name];
+    let form_index = 0;
+
+    /**
+     * 'all forms' really means 'all forms for the selected event'
+     */
+    if ( form_name === "all" ) {
+
+        forms = FMAPR.formsAllowedForEvent( event_id );
+    }
 
     FMAPR.insertionElements = [];
 
-    for (let i=0; i<FMAPR.project.field_metadata.length; i++){
+    FMAPR.insertionForms = [];
 
-        this_field_name = FMAPR.project.field_metadata[i].field_name;
-        this_form_name = FMAPR.project.field_metadata[i].form_name;
-        this_form_index = FMAPR.project.form_index[this_form_name];
+    if ( FMAPR.isVerticalLayout() ){
 
-        if ( form_name === this_form_name || form_name === "all" ){
+        column_count = 1;
+    }
+    else if ( FMAPR.isRepeatedLayout() ){
 
-            element_events = [];
+        column_count = 2;
+    }
 
-            for (j=0; j<FMAPR.project.form_metadata[this_form_index].form_events.length; j++){
+    for (i=0; i<forms.length; i++){
 
-                this_event_id = FMAPR.project.form_metadata[this_form_index].form_events[j].event_id;
+        this_form_name = forms[i];
+        form_index = FMAPR.project.form_index[this_form_name];
+        fields = FMAPR.project.form_metadata[form_index].form_fields;
+        events = FMAPR.project.form_metadata[form_index].form_events;
 
-                if ( event_id === this_event_id || event_id === "all" ){
+        FMAPR.insertionForms.push({
+            redcap_form_name: this_form_name,
+            redcap_event_id: event_id,
+            events: events
+        });
 
-                    element_events.push(this_event_id);
+        for(j=0; j<fields.length; j++){
+
+            field_name = fields[j];
+            
+            if ( field_name !== YES3.moduleProperties.RecordIdField ){
+
+                FMAPR.insertionElements.push({
+                    redcap_form_name: this_form_name,
+                    redcap_field_name: field_name,
+                    redcap_event_id: event_id/*,
+                    events: events*/
+                });
+                field_count++;
+
+                if ( event_id==="all" && FMAPR.isHorizontalLayout()  ){
+
+                    column_count += events.length;
                 }
-            }
+                else {
 
-            if ( element_events.length ){
-
-                /**
-                 * if there is only one event for this field, 'all' is not allowed
-                 */
-                element_event_id = ( element_events.length===1 ) ? element_events[0] : event_id;
-
-                if ( !FMAPR.isSpecificationElement(this_field_name, element_event_id) ){
-
-                    fields++;
-
-                    //-xxxif ( FMAPR.isVerticalLayout() ){
-
-                    //    columns++;
-                    //}
-                    //else {
-
-                        columns += element_events.length;
-                    //}
-
-                    FMAPR.insertionElements.push({
-                        redcap_field_name: this_field_name,
-                        redcap_event_id: element_event_id,
-                        events: element_events
-                    });
+                    column_count++;
                 }
             }
         }
+        
     }
 
-    return {'fields': fields, 'columns': columns};
+    return {
+        'forms': FMAPR.insertionForms.length, 
+        'fields': FMAPR.insertionElements.length, 
+        'columns': column_count
+    };
 }
 
 FMAPR.isSpecificationElement = function(field_name, event_id)
@@ -2236,6 +2495,38 @@ FMAPR.updateStatus = function ()
     FMAPR.showLayoutItems();
 }
 
+FMAPR.formsAllowedForEvent = function(event_id)
+{
+    event_id = event_id || 'all';
+
+    let allowed = true;
+    let j = 0;
+    let forms = [];
+
+    for (let i=0; i<FMAPR.project.form_metadata.length; i++){
+
+        if ( event_id !== 'all' ){
+
+            allowed = false;
+
+            for (j=0; j<FMAPR.project.form_metadata[i].form_events.length; j++){
+
+                if ( FMAPR.project.form_metadata[i].form_events[j].event_id==event_id ){
+
+                    allowed = true;
+                    break;
+                }
+            }
+        }
+        
+        if ( allowed ){
+
+            forms.push(FMAPR.project.form_metadata[i].form_name);
+        }
+    }
+    return forms;
+}
+
 FMAPR.getFormOptionsHtml = function(event_id)
 {
     event_id = event_id || 'all';
@@ -2293,7 +2584,7 @@ FMAPR.getEventOptionsHtml = function(form_name)
 {
     form_name = form_name || 'all';
 
-    let optionHtml = "<option value='all'>all events</option>";
+    let optionHtml = "<option value='all'>all events for form</option>";
 
     if ( form_name==="all" ) {
 
@@ -2566,6 +2857,8 @@ FMAPR.contextMenuRemoveRowSelections = function()
 
     FMAPR.updateStatus();
 
+    FMAPR.ensureNewFieldRowAtEnd();
+
     YES3.contextMenuClose();
 }
 
@@ -2759,7 +3052,7 @@ FMAPR.setExportItemFieldAutoselectInput = function( exportItemField ) {
     exportItemField
         .addClass("yes3-fmapr-listener-set")    
         .autocomplete({
-            source: FMAPR.project.field_autoselect_source,
+            source: ( FMAPR.isRepeatedLayout() ) ? FMAPR.constrainedAutocompleteSource : FMAPR.project.field_autoselect_source,
             minLength: 1,
             select: function(event, ui) {
 
@@ -2954,6 +3247,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
     if ( !FMAPR.buildIsInProgress()) {
 
         FMAPR.markAsDirty();
+        //FMAPR.setRepeatLayoutConstraints();
         FMAPR.ensureNewFieldRowAtEnd();
     }
 
@@ -2982,7 +3276,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
         let optionsHtml = "";
 
         if ( isRawREDCapField && formEvents.length > 1 ){
-            optionsHtml += '<option value="all">all events</option>';
+            optionsHtml += '<option value="all">all events for field</option>';
         }
 
         for ( let e=0; e<formEvents.length; e++ ){
@@ -3081,8 +3375,7 @@ FMAPR.setLovConstantExecute = function() {
 }
 
 FMAPR.loadEventSettings = function()
-{
-        
+{     
     YES3.requestService( { 
         "request": "getEventSettings"
     }, FMAPR.loadloadEventSettingsCallback, true );
@@ -3102,6 +3395,8 @@ FMAPR.loadloadEventSettingsCallback = function( response )
 
 FMAPR.loadSpecifications = function( get_removed )
 {
+    YES3.isBusy( YES3.captions.wait_loading_specifications );
+
     console.log('loadSpecifications');
 
     get_removed = get_removed || 0;
@@ -3138,11 +3433,11 @@ FMAPR.loadSpecificationsCallback = function( response )
 
     FMAPR.displayInitializationElements();
 
+    YES3.notBusy();
+
     if ( FMAPR.reloadParms.export_uuid.length ){
 
         select.val(FMAPR.reloadParms.export_uuid).trigger("change");
-
-        FMAPR.reloadParms.export_uuid = "";
     }
 
     if ( !YES3.initial_help_offered ) {
@@ -3180,6 +3475,16 @@ FMAPR.displayInitializationElements = function()
 FMAPR.loadSpecification = function( log_id )
 {  
     log_id = log_id || 0;
+
+    if ( FMAPR.reloadParms.export_uuid.length ) {
+
+        YES3.isBusy( YES3.captions.wait_reloading_specification );
+        FMAPR.reloadParms.export_uuid = "";
+    }
+    else {
+
+        YES3.isBusy( YES3.captions.wait_loading_specification );
+    }
     
     YES3.requestService( { 
         "request": "getExportSpecification", 
@@ -3202,6 +3507,8 @@ FMAPR.loadSpecificationCallback = function( response )
 
         FMAPR.populateSpecificationTables( response );
     }
+
+    YES3.notBusy();
 }
 
 FMAPR.populateSpecificationTables = function( specification )
@@ -3209,6 +3516,8 @@ FMAPR.populateSpecificationTables = function( specification )
     FMAPR.markAsBuildInProgress();
 
     FMAPR.export_specification = specification;
+
+    FMAPR.setConstrainedAutocompleteSource(); // alternate source for repeaters
 
     FMAPR.populateSettingsTable( specification );
 
@@ -3259,15 +3568,13 @@ FMAPR.displayActionIcons = function()
     if ( FMAPR.export_specification.export_layout==="r" ){
 
         $('i.yes3-fmapr-display-when-not-repeating').addClass('yes3-action-disabled');
-
-        
     }
     else {
 
         $('i.yes3-fmapr-display-when-not-repeating').removeClass('yes3-action-disabled');
     }
 
-    if ( FMAPR.export_specification.export_layout==="r" && $("tr[data-object_type=form]").length > 0 ){
+    if ( FMAPR.export_specification.export_layout==="r" && $("tr.yes3-fmapr-data-element:not(.yes3-fmapr-new-field)").length > 0 ){
 
         $('i.yes3-fmapr-bulk-insert').addClass('yes3-action-disabled');
     }
@@ -3287,6 +3594,11 @@ FMAPR.displayActionIcons = function()
         $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
+    // export to host file system
+    if ( !FMAPR.project.host_filesystem_exports_enabled ){
+
+        $('i.yes3-export-to-host-filesystem-enabled:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
+    }
 }
 
 FMAPR.someBadSettings = function()
@@ -3374,6 +3686,20 @@ FMAPR.populateSettingsTable = function( specification )
     })
     
     exportSettingsContainer.find('.yes3-fmapr-settings-block').show();
+    exportSettingsContainer.find('.hidden').hide();
+
+    let export_layout_text = "";
+
+    if ( specification['export_layout'] === "h" ){
+        export_layout_text = "Horizontal";
+    }
+    if ( specification['export_layout'] === "v" ){
+        export_layout_text = "Vertical";
+    }
+    if ( specification['export_layout'] === "r" ){
+        export_layout_text = "Repeating form";
+    }
+    $("div.yes3-fmapr-export-layout-text").html(export_layout_text);
 
     if ( FMAPR.project.beta ){
 
@@ -3497,9 +3823,12 @@ FMAPR.populateExportItemsTable = function( specification )
 
     FMAPR.ensureNewFieldRowAtEnd();
 
+    //FMAPR.setRepeatLayoutConstraints();
+
     FMAPR.renumberRows();
 
     YES3.displayActionIcons();
+
     FMAPR.displayActionIcons();
 
     return true;
@@ -3796,35 +4125,24 @@ FMAPR.getExportItemsJSON = function()
     }
 
     let item = null;
-
     let tbl = FMAPR.getExportItemsTable();
-
     let itemRows = tbl.find('tr.yes3-fmapr-data-element:not(.yes3-fmapr-new-field');
-
     let itemRow = null;
-
     let lovRows = null;
-
     let lovRow = null;
-
     let i = 0;
-
     let j = 0;
-
     let vMap = null;
-
     let origin = "";
+    let itemError = false;
 
     for (i=0; i<itemRows.length; i++){
 
         itemRow = itemRows.eq(i);
-
         item = Object.create(itemProto);
-
+        itemError = false;
         item.export_item_name = itemRow.data("yes3_fmapr_data_element_name");
-
         item.export_item_origin = itemRow.data("element_origin");
-
         item.uspec_element_value_map = [];
 
         if ( item.export_item_origin==="redcap" ){
@@ -3834,10 +4152,22 @@ FMAPR.getExportItemsJSON = function()
             if ( item.redcap_object_type==="form" ){
 
                 item.redcap_form_name = itemRow.data("form_name");
+
+                // must have a form name
+                if ( !item.redcap_form_name ){
+
+                    itemError = true;
+                }
             }
             else {
 
                 item.redcap_field_name = itemRow.find("input.yes3-fmapr-input-element").val();
+
+                // must have a form name
+                if ( !item.redcap_field_name ){
+
+                    itemError = true;
+                }
             }
 
             /**
@@ -3846,6 +4176,12 @@ FMAPR.getExportItemsJSON = function()
             //-xxxif ( FMAPR.isHorizontalLayout() ) {
 
                 item.redcap_event_id = itemRow.find("select.yes3-fmapr-event-select").val();
+
+                // must have an event
+                if ( !item.redcap_event_id ){
+
+                    itemError = true;
+                }
             //}
         }
         // uSpec elements
@@ -3887,7 +4223,10 @@ FMAPR.getExportItemsJSON = function()
             */
         }
 
-        items.push( item );
+        if ( !itemError ){
+
+            items.push( item );
+        }
     }
 
     console.log('getExportItemsJSON', items);

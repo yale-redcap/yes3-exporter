@@ -207,6 +207,27 @@
             }
         },
         {
+            "key": "enable-user-data-downloads",
+            "name": "Also allow user data downloads",
+            "type": "radio",
+            "required": false,
+            "super-users-only": true,
+            "branchingLogic": {
+                "field": "enable-host-filesystem-exports",
+                "value": "Y"
+            },
+            "choices":[
+                {
+                    "value":"N",
+                    "name":"No"
+                },
+                {
+                    "value":"Y",
+                    "name":"Yes"
+                }
+            ]
+        },
+        {
             "key": "buyer-beware",
             "type" : "descriptive",
             "name": "<h5>CAVEAT EMPTOR</h5><p>See the documention, under 'beta features', for brief descriptions of features under development that are available to designers. There is no guarantee that any beta feature will be moved to production.</p>"

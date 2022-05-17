@@ -4,6 +4,12 @@
 
 <div id="yes3-red-pointer"><i class="fas fa-arrow-right"></i></div>
 
+<!-- plz wait -->
+
+<div id="yes3-busy" class="yes3-panel yes3-draggable" style="display:none">
+    PLEASE WAIT
+</div>
+
 <!-- yesno -->
 
 <div id="yes3-yesno-panel" class="yes3-panel yes3-draggable" style="display:none">
@@ -22,10 +28,10 @@
 
    <div class="yes3-panel-row">
       <div style='float:left'>
-         <input type="button" value="yes, make it so" onClick="YES3.Yes();" class="yes3-panel-button" />
+         <input type="button" onClick="YES3.Yes();" class="yes3-panel-button yes3-button-caption-okay" />
       </div>
       <div style='float:right'>
-         <input type="button" value="no, skip it" onClick="YES3.closePanel('yes3-yesno-panel');" class="yes3-panel-button" />
+         <input type="button" onClick="YES3.closePanel('yes3-yesno-panel');" class="yes3-panel-button yes3-button-caption-cancel" />
       </div>
    </div>
 
