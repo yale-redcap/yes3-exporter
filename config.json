@@ -72,13 +72,68 @@
             {
                 "name": "YES3 Exporter Documentation",
                 "icon": "fab fa-connectdevelop",
-                "url":  "plugins/yes3_exporter_documentation.php",
+                "url":  "plugins/yes3_exporter_documentation.php?doc=README",
+                "target": "blank"
+            },
+            {
+                "name": "YES3 Exporter Changelog",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_exporter_documentation.php?doc=changelog%2Fyes3_exporter_changelog",
                 "target": "blank"
             }
         ]
     },
 
     "system-settings": [
+        {
+            "key":   "system-cron-header",
+            "type" : "descriptive",
+            "name":  "<h5>YES3 EXPORTER CRON JOB</h5><p>The YES3 Exporter perfoms a number daily tasks for each project. By default all of the daily tasks are run at 11 minutes past midnight, but you may specify a different time to run these tasks.</p>"
+        },
+        {
+            "key": "cron-time",
+            "name": "Time to run all daily tasks (hh:mm)",
+            "type": "dropdown",
+            "choices": [
+                {"name":"00:11","value":"00:11:00"},
+                {"name":"01:11","value":"01:11:00"},
+                {"name":"02:11","value":"02:11:00"},
+                {"name":"03:11","value":"03:11:00"},
+                {"name":"04:11","value":"04:11:00"},
+                {"name":"05:11","value":"05:11:00"},
+                {"name":"06:11","value":"06:11:00"},
+                {"name":"07:11","value":"07:11:00"},
+                {"name":"08:11","value":"08:11:00"},
+                {"name":"09:11","value":"09:11:00"},
+                {"name":"10:11","value":"10:11:00"},
+                {"name":"11:11","value":"11:11:00"},
+                {"name":"12:11","value":"12:11:00"},
+                {"name":"13:11","value":"13:11:00"},
+                {"name":"14:11","value":"14:11:00"},
+                {"name":"15:11","value":"15:11:00"},
+                {"name":"16:11","value":"16:11:00"},
+                {"name":"17:11","value":"17:11:00"},
+                {"name":"18:11","value":"18:11:00"},
+                {"name":"19:11","value":"19:11:00"},
+                {"name":"20:11","value":"20:11:00"},
+                {"name":"21:11","value":"21:11:00"},
+                {"name":"22:11","value":"22:11:00"},
+                {"name":"23:11","value":"23:11:00"}
+            ],
+            "required": false
+        },
+        {
+            "key": "cron-ran-at",
+            "name": "The cron job was last run at",
+            "type": "text",
+            "required": false
+        },
+        {
+            "key": "cron-log",
+            "name": "Most recent cron log entry",
+            "type": "textarea",
+            "required": false
+        }
     ],
 
     "project-settings": [
@@ -118,48 +173,8 @@
             }
         },
         {
-            "key": "notification-email-runat",
-            "name": "When to send notifications (default is midnight)",
-            "type": "dropdown",
-            "choices": [
-                {"name":"midnight", "value":"0"},
-                {"name":"1am",  "value":"1"},
-                {"name":"2am",  "value":"2"},
-                {"name":"3am",  "value":"3"},
-                {"name":"4am",  "value":"4"},
-                {"name":"5am",  "value":"5"},
-                {"name":"6am",  "value":"6"},
-                {"name":"7am",  "value":"7"},
-                {"name":"8am",  "value":"8"},
-                {"name":"9am",  "value":"9"},
-                {"name":"10am", "value":"10"},
-                {"name":"11am", "value":"11"},
-                {"name":"noon", "value":"12"},
-                {"name":"1pm",  "value":"13"},
-                {"name":"2pm",  "value":"14"},
-                {"name":"3pm",  "value":"15"},
-                {"name":"4pm",  "value":"16"},
-                {"name":"5pm",  "value":"17"},
-                {"name":"6pm",  "value":"18"},
-                {"name":"7pm",  "value":"19"},
-                {"name":"8pm",  "value":"20"},
-                {"name":"9pm",  "value":"21"},
-                {"name":"10pm", "value":"22"},
-                {"name":"11pm", "value":"23"}
-            ],
-            "required": false,
-            "branchingLogic": {
-                "conditions": [
-                    {
-                        "field": "notification-email-enable",
-                        "value": "Y"        
-                    }
-                ]
-            }
-        },
-        {
-            "key": "notification-email-lastranat",
-            "name": "Time email notifications were last sent",
+            "key": "notification-email-ran-at",
+            "name": "Time email notifications were last sent succesfully",
             "type": "text",
             "required": false,
             "super-users-only": true,
@@ -175,7 +190,7 @@
         {
             "key": "toast-the-host",
             "type" : "descriptive",
-            "name": "<h5>HOST FILE SYSTEM EXPORTS</h5><p>YES3 Exporter can export to the host file system, n.b. to automounts pointing to secure institutional file shares. This will require services from the REDCap host system administrator.</p>",
+            "name": "<h5>HOST FILE SYSTEM EXPORTS</h5><p>YES3 Exporter can export to the host file system, n.b. to automounts pointing to secure institutional file shares. This will require services from your REDCap host system administrator, and the blessing of your Information Security Officer.</p>",
             "super-users-only": true
         },
         {
@@ -228,9 +243,39 @@
             ]
         },
         {
+            "key":   "backup-retention-header",
+            "type" : "descriptive",
+            "name":  "<h5>EXPORT SPECIFICATION BACKUP RETENTION</h5><p>By default, 20 generations are retained for each export specification, and can be restored using the 'undo' feature. You may change this number, or elect to retain all generations.</p>"
+        },
+        {
+            "key": "export-spec-backup-retention",
+            "name": "Specification backups to retain (default is 20)",
+            "type": "dropdown",
+            "choices": [
+                {"name":"20",  "value":"20"},
+                {"name":"40",  "value":"40"},
+                {"name":"60",  "value":"60"},
+                {"name":"80",  "value":"80"},
+                {"name":"100", "value":"100"},
+                {"name":"retain all backups",  "value":"all"}
+            ],
+            "required": false
+        },
+        {
+            "key":   "project-cron-header",
+            "type" : "descriptive",
+            "name":  "<h5>CRON JOBS</h5><p>The YES3 Exporter perfoms a number daily tasks for each project. Below is the daily cron log for this project.</p>"
+        },
+        {
+            "key": "project-cron-log",
+            "name": "Cron log for this project",
+            "type": "textarea",
+            "required": false
+        },
+        {
             "key": "buyer-beware",
             "type" : "descriptive",
-            "name": "<h5>CAVEAT EMPTOR</h5><p>See the documention, under 'beta features', for brief descriptions of features under development that are available to designers. There is no guarantee that any beta feature will be moved to production.</p>"
+            "name": "<h5>CAVEAT EMPTOR</h5><p>See the documention, under 'beta features', for brief descriptions of features under development that are available to designers. There is no guarantee that any beta feature will be moved to production. Feedback on beta features is welcome.</p>"
         },
         {
             "key": "beta",
@@ -257,7 +302,7 @@
             "cron_description": "YES3 Exporter cron manager",
             "method": "yes3_exporter_cron",
             "cron_frequency": "60",
-            "cron_max_run_time": "7200"
+            "cron_max_run_time": "60"
         }
     ],
 

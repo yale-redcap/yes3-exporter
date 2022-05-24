@@ -401,6 +401,10 @@ i.yes3-action-disabled {
     opacity: 0.3 !important;
 }
 
+i.yes3-action-disabled:hover {
+    cursor: not-allowed;
+}
+
 /* === YES3 LOGO === */
 
 img.yes3-logo {

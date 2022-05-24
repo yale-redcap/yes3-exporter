@@ -1,9 +1,9 @@
 <?php
-/*
+
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-*/
+
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 use Yale\Yes3\Yes3;
@@ -12,6 +12,12 @@ use Yale\Yes3\Yes3;
 
 $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();
+/*
+$module->setSystemSetting("cron-ran-at", "");
+$log = $module->yes3_exporter_cron();
+//$log = $module->emailDailyLog();
+exit( nl2br($log) );
+*/
 
 /**
  * getCodeFor will: 

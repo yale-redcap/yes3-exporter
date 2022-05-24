@@ -337,8 +337,11 @@ YES3.openPanel = function(panelName, nonmodal, x, y, atTheTop, toTheLeft)
 
     YES3.maxZ += 1;
 
-    if ( !nonmodal ) $('#yes3-screen-cover').css({'z-index':YES3.maxZ-1}).show(); // places the full-screen overlay just below the panel -->
-    
+    if ( !nonmodal ) {
+        
+        YES3.startModalState(); // places the full-screen overlay just below the panel -->
+    }
+
     if ( x || y ) {
         panel.situate( x, y );
     } else {
@@ -353,9 +356,19 @@ YES3.openPanel = function(panelName, nonmodal, x, y, atTheTop, toTheLeft)
 YES3.closePanel = function(panelName) {
     let panel = $(`#${panelName}`);
     panel.hide();
-    $('#yes3-screen-cover').hide();
+    YES3.endModalState();
     return panel;
 };
+
+YES3.startModalState = function(){
+
+    $('#yes3-screen-cover').css({'z-index':YES3.maxZ-1}).show();;
+}
+
+YES3.endModalState = function(){
+
+    $('#yes3-screen-cover').hide();
+}
 
 YES3.hideContextMenuOnClickOutside = function()
 {
@@ -743,6 +756,29 @@ YES3.setCaptions = function()
     $("input[type=button].yes3-button-caption-close").val(YES3.captions.close);
     $("input[type=button].yes3-button-caption-proceed").val(YES3.captions.proceed);
 }
+
+
+/*** DEBUGGING ***/
+
+window.onerror = function(message, source, lineno, error)
+{ 
+    // make sure the damn cursor is not spinning
+    YES3.notBusy();
+
+    // de-modalize
+    YES3.endModalState();
+
+    let msg = "A Javascript error was encountered! Please take a screen shot and write down exactly what preceded this sorry state."
+        + "<br>-------"
+        + "<br><br>message: " + message
+        + "<br><br>source: " + source
+        + "<br><br>lineno: " + lineno
+        + "<br><br>error: " + error
+    ;
+
+    YES3.hello( msg );
+}
+
 
 /*
 * the approved alternative to $(document).ready()

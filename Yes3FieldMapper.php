@@ -1,11 +1,10 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-/*
+
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-*/
 
 /**
  * an autoloader for Yes3 classes and traits
@@ -19,6 +18,7 @@ require "defines/yes3_defines.php";
 
 use Aws\Result;
 use Exception;
+use PhpParser\Node\Stmt\Continue_;
 use REDCap;
 use ZipArchive;
 use Project;
@@ -52,7 +52,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/services.php');
-            $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php');
+            $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php?doc=README');
             $this->imageUrl = [
                 'dark' => [
                     'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
@@ -518,7 +518,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return $xx;
     }
 
-    private function writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $bytesWritten, $R, $C, $data_file_path, $destination){
+    private function writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $export_layout, $bytesWritten, $R, $C, $data_file_path, $destination){
        
         if ( !$export_target_folder || $destination==="download" ) {
 
@@ -545,11 +545,13 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $project = $this->getProject();
 
         $info = [
+            "host" => APP_PATH_WEBROOT_FULL,
             "timestamp" => strftime("%F %T"),
             "username" => $this->username,
             "project_id" => $project->getProjectId(),
             "project_title" => $project->getTitle(),
             "export_name" => $export_name,
+            "export_layout" => $export_layout,
             "export_uuid" => $export_uuid,
             "export_target_folder" => $export_target_folder,
             "path" => $data_file_path,
@@ -1018,7 +1020,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $export_data_dictionary_response = $this->writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination, $export_layout );
 
-        $export_info_file_response = $this->writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $bytesWritten, $R, $C, $path, $destination);
+        $export_info_file_response = $this->writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $export_layout, $bytesWritten, $R, $C, $path, $destination);
 
         $this->logExport(
             "export files written",
@@ -1315,7 +1317,7 @@ WHERE project_id=? AND log_entry_type=?
         //$xx = Yes3::fetchRecords($sql, $sqlParams);
         //foreach ( $xx as $x ){
 
-            $K++;
+            //$K++;
 
             $x_instance = $x['instance']; if ( !$x_instance ) $x_instance=1;
 
@@ -2228,6 +2230,8 @@ WHERE project_id=? AND log_entry_type=?
                 $spec['export_criterion_value'] = "";
             }
 
+            if ( !is_array($spec) ) return [];
+
             return $spec;
         }
     }
@@ -2266,7 +2270,7 @@ WHERE project_id=? AND log_entry_type=?
 
         for ( $i=0; $i<count($uuids); $i++ ){
 
-            $fields = "log_id, user, removed, setting, export_uuid, export_specification_json";
+            $fields = "log_id, user, removed, setting, export_uuid, timestamp, export_specification_json";
 
             $pSql = "
                 SELECT {$fields}
@@ -2572,6 +2576,11 @@ WHERE project_id=? AND log_entry_type=?
         foreach ($fields as $field){
 
             $form_export_permission = (int)$form_export_permissions[$field['form_name']];
+
+            if ( !$form_export_permission ) {
+
+                continue;
+            }
 
             // phi only allowed for full access
             if ( $form_export_permission !== 1 && $field['field_phi'] === "1" ){
@@ -3012,45 +3021,122 @@ WHERE project_id=? AND log_entry_type=?
 
     /* ==== CRONS ==== */
 
-    public function yes3_exporter_cron( $cronInfo )
+    public function yes3_exporter_cron( $cronInfo=['cron_description'=>"noname"] )
     {
-        //Yes3::logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
+        Yes3::logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
+
+        //return;
+
+        if ( !$this->okayToRunCron() ){
+
+            return "";
+        }
+
+        $cronlog = "Starting the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T");
 
         $originalPid = $_GET['pid'];
 
         foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
 
-            //Yes3::logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
-
             $_GET['pid'] = $localProjectId;
+
+            $projCronLog = "Starting the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T") . " for project #{$localProjectId}";
+
+            $this->project_id = $localProjectId;
+
+            Yes3::logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
 
             // DAILY EMAIL
 
-            $settingPrefix = "notification-email";
+            if ( $this->getProjectSetting("notification-email-enable")==="Y" ){
 
-            if ( $this->okayToRunJob( $settingPrefix ) ){
-
-                if ( $this->emailDailyLog() ) {
-
-                    $this->setProjectSetting($settingPrefix . "-lastranat", strftime("%F %T"));
-                }
+                $projCronLog .= "\n" . $this->cronJob( "emailDailyLog" );
             }
+
+            // HOUSEKEEPING
+
+            $projCronLog .= "\n" . $this->cronJob( "hk_generations" );
+
+            // PROJECT CRON LOG
+
+            $projCronLog .= "\nEnding the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T") . " for project #{$localProjectId}";
+
+            $cronlog .= "\n" . $projCronLog;
+    
+            $this->setProjectSetting("project-cron-log", $projCronLog);
         }
     
         $_GET['pid'] = $originalPid;
+
+        // SYSTEM CRON TIME AND LOG
+
+        $cronlog .= "\nEnding the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T") . "\n";
+
+        $this->setSystemSetting("cron-ran-at", strftime("%F %T"));
+        $this->setSystemSetting("cron-log", $cronlog);
     
-        return "The \"{$cronInfo['cron_description']}\" cron job completed successfully.";
+        return $cronlog;
     }
 
-    private function okayToRunJob( $settingPrefix )
+    private function cronJob( $methodName )
     {
-        if ( $this->getProjectSetting($settingPrefix . "-enable") !== "Y" ){
+        try {
+
+            $cronLog = $this->$methodName();
+        } 
+        catch( \Exception $e ){
+
+            $cronLog = "{$methodName} ERROR: " . $e->getMessage();
+            $this->logException( "{$methodName} cron job exception", $e);
+        }
+
+        return $cronLog;
+    }
+
+    /**
+     * Ensures cron runs once per 24 hour interval
+     * 
+     * function: okayToRunCron
+     * 
+     * 
+     * @return int|false
+     * @throws Exception
+     */
+    private function okayToRunCron()
+    {
+        $t = time();
+        
+        $cron_ran_at = $this->getSystemSetting("cron-ran-at");
+        if ( $cron_ran_at ) {
+
+            if ( $t - strtotime($cron_ran_at) < ONE_DAY ){
+
+                return false; // ran within the past 24 hours
+            }
+        }
+
+        $cron_time = $this->getSystemSetting("cron-time"); // hh:mm:ss to run job
+        if ( !$cron_time ) {
+
+            $cron_time = "00:11:00";
+            $this->setSystemSetting("cron-time", $cron_time);
+        }
+        $runAt = strtotime( strftime("%F")." ".$cron_time ); // today's cron run time
+
+        return ( $t >= $runAt );
+    }
+
+    private function okayToRunJob( $settingPrefix, $alwaysEnabled = false )
+    {
+        if ( !$alwaysEnabled && $this->getProjectSetting($settingPrefix . "-enable") !== "Y" ){
 
             return false;
         }
 
-        // the hour of day to run this job
-        $runAt = (int) $this->getProjectSetting($settingPrefix . "-runat") ?? 0;
+        // the hour of day to run this job, default 11pm
+        $runAt = (int) $this->getProjectSetting($settingPrefix . "-runat");
+
+        if ( !$runAt ) $runAt = 23;
 
         $theTime = time();
 
@@ -3058,15 +3144,24 @@ WHERE project_id=? AND log_entry_type=?
 
         $theHour = (int)strftime("%H", $theTime);
 
-        $lastRunTime = strtotime($this->getProjectSetting($settingPrefix . "-lastranat"));
+        $lastRanAt = $this->getProjectSetting($settingPrefix . "-lastranat");
 
-        //Yes3::logDebugMessage($this->getProjectId(), "{$runAt}, {$theDay}, {$theHour}, {$lastRunTime}", "yes3_exporter_cron");
+        if ( !$lastRanAt ){
+
+            $lastRunTime = 0; 
+        }
+        else {
+ 
+            $lastRunTime = strtotime($lastRanAt);
+        }
 
         // never run
         if ( !$lastRunTime ){
 
-            return ( $theHour >= $runAt ) ? true:false;
-            //return true; // run immediately
+            Yes3::logDebugMessage($this->getProjectId(), "{$settingPrefix}: {$runAt}, {$theDay}, {$theHour}, {$lastRunTime}", "yes3_exporter_cron");
+
+            //return ( $theHour >= $runAt ) ? true:false;
+            return true; // run immediately
         }
 
         $lastRunDay = strftime("%F", $lastRunTime);
@@ -3079,7 +3174,7 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( !$to = $this->getProjectSetting('notification-email') ){
 
-            return false;
+            return "Cannot email daily log summary: no email address is provided.";
         }
 
         $sincewhen = strftime("%F %T", time()-ONE_DAY);
@@ -3088,7 +3183,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $bcc = "";
 
-        $project_contact = $this->getProjectContact();
+        $project_contact = $this->getProjectContact(); // as stored in project settings
 
         if ( $project_contact['project_contact_email'] ){
 
@@ -3154,7 +3249,14 @@ WHERE project_id=? AND log_entry_type=?
         $msg .= '</tbody></table>';
 
         $msg .= "</body></html>";
-
+        /*
+        print "to=" . $to
+            . "<br>from=" . $from
+            . "<br>subject=" . $subject
+            . "<br>msg=<br>" . $msg
+            . "<br>fromName=" . $fromName
+        ;
+        */
         $result = \REDCap::email( 
             
             $to,
@@ -3167,7 +3269,14 @@ WHERE project_id=? AND log_entry_type=?
 
         );
 
-        return $result;
+        if ( $result ){
+
+            $this->setProjectSetting("notification-email-ran-at", strftime("%F %T"));
+
+            return "The daily activity log summary was emailed to {$to}.";
+        }
+
+        return "The daily activity log summary was NOT emailed.";
     }
 
     private function getProjectContact()
@@ -3186,6 +3295,107 @@ WHERE project_id=? AND log_entry_type=?
 
         return "<{$TdOrTh} style='padding-right:15px;text-align:left'>{$content}</{$TdOrTh}>";
     }
+
+    /* ==== DAILY HOUSEKEEPING ==== */
+
+    public function hk_generations()
+    {
+        $nGens = $this->getProjectSetting("export-spec-backup-retention");
+
+        if ( $nGens === "all" ) return "hk_generations: Nothing to do since project is configured to retain all backups.";
+
+        $log = "";
+
+        $exports = $this->getExportSpecificationList(); if ( !$exports ) $exports=[];
+
+        if ( !count($exports) ) return "hk_generations: Nothing to do since project has no export backups saved.";
+
+        Yes3::logDebugMessage($this->getProjectId(), print_r($exports, true), "hk_generations");
+
+        foreach($exports as $export){
+
+            $specification_history = $this->getExportSpecification($export['export_uuid'], 0, true);
+            
+            $nHx = count($specification_history);
+
+            if ( $log ) $log .= "\n";
+
+            $log .= "export_uuid=" . $export['export_uuid'] . ", export_name=" . $export['export_name'] . ", generation count=" . $nHx;
+
+            $theDamned = [];
+
+            $k= 0;
+            foreach ( $specification_history as $hx) {
+        
+                $log_id = $hx['log_id'];
+
+                $k++;
+
+                if ( $k > $nGens ){
+
+                    $theDamned[] = $log_id;
+                }
+            }
+            
+            $log .= ": " . count($theDamned) . " generations removed.";
+        }
+        return $log;
+    }
+
+    public function getExportSpecificationList($get_removed=""):array
+    {
+       /**
+         * Distinct export specifications best determined by direct query
+         */
+        $sqlUUID = "
+        SELECT DISTINCT p01.`value` AS `export_uuid`
+        FROM redcap_external_modules_log x
+        INNER JOIN redcap_external_modules_log_parameters p01 ON p01.log_id=x.log_id AND p01.name='export_uuid'
+        WHERE x.project_id=? and x.message=?
+        ";
+
+        $UUIDs = Yes3::fetchRecords($sqlUUID, [$this->getProjectId(), EMLOG_MSG_EXPORT_SPECIFICATION]);
+
+        $data = [];
+
+        foreach($UUIDs as $u){
+
+            $s = $this->getExportSpecification($u['export_uuid']);
+
+            if ( $s['removed']==='0' || $get_removed ) {
+
+                $data[] = [
+                    'timestamp' => $s['timestamp'],
+                    'log_id' => $s['log_id'],
+                    'export_uuid' => $s['export_uuid'],
+                    'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                    'export_layout' => $s['export_layout'],
+                    'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
+                    'removed' => $s['removed']
+                ];
+            }
+        }
+
+        return $data;
+    }
+
+    public function countExportItems( $export_items_json )
+    {
+        if ( !$export_items_json ){
+
+            return "0";
+        }
+
+        $elements = json_decode( $export_items_json, true );
+
+        if ( !is_array($elements) ){
+
+            return "err";
+        }
+
+        return (string) count( $elements );
+    }
+
    
     /* ==== HOOKS ==== */
 

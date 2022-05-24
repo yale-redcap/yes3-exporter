@@ -193,4 +193,29 @@ trait Yes3Trait {
         return $s;
     }
 
+        /* ==== ERROR LOGGING ==== */
+
+        public function logException( string $message, \Exception $e )
+        {
+            $exceptionReport = "message: " . $e->getMessage()
+                . "\nFile: " . $e->getFile()
+                . "\nLine: " . $e->getLine()
+                . "\nTrace: " . $e->getTraceAsString()
+            ;
+    
+            $params = [
+                'username' => $this->username,
+                'log_entry_type' => EMLOG_ERROR_REPORT,
+                'exception_report' => $exceptionReport,
+            ];
+    
+            $log_id = $this->log(
+                $message,
+                $params
+            );
+    
+            return $log_id;
+        }
+    
+
 }

@@ -170,7 +170,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-undo yes3-action-icon"></i>
                     </td>
                     <td>
-                        Restore the specification to a prior version (undo).
+                        Restore the export specification to a prior version.
                     </td>
                 </tr>
                 

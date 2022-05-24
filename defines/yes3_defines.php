@@ -8,6 +8,7 @@ define('MAX_LABEL_LEN', 128);
 
 define('EMLOG_MSG_EXPORT_SPECIFICATION', 'yes3-export-specification');
 define('EMLOG_LOG_ENTRY_TYPE', 'yes3-export-log');
+define('EMLOG_ERROR_REPORT', 'yes3-export-error-report');
 
 define('VARNAME_GROUP_ID',   'redcap_data_access_group_id');
 define('VARNAME_GROUP_NAME', 'redcap_data_access_group');

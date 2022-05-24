@@ -477,6 +477,7 @@ FMAPR.setConstrainedAutocompleteSource = function(){
 
     let okay = 0;
     let form_name = "";
+    let isRepeating = false;
 
     for (let i=0; i<FMAPR.project.field_metadata.length; i++){
 
@@ -490,8 +491,14 @@ FMAPR.setConstrainedAutocompleteSource = function(){
         }
         else {
 
-            okay = FMAPR.project.form_metadata[FMAPR.project.form_index[form_name]].form_repeating;
-            //console.log('setConstrainedAutocompleteSource', FMAPR.project.field_autoselect_source[i].value, form_name, okay);
+            try {
+
+                okay = FMAPR.project.form_metadata[FMAPR.project.form_index[form_name]].form_repeating;
+            } catch(error){
+
+                console.log('setConstrainedAutocompleteSource:ERROR resolving form_repeating property for form [' + form_name + '].');
+                okay = 0;
+            }
         }
 
         if ( okay===1 ){
@@ -618,6 +625,10 @@ YES3.Functions.addRawREDCapField = function( element, theRowBefore, batchMode, n
         let elementRow = $(`tr.yes3-fmapr-data-element[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
 
         let itemREDCapField = elementRow.find('input[data-mapitem=redcap_field_name]:first');
+
+        let itemLabel = FMAPR.project.field_metadata[FMAPR.project.field_index[element.redcap_field_name]].field_label;
+
+        elementRow.prop("title", "[" + element.redcap_field_name + "] " + itemLabel);
 
         itemREDCapField.val( element.redcap_field_name );
 
@@ -3057,15 +3068,23 @@ FMAPR.setExportItemFieldAutoselectInput = function( exportItemField ) {
             select: function(event, ui) {
 
                 if (!ui.item) {
-                    exportItemField.val("");
+                    exportItemField
+                        .val("")
+                        .prop("title", "")
+                    ;
                     return false;
                 }
 
-                exportItemField.val(ui.item.value);
+                exportItemField
+                    .val(ui.item.value)
+                    .prop("title", ui.item.label)
+                ;
 
                 return false;
             }
-            //, change: function(event, ui){
+            , change: function(event, ui){
+
+                exportItemField.prop("title", ui.item.label);
 
             //    if (ui.item == null || ui.item == undefined) {
 
@@ -3076,7 +3095,7 @@ FMAPR.setExportItemFieldAutoselectInput = function( exportItemField ) {
 
             //        FMAPR.REDCapFieldOnChange( exportItemField );
             //    }
-            //}
+            }
         })
         .on("change", function(){
 
@@ -3599,6 +3618,9 @@ FMAPR.displayActionIcons = function()
 
         $('i.yes3-export-to-host-filesystem-enabled:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
+
+    // make sure disabled icons are unbound
+    YES3.setActionIconListeners( YES3.container() );
 }
 
 FMAPR.someBadSettings = function()
@@ -4312,6 +4334,11 @@ FMAPR.validateAndReportExportUspecJson = function()
     }
 }
 
+$(window).resize( function() {
+
+    FMAPR.resizeExportItemsTable();
+})
+
 /*** ANONYMOUS TIME ***/
 
 /**
@@ -4333,11 +4360,6 @@ $(document).on('yes3-fmapr.settings', function(){
      * Start the AJAX chain by loading the event prefixes
      */
      FMAPR.loadEventSettings();
-})
-
-$(window).resize( function() {
-
-    FMAPR.resizeExportItemsTable();
 })
 
 /**
