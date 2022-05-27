@@ -80,6 +80,14 @@
     --yes3-fmapr-new-item-label-color: seagreen;
 }
 
+th i.yes3-fmapr-item-editor {
+    color: var(--yes3-th-title-color);
+}
+
+td i.yes3-fmapr-item-editor {
+    color: var(--yes3-color);
+}
+
 div.yes3-fmapr td.yes3-gutter-left, div.yes3-fmapr th.yes3-gutter-left {
     width: var(--yes3-fmapr-gutter-width); 
     min-width: var(--yes3-fmapr-gutter-width); 

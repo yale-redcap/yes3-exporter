@@ -979,10 +979,10 @@ $module->getCodeFor("yes3_export_editor", true);
 
                 <tr>
                     <th class='yes3-header yes3-fmapr-row-number'>&nbsp;</th>
-                    <th class='yes3-header yes3-3'>Export specification element</th>
-                    <th class='yes3-header yes3-3'>REDCap study field</th>
-                    <th class='yes3-header yes3-3'><span class='yes3-fmapr-horizontal-only-xxx'>REDCap event(s)</span></th>
-                    <th class='yes3-header yes3-gutter-right'>&nbsp;</th>
+                    <th class='yes3-header colspan="4" yes3-th-title'>Forms and Fields to Export (click <i class="fas fa-edit yes3-fmapr-item-editor"></i> to edit)</th>
+                    <!--th class='yes3-header yes3-3'>&nbsp;</th>
+                    <th class='yes3-header yes3-3'><span class='yes3-fmapr-horizontal-only-xxx'>&nbsp;</span></th>
+                    <th class='yes3-header yes3-gutter-right'>&nbsp;</th-->
                 </tr>
                 
             </thead>

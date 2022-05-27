@@ -1,41 +1,53 @@
 
 html {
-    --yes3-font-size: 14px;
 /*
-    --yes3-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-input-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
-    --yes3-input-font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
-    --yes3-alert-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-message-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
-    --yes3-button-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+--yes3-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-contextmenu-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-input-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-alert-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-td-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-message-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-button-font-family: "Segoe UI semibold","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+--yes3-title-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
 */
-    --yes3-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
-    --yes3-input-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
-    --yes3-alert-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
-    --yes3-message-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
-    --yes3-button-font-family: "Segoe UI local","Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
 
-    --yes3-font-weight: normal;
-    --yes3-td-font-weight: normal;
+/*
+   --yes3-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-contextmenu-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-input-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-alert-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-td-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-message-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-button-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-title-font-family: "Segoe UI","Frutiger","Frutiger Linotype","Dejavu Sans",Helvetica,Arial,sans-serif;
+   --yes3-light-font-family: "Segoe UI Light", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+   --yes3-semibold-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+   --yes3-bold-font-family: "Segoe UI Bold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+*/
+   --yes3-font-family: "Open Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Helvetica,Arial,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 
-    --yes3-button-font-weight: 600;
-    --yes3-input-font-weight: 400;
+   --yes3-font-size: 14px;
+   --yes3-input-font-size: 14px;
+   --yes3-contextmenu-font-size: 13px;
+   --yes3-panel-font-size: 14px;
 
-    --yes3-semibold-font-family: "Segoe UI Semibold", Segoe, "DejaVu Sans", "Trebuchet MS", Verdana, sans-serif;
+   --yes3-font-weight-light: 200;
+   --yes3-font-weight-normal: 400;
+   --yes3-font-weight-semibold: 600;
+   --yes3-font-weight-bold: 700;
 
-    --yes3-padding: 5px;
-    --yes3-margin: 10px;
-    --yes3-input-font-size: 1rem;
+   --yes3-font-weight: var(--yes3-font-weight-semibold);
+   --yes3-td-font-weight: var(--yes3-font-weight-semibold);
+   --yes3-button-font-weight: var(--yes3-font-weight-semibold);
+   --yes3-input-font-weight: var(--yes3-font-weight-semibold);
+
+   --yes3-padding: 5px;
+   --yes3-margin: 10px;
       
-    --yes3-block-height: 50px;
+   --yes3-block-height: 50px;
 
-    --yes3-item-description-width: 175px;
-    --yes3-item-gutter-width: 30px;
-
-    --yes3-contextmenu-font-size: 14px;
-
-    --yes3-panel-font-size: 15px;
+   --yes3-item-description-width: 175px;
+   --yes3-item-gutter-width: 30px;
 }
 
 [data-theme="light"] {
@@ -144,12 +156,13 @@ html {
     --yes3-table-value-color: darkgreen;
     --yes3-td-color: darkslategrey;
     --yes3-th-color: white;
+    --yes3-th-title-color: cornsilk;
     --yes3-th-background-color: rgb(7, 55, 65);
     --yes3-th-border-color: rgb(7, 55, 65);
 
     --yes3-highlight-color: darkslategray;
  
-    --yes3-title-color: rgb(7, 55, 65);;
+    --yes3-title-color: rgb(7, 55, 65);
     --yes3-subtitle-color: darkcyan;
  
     --yes3-contextmenu-title-color: darkcyan;
@@ -261,6 +274,7 @@ html {
     --yes3-table-value-color: darkturquoise;
     --yes3-td-color: #a4a1a1;
     --yes3-th-color: linen;
+    --yes3-th-title-color: cornsilk;
     --yes3-th-background-color: black;
     --yes3-th-border-color: linen;
 
@@ -276,12 +290,7 @@ pre {
     background-color: var(--yes3-pre-background-color) !important;
     border-color: var(--yes3-pre-border-color) !important;
     color: var(--yes3-pre-color) !important;
-    font-size: 1rem !important;
-}
-
-html {
-    font-family: var(--yes3-font-family) !important;
-    font-size: var(--yes3-font-size) !important;
+    font-size: 1em !important;
 }
 
 label:not(.yes3-override) {
@@ -290,11 +299,11 @@ label:not(.yes3-override) {
 }
 
 p {
-    font-size: 1rem;
+    font-size: 1em;
 }
 
 ::placeholder {
-    font-size: 0.9rem;
+    font-size: 0.9em;
     opacity: 0.65;
 }
 
@@ -304,10 +313,10 @@ p {
 
 .yes3-theme-switch {
     display: inline-block;
-    height: 1.5rem;
+    height: 1.5em;
     position: relative;
-    width: 1.5rem;
-    margin-left: 0.5rem;
+    width: 1.5em;
+    margin-left: 0.5em;
     margin-bottom: 0 !important;
 }
 
@@ -324,15 +333,15 @@ p {
     right: 0;
     top: 0;
     transition: .4s;
-    height: 1.5rem;
+    height: 1.5em;
 }
 
 .yes3-theme-slider:before {
     background-color: #fff;
-    bottom: 0.375rem;
+    bottom: 0.375em;
     content: "";
-    height: 0.75rem;
-    width: 0.75rem;
+    height: 0.75em;
+    width: 0.75em;
     left: 1px;
     position: absolute;
     transition: .4s;
@@ -343,22 +352,31 @@ input:checked + .yes3-theme-slider {
 }
 
 input:checked + .yes3-theme-slider:before {
-    transform: translateX( calc( 0.75rem - 2px ) );
+    transform: translateX( calc( 0.75em - 2px ) );
 }
 
 .yes3-theme-slider.round {
-    border-radius: .75rem;
+    border-radius: .75em;
 }
 
 .yes3-theme-slider.round:before {
-    border-radius: .375rem;
+    border-radius: .375em;
+}
+
+/* === default font families and weights === */
+
+.yes3-panel, #yes3-container
+{
+  /*font-family: var(--yes3-font-family);*/
+   font-size: var(--yes3-font-size);
+   font-weight: var(--yes3-font-weight);
 }
 
 /* === ACTION ICON SUPPORT === */
 
 .yes3-dirty {
     color: var(--yes3-alert-color) !important;
-    font-size: 2.5rem !important;
+    font-size: 2.5em !important;
 }
 
 i.yes3-action-icon:not(.yes3-action-icon-light) {
@@ -378,22 +396,22 @@ i.yes3-action-icon-controlpanel {
     margin-top:0;
     margin-bottom: 0;
     margin-right: 0;
-    margin-left: 0.75rem;
+    margin-left: 0.5em;
 }
 
 i.yes3-action-icon:not(.yes3-action-icon-inline):not(.yes3-dirty){
-    font-size: 1.5rem !important;
+    font-size: 1.5em !important;
 }
 
 i.yes3-action-icon-inline {
-    font-size: 1rem !important;
-    line-height: 1rem !important;
+    font-size: 1em !important;
+    line-height: 1em !important;
     margin: 0 !important;
 }
 
 i.yes3-action-icon-gutter {
-    font-size: 1.25rem;
-    line-height: 1.25rem;
+    font-size: 1.5em;
+    line-height: 1.5em;
     margin: 0 !important;
 }
 
@@ -540,15 +558,15 @@ div#yes3-red-pointer {
 
 .yes3-controls select {
 
-    font-size: 1rem;
+    font-size: 1em;
 
     color: var(--yes3-control-color);
     background-color: var(--yes3-control-background-color);
 
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 
     border: 1px solid var(--yes3-control-border-color);
     border-radius: 4px;
@@ -558,15 +576,15 @@ div#yes3-red-pointer {
 
 .yes3-controls input[type=date] {
 
-    font-size: 1rem;
+    font-size: 1em;
 
     color: var(--yes3-control-color);
     background-color: var(--yes3-control-background-color);
 
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 
     border: 1px solid var(--yes3-control-border-color);
     border-radius: 4px;
@@ -605,8 +623,8 @@ div#yes3-red-pointer {
  
  .yes3-config-panel-title {
     width: 100%;
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.2em;
+    font-weight: var(--yes3-font-weight-semibold);
  }
  
  .yes3-config-panel-description {
@@ -712,7 +730,7 @@ div#yes3-red-pointer {
     padding: var(--yes3-padding);
     border: 1px solid var(--yes3-input-border-color);
     color: var(--yes3-input-color);
-    font-family: var(--yes3-input-font-family);
+    /*font-family: var(--yes3-input-font-family); */
     font-weight: var(--yes3-input-font-weight);
     border-radius: 4px;
  }
@@ -725,7 +743,7 @@ div#yes3-red-pointer {
     padding: var(--yes3-padding);
     border: 1px solid transparent;
     color: var(--yes3-input-color);
-    font-family: var(--yes3-input-font-family);
+    /*font-family: var(--yes3-input-font-family); */
     font-weight: var(--yes3-input-font-weight);
     width: 100%;
  }
@@ -785,19 +803,20 @@ div#yes3-red-pointer {
  }
 
  .yes3-single-spaced-vcenter {
-     height: 1rem !important;
-     line-height: 1rem !important;
+     height: 1em !important;
+     line-height: 1em !important;
  }
 
  input[type=text].yes3-input-integer {
-     width: 10rem !important;
+     width: 10em !important;
  }
  
  input[type=button].yes3-large-button {
     float: left;
     margin: 0;
     color: var(--yes3-button-color);
-    font-family: var(--yes3-input-font-family);
+    
+    /*font-family: var(--yes3-input-font-family); */
     font-weight: var(--yes3-button-font-weight);
     background-color: var(--yes3-button-background-color);
     padding-left: calc(6 * var(--yes3-padding));
@@ -844,14 +863,14 @@ div#yes3-red-pointer {
  }
 
  select.yes3-select {
-    font-size: 1rem;
+    font-size: 1em;
     color: var(--yes3-input-color);
     background-color: var(--yes3-input-background-color);
     border: 1px solid var(--yes3-input-border-color);
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
     border-radius: 4px;
     width: 100%;
     line-height: 0 !important;
@@ -866,9 +885,9 @@ div#yes3-red-pointer {
  }
  
  table#yes3-project-settings td {
-    font-size: 0.8rem;
-    height: 0.9rem;
-    line-height: 0.9rem;
+    font-size: 0.8em;
+    height: 0.9em;
+    line-height: 0.9em;
     vertical-align: top;
  }
  
@@ -893,7 +912,7 @@ div#yes3-red-pointer {
 div.yes3-information {
     width: 100%;
     color: var(--yes3-information-color);
-    font-family: var(--yes3-font-family);
+   /*font-family: var(--yes3-font-family);*/
     font-size: var(--yes3-font-size);
     font-weight: var(--yes3-font-weight);
     margin-top: calc( 2*var(--yes3-margin));
@@ -901,40 +920,38 @@ div.yes3-information {
 
 div.yes3-information h1 {
     color: var(--yes3-information-color);
-    font-family: var(--yes3-font-family);
-    font-weight: 600;
+   /*font-family: var(--yes3-font-family);*/
+    font-weight: var(--yes3-font-weight-semibold);
     font-size: var(--yes3-font-size);
 }
 
 div.yes3-information p {
     color: var(--yes3-information-color);
-    font-family: var(--yes3-font-family);
-    font-weight: 400;
+   /*font-family: var(--yes3-font-family);*/
+   /* font-weight: var(--yes3-font-weight); ; */
     font-size: var(--yes3-font-size);
 }
 
 .yes3-information-em {
     color: var(--yes3-information-em-color) !important;
-    font-family: var(--yes3-font-family) !important;
-    font-weight: 600 !important;
+    font-weight: var(--yes3-font-weight-semibold) !important;
 }
 
 .yes3-information-em-light {
     color: var(--yes3-information-em-color) !important;
-    font-family: var(--yes3-font-family) !important;
-    font-weight: 400 !important;
+    font-weight: var(--yes3-font-weight); !important;
 }
 
 .yes3-information a {
     color: var(--yes3-information-em-color);
-    font-family: var(--yes3-font-family);
+   /*font-family: var(--yes3-font-family);*/
     font-style: italic;
     text-decoration: none;
 }
 
 .yes3-information a:hover {
     color: var(--yes3-alert-color);
-    font-family: var(--yes3-font-family);
+   /*font-family: var(--yes3-font-family);*/
     font-style: italic;
     text-decoration: underline;
 }
@@ -942,20 +959,17 @@ div.yes3-information p {
 div#yes3-message {
     display: none;
     color: var(--yes3-message-color);
-    font-family: var(--yes3-message-font-family);
-    font-size: 1rem;
+    font-size: 1em;
     width: 100%;
  }
  
  div#yes3-message a {
     text-decoration: underline;
     color: var(--yes3-message-color);
-    font-family: var(--yes3-message-font-family);
  }
  
  span.yes3-required {
     color: var(--yes3-alert-color);
-    font-family: var(--yes3-alert-font-family);
  }
  
  .yes3-alert {
@@ -983,7 +997,7 @@ td:nth-child(1).yes3-error::before {
     content: "\2639"; /* frowny face */
     font-size: calc( 2 * var(--yes3-input-font-size) - 4px );
     margin-right: 4px;
-    font-weight: 400 !important;
+    font-weight: var(--yes3-font-weight); !important;
     vertical-align: middle;
 }
 
@@ -998,7 +1012,7 @@ table:not(.yes3-removed) .yes3-if-removed {
 table.yes3-removed .yes3-if-removed {
     display: block;
     color: var(--yes3-error-color) !important;
-    font-weight: 600 !important;    
+    font-weight: font-weight: var(--yes3-font-weight-semibold); !important;    
 }
 
  .yes3-config-italicized-subdued {
@@ -1049,7 +1063,6 @@ i.yes3-selected {
 
  div.yes3-contextmenu-panel-row {
     font-size: var(--yes3-contextmenu-font-size) !important;
-    font-family: var(--yes3-contextmenu-font-family) !important;
     float: left;
     clear: both;
     width: 100%;
@@ -1104,38 +1117,36 @@ i.yes3-selected {
  }
  
  .yes3-panel-header-row {
-    font-family: inherit;
-    font-size: 2rem;
+   /*font-family: var(--yes3-font-family);*/
+    font-size: 2em;
     color: var(--yes3-panel-title-color);
-    font-weight: 200;
+    font-weight: var(--yes3-font-weight-light);
     float: left;
     clear: both;
     width: 100%;
     margin-top: 0;
     margin-bottom: var(--yes3-margin);
     cursor: move;
-    height: 2rem;
-    line-height: 2rem;
+    height: 2em;
+    line-height: 2em;
  }
  
  .yes3-panel-header-highlight {
     color: var(--yes3-panel-header-highlight-color);
-    font-weight: 200;
+    font-weight: var(--yes3-font-weight-light);
  }
  
  .yes3-panel-title {
-    font-family: inherit;
-    font-size: 2rem;
+    font-size: 2em;
     color: var(--yes3-panel-title-color);
-    font-weight: 200;
+    font-weight: var(--yes3-font-weight-light);
     font-style: normal;
  }
  
  .yes3-panel-subtitle {
-    font-family: inherit;
-    font-size: 1.2rem;
+    font-size: 1.2em;
     color: var(--yes3-panel-subtitle-color);
-    font-weight: 500;
+    font-weight: var(--yes3-font-weight-semibold);
     font-style: normal;
  }
  
@@ -1152,10 +1163,10 @@ i.yes3-selected {
  }
  
  .yes3-panel-content {
-    font-family: inherit;
+   /*font-family: var(--yes3-font-family);*/
     color: inherit;
     font-size: inherit;
-    font-weight: 400;
+   /* font-weight: var(--yes3-font-weight); ; */
     float: left;
     clear: both;
     width: 100%;
@@ -1168,10 +1179,11 @@ i.yes3-selected {
  .yes3-panel-top-row,
  .yes3-panel-bottom-row,
  .yes3-panel-message {
-    font-family: inherit;
+    /*
+   /*font-family: var(--yes3-font-family);*/
     color: inherit;
-    font-size: 1rem;
-    font-weight: 400;
+    font-size: 1em;
+   font-weight: var(--yes3-font-weight); ; */
     float: left;
     clear: both;
     width: 100%;
@@ -1200,7 +1212,6 @@ i.yes3-selected {
     color: var(--yes3-panel-message-color);
     margin-top: calc( 3 * var(--yes3-margin) );
     margin-bottom: var(--yes3-margin);
-    font-family: var(--yes3-panel-message-font-family);
  }
  
  div.yes3-panel-row-left {
@@ -1227,7 +1238,7 @@ i.yes3-selected {
  }
  
  .yes3-panel-row a {
-    font-family: inherit;
+   /*font-family: var(--yes3-font-family);*/
     color: inherit;
     font-size: inherit;
     text-decoration: underline;
@@ -1238,12 +1249,12 @@ i.yes3-selected {
  }
  
  .yes3-panel label:not(.yes3-checkmarkContainer) {
-    font-weight: 600;
+    font-weight: var(--yes3-font-weight-semibold);
     color: var(--yes3-input-label-color);
  }
  
  div.yes3-panel ul ul {
-    font-weight: 600;
+    font-weight: var(--yes3-font-weight-semibold);
     opacity: 85%;
  }
  
@@ -1293,7 +1304,6 @@ i.yes3-selected {
     color: var(--yes3-button-color);
     background-color: var(--yes3-button-background-color);
     border-color: var(--yes3-button-border-color);
-    font-family: var(--yes3-button-font-family);
  }
  
  input[type=button].yes3-button:hover {
@@ -1315,7 +1325,7 @@ i.yes3-selected {
 
 .yes3-panel-between-the-buttons div {
     width: 0;
-    height: 1.5rem;
+    height: 1.5em;
     border: 0;
     color: var(--yes3-panel-form-button-background-color);
     background-color: var(--yes3-panel-form-button-color);
@@ -1328,7 +1338,6 @@ i.yes3-selected {
     border-bottom: 1px solid transparent;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
-    font-family: var(--yes3-td-font-family);
  }
  
  .yes3-panel td {
@@ -1342,7 +1351,6 @@ i.yes3-selected {
  }
  
  .yes3-alert-message {
-    font-family: var(--yes3-alert-font-family);
     color: var(--yes3-alert-color);
  }
 
@@ -1362,7 +1370,7 @@ i.yes3-selected {
     -ms-user-select: none;
     user-select: none;
     */
-    font-family: var(--yes3-semibold-font-family);
+   /*font-family: var(--yes3-font-family);*/
     color: var(--yes3-input-label-color);
     /*font-size: 0.9rem;*/
  
@@ -1454,16 +1462,16 @@ i.yes3-selected {
  }
  
  .yes3-title {
-    font-size: 2rem;
+    font-size: 2em;
     font-weight: 800;
     color: var(--yes3-title-color);
  }
  
  .yes3-subtitle {
-    font-size: 2rem;
-    font-weight: 100;
+    font-size: 2em;
+    font-weight: var(--yes3-font-weight-light);
     letter-spacing: -1px;
-    word-spacing: -3px;
+    word-spacing: -2px;
     color: var(--yes3-title-color);
  }
  
@@ -1563,25 +1571,29 @@ i.yes3-selected {
  }
  
  table.yes3-dashboard th {
-    color: var(--yes3-th-color);
-    font-family: var(--yes3-font-family) !important;
     font-weight:  var(--yes3-font-weight) !important;
-    font-size: 1rem;
-    height: 3rem;
-    font-weight: 400;
+    font-size: 1em;
+    height: 3em;
     background-color: transparent;
  }
- 
+
+table.yes3-dashboard th.yes3-th-title {
+   color: var(--yes3-th-title-color);
+}
+
+table.yes3-dashboard th:not(.yes3-th-title) {
+   color: var(--yes3-th-color);
+}
+
  table.yes3-dashboard td, .yes3-dashboard-td {
     color: var(--yes3-td-color);
     background-color: var(--yes3-table-background-color);
     font-size: var(--yes3-font-size);
-    font-family: var(--yes3-font-family) !important;
     font-weight:  var(--yes3-font-weight) !important;
     border-top: 0;
     border-left: 0;
     border-right: 0;
-    height: calc( 2 * var(--yes3-input-font-size) + 2 * var(--yes3-padding) );
+    /*height: calc( 2 * var(--yes3-input-font-size) + 2 * var(--yes3-padding) );*/
  }
 
  table.yes3-dashboard tr:not(:last-child) td {
@@ -1592,7 +1604,7 @@ i.yes3-selected {
  table.yes3-dashboard td input[type=text], 
  table.yes3-settings td input[type=text] 
  {
-     font-family: var(--yes3-input-font-family);
+     /*font-family: var(--yes3-input-font-family); */
      font-size: var(--yes3-input-font-size);
      font-weight: var(--yes3-input-font-weight);
      color: var(--yes3-input-color);
@@ -1609,7 +1621,7 @@ i.yes3-selected {
  table.yes3-dashboard td select,  
  table.yes3-settings td select 
  {
-     font-family: var(--yes3-input-font-family);
+     /*font-family: var(--yes3-input-font-family); */
      font-size: var(--yes3-input-font-size);
      font-weight: var(--yes3-input-font-weight);
      color: var(--yes3-input-color);

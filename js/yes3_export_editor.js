@@ -3232,6 +3232,8 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
  FMAPR.setRawREDCapPseudoElementName = function(yes3_fmapr_data_element_name)
  {
     let theRow = $(`tr#${FMAPR.dataElementRowId(yes3_fmapr_data_element_name)}`);
+
+    let row_number = theRow.find("td.yes3-fmapr-row-number").text();
     
     let object_type = theRow.data("object_type");
     
@@ -3241,23 +3243,25 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
 
     let pseudoName = "";
 
+    let editControl = "";
+
     if ( object_type==="form" ) {
 
         pseudoName = "form: " + object_name;
     }
     else if ( FMAPR.export_specification.export_layout !== "h" ){
 
-        pseudoName = object_name;
+        pseudoName = "field: " + object_name;
     }
     else if ( event_id && object_name ){
 
         if ( event_id === "all" ){
 
-            pseudoName = "*_" + object_name;
+            pseudoName = "field: " + "*_" + object_name;
         }
         else {
 
-            pseudoName = FMAPR.rawRawREDCapElementName( object_name, event_id );
+            pseudoName = "field: " + FMAPR.rawRawREDCapElementName( object_name, event_id );
         }
     }
 
@@ -3265,7 +3269,9 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
 
         if ( pseudoName.length ){
 
-            theRow.find('span.yes3-fmapr-redcap-element').html( pseudoName );
+            editControl = `<i class="fas fa-edit yes3-fmapr-item-editor" onclick="FMAPR.editExportItem('${row_number}', '${object_type}', '${object_name}', '${event_id}');"></i>`;
+
+            theRow.find('span.yes3-fmapr-redcap-element').html( editControl + "&nbsp;&nbsp;" + pseudoName );
         }
     }
     else {
