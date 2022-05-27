@@ -47,7 +47,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
                 <tr>
                     <td>
-                        <i class="far fa-save yes3-action-icon"></i>
+                        <i class="far fa-save yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Save the export event prefixes.
@@ -56,7 +56,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
                 
                 <tr>
                     <td>
-                        <i class="fas fa-undo yes3-action-icon"></i>
+                        <i class="fas fa-undo yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Restore all the settings on this page to their stored values (undo).
@@ -65,7 +65,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
                 <tr>
                     <td>
-                        <i class="fas fa-question yes3-action-icon"></i>
+                        <i class="fas fa-question yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Display this Help panel.
@@ -74,7 +74,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
                 
                 <tr class="yes3-light-theme-only">
                     <td>
-                        <i class="fas fa-moon yes3-action-icon"></i>
+                        <i class="fas fa-moon yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Switch to dark theme.
@@ -83,7 +83,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
                 
                 <tr class="yes3-dark-theme-only">
                     <td>
-                        <i class="fas fa-sun yes3-action-icon"></i>
+                        <i class="fas fa-sun yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Switch to light theme.
@@ -145,21 +145,21 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
     <div class="row yes3-fmapr-controls">
 
-        <div class="col-md-4 yes3-flex-vcenter-hleft">
+        <div class="col-lg-6 yes3-flex-vcenter-hleft">
 
             <div>
-                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Export Settings</span>
+                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Exporter&nbsp;Event&nbsp;Prefixes</span>
             </div>
 
         </div>
 
-        <div class="col-md-4 yes3-flex-vcenter-hcenter">
+        <div class="col-lg-3 yes3-flex-vcenter-hcenter">
 
             <div id="yes3-message"></div>
 
         </div>
 
-        <div class="col-md-4  yes3-flex-vcenter-hright">
+        <div class="col-lg-3  yes3-flex-vcenter-hright">
 
             <i class="far fa-save yes3-action-icon yes3-action-icon-controlpanel yes3-designer-only yes3-save-control" id="yes3-fmapr-save-control" action="Exportspecifications_saveSettings" title="Save all settings on this page."></i>
             <i class="fas fa-undo yes3-action-icon yes3-action-icon-controlpanel yes3-fmapr-display-when-dirty yes3-designer-only" action="Exportspecifications_undoSettings" title="Restore all settings on this page to their stored values (undo)."></i>
@@ -167,6 +167,8 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
             <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
             <i class="fas fa-sun yes3-action-icon yes3-action-icon-controlpanel yes3-dark-theme-only" action="Theme_light" title="Switch to the sunny side"></i>
+
+            <img class="yes3-square-logo yes3-logo" alt="YES3 Logo" title="More about YES3..." />
 
         </div>
 
@@ -176,9 +178,9 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
     <div class="row yes3-fmapr">
 
-        <div class="col-md-2">&nbsp;</div>
+        <div class="col-lg-2">&nbsp;</div>
 
-        <div class="col-md-8 yes3-fmapr-longitudinal-only yes3-fmapr-setup-settings">
+        <div class="col-lg-8 yes3-fmapr-longitudinal-only yes3-fmapr-setup-settings">
 
             <div class="yes3-information">
                 <h1>Event prefixes</h1>
@@ -213,7 +215,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
         </div>
 
-        <div class="col-md-2">&nbsp;</div>
+        <div class="col-lg-2">&nbsp;</div>
 
     </div>
 

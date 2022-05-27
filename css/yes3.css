@@ -43,13 +43,13 @@ html {
     color-scheme: light;
 
     --yes3-color: rgb(7, 55, 65);
-    --yes3-background-color: linen;
+    --yes3-background-color: white;
 
     --yes3-border-color: #000000;
     --yes3-divider-color: cadetblue;
 
     --yes3-input-color: black;
-    --yes3-input-background-color: floralwhite;
+    --yes3-input-background-color: #faf9f9;
     --yes3-input-border-color: grey; 
     --yes3-input-label-color: darkslategrey;
  
@@ -378,7 +378,7 @@ i.yes3-action-icon-controlpanel {
     margin-top:0;
     margin-bottom: 0;
     margin-right: 0;
-    margin-left: 1rem;
+    margin-left: 0.75rem;
 }
 
 i.yes3-action-icon:not(.yes3-action-icon-inline):not(.yes3-dirty){
@@ -1092,6 +1092,11 @@ i.yes3-selected {
  .yes3-panel a {
     color: var(--yes3-panel-color) !important;
  }
+
+ .yes3-panel ol li:not(:first-child) {
+
+   margin-top: 8px;
+ }
  
  .yes3-panel a:hover {
     outline: none !important;
@@ -1567,7 +1572,7 @@ i.yes3-selected {
     background-color: transparent;
  }
  
- table.yes3-dashboard td {
+ table.yes3-dashboard td, .yes3-dashboard-td {
     color: var(--yes3-td-color);
     background-color: var(--yes3-table-background-color);
     font-size: var(--yes3-font-size);
@@ -1576,7 +1581,7 @@ i.yes3-selected {
     border-top: 0;
     border-left: 0;
     border-right: 0;
-    height: calc( 2 * var(--yes3-input-font-size) + 2 * var(--yes3-padding) + 2px );
+    height: calc( 2 * var(--yes3-input-font-size) + 2 * var(--yes3-padding) );
  }
 
  table.yes3-dashboard tr:not(:last-child) td {

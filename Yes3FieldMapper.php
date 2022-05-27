@@ -16,9 +16,7 @@ require "autoload.php";
  */
 require "defines/yes3_defines.php";
 
-use Aws\Result;
 use Exception;
-use PhpParser\Node\Stmt\Continue_;
 use REDCap;
 use ZipArchive;
 use Project;
@@ -32,6 +30,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $serviceUrl = "";
     public $imageUrl = [];
     public $documentationUrl = "";
+    public $changelogUrl = "";
     public $form_export_permissions = [];
     private $token = "";
     private $salt = "";
@@ -53,6 +52,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/services.php');
             $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php?doc=README');
+            $this->changelogUrl = $this->getUrl('plugins/yes3_exporter_documentation.php?doc=changelog%2Fyes3_exporter_changelog');
             $this->imageUrl = [
                 'dark' => [
                     'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
@@ -828,8 +828,17 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                 throw new Exception("Cannot proceed with the export or download, because the selection field, event and/or value is missing.");
             }
+            /*
+            if ( $export_layout==="h"){
 
-            $critXOperators = [ "=>", "<=", "=", "<", ">"];
+                $critXFieldMetadata = $dd[$dd_index[$ddPackage['export_criterion_field'][$ddPackage['export_criterion_event']]]];
+            }
+            else {
+
+                $critXFieldMetadata = $dd[$dd_index[$ddPackage['export_criterion_field']]];
+            }
+            */
+            $critXOperators = [ ">=", "<=", "<>", "=", "<", ">"];
 
             $sqlCritXParams = [];
 
@@ -845,7 +854,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
              */
             if ( strpos($critXVal, ',') !== false ){
 
-                $valParts = explode($critXVal, ",");
+                $valParts = explode(",", $critXVal);
 
                 $critXQList = "";
 
@@ -866,9 +875,15 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                     }
                 }
 
-                $critXQ = $critXOp . "?";
+                if ( strlen($critXVal)>0 && is_numeric($critXVal) ){
 
-                $sqlCritXParams[] = $critXVal;
+                    $critXQ = $critXOp . intval($critXVal);
+                }
+                else {
+
+                    $critXQ = $critXOp . "?";
+                    $sqlCritXParams[] = $critXVal;
+                }
             }
 
             if ( $export_group_id ){
@@ -877,7 +892,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 SELECT DISTINCT d.`record`
                 FROM redcap_data d
                 INNER JOIN redcap_data dg ON dg.`project_id`=d.`project_id` AND dg.`event_id`=d.`event_id` AND dg.`record`=d.`record` AND dg.`field_name`='__GROUPID__'
-                WHERE d.`project_id`=? AND dg.`value`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` {$critXQ}";
+                WHERE d.`project_id`=? AND dg.`value`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}";
 
                 $sqlParams = array_merge([ $this->project_id, $export_group_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
             }
@@ -886,7 +901,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $sql = "
                 SELECT DISTINCT d.`record`
                 FROM redcap_data d
-                WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` {$critXQ}";
+                WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}";
 
                 $sqlParams = array_merge([$this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
             }
@@ -919,6 +934,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         }
 
         //$sql .= " LIMIT 10";
+
+        Yes3::logDebugMessage($this->getProjectId(), $sql, "writeExportFiles: CritX SQL");
+        Yes3::logDebugMessage($this->getProjectId(), implode(",", $sqlParams), "writeExportFiles: CritX Params");
+        //Yes3::logDebugMessage($this->getProjectId(), print_r($critXFieldMetadata, true), "writeExportFiles: CritX Metadata");
 
         $records = [];
         $all_numeric = true;
@@ -2020,6 +2039,8 @@ WHERE project_id=? AND log_entry_type=?
     {
         $uRights = $this->yes3UserRights();
 
+        Yes3::logDebugMessage($this->project_id, print_r($specification, true), "confirmSpecificationPermissions: spec");
+
         /**
          * specification properties useful here:
          * 
@@ -2055,6 +2076,8 @@ WHERE project_id=? AND log_entry_type=?
          * similarly, the list of allowed fields is field_index returned by getFieldMetadataStructures()
          */
         $allowed_fields = array_keys( $this->getFieldMetadataStructures()['field_index'] );
+
+        Yes3::logDebugMessage($this->project_id, print_r($allowed_fields, true), "confirmSpecificationPermissions: allowed_fields");
  
         /**
          * the forms and fields to be exported are recorded in spec.export_items
@@ -2509,7 +2532,13 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( \REDCap::isLongitudinal() ) {
 
-                $sql .= " AND m.form_name IN(SELECT DISTINCT form_name FROM redcap_events_forms WHERE project_id=?)";
+                $sql .= " AND m.form_name IN("
+                ."SELECT DISTINCT ef.form_name"
+                ." FROM redcap_events_forms ef"
+                ." INNER JOIN redcap_events_metadata em ON em.event_id=ef.event_id"
+                ." INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id"
+                ." WHERE ea.project_id=?"
+                .")";
                 $params[] = $this->project_id;
             }
         }
@@ -2520,6 +2549,8 @@ WHERE project_id=? AND log_entry_type=?
         }
 
         $sql .= " ORDER BY m.field_order";
+
+        Yes3::logDebugMessage($this->project_id, $sql, "getFormDataEntryFieldMetadata:" . $form_name);
 
         return Yes3::fetchRecords($sql, $params);
     }
@@ -3023,7 +3054,7 @@ WHERE project_id=? AND log_entry_type=?
 
     public function yes3_exporter_cron( $cronInfo=['cron_description'=>"noname"] )
     {
-        Yes3::logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
+        //Yes3::logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
 
         //return;
 
@@ -3044,7 +3075,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $this->project_id = $localProjectId;
 
-            Yes3::logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
+            //Yes3::logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
 
             // DAILY EMAIL
 
@@ -3158,7 +3189,7 @@ WHERE project_id=? AND log_entry_type=?
         // never run
         if ( !$lastRunTime ){
 
-            Yes3::logDebugMessage($this->getProjectId(), "{$settingPrefix}: {$runAt}, {$theDay}, {$theHour}, {$lastRunTime}", "yes3_exporter_cron");
+            //Yes3::logDebugMessage($this->getProjectId(), "{$settingPrefix}: {$runAt}, {$theDay}, {$theHour}, {$lastRunTime}", "yes3_exporter_cron");
 
             //return ( $theHour >= $runAt ) ? true:false;
             return true; // run immediately
@@ -3310,7 +3341,7 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( !count($exports) ) return "hk_generations: Nothing to do since project has no export backups saved.";
 
-        Yes3::logDebugMessage($this->getProjectId(), print_r($exports, true), "hk_generations");
+        //Yes3::logDebugMessage($this->getProjectId(), print_r($exports, true), "hk_generations");
 
         foreach($exports as $export){
 

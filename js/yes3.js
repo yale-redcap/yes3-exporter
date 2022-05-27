@@ -486,7 +486,7 @@ YES3.setActionIconListeners = function(parentElement)
 
     $("i.yes3-action-icon").off();
 
-    $("i.yes3-action-icon:not(.yes3-action-disabled)").on("click", function(){
+    $("i.yes3-action-icon:not(.yes3-action-disabled):not(.yes3-nohandler)").on("click", function(){
 
         let action = $(this).attr("action");
 
@@ -565,10 +565,15 @@ YES3.Help_hasGotIt = function()
     return (typeof gotIt === "string" && gotIt === 'got-it') ? true : false;
 }
  
- YES3.Help_openReadMe = function()
- {
-     YES3.openPopupWindow( YES3.moduleProperties.documentationUrl ); 
- } 
+YES3.Help_openReadMe = function()
+{
+    YES3.openPopupWindow( YES3.moduleProperties.documentationUrl ); 
+} 
+ 
+YES3.Help_openChangeLog = function()
+{
+    YES3.openPopupWindow( YES3.moduleProperties.changelogUrl ); 
+} 
 
 /*
     === THEME ===

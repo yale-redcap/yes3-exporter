@@ -12,9 +12,9 @@
     --yes3-fmapr-input-border-color: lightgrey;
 
     --yes3-fmapr-redcap-element-color: slategray;
-    --yes3-fmapr-redcap-field-color: seagreen;
-    --yes3-fmapr-redcap-form-color: darkgoldenrod;
-    --yes3-fmapr-specmap-color: cadetblue;
+    --yes3-fmapr-redcap-field-color: rgb(24, 75, 46);
+    --yes3-fmapr-redcap-form-color: steelblue;
+    --yes3-fmapr-specmap-color: rgb(49, 84, 85);
 
     --yes3-fmapr-gutter-width: 30px;
 
@@ -22,7 +22,7 @@
     --yes3-fmapr-control-background-color: white;
     --yes3-fmapr-control-border-color: rgb(7, 55, 65);
 
-    --yes3-fmapr-dirty-color: orangered;
+    --yes3-fmapr-dirty-color: indianred;
 
     --yes3-fmapr-message-color-normal: rgb(7, 55, 65);
     --yes3-fmapr-message-color-urgent: indianred;
@@ -35,7 +35,7 @@
 
     --yes3-fmapr-action-icon-color: rgb(7, 55, 65);
 
-    --yes3-fmapr-new-item-label-color: dodgerblue;
+    --yes3-fmapr-new-item-label-color: darkcyan;
 }
 
 [data-theme="dark"] {
@@ -316,7 +316,7 @@ div.row.yes3-fmapr-controls {
     border: 1px solid var(--yes3-fmapr-control-border-color);
     border-radius: 4px;
 
-    width: 100%;
+    width: calc(100% - 10rem);
 }
 
 .yes3-fmapr-controls input[type=button] {

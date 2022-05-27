@@ -1,8 +1,28 @@
+
 # YES3 Exporter Change Log
 
-## Version 0.7.3
+**Version 0.7.5 May 25, 2022**
 
-May 18, 2022
+1. Bug fix: The selection criterion value "list" syntax failed with no records selected.
+2. Bug fix: The selection criterion expression permitted a "=>" operator instead of ">=".
+3. Added "<>" to the set of allowed operators for the selection criterion.
+4. The selection criterion filter will perform numeric comparisons if the operand is numeric.
+5. UI: 'labels always sanitized' note added to editor.
+6. UI: The download dialog will now display a note about user data downloads being disabled, where appropriate.
+7. UI: A detailed help popup is available from the form insertion panel.
+8. Bug fix: It was possible to create duplicate export names in the settings editor.
+9. When a backup is loaded by the wayback, a message is displayed admonishing the user to save it in order to accept the selection.
+10. Confirmation is now required if you attempt to select another export while there are unsaved changes.
+11. Bug fix: Invalid REDCap field names were not always handled properly after change.
+12. YES3 logo added to the event preefix and log plugins.
+13. Bug fix: Action icons embedded in help popups were assigned click handlers.
+
+**Version 0.7.4 May 23, 2022**
+
+1. Cron manager 'yes3_exporter_cron' redesigned. Now scheduled/reported in system settings instead of project settings. More consistent exception handling for cron tasks.
+2. New housekeeping function 'hk_generations' to cull old export specification backups.
+
+**Version 0.7.3 May 18, 2022**
 
 1. Bug fix: Action icons that appeared to be disabled would under certain circumstances respond to clicks.
 2. Bug fix: Opening an export spec for a repeating layout would crash if the user was denied view or export rights on any form in the project.
@@ -10,13 +30,11 @@ May 18, 2022
 4. Bug fix: the count of data values written was incorrect in the logs (double counted).
 5. New plugin for displaying module markdown files, motivated by Parsedown apparently not supporting GitHub-flavored TOC tags. Uses GitHub CSS for light and dark themes, and has a sidebar TOC for navigation. Sidebar vanishes at the Bootstrap 'small' breakpoint. A vague plan is afoot to move all YES3 module documentation to a Docusaurus site.
 
-## Version 0.7.2
-
-May 14, 2022
+**Version 0.7.2 May 14, 2022**
 
 1. Yes3::ellipsis() replaced by Yes3::truncate in all metadata contexts (ellipses taking up too much space when maxlen is small)
 2. Label sanitation function now strips all html tags, instead of just the 'dangerous' tags.
-3. Bug fix: UTF8 characters not rendering properly in MS Excel, because of missing byte order mark (BOM)
+3. Bug fix: UTF8 characters not rendering properly in MS Excel and other apps, because of missing byte order mark (BOM)
 4. Bug fix: it was possible, by blanking already-saved fields, to save an item with form or field name blank
 5. Bug fix: bulk insertion was not inserting above the selected field. Fixed to act consistently with the 'paste' function, if a single field is selected when the bulk insert is activated.
 6. Modal 'busy' message broadcast with 'wait' cursor style, for time-consuming AJAX processes (loading spec, saving spec, exporting data)

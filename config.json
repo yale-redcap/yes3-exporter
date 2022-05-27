@@ -55,7 +55,7 @@
     "links": {
         "project": [
             {
-                "name": "YES3 Exporter Editor and Downloads",
+                "name": "YES3 Exporter Main",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_editor.php"
             },
@@ -73,12 +73,6 @@
                 "name": "YES3 Exporter Documentation",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_exporter_documentation.php?doc=README",
-                "target": "blank"
-            },
-            {
-                "name": "YES3 Exporter Changelog",
-                "icon": "fab fa-connectdevelop",
-                "url":  "plugins/yes3_exporter_documentation.php?doc=changelog%2Fyes3_exporter_changelog",
                 "target": "blank"
             }
         ]
@@ -162,7 +156,7 @@
             "key": "notification-email",
             "name": "Email address for notifications",
             "type": "email",
-            "required": false,
+            "required": true,
             "branchingLogic": {
                 "conditions": [
                     {
@@ -245,7 +239,7 @@
         {
             "key":   "backup-retention-header",
             "type" : "descriptive",
-            "name":  "<h5>EXPORT SPECIFICATION BACKUP RETENTION</h5><p>By default, 20 generations are retained for each export specification, and can be restored using the 'undo' feature. You may change this number, or elect to retain all generations.</p>"
+            "name":  "<h5>BACKUP RETENTION</h5><p>By default, 20 generations of each export specification are retained, and can be restored using the 'undo' feature. You may change this number, or elect to retain all generations.</p>"
         },
         {
             "key": "export-spec-backup-retention",

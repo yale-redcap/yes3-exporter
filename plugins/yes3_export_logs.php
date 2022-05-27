@@ -112,7 +112,7 @@ $module->getCodeFor("yes3_export_logs", true);
             <tbody>               
             <tr>
                     <td>
-                    <i class="fas fa-download yes3-action-icon yes3-action-icon-inline" action="downloadExportLog" title="Download all logs for the selected export specification."></i>
+                    <i class="fas fa-download yes3-action-icon yes3-action-icon-inline yes3-nohandler" action="downloadExportLog" title="Download all logs for the selected export specification."></i>
                     </td>
                     <td>
                         Download all the logs for the selected export.
@@ -121,7 +121,7 @@ $module->getCodeFor("yes3_export_logs", true);
 
                 <tr>
                     <td>
-                        <i class="fas fa-eye"></i>
+                        <i class="fas fa-eye yes3-nohandler"></i>
                     </td>
                     <td>
                         View the selected export log record.
@@ -190,21 +190,21 @@ $module->getCodeFor("yes3_export_logs", true);
 
     <div class="row yes3-controls yes3-flex-container-evenly-distributed yes3-look-out-below">
 
-        <div class="col-md-4 yes3-flex-vcenter-hleft">
+        <div class="col-lg-4 yes3-flex-vcenter-hleft">
 
             <div>
-                <span class="yes3-title">YES3</span>&nbsp;<span class="yes3-subtitle">Export Log</span>
+                <span class="yes3-title">YES3</span>&nbsp;<span class="yes3-subtitle">Exporter&nbsp;Logs</span>
             </div>
 
         </div>
 
-        <div class="col-md-4 yes3-flex-vcenter-hcenter">
+        <div class="col-lg-4 yes3-flex-vcenter-hcenter">
 
             <div id="yes3-message"></div>
 
         </div>
 
-        <div class="col-md-4 yes3-flex-vcenter-hright">
+        <div class="col-lg-4 yes3-flex-vcenter-hright">
 
             <i class="fas fa-download yes3-action-icon yes3-action-icon-controlpanel yes3-loaded" action="downloadExportLog" title="Download all logs for the selected export specification."></i>
 
@@ -213,6 +213,7 @@ $module->getCodeFor("yes3_export_logs", true);
             <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
             <i class="fas fa-sun yes3-action-icon yes3-action-icon-controlpanel yes3-dark-theme-only" action="Theme_light" title="Switch to the light theme"></i>
 
+            <img class="yes3-square-logo yes3-logo" alt="YES3 Logo" title="More about YES3..." />
 
         </div>
 
@@ -222,13 +223,13 @@ $module->getCodeFor("yes3_export_logs", true);
 
     <div class="row yes3-controls yes3-look-out-below">
 
-        <div class="col-md-3">
+        <div class="col-lg-3">
 
             <select id="export_uuid" onchange="FMAPR.exportUUIDSelect()"></select>
 
         </div>
 
-        <div class="col-md-3">
+        <div class="col-lg-3">
 
             <select id="export_username" onchange="FMAPR.exportConstraintSelect()">
                 <option value="">all users</option>
@@ -236,7 +237,7 @@ $module->getCodeFor("yes3_export_logs", true);
 
         </div>
 
-        <div class="col-md-6 yes3-flex-container">
+        <div class="col-lg-6 yes3-flex-container">
 
             <div class="yes3-flex-vcenter-hleft">
                 &nbsp;from&nbsp;<input type="date" id="export_date0" onchange="FMAPR.exportConstraintSelect()" title="Start of date range"/>
@@ -254,7 +255,7 @@ $module->getCodeFor("yes3_export_logs", true);
 
     <div class="row">
 
-        <div class="col-md-12">
+        <div class="col-lg-12">
 
         <table class="yes3-scrollable yes3-dashboard" id="yes3-fmapr-export-log-table">
 

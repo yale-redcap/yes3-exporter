@@ -30,6 +30,21 @@ FMAPR.tooltips = {
  * Be sure to use the full YES3.Functions namespace
  */
 
+
+YES3.Functions.Help_formInsertion = function()
+{
+    let thePanel = YES3.openPanel("yes3-fmapr-form-insertion-help-panel", true);
+
+    if ( YES3.moduleProperties.isLongitudinal ){
+        thePanel.find(".yes3-fmapr-longitudinal-only").show();
+        thePanel.find(".yes3-fmapr-crossectional-only").hide(); 
+    }
+    else {
+        thePanel.find(".yes3-fmapr-longitudinal-only").hide();
+        thePanel.find(".yes3-fmapr-crossectional-only").show(); 
+    }
+}
+
 YES3.Functions.Help_criterionValue = function()
 {
     let thePanel = YES3.openPanel("yes3-fmapr-criterion-value-help-panel", true);
@@ -75,6 +90,11 @@ YES3.Functions.Help_criterionValue = function()
 FMAPR.closeHelpCriterionValueForm = function()
 {
     YES3.closePanel("yes3-fmapr-criterion-value-help-panel");
+}
+
+FMAPR.closeHelpFormInsertionForm = function()
+{
+    YES3.closePanel("yes3-fmapr-form-insertion-help-panel");
 }
 
 FMAPR.valueSetList = function( field_type, field_valueset )
@@ -142,6 +162,22 @@ FMAPR.NewExport_closePanel = function()
     YES3.closePanel("yes3-fmapr-new-export-form");
 }
 
+FMAPR.exportNameAlreadyExists = function(export_name)
+{
+    let dupes = 0;
+
+    $('select#export_uuid option').each(function(){
+
+        if ( $(this).text().toLowerCase() === export_name.toLowerCase() ){
+
+            dupes++;
+            return false;
+        }
+    })
+
+    return dupes;  
+}
+
 FMAPR.NewExport_execute = function()
 {
     let new_export_uuid = YES3.uuidv4();
@@ -165,7 +201,7 @@ FMAPR.NewExport_execute = function()
         }
     })
 
-    if ( dupes ){
+    if ( FMAPR.exportNameAlreadyExists(new_export_name) ){
 
         YES3.hello(`No can do: an export named '${new_export_name}' aleady exists.`);
         return false;
@@ -246,10 +282,12 @@ YES3.Functions.openDownloadForm = function()
     if ( FMAPR.project.user_data_downloads_disabled ){
 
         thePanel.find(".yes3-fmapr-data-download-enabled").hide();
+        thePanel.find(".yes3-fmapr-data-download-disabled").show();
     }
     else {
 
         thePanel.find(".yes3-fmapr-data-download-enabled").show();
+        thePanel.find(".yes3-fmapr-data-download-disabled").hide();
     }
 }
 
@@ -722,8 +760,6 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBefore )
 YES3.Functions.saveExportSpecification = function(auditOnly) 
 {
     auditOnly = auditOnly || false;
-
-    YES3.isBusy( YES3.captions.wait_saving_specification );
     
     let settingsContainer = FMAPR.getExportSettingsContainer();
 
@@ -802,6 +838,8 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
     }
  
     if ( !auditOnly ){
+
+        YES3.isBusy( YES3.captions.wait_saving_specification );
         
         console.log( 'saveExportSpecification', postParams );
 
@@ -812,6 +850,8 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
 FMAPR.saveExportSpecificationCallback = function( response ){
   
     console.log( 'saveExportSpecificationCallback', response );
+
+    YES3.notBusy();
 
     if ( FMAPR.reloadParms.export_uuid.length > 0 ){
 
@@ -825,8 +865,6 @@ FMAPR.saveExportSpecificationCallback = function( response ){
 
         FMAPR.markAsClean(true);
     }
-
-    YES3.notBusy();
 }
 
 /*** EXPORT ***/
@@ -982,11 +1020,12 @@ FMAPR.Wayback_Execute = function()
 
     FMAPR.loadSpecification(log_id);
 
-    FMAPR.Wayback_closeForm();
+    FMAPR.Wayback_closeForm(log_id);
 }
 
-FMAPR.Wayback_closeForm = function()
+FMAPR.Wayback_closeForm = function(log_id)
 {
+    log_id = log_id || 0;
 
     let y = $(window).innerHeight()/2;
 
@@ -1015,6 +1054,11 @@ FMAPR.Wayback_closeForm = function()
             });
         }
     });
+
+    if ( log_id ){
+
+        YES3.hello("The selected backup has been loaded. You must now save it if you want to accept it as the export specification.");
+    }
 }
 
  /*
@@ -3058,7 +3102,7 @@ FMAPR.copiedRowCount = function()
  
  }
 
-FMAPR.setExportItemFieldAutoselectInput = function( exportItemField ) {
+FMAPR.setExportItemFieldAutoselectInput_legacy = function( exportItemField ) {
 
     exportItemField
         .addClass("yes3-fmapr-listener-set")    
@@ -3120,11 +3164,63 @@ FMAPR.setExportItemFieldAutoselectInput = function( exportItemField ) {
     ;
 }
 
+FMAPR.setExportItemFieldAutoselectInput = function( exportItemField ) {
+
+    exportItemField
+        .addClass("yes3-fmapr-listener-set")    
+        .autocomplete({
+            source: ( FMAPR.isRepeatedLayout() ) ? FMAPR.constrainedAutocompleteSource : FMAPR.project.field_autoselect_source,
+            minLength: 1,
+            select: function(event, ui) {
+
+                if (!ui.item) {
+                    exportItemField
+                        .val("")
+                        .prop("title", "")
+                    ;
+                    return false;
+                }
+
+                exportItemField
+                    .val(ui.item.value)
+                    .prop("title", ui.item.label)
+                ;
+
+                return false;
+            }
+        }
+    );
+}
+
+
 FMAPR.setExportItemFieldAutoselectInputs = function() {
 
     let tbl = FMAPR.getExportItemsTable();
 
-    tbl.find('input[type=text].yes3_fmapr_field_autocomplete:not(.yes3-fmapr-listener-set)')    
+    tbl.find('input[type=text].yes3_fmapr_field_autocomplete:not(.yes3-fmapr-listener-set)')
+    .off()
+    .on('change', function(){
+
+        let fieldName = $(this).val();
+
+        if ( !fieldName ){
+
+            return false;
+        }
+
+        if ( !FMAPR.project.field_index[fieldName] && fieldName.indexOf('constant:')===-1) {
+
+            YES3.hello(`'${$(this).val()}' is not a valid field name.`);
+            
+            // blank out both the field and the event
+            $(this).val("");
+            $(this).closest("tr").find("select[data-mapitem=redcap_event_id]").val("");
+        }
+        else {
+
+            FMAPR.REDCapFieldOnChange( $(this) );
+        }
+    })    
     .each(function () {
         
         $(this).addClass('yes3-fmapr-listener-set');
@@ -3491,19 +3587,42 @@ FMAPR.displayInitializationElements = function()
     }
 }
 
+FMAPR.exportUUIDOnSelect = function()
+{
+    if ( YES3.dirty ){
+
+        YES3.YesNo(
+            "WARNING! There are unsaved changes that will be lost if you open another export. Are you sure that you would like to proceed, and open another export?"
+            , FMAPR.proceedWithExportSelection
+            , FMAPR.cancelExportSelection
+        );
+    }
+    else {
+
+        FMAPR.proceedWithExportSelection();
+    }
+}
+
+FMAPR.proceedWithExportSelection = function()
+{
+    FMAPR.loadSpecification();
+}
+
+FMAPR.cancelExportSelection = function()
+{
+    $("select#export_uuid").val(FMAPR.export_specification.export_uuid);
+}
+
 FMAPR.loadSpecification = function( log_id )
 {  
     log_id = log_id || 0;
 
     if ( FMAPR.reloadParms.export_uuid.length ) {
 
-        YES3.isBusy( YES3.captions.wait_reloading_specification );
         FMAPR.reloadParms.export_uuid = "";
     }
-    else {
 
-        YES3.isBusy( YES3.captions.wait_loading_specification );
-    }
+    YES3.isBusy( YES3.captions.wait_loading_specification );
     
     YES3.requestService( { 
         "request": "getExportSpecification", 
@@ -3516,6 +3635,14 @@ FMAPR.loadSpecificationCallback = function( response )
 {
     console.log('loadSpecificationCallback', response, typeof response);
 
+    YES3.notBusy();
+
+    if ( YES3.isEmptyObject(response) ){
+
+        YES3.hello("ERROR: This export specification is corrupted. Cannot open.");
+        return false;
+    }
+
     if ( typeof response === "object" ){
 
         if ( response.permission !== "allowed" ){
@@ -3527,52 +3654,97 @@ FMAPR.loadSpecificationCallback = function( response )
         FMAPR.populateSpecificationTables( response );
     }
 
-    YES3.notBusy();
+    return true;
 }
 
 FMAPR.populateSpecificationTables = function( specification )
 {
+    let errors = 0;
+    
     FMAPR.markAsBuildInProgress();
 
     FMAPR.export_specification = specification;
 
-    FMAPR.setConstrainedAutocompleteSource(); // alternate source for repeaters
+    try {
+        FMAPR.setConstrainedAutocompleteSource(); // alternate source for repeaters
+        FMAPR.populateSettingsTable( specification );
+        FMAPR.emptyExportItemsTable();
+        /**
+         * Use the save function to audit the settings just loaded
+         * (no save request will be issued)
+         */        
+        YES3.Functions.saveExportSpecification(true);
+        FMAPR.populateExportItemsTable( specification );
+    } catch(e) {
+        errors++;
+    }
 
-    FMAPR.populateSettingsTable( specification );
+    /*
 
-    FMAPR.emptyExportItemsTable();
+    if ( !errors ){
+        try {
+            FMAPR.populateSettingsTable( specification );
+        } catch(e) {
+            errors++;
+        }
+    }
 
-    /**
-     * Use the save function to audit the settings just loaded
-     * (no save request will be issued)
-     */
-    YES3.Functions.saveExportSpecification(true);
+    if ( !errors ){
+        try {
+            FMAPR.emptyExportItemsTable();
+        } catch(e) {
+            errors++;
+        }
+    }
 
-    FMAPR.populateExportItemsTable( specification );
+    if ( !errors ){
+        try {
+
+         YES3.Functions.saveExportSpecification(true);
+        } catch(e) {
+            errors++;
+        }
+    }
+
+    if ( !errors ){
+        try {
+            FMAPR.populateExportItemsTable( specification );
+        } catch(e) {
+            errors++;
+        }
+    }
+
+    */
 
     FMAPR.markAsClean( true );
     FMAPR.updateStatus();
-
     FMAPR.resizeExportItemsTable();
-
-    FMAPR.postMessage("Export specification loaded.");
-
     FMAPR.markAsBuildCompleted();
 
-    if ( FMAPR.reloadParms.wayback ){
+    if ( errors ) {
 
-        FMAPR.markAsDirty();
-
-        FMAPR.reloadParms.wayback=false;
+        YES3.hello("Error loading the export specification. Please use the Wayback (undo) to restore an earlier copy.");
+        FMAPR.postMessage("Error loading export specification.");
+        YES3.notBusy();
     }
+    else {
 
+        FMAPR.postMessage("Export specification loaded.");
+
+        if ( FMAPR.reloadParms.wayback ){
+
+            FMAPR.markAsDirty();
+            FMAPR.reloadParms.wayback=false;          
+        }
+    }
+    
     YES3.displayActionIcons();
     FMAPR.displayActionIcons();
 
     /**
      * disable element insertion actions if there are settings errors
      */
-    if ( FMAPR.someBadSettings() ){
+    if ( FMAPR.someBadSettings() || errors ){
 
         $('i.yes3-fmapr-settings-okay').addClass('yes3-action-disabled');
     }
@@ -3962,6 +4134,7 @@ FMAPR.setExportSettingsListeners = function()
 
     FMAPR.setExportSettingCriterionFieldListener(); 
     FMAPR.setExportSettingsLayoutListeners();
+    FMAPR.setExportNameListener();
 }
 /*
 FMAPR.setExportSettingsInputListeners = function(parentElement) {
@@ -4031,6 +4204,24 @@ FMAPR.setExportSettingCriterionEventSelectOptions = function()
 
         eventSelect.append(optionsHtml);
     }
+}
+
+FMAPR.setExportNameListener = function()
+{
+    $('input[name=export_name]').on("change", function(){
+
+        let new_export_name = $(this).val();
+
+        // name has changed and exists in the specs list
+        if ( new_export_name !== FMAPR.export_specification.export_name 
+            && FMAPR.exportNameAlreadyExists(new_export_name) ){
+
+            YES3.hello(`No can do: the export name '${new_export_name}' already exists for this project.`);
+            $(this).val(FMAPR.export_specification.export_name);
+            return true;
+        }
+    })
+    return false;
 }
 
 FMAPR.setExportSettingsLayoutListeners = function() {
