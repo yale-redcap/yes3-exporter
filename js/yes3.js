@@ -207,19 +207,20 @@ YES3.helloClose = function() {
 
 YES3.isBusy = function(message) 
 {
-    YES3.openPanel("yes3-busy")
-        .text(message)
-        .parent().css('cursor', 'wait');
-
-    YES3.busy = true;      
+    YES3.busy = true; 
+    
+    YES3.getYes3ParentElement().css({'cursor': 'wait'});
+    
+    YES3.openPanel("yes3-busy").html(message).css("z-index", "2000");
 }
 
 YES3.notBusy = function() 
 {
-    YES3.closePanel("yes3-busy")
-        .parent().css('cursor', 'default');
-
     YES3.busy = false;  
+
+    YES3.closePanel("yes3-busy");
+
+    YES3.getYes3ParentElement().css({'cursor': 'default'});
 }
 
 YES3.getContextMenuElement = function()
@@ -362,7 +363,7 @@ YES3.closePanel = function(panelName) {
 
 YES3.startModalState = function(){
 
-    $('#yes3-screen-cover').css({'z-index':YES3.maxZ-1}).show();;
+    $('#yes3-screen-cover').css({'z-index':YES3.maxZ-1}).show();
 }
 
 YES3.endModalState = function(){
@@ -472,7 +473,6 @@ YES3.displayActionIcons = function( listenersLater )
         $('.yes3-light-theme-only').show();
         $('.yes3-dark-theme-only').hide();
     }
-
 
     if ( !listenersLater ) {
 
@@ -724,6 +724,15 @@ YES3.requestService = function( params, doneFn, json )
    });
 }
 
+YES3.isEmpty = function( x )
+{
+    if ( x===null ) return true;
+    if ( typeof x === "undefined" ) return true;
+    if ( typeof x === "object" ) return YES3.isEmptyObject( x );
+    if ( typeof x === "string" ) return ( x.length === 0 );
+    return false;
+}
+
 YES3.isEmptyArray = function( x )
 {
     return YES3.isEmptyObject( x );
@@ -732,6 +741,7 @@ YES3.isEmptyArray = function( x )
 YES3.isEmptyObject = function( x )
 {
     if ( typeof x !== "object" ) return true;
+    if ( typeof x.length !== "undefined" ) return ( x.length === 0 );
     if ( Array.isArray(x) ) return ( !x.length );
     return ( !Object.keys(x).length );
 }
@@ -803,5 +813,4 @@ $( function () {
     });
 
     $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});
-
 })

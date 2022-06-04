@@ -50,6 +50,8 @@ trait Yes3Trait {
     {
         $user = $this->getUser()->getRights();
 
+        Yes3::logDebugMessage($this->project_id, print_r($user, true), "user rights");
+
         /**
          * The rank order of export permission codes
          * 
@@ -84,6 +86,8 @@ trait Yes3Trait {
         $exporter = 0;
 
         if ( isset($user['data_export_instruments'])) {
+
+            //Yes3::logDebugMessage($this->project_id, print_r($user['data_export_instruments'], true), "user[data_export_instruments]");
 
             $export_tool = 0; // assume no access, will be set to most permissive setting
 
@@ -134,6 +138,8 @@ trait Yes3Trait {
                 $formExportPermissions[$form_name] = 0;
             }
         }
+
+        //Yes3::logDebugMessage($this->project_id, print_r($formPermissions, true), "form permissions");
         
         return [
 

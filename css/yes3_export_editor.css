@@ -1,3 +1,67 @@
+/* === SETTINGS === */
+
+div.yes3-fmapr-settings-section {
+    padding-top: 1em;
+    padding-bottom: 1em;;
+    color: var(--yes3-panel-title-color);
+}
+
+table.yes3-fmapr-settings {
+    border-collapse: collapse;
+}
+
+table.yes3-fmapr-settings td,
+table.yes3-fmapr-editor td {
+    color: var(--yes3-td-color);
+    background-color: var(--yes3-table-background-color);
+    font-size: var(--yes3-font-size);
+    font-weight:  var(--yes3-font-weight) !important;
+    border: 0;
+    padding-right: 1em;
+    height: 2.5em;
+ }
+
+ table.yes3-fmapr-settings td input[type=text],
+ table.yes3-fmapr-editor td input[type=text]
+ {
+     /*font-family: var(--yes3-input-font-family); */
+     font-size: var(--yes3-input-font-size);
+     font-weight: var(--yes3-input-font-weight);
+     color: var(--yes3-input-color);
+     background-color: var(--yes3-input-background-color);
+     border: 1px solid var(--yes3-input-border-color);
+     border-radius: 0;
+     padding-left: var(--yes3-input-font-size);
+     padding-right: var(--yes3-input-font-size);
+     padding-top: var(--yes3-padding);
+     padding-bottom: var(--yes3-padding);
+ }
+
+ table.yes3-fmapr-settings td select,
+ table.yes3-fmapr-editor td select
+ {
+     /*font-family: var(--yes3-input-font-family); */
+     font-size: var(--yes3-input-font-size);
+     font-weight: var(--yes3-input-font-weight);
+     color: var(--yes3-input-color);
+     background-color: var(--yes3-input-background-color);
+     border: 1px solid var(--yes3-input-border-color);
+     border-radius: 0;
+     padding-left: calc(var(--yes3-input-font-size) - 4px); /* ?? helps to align with input element padding */
+     padding-right: var(--yes3-input-font-size);
+     padding-top: var(--yes3-padding);
+     padding-bottom: var(--yes3-padding);
+}
+
+table.yes3-fmapr-settings td select,
+table.yes3-fmapr-settings td input[type=text] {
+    width: 200px;
+}
+
+table.yes3-fmapr-editor td select,
+table.yes3-fmapr-editor td input[type=text] {
+    width: 300px;
+}
 
 /* === FIELD INSERTION === */
 
@@ -20,22 +84,141 @@ td.yes3-fmapr-fieldinsertion-td-right {
     width: 70%;
 }
 
+th i.yes3-fmapr-item-editor {
+    color: var(--yes3-th-title-color);
+}
+
+td i.yes3-fmapr-item-editor {
+    color: var(--yes3-color);
+}
+
+div.yes3-fmapr td.yes3-gutter-left, div.yes3-fmapr th.yes3-gutter-left {
+    width: var(--yes3-fmapr-gutter-width); 
+    min-width: var(--yes3-fmapr-gutter-width); 
+    max-width: var(--yes3-fmapr-gutter-width); 
+ 
+    vertical-align: top;
+    text-align: left;
+}
+ 
+div.yes3-fmapr td.yes3-gutter-right, 
+div.yes3-fmapr th.yes3-gutter-right
+{
+    width: var(--yes3-fmapr-gutter-width); 
+    min-width: var(--yes3-fmapr-gutter-width); 
+    max-width: var(--yes3-fmapr-gutter-width); 
+ 
+    vertical-align: middle;
+    text-align: center;
+}
+
+th.yes3-fmapr-row-number,
+td.yes3-fmapr-row-number {
+
+    width: calc(2 * var(--yes3-fmapr-gutter-width)) !important; 
+    min-width: calc(2 * var(--yes3-fmapr-gutter-width)) !important; 
+    max-width: calc(2 * var(--yes3-fmapr-gutter-width)) !important; 
+ 
+    vertical-align: middle !important;
+    text-align: center !important;
+
+    font-size: 0.8rem !important;
+
+    opacity: 0.5 !important;
+}
+
+td.yes3-fmapr-redcap-object-editor {
+    width: calc(2 * var(--yes3-fmapr-gutter-width)) !important;
+    min-width: calc(2 * var(--yes3-fmapr-gutter-width)) !important;
+    max-width: calc(2 * var(--yes3-fmapr-gutter-width)) !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+}
+
+td.yes3-fmapr-redcap-object-type {
+    width: calc(3 * var(--yes3-fmapr-gutter-width)) !important;
+    min-width: calc(3 * var(--yes3-fmapr-gutter-width)) !important;
+    max-width: calc(3 * var(--yes3-fmapr-gutter-width)) !important;
+}
+
+td.yes3-fmapr-redcap-object-event {
+    width: calc(4 * var(--yes3-fmapr-gutter-width)) !important;
+    min-width: calc(4 * var(--yes3-fmapr-gutter-width)) !important;
+    max-width: calc(4 * var(--yes3-fmapr-gutter-width)) !important;
+}
+
+tr.yes3-fmapr-new-field-form td {
+    color: var(--yes3-fmapr-redcap-field-color) !important;
+}
+/*
+td.yes3-fmapr-row-number {
+
+    border-left:  1px solid var(--yes3-table-border-color) !important;
+    border-right: 1px solid var(--yes3-table-border-color) !important;
+}
+*/
+td.yes3-fmapr-row-number:hover {
+    background-color: var(--yes3-fmapr-row-selected-color) !important;
+    cursor: pointer;
+}
+ 
+div.yes3-fmapr td.yes3-gutter-right-top, div.yes3-fmapr th.yes3-gutter-right-top {
+    width: var(--yes3-fmapr-gutter-width); 
+    min-width: var(--yes3-fmapr-gutter-width); 
+    max-width: var(--yes3-fmapr-gutter-width); 
+ 
+    vertical-align: top;
+    text-align: right;
+}
+ 
+div.yes3-fmapr td.yes3-gutter-right-center, div.yes3-fmapr th.yes3-gutter-right-center {
+
+    width: var(--yes3-fmapr-gutter-width); 
+    min-width: var(--yes3-fmapr-gutter-width); 
+    max-width: var(--yes3-fmapr-gutter-width); 
+ 
+    vertical-align: middle;
+    text-align: right;
+}
+
+/* mark row as unsaved */
+tr.yes3-fmapr-data-element.yes3-unsaved td.yes3-fmapr-row-number {
+
+    /*color: var(--yes3-message-color) !important;*/
+    opacity: 1 !important;
+}
+
+tr.yes3-fmapr-data-element.yes3-unsaved td.yes3-fmapr-row-number::before {
+
+    content: "*";
+}
+
 /**
  * all this to determine the color of the export item row label
  */
-
 tr:not(.yes3-fmapr-new-field) span.yes3-fmapr-redcap-element {
     color: var(--yes3-fmapr-redcap-element-color);
     font-style: normal !important;
 }
 
-tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-element {
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-object-name,
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-object-type {
     color: var(--yes3-fmapr-redcap-form-color) !important;
 }
 
-tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-element {
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-form .yes3-fmapr-redcap-object-event {
+    color: var(--yes3-fmapr-redcap-form-color) !important;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field .yes3-fmapr-redcap-object-event {
     color: var(--yes3-fmapr-redcap-field-color) !important;
-    font-weight: var(--yes3-font-weight) !important;
+}
+
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-object-name, 
+tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field .yes3-fmapr-redcap-object-type
+{
+    color: var(--yes3-fmapr-redcap-field-color);
+    font-weight: var(--yes3-font-weight);
 }
 
 tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field.yes3-fmapr-new-field .yes3-fmapr-redcap-element {
@@ -44,10 +227,17 @@ tr.yes3-fmapr-data-element.yes3-fmapr-redcap-field.yes3-fmapr-new-field .yes3-fm
     font-weight: var(--yes3-font-weight) !important;
 }
 
+tr.yes3-fmapr-data-element span.yes3-fmapr-field-label {
+    color: var(--yes3-subdued-color) !important;
+}
+
 tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
     color: var(--yes3-fmapr-specmap-color) !important;
     font-weight: var(--yes3-font-weight) !important;
 }
+
+
+
 /*
 tr:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-element:hover {
     cursor: pointer;
@@ -71,19 +261,19 @@ a.yes3-fmapr-value-picker-toggler {
     display:none;
 }
 
-tr.yes3-row-copied span.yes3-fmapr-redcap-element::before {
+tr.yes3-row-copied td.yes3-fmapr-redcap-object-type::before {
     /*content: "\25B6"; arrow */
     content: "\2714"; /* checkmark */
-    font-size: 2rem;
+    font-size: 1.5;
     font-style: normal !important;
     vertical-align: middle;
     margin-right: 10px;
 }
 
-tr.yes3-row-cut span.yes3-fmapr-redcap-element::before {
+tr.yes3-row-cut td.yes3-fmapr-redcap-object-type::before {
     /*content: "\25B6"; arrow */
     content: "\2702"; /* scissors */
-    font-size: 2rem;
+    font-size: 1.5em;
     font-style: normal !important;
     margin-right: 10px;
     vertical-align: middle;
@@ -139,11 +329,6 @@ div#yes3-fmapr-settings {
     display: none;
 }
 
-table.yes3-fmapr-settings td {
-
-    height: 3.2rem;
-}
-
 div.yes3-fmapr-filter-option {
     margin-top: calc( 0.5 * var(--yes3-margin) );
     margin-bottom: calc( 0.5 * var(--yes3-margin) );
@@ -178,7 +363,7 @@ div#yes3-fmapr-footer   div.col-md-6 {
 }
 
 table.yes3-fmapr-settings tr td:nth-child(1){
-    width: 40%;
+    width: 20em;
 }
 
  

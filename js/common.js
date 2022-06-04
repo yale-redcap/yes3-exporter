@@ -21,6 +21,7 @@ FMAPR.conditionUserInput = function( s ){
     //return s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     return s;
 }
+
  
 FMAPR.noop = function(){}
  
@@ -228,7 +229,7 @@ FMAPR.markAsClean = function( forceRedisplay )
     }
 }
 
-FMAPR.markAsDirty = function()
+FMAPR.markAsDirty = function( message )
 {
     if ( FMAPR.buildInProgress ){
         return true;
@@ -240,6 +241,8 @@ FMAPR.markAsDirty = function()
         FMAPR.postMessage("READ ONLY", true);
         return false;
     }
+
+    message = message || "Be sure to save your changes.";
     
     if ( !YES3.dirty ) {
         YES3.dirty = true;
@@ -249,7 +252,7 @@ FMAPR.markAsDirty = function()
 
         FMAPR.displayActionInputs();
 
-        FMAPR.postMessage("Be sure to save your changes.", true);
+        FMAPR.postMessage(message, true);
 
         window.onbeforeunload = function() {
             return "";

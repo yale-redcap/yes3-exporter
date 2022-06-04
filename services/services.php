@@ -934,6 +934,7 @@ function get_project_settings():string
 
     return Yes3::json_encode_pretty( [
         'project_id' => $module->project_id,
+        'is_longitudinal' => \REDCap::isLongitudinal(),
         'field_index' => $field_metadata_structures['field_index'],
         'field_metadata' => $field_metadata_structures['field_metadata'],
         'field_count' => Yes3::fetchValue($sqlCount, [$module->project_id, \REDCap::getRecordIdField()]),
@@ -943,7 +944,8 @@ function get_project_settings():string
         'event_metadata' => get_event_metadata(),
         'project_event_metadata' => get_project_event_metadata(),
         'default_event_id' => get_first_event_id(),
-        'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0,
+        //'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0,
+        'beta' => 0,
         'user_data_downloads_disabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" && $module->getProjectSetting('enable-user-data-downloads')!=="Y" ) ? 1 : 0,
         'host_filesystem_exports_enabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" ) ? 1 : 0,
         'host_filesystem_target' => $module->getProjectSetting('export-target-folder')

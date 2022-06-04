@@ -2410,7 +2410,9 @@ WHERE project_id=? AND log_entry_type=?
 
     public function getFormMetadataStructures():array
     {
-        $form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
+        $user_rights = $this->yes3UserRights();
+        $form_export_permissions = $user_rights['form_export_permissions'];
+        $designer = $user_rights['isDesigner'];
 
         $events = [];
 
@@ -2444,6 +2446,9 @@ WHERE project_id=? AND log_entry_type=?
 
         $mm = Yes3::fetchRecords($sql, [$this->project_id]);
 
+        //Yes3::logDebugMessage($this->project_id, print_r($form_export_permissions, true), "form_export_permissions");
+        //Yes3::logDebugMessage($this->project_id, print_r($mm, true), "form metadata");
+
         $form_metadata = [];
 
         $form_index_num = 0;
@@ -2452,7 +2457,7 @@ WHERE project_id=? AND log_entry_type=?
 
         foreach ($mm as $m){
 
-            if ( !$form_export_permissions[$m['form_name']] ){
+            if ( !$designer && !$form_export_permissions[$m['form_name']] ){
 
                 continue;
             }
