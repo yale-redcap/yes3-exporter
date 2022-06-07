@@ -288,7 +288,8 @@ function buildTOC( &$markdown, &$toc )
                 }
 
                 let element = document.querySelector(`a[name="${anchor_name}"]`);
-                element.scrollIntoView({ behavior: 'smooth', block: 'start'});      
+                //element.scrollIntoView({ behavior: 'smooth', block: 'start'});      
+                element.scrollIntoView();      
             }
 
             $("div.toc-entry").on("click", function(){

@@ -10,15 +10,15 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
 # Features
 
 -   **Flexible output spreadsheet layouts** including horizontal, vertical, and repeating form layouts.
--   **Any number of export specifications may be designed and stored**.
--   **Export specifications can be rolled back** and restored to a prior version.
 -   **Expeditiously handles large exports**. Large volume exports have minimal impact on performance speed. In one benchmark it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file.
 -   **Enhanced data dictionary, that includes metadata and data distributions(!)** This can drive external code generators and form the basis of basic study progress and data completion reports.
 -   **Detailed audit for every download and export**. Daily activity summaries can be automatically sent to a pre-designated email address.
+-   **Incorporates form-specific user export and access rights**. Compatible with the REDCap v12 form-specific export permission model, as well as with the data export model prior to version 12.
+-   **Supports deidentified and coded datasets** that mirrors REDCap system data export.
+-   **Any number of exports may be designed and re-used**.
+    -   **Export specifications can be rolled back** and restored to a prior version.
 -   **Can export directly to a host filesystem**.
--   **Incorporates form-specific user export and access rights**. Compatible with the REDCap v12 form-specific export permission model, as well as with the model.
 -   **Dark and Light themes**.
--   **Supports deidentified and coded datasets** that mirrors REDCap .
 
 # About YES3
 
@@ -26,39 +26,31 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 # Configuration Settings
 
-Global configuration
+## Global configuration
 
-The YES3 Exporter performs a number of daily tasks for each project. By default, all of the daily tasks are run at 11 minutes past midnight, but administrator can specify a different time to run these tasks.
+The YES3 Exporter performs several daily tasks for each project. By default, daily tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
 
 To configure, go to Control Panel -\> External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
-Project configuration
+## Project configuration
 
 Only users with project design and setup rights can configure the External Module Settings in the project.
 
 ## Daily Log Report
 
-When enabled, you can designate one email address that will receive a daily summary of export activity that includes: (1.) date and time of report, (2.) REDCap host, (3.) project ID, (4.) project title, (5.) \# exports, and (6.) individual logs for each export in past 24 hours.
+When enabled, you can designate one email address that will receive a daily summary of export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about export activity in last 24 hours.
 
 To disable the daily log report, you may change the email notification setting to “no” at any time.
 
 ## Host File System Exports
 
-Data can be exported to a designated host file system (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. As a data security safeguard, this feature requires the involvement of a REDCap administrator.
+Data can be exported to a designated host file system (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. For data security, this feature requires the involvement of a REDCap administrator.
 
 ## Backup Retention
 
-Export specifications (i.e. templates) can be rolled back and restored to a prior saved version. By default 20 generations are retained.
-
-## 
+Export specifications (i.e. templates) can be rolled back and restored to a prior saved version. By default, 20 generations are retained.
 
 # Overview
-
-## Prerequisites
-
--   REDCap web application
--   Admin level access to Control Center to export to fileshare
--   HTML/CSS/JS/PHP
 
 ## Components
 
@@ -75,17 +67,17 @@ The exporter was optimized for use on a standard desktop HD screen (1920 x 1080)
 
 ## Help Panel
 
-You can access the Help panel at any time by clicking on the **?** icon in the Exporter menu.
+Help Panels are identified by a **?** symbol. Help panels are located in the main menu and throughout the Exporter.
 
 ## User Rights
 
-## 
+Users with project-design rights can create and modify export specifications.
 
-Form access- and export- rights within the REDCap project determine which exports a user may access. Users will not have access to any exports for which they do not have both **view and export** permissions. This protects the data and prevents unblinding.
+Users without project design rights can view specification and export data.
 
-![](media/b1c48997a8b0d2d04236543b701fcdfb.png)If a user attempts to access an export , they will receive the following message:
+Users will not have access to any exports for which they do not have both **view and export** permissions. This protects the data and prevents unblinding. For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the v12 form-specific exporter permissions.
 
-For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the v12 form-specific exporter permissions.
+![](media/b1c48997a8b0d2d04236543b701fcdfb.png)If a user attempts to access an export with restricted data, they will receive the following message:
 
 # Getting Started
 
@@ -106,120 +98,83 @@ For those working on earlier REDCap versions, the YES3 Exporter handling of form
 
     ![](media/8ccc859bd32c48d61c4e10a102ff70a5.png)
 
-    1.  Export names cannot be duplicated.
-    2.  Special characters are permitted but will be removed during exports and downloads.
-3.  Click “Make it so”.
-4.  The page will load. You can add filters to your report or other optional settings.
+    1.  Please be mindful of the following limitations when creating a new export:
+        1.  Export names cannot be duplicated.
+        2.  Special characters are permitted but will be removed during exports and downloads.
+        3.  The Exporter does not include a feature to filter, sort, or delete exports. Create new exports judiciously.
+3.  Once completed, click “**make it so**”.
+4.  ![](media/779d109d2e0bcd44e9f70bf000ba8296.png)The **Export Settings** page will be displayed. Here you can customize your export.
+5.  ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png)Once you have selected your options, click to save your changes.
+6.  ![](media/709532227f87a43477374c0b9db4336b.png)![](media/51847c2084dab4b3c29764820914dd6e.tmp)Select Export Items in the display setting to add forms/fields to the export specification.
+7.  Click the button located along the top menu to add forms/fields.
+8.  To add form(s)
+    1.  ![Graphical user interface, text, application Description automatically generated](media/bd3113b1282420c35fb6771c7feab48f.png) Select ‘Form’ for object type, then select the event and the form to add to the export.
+        1.  ![](media/e1de6415015dbfacd31685d139f3aede.png)You may choose to insert as single export item which will display as:
+        2.  ![Graphical user interface, text, application, email Description automatically generated](media/246e0c6c3370a39918dd917bb446f74e.png)You may choose to insert as one export item per form which will display as:
+        3.  ![Graphical user interface, text, application, email Description automatically generated](media/b1d5a302c2c593c1673e42a27204fbaf.png)You may choose to insert as one export item per field which will display as:
+    2.  Once you have chosen your display, click ‘**make it so**’.
+    3.  ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click to save the changes.
+9.  To add fields:
+    1.  Select ‘**Field**’ for object type, then select the event and type the field name.
+        1.  As you type, the field will auto-fill with matching text.
+    2.  Select the field that you would like to add to the export and click ‘**make it so’**.
 
-    ![](media/58efe64c705d10a31059c1c441b60444.png)
+        ![Graphical user interface, text Description automatically generated](media/806cf77c7bd1fa4944d55b8d74e113ac.png)
 
-5.  Click the save button ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
-6.  
-1.  
-2.  
-1.  
-2.  
-1.  
-2.  
-3.  
-4.  
-    1.  
-5.  
-6.  
-7.  
-    1.  
-8.  .
-1.  Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
+10. ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)An asterisk will appear next to each unsaved item. After you have finished adding field(s) to the export items, click to save the changes.
+11. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
 
 ![Graphical user interface Description automatically generated](media/8dabf52bfe6520e134da8184793aaec6.png)
 
-### Functionality
-
-The Exporter Main performs the critical functions which allow you to:
-
-1.  Create a new export
-2.  Review and select available exports
-3.  Edit specifications
-4.  Organize the export
-5.  Download the data and/or data dictionary
-6.  Export the data and/or data dictionary (if enabled)
-
-#### Export Drop Down Menu
-
-![](media/a23d7d9634b4a1ff68010f7853e31149.tmp)The drop-down menu displays the exports in chronological order.
-
-**Note:** Version 1.0 does not include the ability to filter, sort, or delete exports. Please be mindful of this limitation when creating new exports.
-
-#### Export Layout
+### Export Layout
 
 There are three export layouts:
 
 1.  Horizontal (longitudinal projects: one row per record)
-    1.  The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in YES3 Exporter Event Prefixes.
+    1.  The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event Prefixes**.
 2.  Vertical (one row per record + event)
-    1.  
+    1.  The REDCap event id is included in the data export file.
 3.  Repeating Form (one row per record + event + instance)
-    1.  Only one repeating form can be defined in the export.
-    2.  In Version 1.0, you cannot export repeating events.
+    1.  Only one repeating form can be defined in the export. In this version, you cannot export repeating events.
 
-#### 
+### Export Settings
 
-![](media/f609e7aef49d1d92928008960fc4ff80.png)The **Selected records** option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
+![Graphical user interface, text, application, email Description automatically generated](media/80ee8d637c320b0be5d7cc3a1586f778.png)
+
+**Options for Selecting Records**
+
+![](media/f609e7aef49d1d92928008960fc4ff80.png)The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
 
 As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, you will need to design your project so that the target status (e.g. screen positive) can be identified by a query involving ONE field in your REDCap project. Additional examples are found in the **?** icon.
+
+#### Options for Data Compliance
+
+The data compliance settings replicate the parent REDCap system. Removed fields will not appear in an export. No field label or placeholder will be included in the data export.
+
+**Options for Conditioning Exported Values**
+
+**Sanitize exported text values**
+
+Removes nonprintable characters including tabs, line feeds, html tags, etc. from text fields. International characters will remain intact.
 
 **Max character length**
 
 You can restrict the number of characters included in the export. Field labels are typically restricted to 200-250 characters to support integration with statistical programs such as SAS.
 
-For text fields, the character restriction is applied to ALL text fields which may result in incomplete data so you may wish to use this option judiciously. If you have also opted to **Remove all freetext fields**, the more restrictive specification will be followed.
+For text fields, the character restriction is applied to ALL text fields which may result in incomplete data. If you have also opted to **Remove all freetext fields**, the more restrictive specification will be followed.
 
-#### Data Protection
+### Export Items
 
-1.  **Remove Tagged Identifiers**- If you select this option, the exporter will remove all identifier fields tagged in your Data Dictionary during data export.
-2.  **Remove date/time fields**- The REDCap designer has a field validation option for dates and times. If you select this option, the exporter will remove any fields using the date/time field validation.
-3.  **Remove all freetext fields-** This will remove all free text response items (other than dates, numbers, etc.) and supersedes the max text length restriction.
-4.  **Remove note/paragraph fields-** This will remove all note/paragraph fields and supersedes the max text length option.
-5.  **Coded (shifted) dates**- This applies the algorithms used by the parent REDCap system to mask date fields.
-6.  **Coded (hashed) record id values-** Removes record ID names and replaces with an unrecognizable value.
-7.  **Sanitize text values**- Removes nonprintable characters including tabs, line feeds, html tags, etc. from text fields. International characters should remain intact.
+![](media/2b20da77df4764a19a53275773bc374d.png)On the Export Item view, you can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, Hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
 
-**Note**: Removed fields will not appear in an export. No field label or placeholder will be included in the data export.
-
-#### 
-
-contains a list of included in the export. Export specification elements are displayed as fields (or forms) in rows in the table.
-
-![](media/2b20da77df4764a19a53275773bc374d.png)REDCap specification element may be edited using the pencil icon or trash can.
-
-To move an item:
-
-**![](media/bea58398dd1624be40ed50f134141647.png)** Hover the cursor near the row number on the left side until a hand appears then drag it up or down to its new location.
-
-To re-organize, use one of the following functions:
-
-| **To select:**               |                      |
-|------------------------------|----------------------|
-| One row                      | Left Click           |
-| Multiple non-contiguous rows | Left Click + Control |
-| Multiple contiguous rows     | Left Click + Shift   |
-
-| **To select:**               |                      |
-|------------------------------|----------------------|
-| One row                      | Left Click           |
-| Multiple non-contiguous rows | Left Click + Control |
-| Multiple contiguous rows     | Left Click + Shift   |
-
-![A screenshot of a computer Description automatically generated with medium confidence](media/f34fc32d825edc675072dff1070761f7.tmp)Once a selection is made, right clicking will display the command menu.
-
-## The Exporter Data Dictionary
+## Exporter Data Dictionary
 
 Each download or export is accompanied by a data dictionary that includes metadata and export-specific data distribution summaries for each column. These include the count, range, \#nonblank, and either a frequency table or mean and variance, as appropriate to the field type (dates are treated as continuous variables).
 
 # ![](media/07a620795a7efb497df1be23e2640659.tmp)YES3 Exporter Event Prefixes
 
 The YES3 Exporter Event Prefixes can be accessed from the left menu panel under **External Modules**.   
-A HELP menu is available by clicking on the ? icon.
+A HELP menu is available by clicking on the **?** icon.
 
 Here you can designate event prefixes for horizontal layouts.
 
@@ -234,9 +189,9 @@ Here you may view and download the logs for each export that has been created. W
 To use the exporter
 
 1.  ![](media/07a620795a7efb497df1be23e2640659.tmp)Access the export log by clicking the ‘**YES3 Exporter Logs’** link under **External Modules** on the left menu.
-2.  Similar to Exporter Main, a HELP menu is available by clicking on the ? icon.
-3.  Select an export to view
-    1.  ![](media/539cff9ba37f92c9f3d231f6086bfdc5.tmp)Once selected, you may filter by user or date range. By default, your view will include all exports including all users and a date range that covers all export activity.
+2.  Similar to Exporter Main, a HELP menu is available by clicking on the **?** icon.
+3.  ![](media/539cff9ba37f92c9f3d231f6086bfdc5.tmp)Select an export to view
+    1.  By default, your view will include all export activity. You may filter by user or date range.
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/7b85b744b6e4165d5a288ccbfee2d668.tmp)icon.
 
 ![](media/b1c008d1c9036c3509319de75f798646.tmp)
@@ -270,6 +225,7 @@ To use the exporter
 
 # Funding
 
+-   To support our work and ensure future opportunities for development, please acknowledge the software and funding.
 -   The **YES3 Exporter** was funded by Yale’s Claude D. Pepper Older Americans Independence Center (OAIC) grant through a Development Project Award for the Operations Core, **3P30AG021342**.
 
 # License
