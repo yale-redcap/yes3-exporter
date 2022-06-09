@@ -85,7 +85,9 @@ Users will not have access to any exports for which they do not have both **view
 
 # Getting Started
 
+
 ## ![](media/07a620795a7efb497df1be23e2640659.tmp)YES3 Exporter Event Prefixes
+
 
 1.  Before creating your first data export, review the prefix that will be assigned to events with horizontal layouts.
 2.  Access the event list by clicking the ‘**YES3 Exporter Event Prefixes’** link under **External Modules** on the left menu.
@@ -93,7 +95,9 @@ Users will not have access to any exports for which they do not have both **view
     1.  Special characters are permitted but will be removed during exports and downloads.
 4.  Click save after changes are made.
 
+
 ## ![](media/07a620795a7efb497df1be23e2640659.tmp)YES3 Exporter Main
+
 
 ### Quick Start
 
