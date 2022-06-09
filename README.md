@@ -149,13 +149,16 @@ If a user attempts to access an export with restricted data, they will receive t
           <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
         
         
-    b.  Once you have chosen your display, click ‘**make it so**’.
-    ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)
-    
-    An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click to save the changes.
-11.  To add fields:
-    1.  Select ‘**Field**’ for object type, then select the event and type the field name.
-        1.  As you type, the field will auto-fill with matching text.
+     b.  Once you have chosen your display, click ‘**make it so**’.
+  
+     c. An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click   ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save the changes.
+     
+9.  To add fields:
+
+     a.  Select ‘**Field**’ for object type, then select the event and type the field name.
+     
+        i.  As you type, the field will auto-fill with matching text.
+        
     2.  Select the field that you would like to add to the export and click ‘**make it so’**.
 
         ![Graphical user interface, text Description automatically generated](media/806cf77c7bd1fa4944d55b8d74e113ac.png)
