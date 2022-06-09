@@ -85,7 +85,7 @@ Users without project design rights can view specification and export data.
 Users will not have access to any exports for which they do not have both **view and export** permissions. This protects the data and prevents unblinding. For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the v12 form-specific exporter permissions.
 
 If a user attempts to access an export with restricted data, they will receive the following message:
-<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="250" height="100">
+<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="75%" height="75%">
 
 # Getting Started
 
@@ -97,7 +97,7 @@ If a user attempts to access an export with restricted data, they will receive t
     1.  Special characters are permitted but will be removed during exports and downloads.
 4.  Click save after changes are made.
 
-<img src="./media/Event_Prefixes.png"  width="75%" height="75%">
+<img src="./media/Event_Prefixes.png"  width="250" height="100">
 
 
 ## YES3 Exporter Main
