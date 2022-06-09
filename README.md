@@ -98,7 +98,9 @@ Users will not have access to any exports for which they do not have both **view
 4.  Click save after changes are made.
 
 
-### ![](media/Event_Prefixes.png =250x100)
+### ![](media/Event_Prefixes.png)
+<img src="./media/Event_Prefixes.png"  width="250" height="100">
+
 
 ## YES3 Exporter Main
 
