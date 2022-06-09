@@ -97,8 +97,6 @@ Users will not have access to any exports for which they do not have both **view
     1.  Special characters are permitted but will be removed during exports and downloads.
 4.  Click save after changes are made.
 
-
-### ![](media/Event_Prefixes.png)
 <img src="./media/Event_Prefixes.png"  width="250" height="100">
 
 
