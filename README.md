@@ -113,7 +113,7 @@ If a user attempts to access an export with restricted data, they will receive t
           - The Exporter does not include a feature to filter, sort, or delete exports. Create new exports judiciously.
 3.  Once completed, click “**make it so**”.
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
-<img src="media/Export_Settings_Display.png"  width="50%" height="50%">
+<img src="media/Export_Settings_Display.png"  width="75%" height="75%">
 
 6.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
 7.  ![](media/709532227f87a43477374c0b9db4336b.png)![](media/51847c2084dab4b3c29764820914dd6e.tmp)Select Export Items in the display setting to add forms/fields to the export specification.
