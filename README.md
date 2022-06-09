@@ -86,7 +86,9 @@ Users will not have access to any exports for which they do not have both **view
 # Getting Started
 
 
-## ![](media/07a620795a7efb497df1be23e2640659.tmp)YES3 Exporter Event Prefixes
+## ![](media/07a620795a7efb497df1be23e2640659.tmp)
+
+## YES3 Exporter Event Prefixes
 
 
 1.  Before creating your first data export, review the prefix that will be assigned to events with horizontal layouts.
@@ -96,7 +98,9 @@ Users will not have access to any exports for which they do not have both **view
 4.  Click save after changes are made.
 
 
-## ![](media/07a620795a7efb497df1be23e2640659.tmp)YES3 Exporter Main
+## ![](media/07a620795a7efb497df1be23e2640659.tmp)
+
+## YES3 Exporter Main
 
 
 ### Quick Start
