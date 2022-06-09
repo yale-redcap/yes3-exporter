@@ -154,11 +154,11 @@ If a user attempts to access an export with restricted data, they will receive t
 
      a.  Select ‘**Field**’ for object type, then select the event and type the field name.
      
-        i.  As you type, the field will auto-fill with matching text.
-        
-    2.  Select the field that you would like to add to the export and click ‘**make it so’**.
+          - As you type, the field will auto-fill with matching text.
+              ![Graphical user interface, text Description automatically generated](media/806cf77c7bd1fa4944d55b8d74e113ac.png)
+              
+      b.  Select the field that you would like to add to the export and click ‘**make it so’**.
 
-        ![Graphical user interface, text Description automatically generated](media/806cf77c7bd1fa4944d55b8d74e113ac.png)
 
 10. ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)An asterisk will appear next to each unsaved item. After you have finished adding field(s) to the export items, click to save the changes.
 11. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
