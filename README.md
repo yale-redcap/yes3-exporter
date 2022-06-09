@@ -129,15 +129,21 @@ If a user attempts to access an export with restricted data, they will receive t
 8.  To add form(s)
 
     a.  Select ‘Form’ for object type, then select the event and the form to add to the export.
-       <img src="media/Export_Item_Editor.png"  width="50%" height="50%">
        
-        1.  ![](media/e1de6415015dbfacd31685d139f3aede.png)
-        2.  You may choose to insert as single export item which will display as:
-        3.  ![Graphical user interface, text, application, email Description automatically generated](media/246e0c6c3370a39918dd917bb446f74e.png)
-        4.  You may choose to insert as one export item per form which will display as:
-        5.  ![Graphical user interface, text, application, email Description automatically generated](media/b1d5a302c2c593c1673e42a27204fbaf.png)You may choose to insert as one export item per field which will display as:
-    2.  Once you have chosen your display, click ‘**make it so**’.
-    3.  ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click to save the changes.
+
+      - You may choose to insert as single export item which will display as:
+      <img src="media/Insert_single_export_item.png"  width="50%" height="50%">  
+      
+      - You may choose to insert as one export item per form which will display as:
+       <img src="media/Insert_one_export_item_per_form.png"  width="50%" height="50%"> 
+         
+       -You may choose to insert as one export item per field which will display as:
+        <img src="media/Insert_one_export_item_per_field.png"  width="50%" height="50%"> 
+        
+    b.  Once you have chosen your display, click ‘**make it so**’.
+    ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)
+    
+    An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click to save the changes.
 11.  To add fields:
     1.  Select ‘**Field**’ for object type, then select the event and type the field name.
         1.  As you type, the field will auto-fill with matching text.
