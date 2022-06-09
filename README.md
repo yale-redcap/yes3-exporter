@@ -23,7 +23,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   Compatible with the REDCap v12 form-specific export permission model, as well as with the data export model prior to version 12.
 -   **Supports deidentified and coded datasets** that mirrors REDCap system data export.
 -   **Any number of exports may be designed and re-used**.
-    -   **Export specifications can be rolled back** and restored to a prior version.
+-   **Export specifications can be rolled back** and restored to a prior version.
 -   **Can export directly to a host filesystem**.
 -   **Dark and Light themes**.
 
