@@ -116,16 +116,19 @@ If a user attempts to access an export with restricted data, they will receive t
 <img src="media/Export_Settings_Display.png"  width="75%" height="75%">
 
 6.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
-7.  ![](media/709532227f87a43477374c0b9db4336b.png)![](media/51847c2084dab4b3c29764820914dd6e.tmp)Select Export Items in the display setting to add forms/fields to the export specification.
-8.  Click the button located along the top menu to add forms/fields.
-9.  To add form(s)
+7.  Select Export Items in the display setting to add forms/fields to the export specification.
+
+<img src="media/Export_Settings_Red_Box.png"  width="75%" height="75%">
+
+9.  Click the ![](media/709532227f87a43477374c0b9db4336b.png)![](media/51847c2084dab4b3c29764820914dd6e.tmp) button located along the top menu to add forms/fields.
+10.  To add form(s)
     1.  ![Graphical user interface, text, application Description automatically generated](media/bd3113b1282420c35fb6771c7feab48f.png) Select ‘Form’ for object type, then select the event and the form to add to the export.
         1.  ![](media/e1de6415015dbfacd31685d139f3aede.png)You may choose to insert as single export item which will display as:
         2.  ![Graphical user interface, text, application, email Description automatically generated](media/246e0c6c3370a39918dd917bb446f74e.png)You may choose to insert as one export item per form which will display as:
         3.  ![Graphical user interface, text, application, email Description automatically generated](media/b1d5a302c2c593c1673e42a27204fbaf.png)You may choose to insert as one export item per field which will display as:
     2.  Once you have chosen your display, click ‘**make it so**’.
     3.  ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click to save the changes.
-10.  To add fields:
+11.  To add fields:
     1.  Select ‘**Field**’ for object type, then select the event and type the field name.
         1.  As you type, the field will auto-fill with matching text.
     2.  Select the field that you would like to add to the export and click ‘**make it so’**.
