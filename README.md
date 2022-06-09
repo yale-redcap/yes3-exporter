@@ -148,20 +148,21 @@ If a user attempts to access an export with restricted data, they will receive t
       
           <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
         
-     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the            export items, save the changes.
+     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. After you have finished adding forms to the            export items, save the changes.
      
 9.  <b>To add fields:</b>
 
      a.  Select ‘**Field**’ for object type, then select the event and type the field name.
      
-          - As you type, the field will auto-fill with matching text.
-              ![Graphical user interface, text Description automatically generated](media/806cf77c7bd1fa4944d55b8d74e113ac.png)
+     - As you type, the field will auto-fill with matching text.
+          <img src="media/Add_fields_auto_populate.png"  width="60%" height="60%"> 
               
       b.  Select the field that you would like to add to the export and click ‘**make it so’**.
 
 
-10. ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png)An asterisk will appear next to each unsaved item. After you have finished adding field(s) to the export items, click to save the changes.
-11. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
+     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. After you have finished adding fields to the            export items, save the changes.
+
+10. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
 
 ![Graphical user interface Description automatically generated](media/8dabf52bfe6520e134da8184793aaec6.png)
 
