@@ -16,9 +16,11 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
 -   **Flexible output spreadsheet layouts** including horizontal, vertical, and repeating form layouts.
 -   **Expeditiously handles large exports**. Large volume exports have minimal impact on performance speed. 
      -   In one benchmark it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file.
--   **Enhanced data dictionary, that includes metadata and data distributions(!)** This can drive external code generators and form the basis of basic study progress and data completion reports.
+-   **Enhanced data dictionary, that includes metadata and data distributions(!)** 
+     -   This can drive external code generators and form the basis of basic study progress and data completion reports.
 -   **Detailed audit for every download and export**. Daily activity summaries can be automatically sent to a pre-designated email address.
--   **Incorporates form-specific user export and access rights**. Compatible with the REDCap v12 form-specific export permission model, as well as with the data export model prior to version 12.
+-   **Incorporates form-specific user export and access rights**. 
+     -   Compatible with the REDCap v12 form-specific export permission model, as well as with the data export model prior to version 12.
 -   **Supports deidentified and coded datasets** that mirrors REDCap system data export.
 -   **Any number of exports may be designed and re-used**.
     -   **Export specifications can be rolled back** and restored to a prior version.
