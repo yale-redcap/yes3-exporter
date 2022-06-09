@@ -108,9 +108,9 @@ If a user attempts to access an export with restricted data, they will receive t
 <img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%" height="50%">
 
      a.  Please be mindful of the following limitations when creating a new export: 
-          i.  Export names cannot be duplicated. 
-          ii.  Special characters are permitted but will be removed during exports and downloads.
-          iii.  The Exporter does not include a feature to filter, sort, or delete exports. Create new exports judiciously.
+          - Export names cannot be duplicated. 
+          - Special characters are permitted but will be removed during exports and downloads.
+          - The Exporter does not include a feature to filter, sort, or delete exports. Create new exports judiciously.
 3.  Once completed, click “**make it so**”.
 4.  ![](media/9601508a91beaae82a96e999119529af.png)The **Export Settings** page will be displayed. Here you can customize your export.
 5.  ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png)Once you have selected your options, click to save your changes.
