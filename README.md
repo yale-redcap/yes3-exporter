@@ -103,6 +103,7 @@ If a user attempts to access an export with restricted data, they will receive t
 ### Quick Start
 
 1.  Click ![](media/cdcda9be5bb3bdb1c58c467b3c36cfa9.png) button to add a new export.
+
 2.  Enter the export name and select a layout.
 
 <img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%" height="50%">
@@ -111,16 +112,19 @@ If a user attempts to access an export with restricted data, they will receive t
           - Export names cannot be duplicated. 
           - Special characters are permitted but will be removed during exports and downloads.
           - The Exporter does not include a feature to filter, sort, or delete exports. Create new exports judiciously.
+         
 3.  Once completed, click “**make it so**”.
+
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
 <img src="media/Export_Settings_Display.png"  width="75%" height="75%">
 
-6.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
-7.  Select Export Items in the display setting to add forms/fields to the export specification.
+5.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
+
+6.  Select Export Items in the display setting to add forms/fields to the export specification.
 
 <img src="media/Export_Settings_Red_Box.png"  width="75%" height="75%">
 
-9.  Click the ![](media/709532227f87a43477374c0b9db4336b.png)![](media/51847c2084dab4b3c29764820914dd6e.tmp) button located along the top menu to add forms/fields.
+7.  Click the ![](media/51847c2084dab4b3c29764820914dd6e.tmp) button located along the top menu to add forms/fields.
 10.  To add form(s)
     1.  ![Graphical user interface, text, application Description automatically generated](media/bd3113b1282420c35fb6771c7feab48f.png) Select ‘Form’ for object type, then select the event and the form to add to the export.
         1.  ![](media/e1de6415015dbfacd31685d139f3aede.png)You may choose to insert as single export item which will display as:
