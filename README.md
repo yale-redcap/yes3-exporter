@@ -106,6 +106,7 @@ If a user attempts to access an export with restricted data, they will receive t
 2.  Enter the export name and select a layout.
 
 <img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%" height="50%">
+
      a.  Please be mindful of the following limitations when creating a new export: 
           i.  Export names cannot be duplicated. 
           ii.  Special characters are permitted but will be removed during exports and downloads.
