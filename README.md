@@ -98,7 +98,7 @@ If a user attempts to access an export with restricted data, they will receive t
     1.  Special characters are permitted but will be removed during exports and downloads.
 4.  Click save after changes are made.
 
-           <img src="./media/Event_Prefixes.png"  width="250" height="100">
+           <img src="media/Event_Prefixes.png"  width="250" height="100">
 
 
 ## YES3 Exporter Main
