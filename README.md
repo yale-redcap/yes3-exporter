@@ -131,19 +131,22 @@ If a user attempts to access an export with restricted data, they will receive t
     a.  Select ‘Form’ for object type, then select the event and the form to add to the export.
        
 
+
       - You may choose to insert as single export item which will display as:
       
       <img src="media/Insert_single_export_item.png"  width="50%" height="50%">  
       
       
+      
       - You may choose to insert as one export item per form which will display as: 
      
-       <img src="media/Insert_one_export_item_per_form.png"  width="70%" height="70%"> 
+       <img src="media/Insert_one_export_item_per_form.png"  width="75%" height="75%"> 
+         
          
          
       - You may choose to insert as one export item per field which will display as:
       
-        <img src="media/Insert_one_export_item_per_field.png"  width="70%" height="70%"> 
+        <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
         
         
     b.  Once you have chosen your display, click ‘**make it so**’.
