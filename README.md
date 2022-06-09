@@ -98,7 +98,7 @@ Users will not have access to any exports for which they do not have both **view
 4.  Click save after changes are made.
 
 
-### ![](media/Event_Prefixes.png)
+### ![](media/Event_Prefixes.png =250x100)
 
 ## YES3 Exporter Main
 
@@ -183,7 +183,9 @@ For text fields, the character restriction is applied to ALL text fields which m
 
 Each download or export is accompanied by a data dictionary that includes metadata and export-specific data distribution summaries for each column. These include the count, range, \#nonblank, and either a frequency table or mean and variance, as appropriate to the field type (dates are treated as continuous variables).
 
-# ![](media/07a620795a7efb497df1be23e2640659.tmp)YES3 Exporter Event Prefixes
+# ![](media/07a620795a7efb497df1be23e2640659.tmp)
+
+YES3 Exporter Event Prefixes
 
 The YES3 Exporter Event Prefixes can be accessed from the left menu panel under **External Modules**.   
 A HELP menu is available by clicking on the **?** icon.
