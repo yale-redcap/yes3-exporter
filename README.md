@@ -98,7 +98,7 @@ Users will not have access to any exports for which they do not have both **view
 4.  Click save after changes are made.
 
 
-## ![](media/07a620795a7efb497df1be23e2640659.tmp)
+## ![](media/Event_Prefixes.png)
 
 ## YES3 Exporter Main
 
