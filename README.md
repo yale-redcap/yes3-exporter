@@ -127,7 +127,9 @@ If a user attempts to access an export with restricted data, they will receive t
 7.  Click the ![](media/709532227f87a43477374c0b9db4336b.png) button located along the top menu to add forms/fields.
 
 8.  To add form(s)
-    1.  ![Graphical user interface, text, application Description automatically generated](media/bd3113b1282420c35fb6771c7feab48f.png) Select ‘Form’ for object type, then select the event and the form to add to the export.
+    a.  Select ‘Form’ for object type, then select the event and the form to add to the export.
+       (media/bd3113b1282420c35fb6771c7feab48f.png)
+       
         1.  ![](media/e1de6415015dbfacd31685d139f3aede.png)
         2.  You may choose to insert as single export item which will display as:
         3.  ![Graphical user interface, text, application, email Description automatically generated](media/246e0c6c3370a39918dd917bb446f74e.png)
