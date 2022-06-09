@@ -148,9 +148,7 @@ If a user attempts to access an export with restricted data, they will receive t
       
           <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
         
-     b.  Once you have chosen your display, click ‘**make it so**’.
-  
-     c. An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, save the changes.
+     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the            export items, save the changes.
      
 9.  <b>To add fields:</b>
 
