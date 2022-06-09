@@ -148,7 +148,6 @@ If a user attempts to access an export with restricted data, they will receive t
       
           <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
         
-        
      b.  Once you have chosen your display, click ‘**make it so**’.
   
      c. An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, click   ![Icon Description automatically generated](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save the changes.
