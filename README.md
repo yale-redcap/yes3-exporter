@@ -128,7 +128,7 @@ If a user attempts to access an export with restricted data, they will receive t
 
 8.  To add form(s)
     a.  Select ‘Form’ for object type, then select the event and the form to add to the export.
-       (media/bd3113b1282420c35fb6771c7feab48f.png)
+       <img src="media/Ebd3113b1282420c35fb6771c7feab48f.png"  width="75%" height="75%">
        
         1.  ![](media/e1de6415015dbfacd31685d139f3aede.png)
         2.  You may choose to insert as single export item which will display as:
