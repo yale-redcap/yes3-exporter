@@ -126,7 +126,7 @@ If a user attempts to access an export with restricted data, they will receive t
 
 7.  Click the ![](media/709532227f87a43477374c0b9db4336b.png) button located along the top menu to add forms/fields.
 
-8.  <u>To add form(s)</u>
+8.  <b>To add forms</b>
 
     a.  Select ‘Form’ for object type, then select the event and the form to add to the export.
        
@@ -152,7 +152,7 @@ If a user attempts to access an export with restricted data, they will receive t
   
      c. An asterisk will appear next to each unsaved item. After you have finished adding form(s) to the export items, save the changes.
      
-9.  <u>To add fields:</u>
+9.  <b>To add fields:</b>
 
      a.  Select ‘**Field**’ for object type, then select the event and type the field name.
      
