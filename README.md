@@ -90,17 +90,15 @@ If a user attempts to access an export with restricted data, they will receive t
 
 ## YES3 Exporter Event Prefixes
 
+<img src="media/Event_Prefixes.png"  width="250" height="100">
+
 1.  Before creating your first data export, review the prefix that will be assigned to events with horizontal layouts.
 2.  Access the event list by clicking the ‘**YES3 Exporter Event Prefixes’** link under **External Modules** on the left menu.
 3.  You can edit the pre-generated event prefixes.
     1.  Special characters are permitted but will be removed during exports and downloads.
 4.  Click save after changes are made.
 
-  <img src="media/Event_Prefixes.png"  width="250" height="100">
-
-
 ## YES3 Exporter Main
-
 
 ### Quick Start
 
