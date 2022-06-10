@@ -267,7 +267,9 @@ To use the exporter
    <img src="media/Exporter_Log_Download.png" width="75%" height="75%"> 
    
 
-# CONGRATULATIONS- YOU MADE IT THROUGH THE READ ME FILE.  
+
+**CONGRATULATIONS!- YOU MADE IT THROUGH THE READ ME FILE.**  
+
 
 # Contact
 
