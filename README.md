@@ -17,7 +17,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   Horizontal, vertical, and repeating form layouts
 -   **Expeditiously handles large exports**
      -   Large volume exports have minimal impact on performance speed
-     -   In one benchmark it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file.
+     -   In one benchmark it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file
 -   **Enhanced data dictionary that includes metadata and data distributions** 
      -   Each export is accompanied by a customized data dictionary to support data sharing
      -   Can be used to drive external code generators and form the basis of basic study progress and data completion reports
@@ -37,27 +37,28 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 # Configuration Settings
 
-## Global configuration
+## Global Configuration
 
 The YES3 Exporter performs several daily tasks for each project. By default, daily tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
 
-To configure, go to Control Panel -\> External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
-## Project configuration
+## Project Configuration
 
 Only users with project design and setup rights can configure the External Module Settings in the project.
 
-## Daily Log Report
+To configure, go to Control Panel -\> External Modules -\> Manage -\> Yes3 Exporter -\>Configure
+
+### Daily Log Report
 
 When enabled, you can designate one email address that will receive a daily summary of export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about export activity in last 24 hours.
 
 To disable the daily log report, you may change the email notification setting to “no” at any time.
 
-## Host File System Exports
+### Host File System Exports
 
 Data can be exported to a designated host file system (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. For data security, this feature requires the involvement of a REDCap administrator.
 
-## Backup Retention
+### Backup Retention
 
 Export specifications (i.e. templates) can be rolled back and restored to a prior saved version. By default, 20 generations are retained.
 
@@ -156,20 +157,20 @@ If a user attempts to access an export with restricted data, they will receive t
      
      c.  After you have finished adding forms to the export items, save the changes.
      
-9.  <b>To add fields:</b>
+9.   <b>To add fields:</b>
 
-     a.  Select ‘**Field**’ for object type, then select the event and type the field name.
+     a.   Select ‘**Field**’ for object type, then select the event and type the field name.
      
-     - As you type, the field will auto-populate.
+     -  As you type, the field will auto-populate.
      
           <img src="media/Add_fields_auto_populate.png"  width="60%" height="60%"> 
               
-      b.  Select the field that you would like to add to the export and click ‘**make it so’**.
+      b.   Select the field that you would like to add to the export and click ‘**make it so’**.
 
 
-     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
+      c.   Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
      
-     c.  After you have finished adding fields to the export items, save the changes.
+      d.   After you have finished adding fields to the export items, save the changes.
 
 10. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
 
