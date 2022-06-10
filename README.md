@@ -115,7 +115,7 @@ If a user attempts to access an export with restricted data, they will receive t
      a.  Please be mindful of the following limitations when creating a new export: 
           - Export names cannot be duplicated. 
           - Special characters are permitted but will be removed during exports and downloads.
-          - The Exporter does not include a feature to filter, sort, or delete exports. Create new exports judiciously.
+          - Unlike the parent system, you cannot filter, sort, or delete exports in the YES3 Exporter. Create new exports judiciously.
          
 3.  Once completed, click “**make it so**”.
 
@@ -124,7 +124,7 @@ If a user attempts to access an export with restricted data, they will receive t
 
 5.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
 
-6.  Select Export Items in the display setting to add forms/fields to the export specification.
+6.  Select *Export Items* in the display setting to add forms/fields to the export specification.
 
 <img src="media/Export_Settings_Red_Box.png"  width="75%" height="75%">
 
