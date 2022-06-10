@@ -193,7 +193,7 @@ There are three export layouts:
 
 The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
 
- <img src="media/f609e7aef49d1d92928008960fc4ff80.png"  width="75%" height="75%"> 
+ <img src="media/f609e7aef49d1d92928008960fc4ff80.png" width="50%" height="50%"> 
 
 As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, the target status (e.g. screen positive) must be identified through a query to ONE field in your REDCap project. Additional examples are found in the **?** icon.
 
@@ -205,7 +205,7 @@ The data compliance settings replicate the parent REDCap system. Removed fields 
 
 **Sanitize exported text values**
 
-Removes nonprintable characters including tabs, line feeds, html tags, etc. from text fields. International characters will remain intact.
+This option removes nonprintable characters including tabs, line feeds, html tags, etc. from text fields. International characters will remain intact.
 
 **Max character length**
 
@@ -215,7 +215,9 @@ For text fields, the character restriction is applied to ALL text fields which m
 
 ### Export Items
 
-![](media/2b20da77df4764a19a53275773bc374d.png)On the Export Item view, you can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, Hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
+On the Export Item view, you can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, Hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
+
+ <img src="media/Export_items.png" width="75%" height="75%"> 
 
 ## Exporter Data Dictionary
 
