@@ -148,19 +148,24 @@ If a user attempts to access an export with restricted data, they will receive t
       
           <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
         
-     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. After you have finished adding forms to the            export items, save the changes.
+     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
+     
+     c.  After you have finished adding forms to the export items, save the changes.
      
 9.  <b>To add fields:</b>
 
      a.  Select ‘**Field**’ for object type, then select the event and type the field name.
      
      - As you type, the field will auto-fill with matching text.
+     
           <img src="media/Add_fields_auto_populate.png"  width="60%" height="60%"> 
               
       b.  Select the field that you would like to add to the export and click ‘**make it so’**.
 
 
-     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. After you have finished adding fields to the            export items, save the changes.
+     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
+     
+     c.  After you have finished adding fields to the export items, save the changes.
 
 10. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
 
@@ -170,22 +175,27 @@ If a user attempts to access an export with restricted data, they will receive t
 
 There are three export layouts:
 
-1.  Horizontal (longitudinal projects: one row per record)
-    1.  The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event Prefixes**.
-2.  Vertical (one row per record + event)
-    1.  The REDCap event id is included in the data export file.
-3.  Repeating Form (one row per record + event + instance)
-    1.  Only one repeating form can be defined in the export. In this version, you cannot export repeating events.
+1.  **Horizontal** (longitudinal projects: one row per record)
+    
+    a.  The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event Prefixes**.
+    
+2.  **Vertical** (one row per record + event)
+
+    a.  The REDCap event id is included in the data export file.
+    
+3.  **Repeating Form** (one row per record + event + instance)
+
+    a.  Only one repeating form can be defined in the export. In this version, you cannot export repeating events.
 
 ### Export Settings
 
-![Graphical user interface, text, application, email Description automatically generated](media/80ee8d637c320b0be5d7cc3a1586f778.png)
-
 **Options for Selecting Records**
 
-![](media/f609e7aef49d1d92928008960fc4ff80.png)The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
+The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
 
-As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, you will need to design your project so that the target status (e.g. screen positive) can be identified by a query involving ONE field in your REDCap project. Additional examples are found in the **?** icon.
+![](media/f609e7aef49d1d92928008960fc4ff80.png)
+
+As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, the target status (e.g. screen positive) must be identified through a query to ONE field in your REDCap project. Additional examples are found in the **?** icon.
 
 #### Options for Data Compliance
 
