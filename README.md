@@ -215,7 +215,7 @@ For text fields, the character restriction is applied to ALL text fields which m
 
 ### Export Items
 
-On the Export Item view, you can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, Hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
+On the Export Item view, you can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
 
  <img src="media/Export_moving.png" width="75%" height="75%"> 
 
@@ -223,12 +223,11 @@ On the Export Item view, you can make changes by using the pencil icon to edit a
 
 Each download or export is accompanied by a data dictionary that includes metadata and export-specific data distribution summaries for each column. These include the count, range, \#nonblank, and either a frequency table or mean and variance, as appropriate to the field type (dates are treated as continuous variables).
 
-# ![](media/07a620795a7efb497df1be23e2640659.tmp)
+# YES3 Exporter Event Prefixes
 
-YES3 Exporter Event Prefixes
+The YES3 Exporter Event Prefixes can be accessed from the left menu panel under **External Modules**. A HELP menu is available by clicking on the **?** icon. 
 
-The YES3 Exporter Event Prefixes can be accessed from the left menu panel under **External Modules**.   
-A HELP menu is available by clicking on the **?** icon.
+ <img src="media/Exporter_Event_Prefixes.png" width="250" height="100"> 
 
 Here you can designate event prefixes for horizontal layouts.
 
@@ -242,25 +241,44 @@ Here you may view and download the logs for each export that has been created. W
 
 To use the exporter
 
-1.  ![](media/07a620795a7efb497df1be23e2640659.tmp)Access the export log by clicking the ‘**YES3 Exporter Logs’** link under **External Modules** on the left menu.
+1.  Access the export log by clicking the ‘**YES3 Exporter Logs’** link under **External Modules** on the left menu.
+
+ <img src="media/Exporter_Logs_Menu.png" width="250" height="100"> 
+
 2.  Similar to Exporter Main, a HELP menu is available by clicking on the **?** icon.
-3.  ![](media/539cff9ba37f92c9f3d231f6086bfdc5.tmp)Select an export to view
-    1.  By default, your view will include all export activity. You may filter by user or date range.
+
+3.  Select an export to view
+
+    a.  By default, your view will include all export activity. You may filter by user or date range.
+    
+    
+     <img src="media/Exporter_Log_View.png" width="75%" height="75%"> 
+     
+    
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/7b85b744b6e4165d5a288ccbfee2d668.tmp)icon.
 
-![](media/b1c008d1c9036c3509319de75f798646.tmp)
 
-1.  ![](media/c08b6e2c6ea30d3cbe6cd3e312244a84.tmp)Click ![](media/d3dd32e55d06b7caad7e8200e65f1382.tmp)to download the log.
+   <img src="media/Exporter_Log_Inspect.png" width="75%" height="75%"> 
+   
 
-# 
+5.  Click ![](media/d3dd32e55d06b7caad7e8200e65f1382.tmp)to download the log.
 
-# 
+
+   <img src="media/Exporter_Log_Download.png" width="75%" height="75%"> 
+   
+
+# CONGRATULATIONS- YOU MADE IT THROUGH THE READ ME FILE.  
+
+# Contact
+
+redcap@yale.edu 
 
 # In the Pipeline
 
--   Ability to filter, sort, or delete exports in drop down menu
+-   Ability to filter, sort, or delete exports in drop-down menu
 -   Ability to export repeating events
 -   Automated filesystem exports
+
 
 # Authors
 
@@ -270,6 +288,7 @@ To use the exporter
 
 ## Contributors
 
+**REDCap@Yale Team:**
 -   Katy Araujo, Yale University
 -   Venugopal Bhatia, Yale University
 -   Brian Funaro, Yale University
