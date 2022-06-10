@@ -124,7 +124,7 @@ If a user attempts to access an export with restricted data, they will receive t
 
 5.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
 
-6.  Select *Export Items* in the display setting to add forms/fields to the export specification.
+6.  Select **'Export Items'** in the display setting to add forms/fields to the export specification.
 
 <img src="media/Export_Settings_Red_Box.png"  width="75%" height="75%">
 
@@ -160,7 +160,7 @@ If a user attempts to access an export with restricted data, they will receive t
 
      a.  Select ‘**Field**’ for object type, then select the event and type the field name.
      
-     - As you type, the field will auto-fill with matching text.
+     - As you type, the field will auto-populate.
      
           <img src="media/Add_fields_auto_populate.png"  width="60%" height="60%"> 
               
@@ -173,25 +173,32 @@ If a user attempts to access an export with restricted data, they will receive t
 
 10. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
 
-![Graphical user interface Description automatically generated](media/8dabf52bfe6520e134da8184793aaec6.png)
 
 ### Export Layout
 
 There are three export layouts:
 
-1.  **Horizontal** (longitudinal projects: one row per record)
-    
-    a.  The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event Prefixes**.
-    
-2.  **Vertical** (one row per record + event)
+1.  **Horizontal** 
 
-    a.  The REDCap event id is included in the data export file.
+     -  *Longitudinal projects: one row per record*
     
-3.  **Repeating Form** (one row per record + event + instance)
+     -   The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event                Prefixes**.
+    
+2.  **Vertical** 
 
-    a.  Only one repeating form can be defined in the export. In this version, you cannot export repeating events.
+     - *One row per record + event*
+     
+     - The REDCap event id is included in the data export file.
+    
+3.  **Repeating Form** 
 
-### Export Settings
+     - *One row per record + event + instance*
+
+     - Only one repeating form can be defined in the export. In this version, you cannot export repeating events.
+
+### Export Settings View
+
+On the Export Settings view, you can specify how data is exported across all fields. 
 
 **Options for Selecting Records**
 
@@ -201,31 +208,41 @@ The selecting records option allows you to specify the field, event, and value r
 
 As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, the target status (e.g. screen positive) must be identified through a query to ONE field in your REDCap project. Additional examples are found in the **?** icon.
 
-#### Options for Data Compliance
+
+
+**Options for Data Compliance**
+
 
 The data compliance settings replicate the parent REDCap system. Removed fields will not appear in an export. No field label or placeholder will be included in the data export.
 
+
 **Options for Conditioning Exported Values**
 
-**Sanitize exported text values**
+
+*Sanitize exported text values*
 
 This option removes nonprintable characters including tabs, line feeds, html tags, etc. from text fields. International characters will remain intact.
 
-**Max character length**
+
+*Max character length*
 
 You can restrict the number of characters included in the export. Field labels are typically restricted to 200-250 characters to support integration with statistical programs such as SAS.
 
 For text fields, the character restriction is applied to ALL text fields which may result in incomplete data. If you have also opted to **Remove all freetext fields**, the more restrictive specification will be followed.
 
-### Export Items
 
-On the Export Item view, you can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
+
+### Export Items View
+
+On the Export Items view, you can edit what data will be exported. You can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
 
  <img src="media/Export_moving.png" width="75%" height="75%"> 
+
 
 ## Exporter Data Dictionary
 
 Each download or export is accompanied by a data dictionary that includes metadata and export-specific data distribution summaries for each column. These include the count, range, \#nonblank, and either a frequency table or mean and variance, as appropriate to the field type (dates are treated as continuous variables).
+
 
 # YES3 Exporter Event Prefixes
 
@@ -235,11 +252,12 @@ The YES3 Exporter Event Prefixes can be accessed from the left menu panel under 
 
 Here you can designate event prefixes for horizontal layouts.
 
-[event prefix]_[REDCap field name]
+**[event prefix]_[REDCap field name]**
 
 A prefix is a string of characters at the beginning of the field name that is used to designate the ‘event’. Auto-generated prefixes can be edited here. There is no restriction on the number of characters, but you should be aware of limitations imposed by statistical software. Special characters will be removed during exports and downloads.
 
-# Exporter Logs
+
+# YES3 Exporter Logs
 
 Here you may view and download the logs for each export that has been created. When the data is downloaded or exported, a log is generated which includes information about the export.
 
@@ -262,7 +280,7 @@ To use the exporter
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/7b85b744b6e4165d5a288ccbfee2d668.tmp)icon.
 
 
-   <img src="media/Exporter_Log_Inspect.png" width="75%" height="75%"> 
+   <img src="media/Exporter_Log_Inspect_Icon.png" width="75%" height="75%"> 
    
 
 5.  Click ![](media/d3dd32e55d06b7caad7e8200e65f1382.tmp)to download the log.
