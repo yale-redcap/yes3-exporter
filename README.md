@@ -193,7 +193,7 @@ There are three export layouts:
 
 The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
 
-![](media/f609e7aef49d1d92928008960fc4ff80.png)
+ <img src="media/f609e7aef49d1d92928008960fc4ff80.png"  width="75%" height="75%"> 
 
 As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, the target status (e.g. screen positive) must be identified through a query to ONE field in your REDCap project. Additional examples are found in the **?** icon.
 
