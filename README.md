@@ -239,6 +239,8 @@ For text fields, the character restriction is applied to ALL text fields which m
 On the Export Items view, you can edit what data will be exported. You can make changes by using the pencil icon to edit an item or the trashcan icon to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
 
  <img src="media/Export_moving.png" width="75%" height="75%"> 
+ 
+ <img src="media/YES3_selector_v1.gif" width="75%" height="75%"> 
 
 
 ## Exporter Data Dictionary
