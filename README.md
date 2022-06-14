@@ -41,12 +41,13 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 The YES3 Exporter performs several daily tasks for each project. By default, daily tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
 
+To configure, go to Control Panel -> External Modules -> Manage -> Yes3 Exporter ->Configure
 
 ## Project Configuration
 
 Only users with project design and setup rights can configure the External Module Settings in the project.
 
-To configure, go to Control Panel -\> External Modules -\> Manage -\> Yes3 Exporter -\>Configure
+To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
 ### Daily Log Report
 
@@ -235,7 +236,7 @@ For text fields, the character restriction is applied to ALL text fields which m
 
 ### Export Items View
 
-On the Export Items view, you can edit what data will be exported. You can make changes by using the pencil icon to edit an item or the trashcan item to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
+On the Export Items view, you can edit what data will be exported. You can make changes by using the pencil icon to edit an item or the trashcan icon to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
 
  <img src="media/Export_moving.png" width="75%" height="75%"> 
 
