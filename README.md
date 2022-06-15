@@ -17,7 +17,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   Horizontal, vertical, and repeating form layouts
 -   **Expeditiously handles large exports**
      -   Large volume exports have minimal impact on performance speed
-     -   In one benchmark it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file
+     -   In testing it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file
 -   **Enhanced data dictionary that includes metadata and data distributions** 
      -   Each export is accompanied by a customized data dictionary to support data sharing
      -   Can be used to drive external code generators and form the basis of basic study progress and data completion reports
