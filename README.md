@@ -24,7 +24,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   Includes the ability to email daily activity summaries- automatically
 -   **Incorporates form-specific user access and export rights**
      -   Compatible with REDCap v12 user-rights and backward compatible with earlier permissions models
--   **Supports deidentified and coded datasets** that mirrors REDCap system data export
+-   **Supports deidentified and coded datasets** that mirror the REDCap parent system
 -   **Any number of export templates may be designed and re-used**
 -   **Export specifications can be rolled back and restored to a prior version**
 -   **Can export directly to a host filesystem**
