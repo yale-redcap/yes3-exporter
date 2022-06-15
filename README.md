@@ -283,9 +283,7 @@ To use the exporter
     
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/7b85b744b6e4165d5a288ccbfee2d668.tmp)icon.
 
-
-   <img src="media/Exporter_Log_Inspect_Icon.png" width="75%" height="75%"> 
-   
+   <img src="media/YES3_logs_select_v1.gif" width="75%" height="75%">
 
 5.  Click ![](media/d3dd32e55d06b7caad7e8200e65f1382.tmp)to download the log.
 
