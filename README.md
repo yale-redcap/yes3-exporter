@@ -83,7 +83,7 @@ Help Panels are identified by a **?** symbol. Help panels are located in the mai
 
 ## User Rights
 
-Users *with* project-design rights have the ability to create, modify and download exports.  Users *without* project-design rights can access what is created; they can view the export specifications and export data.
+Users *with* project-design rights have the ability to create, modify and download exports.  Users *without* project-design rights can access what is created; they can view the export and download data.
 
 Users will not have access to any exports unless they have both **view and export** permissions. This protects the data and prevents unblinding. For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the v12 form-specific exporter permissions.
 
