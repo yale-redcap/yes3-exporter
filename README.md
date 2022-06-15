@@ -115,8 +115,8 @@ If a user attempts to access an export with restricted data, they will receive t
 
      a.  Please be mindful of the following limitations when creating a new export: 
           - Export names cannot be duplicated. 
-          - Special characters are permitted but will be removed during exports and downloads.
-          - Unlike the parent system, you cannot filter, sort, or delete exports in the YES3 Exporter. Create new exports judiciously.
+          - Special characters are permitted but will be removed during download.
+          - Create new exports judiciously.Unlike the parent system, you cannot filter, sort, or delete exports in the YES3 Exporter. 
          
 3.  Once completed, click “**make it so**”.
 
