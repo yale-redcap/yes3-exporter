@@ -21,7 +21,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
 -   **Enhanced data dictionary that includes metadata and data distributions** 
      -   Each export is accompanied by a customized data dictionary to simplify data sharing
 -   **Detailed audit for every export download**
-     -   Includes the ability to send daily activity summaries to a pre-designated email address- automatically
+     -   Includes the ability to email daily activity summaries- automatically
 -   **Incorporates form-specific user export and access rights**
      -   Compatible with the REDCap v12 form-specific export permission model, as well as with the data export model prior to version 12
 -   **Supports deidentified and coded datasets** that mirrors REDCap system data export
