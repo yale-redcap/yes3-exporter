@@ -56,7 +56,7 @@ To disable the daily log report, you may change the email notification setting t
 
 ### Host File System Exports
 
-Data can be exported to a designated host file system (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. To safeguard data security, enabling this setting requires a REDCap administrator.
+Data can be exported to a designated host file system (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. To safeguard data security, enabling this setting requires approval by a REDCap administrator.
 
 ### Backup Retention
 
