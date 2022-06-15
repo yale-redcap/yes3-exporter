@@ -20,7 +20,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   In testing it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file
 -   **Enhanced data dictionary that includes metadata and data distributions** 
      -   Each export is accompanied by a customized data dictionary to simplify data sharing
--   **Detailed audit for every download and export**
+-   **Detailed audit for every export download**
      -   Includes the ability to automatically send daily activity summaries to a pre-designated email address
 -   **Incorporates form-specific user export and access rights**
      -   Compatible with the REDCap v12 form-specific export permission model, as well as with the data export model prior to version 12
