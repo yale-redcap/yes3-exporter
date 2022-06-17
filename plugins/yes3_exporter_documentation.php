@@ -39,7 +39,8 @@ $urlMediaFolder = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirecto
 
 //exit ( $urlBase );
 
-$markdown = str_replace( ["(media/", "\r"], ["(" . $urlMediaFolder, ""], $markdown);
+//$markdown = str_replace( ["(media/", "\r"], ["(" . $urlMediaFolder, ""], $markdown);
+$markdown = str_replace( ["media/", "\r"], [$urlMediaFolder, ""], $markdown);
 
 //exit($markdown);
 

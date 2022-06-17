@@ -1,6 +1,6 @@
-![example workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
-![example workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
-![example workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
+![psalm-security](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
+![psalm-static](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
+![codeql-javascript](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
 
 **YES3 Exporter Documentation**
 
@@ -90,7 +90,7 @@ Users will not have access to an export unless they have both **view and export*
 
 If a user attempts to access an export with restricted data, they will receive the following message:
 
-<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="50%" height="50%">
+<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="50%">
 
 # Getting Started
 
@@ -98,7 +98,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 ## YES3 Exporter Event Prefixes
 
-<img src="media/Event_Prefixes.png"  width="250" height="100">
+<img src="media/Event_Prefixes.png"  width="250">
 
 1.  Before creating your first data export, review the prefix that will be assigned to events with horizontal layouts.
 2.  Access the event list by clicking the ‘**YES3 Exporter Event Prefixes’** link under **External Modules** on the left menu.
@@ -114,7 +114,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 2.  Enter the export name and select a layout.
 
-<img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%" height="50%">
+<img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%">
 
      a.  Please be mindful of the following limitations when creating a new export: 
           - Export names cannot be duplicated. 
@@ -124,13 +124,13 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 3.  Once completed, click “**make it so**”.
 
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
-<img src="media/Export_Settings_Display.png"  width="75%" height="75%">
+<img src="media/Export_Settings_Display.png"  width="75%">
 
 5.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
 
 6.  Select **'Export Items'** in the display setting to add forms/fields.
 
-<img src="media/Export_Settings_Red_Box.png"  width="75%" height="75%">
+<img src="media/Export_Settings_Red_Box.png"  width="75%">
 
 7.  Click the ![](media/709532227f87a43477374c0b9db4336b.png) button located along the top menu to add forms/fields.
 
@@ -142,19 +142,19 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
       - You may choose to insert as single export item which will display as:
       
-          <img src="media/Insert_single_export_item.png"  width="50%" height="50%">  
+          <img src="media/Insert_single_export_item.png"  width="50%">  
       
       
       
       - You may choose to insert as one export item per form which will display as: 
      
-          <img src="media/Insert_one_export_item_per_form.png"  width="75%" height="75%"> 
+          <img src="media/Insert_one_export_item_per_form.png"  width="75%"> 
          
          
          
       - You may choose to insert as one export item per field which will display as:
       
-          <img src="media/Insert_one_export_item_per_field.png"  width="75%" height="75%"> 
+          <img src="media/Insert_one_export_item_per_field.png"  width="75%"> 
         
      b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
      
@@ -166,7 +166,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
      
      -  As you type, the field will auto-populate.
      
-          <img src="media/Add_fields_auto_populate.png"  width="60%" height="60%"> 
+          <img src="media/Add_fields_auto_populate.png"  width="60%"> 
               
       b.   Select the field that you would like to add to the export and click ‘**make it so’**.
 
@@ -209,7 +209,7 @@ On the Export Settings view, you can specify how data is exported across all fie
 
 The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
 
- <img src="media/f609e7aef49d1d92928008960fc4ff80.png" width="50%" height="50%"> 
+ <img src="media/f609e7aef49d1d92928008960fc4ff80.png" width="50%"> 
 
 As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, the target status (e.g. screen positive) must be identified through a query to ONE field in your REDCap project. Additional examples are found in the **?** icon.
 
@@ -241,9 +241,9 @@ For text fields, the character restriction is applied to ALL text fields which m
 
 On the Export Items view, you can edit what data will be exported. You can make changes by using the pencil icon to edit an item or the trashcan icon to delete an item. To move an item, hover the cursor on the left side row number until a hand icon appears then drag it up or down to its new location. Remember to save your changes.
 
- <img src="media/Export_moving.png" width="75%" height="75%"> 
+ <img src="media/Export_moving.png" width="75%"> 
  
- <img src="media/YES3_selector_v1.gif" width="75%" height="75%"> 
+ <img src="media/YES3_selector_v1.gif" width="75%"> 
 
 
 ## Exporter Data Dictionary
@@ -255,7 +255,7 @@ Each download or export is accompanied by a data dictionary that includes metada
 
 The YES3 Exporter Event Prefixes can be accessed from the left menu panel under **External Modules**. A HELP menu is available by clicking on the **?** icon. 
 
- <img src="media/Exporter_Event_Prefixes.png" width="250" height="100"> 
+ <img src="media/Exporter_Event_Prefixes.png" width="250"> 
 
 Here you can designate event prefixes for horizontal layouts.
 
@@ -272,7 +272,7 @@ To use the exporter
 
 1.  Access the export log by clicking the ‘**YES3 Exporter Logs’** link under **External Modules** on the left menu.
 
- <img src="media/Exporter_Logs_Menu.png" width="250" height="100"> 
+ <img src="media/Exporter_Logs_Menu.png" width="250"> 
 
 2.  Similar to Exporter Main, a HELP menu is available by clicking on the **?** icon.
 
@@ -281,17 +281,17 @@ To use the exporter
     a.  By default, your view will include all export activity. You may filter by user or date range.
     
     
-     <img src="media/Exporter_Log_View.png" width="75%" height="75%"> 
+     <img src="media/Exporter_Log_View.png" width="75%"> 
      
     
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/7b85b744b6e4165d5a288ccbfee2d668.tmp)icon.
 
-   <img src="media/YES3_logs_select_v1.gif" width="75%" height="75%">
+   <img src="media/YES3_logs_select_v1.gif" width="75%">
 
 5.  Click ![](media/d3dd32e55d06b7caad7e8200e65f1382.tmp)to download the log.
 
 
-   <img src="media/Exporter_Log_Download.png" width="75%" height="75%"> 
+   <img src="media/Exporter_Log_Download.png" width="75%"> 
    
 
 
