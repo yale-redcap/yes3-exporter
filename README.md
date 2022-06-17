@@ -39,7 +39,7 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 ## Global Configuration
 
-The YES3 Exporter performs daily tasks, such as removing old exports. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
+The YES3 Exporter performs daily tasks, such as removing old export backups. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
 
 To configure, go to Control Panel -> External Modules -> Manage -> Yes3 Exporter ->Configure
 
