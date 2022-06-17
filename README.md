@@ -142,7 +142,7 @@ a.  Please be mindful of the following limitations when creating a new export:
 
       - You may choose to insert as single export item which will display as:
       
-          <img src="media/Insert_single_export_item_1.png"  width="50%">  
+          <img src="media/Insert_single_export_item_1.png"  width="75%">  
       
       
       
