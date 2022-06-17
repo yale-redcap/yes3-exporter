@@ -142,7 +142,7 @@ a.  Please be mindful of the following limitations when creating a new export:
 
       - You may choose to insert as single export item which will display as:
       
-          <img src="media/oops.png"  width="75%">  
+          <img src="media/Oops.png"  width="75%">  
       
       
       
