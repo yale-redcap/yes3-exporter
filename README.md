@@ -116,10 +116,10 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 <img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%">
 
-     a.  Please be mindful of the following limitations when creating a new export: 
-          - Export names cannot be duplicated. 
-          - Special characters are permitted but will be removed during download.
-          - Create new exports judiciously. Unlike the parent system, you cannot filter, sort, or delete exports in the YES3 Exporter. 
+a.  Please be mindful of the following limitations when creating a new export: 
+- Export names cannot be duplicated. 
+- Special characters are permitted but will be removed during download.
+- Create new exports judiciously. Unlike the parent system, you cannot filter, sort, or delete exports in the YES3 Exporter. 
          
 3.  Once completed, click “**make it so**”.
 
