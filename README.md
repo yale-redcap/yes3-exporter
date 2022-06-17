@@ -90,7 +90,7 @@ Users will not have access to an export unless they have both **view and export*
 
 If a user attempts to access an export with restricted data, they will receive the following message:
 
-<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="25%">
+<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="40%">
 
 # Getting Started
 
