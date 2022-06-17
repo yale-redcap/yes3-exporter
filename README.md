@@ -94,6 +94,8 @@ If a user attempts to access an export with restricted data, they will receive t
 
 # Getting Started
 
+In this quick start guide, you will (1.) review the prefixes, (2.) create a new export, (3.) configure settings, and (4.) download data.
+
 ## YES3 Exporter Event Prefixes
 
 <img src="media/Event_Prefixes.png"  width="250" height="100">
@@ -175,6 +177,7 @@ If a user attempts to access an export with restricted data, they will receive t
 
 10. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
 
+     **Note:** For checkbox field, the checked-off options will be combined and export into a single column.
 
 ### Export Layout
 
