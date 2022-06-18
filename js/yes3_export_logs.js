@@ -30,7 +30,7 @@ FMAPR.exportUUIDSelect = function()
             "username": "",
             "date0": "",
             "date1": "",
-            "limit": 500
+            "limit": 5000
         }, 
         FMAPR.exportUUIDSelectCallback,
         true
@@ -50,16 +50,16 @@ FMAPR.exportConstraintSelect = function()
             "username": $("select#export_username").val(),
             "date0": $("input#export_date0").val(),
             "date1": $("input#export_date1").val(),
-            "limit": 500
+            "limit": 5000
         }, 
-        FMAPR.exportUUIDSelectCallback,
+        FMAPR.refreshExportLogTable,
         true
     );
 }
 
 FMAPR.exportUUIDSelectCallback = function( response )
 {
-    console.log( 'exportUUIDSelectCallback', response );
+    //console.log( 'exportUUIDSelectCallback', response );
 
     if ( response.message ){
 
@@ -68,10 +68,10 @@ FMAPR.exportUUIDSelectCallback = function( response )
 
     let fmaprTable = $("table#yes3-fmapr-export-log-table");
 
-    let fmaprTableBody = $("tbody#yes3-fmapr-export-log-tbody");
+    //$("input#export_date0").val( response.observed_date0 );
+    //$("input#export_date1").val( response.observed_date1 );
 
-    $("input#export_date0").val( response.observed_date0 );
-    $("input#export_date1").val( response.observed_date1 );
+    let userSelector = $("select#export_username"); // needed to preserve selected user
 
     let userHtml = "<option value=''>all users</option>";
 
@@ -80,7 +80,16 @@ FMAPR.exportUUIDSelectCallback = function( response )
         userHtml += `<option value='${response.observed_usernames[u]}'>${response.observed_usernames[u]}</option>`;
     }
 
-    $("select#export_username").empty().append(userHtml);
+    userSelector.empty().append(userHtml);
+
+    FMAPR.refreshExportLogTable( response );
+}
+
+FMAPR.refreshExportLogTable = function( response )
+{
+    let fmaprTableBody = $("tbody#yes3-fmapr-export-log-tbody");
+
+    let fmaprTableRowCount = $("div#yes3-fmapr-row-count");
 
     let rowHtml = "";
 
@@ -105,9 +114,9 @@ FMAPR.exportUUIDSelectCallback = function( response )
 
     fmaprTableBody.empty().append(rowHtml);
 
-    $(window).trigger('resize');
+    fmaprTableRowCount.html( `${response.data.length} log records`)
 
-    //FMAPR.resizeExportLogTable();
+    $(window).trigger('resize');
 }
 
 FMAPR.inspectLogRecord = function(log_id)

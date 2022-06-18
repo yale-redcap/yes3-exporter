@@ -326,7 +326,7 @@ function downloadExportLog()
     $path = tempnam(sys_get_temp_dir(), "ys3");
 
     //$h = fopen( $path, "w+" );
-    $h = $module->fopen_w_utf8( $path );
+    $h = $module->fopen_w_utf8( $path, "w+" );
 
     if ( $h===false ){
 
@@ -336,6 +336,10 @@ function downloadExportLog()
     $sql = getExportLogRecordSQL();
 
     $bytes = 0;
+
+    //exit("downloadExportLog: {$export_uuid}, {$export_name}, {$path}, {$bytes}, {$sql}");
+
+    $n=0;
 
     foreach ( Yes3::recordGenerator($sql, [ $module->project_id, EMLOG_LOG_ENTRY_TYPE, $export_uuid ]) as $x ){
 
@@ -347,6 +351,12 @@ function downloadExportLog()
         }
 
         $bytes += fputcsv($h, array_values($x));
+
+        $n++;
+        if ( $n > 100 ){
+
+            break;
+        }
     }
 
     rewind($h);

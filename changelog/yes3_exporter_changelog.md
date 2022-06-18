@@ -1,6 +1,26 @@
 
 # YES3 Exporter Change Log
 
+**Version 0.8.1 June 18, 2022**
+
+1. Major README edits and reorganization
+2. Export log browser date range selectors no longer updated based on observed range
+3. Bug fix: Log record export failed
+4. Export log browser now displays the row count
+5. Export log browser UI tweaked for better responsiveness
+
+**Version 0.8.0 June 4, 2022**
+
+1. Designers now accorded permissions on all forms, regardless of form export and view permissions
+2. Major CSS cleanup
+3. Option to activate beta features removed
+4. Exporter Main UI overhauled for efficiency, clarity and to maximize the amount of information displayed:
+   * UI transformed from a single form with an embedded table having input fields for each item row (form/field name, event) to a list that invokes a single item editor
+   * Ordering convention of item event, item object adopted throughout UI
+   * Form titles (Followup MMSE) displayed instead of form names (followup_mmse).
+   * Field labels are displayed as well as field names
+5. Numerous UI tweaks based on user testing
+
 **Version 0.7.5 May 25, 2022**
 
 1. Bug fix: The selection criterion value "list" syntax failed with no records selected.

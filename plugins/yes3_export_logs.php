@@ -31,7 +31,7 @@ $module->getCodeFor("yes3_export_logs", true);
 
 ?>
 
-<style>
+<!--style>
     table#yes3-fmapr-export-log-table td i:not(.yes3-selected) {
         color: var(--yes3-td-color);
     }
@@ -43,7 +43,7 @@ $module->getCodeFor("yes3_export_logs", true);
     table#yes3-fmapr-export-log-table {
         display: none;
     }
-</style>
+</style-->
 
 <div class="yes3-panel yes3-draggable" id="yes3-record-inspector">
 
@@ -224,30 +224,30 @@ $module->getCodeFor("yes3_export_logs", true);
     <div class="row yes3-controls yes3-look-out-below">
 
         <div class="col-lg-3">
-
             <select id="export_uuid" onchange="FMAPR.exportUUIDSelect()"></select>
-
         </div>
 
-        <div class="col-lg-3">
-
+        <div class="col-lg-2">
             <select id="export_username" onchange="FMAPR.exportConstraintSelect()">
                 <option value="">all users</option>
             </select>
-
         </div>
 
-        <div class="col-lg-6 yes3-flex-container">
+        <div class="col-lg-5">
 
-            <div class="yes3-flex-vcenter-hleft">
-                &nbsp;from&nbsp;<input type="date" id="export_date0" onchange="FMAPR.exportConstraintSelect()" title="Start of date range"/>
+            <div class="yes3-fmapr-flex-range-container">
+
+                <div>
+                    from&nbsp;<input type="date" id="export_date0" onchange="FMAPR.exportConstraintSelect()" title="Start of date range"/>
+                </div>
+
+                <div>
+                    to&nbsp;<input type="date" id="export_date1" onchange="FMAPR.exportConstraintSelect()" title="End of date range" />
+                </div>
             </div>
-
-            <div class="yes3-flex-vcenter-hleft">
-                &nbsp;to&nbsp;<input type="date" id="export_date1" onchange="FMAPR.exportConstraintSelect()" title="End of date range" />
-            </div>
-
         </div>
+
+        <div class="col-lg-2 yes3-flex-vcenter-hright" id="yes3-fmapr-row-count"></div>
 
     </div>
 
