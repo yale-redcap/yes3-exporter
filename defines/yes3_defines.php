@@ -7,8 +7,9 @@ define('ALL_OF_THEM', "all");
 define('MAX_LABEL_LEN', 128);
 
 define('EMLOG_MSG_EXPORT_SPECIFICATION', 'yes3-export-specification');
-define('EMLOG_LOG_ENTRY_TYPE', 'yes3-export-log');
-define('EMLOG_ERROR_REPORT', 'yes3-export-error-report');
+define('EMLOG_TYPE_EXPORT_LOG_ENTRY', 'yes3-export-log');
+define('EMLOG_TYPE_ERROR_REPORT', 'yes3-export-error-report');
+define('EMLOG_TYPE_CRON_LOG', 'yes3-exporter-cron-log');
 
 define('VARNAME_GROUP_ID',   'redcap_data_access_group_id');
 define('VARNAME_GROUP_NAME', 'redcap_data_access_group');

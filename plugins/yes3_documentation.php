@@ -12,11 +12,9 @@ defined('APP_PATH_WEBROOT_FULL') or define('APP_PATH_WEBROOT_FULL', '');
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 
-use Yale\Yes3FieldMapper\Yes3;
-
 $githubCssUrl = $module->getUrl("css/github-markdown-v2.css");
-$yes3CssUrl = $module->getUrl("css/yes3_exporter_documentation.css");
-//$yes3JsUrl = $module->getUrl("js/yes3_exporter_documentation.js");
+$yes3CssUrl = $module->getUrl("css/yes3_documentation.css");
+//$yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
 
 $yes3SquareLogoUrl_light = $module->getUrl("images/YES3_Logo_Square_White.png");
 $yes3SquareLogoUrl_dark  = $module->getUrl("images/YES3_Logo_Square_Black.png");
@@ -170,20 +168,8 @@ function buildTOC( &$markdown, &$toc )
                     <div class="authors hidden-xs" id="stub-footer">
 
                         <p>Wrought by the REDCap@Yale team</p>
-
-                        <!--div class="author">Pete Charpentier</div>
-                        <div class="author">Katy Araujo</div>
-                        <div class="author">Venughopal Bhatia</div>
-                        <div class="author">Sumon Chattopadhyay</div>
-                        <div class="author">Brian Funaro</div>
-                        <div class="author">Mary Geda</div>
-                        <div class="author">Dana Limone</div>
-                        <div class="author">Kaitlin Maciejewski</div>
-                        <div class="author">Janet Micelli</div>
-                        <div class="author">Sui Tsang</div>
-                        <div class="author">Maxwell Wibert</div-->
-
                         <p>REDCap@yale.edu</p>
+                        <p id="changelogLink"><a href="javascript:openChangeLog();">change log</a></p>
 
                     </div>
                 </div>
@@ -199,6 +185,10 @@ function buildTOC( &$markdown, &$toc )
 
         <script>
 
+            let windowNumber = 0;
+
+            let doc = "<?= $_GET['doc'] ?>";
+
             let Yes3LogoUrl = {
                 "light": "<?= $yes3SquareLogoUrl_light ?>",
                 "dark": "<?= $yes3SquareLogoUrl_dark ?>"
@@ -207,6 +197,48 @@ function buildTOC( &$markdown, &$toc )
             let Yes3BannerUrl = {
                 "light": "<?= $yes3HorizLogoUrl_light ?>",
                 "dark": "<?= $yes3HorizLogoUrl_dark ?>"
+            }
+
+            function openPopupWindow(url) 
+            {
+                let w = 1160;
+                let h = 700;
+                const windowNamePrefix = "YES3Window";
+
+                windowNumber++;
+
+                let windowName = windowNamePrefix+windowNumber;
+
+                //console.log(url,windowName);
+
+                // Fixes dual-screen position                         Most browsers      Firefox
+                let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+                let dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+
+                let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+                let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+                let left = ((width / 2) - (w / 2)) + dualScreenLeft;
+                let top = ((height / 2) - (h / 2)) + dualScreenTop;
+                let newWindow = window.open(url, windowName, 'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left);
+
+                if(!newWindow || newWindow.closed || typeof newWindow.closed=='undefined')   {
+                    alert("It looks like popups from REDCap are blocked on your computer.<br />Please call the data management team to enable REDCap popups.")
+                }
+
+                // Puts focus on the newWindow
+                if (window.focus) {
+                    //newWindow.focus();
+                }
+
+                //return false;
+            };
+
+            function openChangeLog()
+            {
+                let url="<?= $module->changelogUrl ?>";
+
+                openPopupWindow( url );
             }
 
             /*
@@ -306,6 +338,11 @@ function buildTOC( &$markdown, &$toc )
             })
 
             $( function() {
+
+                if ( doc.includes("changelog") ){
+
+                    $("p#changelogLink").hide();
+                }
 
                 detectColorScheme();
                 resizeTheViewer();

@@ -339,7 +339,7 @@ function downloadExportLog()
 
     //exit("downloadExportLog: {$export_uuid}, {$export_name}, {$path}, {$bytes}, {$sql}");
 
-    foreach ( Yes3::recordGenerator($sql, [ $module->project_id, EMLOG_LOG_ENTRY_TYPE, $export_uuid ]) as $x ){
+    foreach ( Yes3::recordGenerator($sql, [ $module->project_id, EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ]) as $x ){
 
         if ( !$bytes ) {
 
@@ -409,7 +409,7 @@ FROM redcap_external_modules_log x
 WHERE x.project_id=? AND p1.`value`=? AND p2.`value`=?
     ";
 
-    $params = [ $module->project_id, EMLOG_LOG_ENTRY_TYPE, $export_uuid ];
+    $params = [ $module->project_id, EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ];
 
     if ( $username ){
 

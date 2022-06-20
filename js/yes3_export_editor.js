@@ -731,11 +731,12 @@ YES3.Functions.addRawREDCapField = function( element, theRowBeforeWhich, batchMo
     return yes3_fmapr_data_element_name;
 }
 
-FMAPR.addREDCapFormV2 = function( form_name, event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode, unsaved )
+FMAPR.addREDCapFormV2 = function( form_name, event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode, unsaved, batch )
 {   
     //theRowBeforeWhich = theRowBeforeWhich || FMAPR.getNewFieldRow();
     yes3_fmapr_data_element_name = yes3_fmapr_data_element_name || "";
     unsaved = unsaved || false;
+    batch = batch || false;
 
     let unsavedClass = ( unsaved ) ? "yes3-unsaved" : "";
     let form_index = -1;
@@ -761,8 +762,6 @@ FMAPR.addREDCapFormV2 = function( form_name, event, theRowBeforeWhich, yes3_fmap
         }
     }
 
-    let fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
-
     if ( !yes3_fmapr_data_element_name ) {
 
         yes3_fmapr_data_element_name = FMAPR.RawREDCapDataElementName(0);
@@ -785,6 +784,23 @@ FMAPR.addREDCapFormV2 = function( form_name, event, theRowBeforeWhich, yes3_fmap
     html += `<td class='yes3-fmapr-redcap-object-name' title="REDcap form">${form_label}</td>`;
     html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
     html += "</tr>";
+
+    if ( batch ){
+
+        return html;
+    }
+
+    return FMAPR.injectREDCapObjectHtmlV2(theRowBeforeWhich, yes3_fmapr_data_element_name, html);
+}
+
+FMAPR.injectREDCapObjectHtmlV2 = function(theRowBeforeWhich, yes3_fmapr_data_element_name, html)
+{
+    let fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
+
+    if ( YES3.isEmpty( theRowBeforeWhich ) ){
+        theRowBeforeWhich = FMAPR.getExportRapidEntryEditor();
+    }
+    mode = ( YES3.isEmpty(theRowBeforeWhich) ) ? "append" : "insert";
 
     if ( mode==="insert" ){
         $( html ).insertBefore( theRowBeforeWhich );
@@ -855,27 +871,7 @@ FMAPR.addREDCapFieldV2 = function( field_name, event, theRowBeforeWhich, yes3_fm
         return html;
     }
     
-    let fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
-
-    if ( YES3.isEmpty( theRowBeforeWhich ) ){
-        theRowBeforeWhich = FMAPR.getNewFieldRow();
-    }
-    mode = ( YES3.isEmpty(theRowBeforeWhich) ) ? "append" : "insert";
-
-    if ( mode==="insert" ){
-        $( html ).insertBefore( theRowBeforeWhich );
-    }
-    else {
-        fmaprBody.append( html );
-    }
-
-    let elementRow = $(`tr.yes3-fmapr-data-element[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
-
-    FMAPR.setRowSelectorListenerV2( elementRow );
-
-    FMAPR.setRepeatLayoutConstraints();
-
-    return yes3_fmapr_data_element_name;
+    return FMAPR.injectREDCapObjectHtmlV2(theRowBeforeWhich, yes3_fmapr_data_element_name, html);
 }
 
 FMAPR.ensureNewFieldRowAtEndV2 = function()
@@ -961,12 +957,14 @@ FMAPR.setRapidEntryFormListeners = function()
                     let object_name = $(this).val();
                     let object_type =$("select#yes3-fmapr-rapidentry-object-type").val();
 
+                    object_name = object_name.trim();                    
+
                     if ( !object_name ){
 
                         return false;
                     }
 
-                    if ( object_type==="form" ){
+                    if ( object_type==="form" && object_name !== "all" ){
 
                         if ( !FMAPR.project.form_index[object_name] ) {
 
@@ -2018,6 +2016,11 @@ FMAPR.getFormAutoCompleteSource = function(event)
     let j = 0;
     let events = [];
     let acSource = [];
+
+    acSource.push({
+        "value": "all",
+        "label": "all forms"
+    });
 
     for (let form_index=0; form_index<FMAPR.project.form_metadata.length; form_index++){
 
@@ -4881,7 +4884,7 @@ FMAPR.populateExportItemRowsV2 = function( specification )
 
         item = items[i];
 
-        //console.log("populateExportItemRowsV2", item);
+        //console.log("populateExportItemRowsV2", item.redcap_object_type, item.redcap_field_name, item.redcap_form_name);
 
         if ( item.export_item_origin==="redcap" ){
 

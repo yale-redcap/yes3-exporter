@@ -211,7 +211,7 @@ trait Yes3Trait {
     
             $params = [
                 'username' => $this->username,
-                'log_entry_type' => EMLOG_ERROR_REPORT,
+                'log_entry_type' => EMLOG_TYPE_ERROR_REPORT,
                 'exception_report' => $exceptionReport,
             ];
     

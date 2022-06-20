@@ -72,7 +72,7 @@
             {
                 "name": "YES3 Exporter Documentation",
                 "icon": "fab fa-connectdevelop",
-                "url":  "plugins/yes3_exporter_documentation.php?doc=README",
+                "url":  "plugins/yes3_documentation.php?doc=README",
                 "target": "blank"
             }
         ]

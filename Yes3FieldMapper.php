@@ -51,8 +51,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/services.php');
-            $this->documentationUrl = $this->getUrl('plugins/yes3_exporter_documentation.php?doc=README');
-            $this->changelogUrl = $this->getUrl('plugins/yes3_exporter_documentation.php?doc=changelog%2Fyes3_exporter_changelog');
+            $this->documentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=README');
+            $this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=changelog%2Fchangelog');
             $this->imageUrl = [
                 'dark' => [
                     'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
@@ -1077,7 +1077,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     {
         $params = [
             'username' => $this->username,
-            'log_entry_type' => EMLOG_LOG_ENTRY_TYPE,
+            'log_entry_type' => EMLOG_TYPE_EXPORT_LOG_ENTRY,
             'destination' => $destination,
             'export_uuid' => $export_uuid,
             'export_name' => $export_name,
@@ -1110,7 +1110,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $params = [ 
             $this->getProjectId(), 
-            EMLOG_LOG_ENTRY_TYPE 
+            EMLOG_TYPE_EXPORT_LOG_ENTRY 
         ];
 
         if ( $export_uuid ){
@@ -2224,7 +2224,7 @@ WHERE project_id=? AND log_entry_type=?
                 WHERE project_id=? AND message=? AND export_uuid=?
                 ORDER BY timestamp DESC
             ";
-            $params = [$this->project_id, EMLOG_MSG_EXPORT_SPECIFICATION, $export_uuid];
+            $params = [$this->getProjectId(), EMLOG_MSG_EXPORT_SPECIFICATION, $export_uuid];
         }
 
         if ( $history ){
@@ -3068,6 +3068,10 @@ WHERE project_id=? AND log_entry_type=?
             return "";
         }
 
+        $t0 = time();
+
+        $projects = 0;
+
         $cronlog = "Starting the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T");
 
         $originalPid = $_GET['pid'];
@@ -3075,6 +3079,8 @@ WHERE project_id=? AND log_entry_type=?
         foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
 
             $_GET['pid'] = $localProjectId;
+
+            $projects++;
 
             $projCronLog = "Starting the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T") . " for project #{$localProjectId}";
 
@@ -3110,7 +3116,20 @@ WHERE project_id=? AND log_entry_type=?
 
         $this->setSystemSetting("cron-ran-at", strftime("%F %T"));
         $this->setSystemSetting("cron-log", $cronlog);
-    
+
+        // SYSTEM LOG ENTRY
+
+        $seconds = time() - $t0;
+
+        $cron_summary = "YES3 Exporter cron jobs completed for {$projects} project(s). Run time was {$seconds} seconds.";
+
+        $params = [
+            "log_entry_type" => EMLOG_TYPE_CRON_LOG,
+            "cronlog" => $cronlog
+        ];
+
+        $this->log( $cron_summary, $params );
+
         return $cronlog;
     }
 
@@ -3140,14 +3159,16 @@ WHERE project_id=? AND log_entry_type=?
      */
     private function okayToRunCron()
     {
-        $t = time();
+        $today = strftime("%F");
         
         $cron_ran_at = $this->getSystemSetting("cron-ran-at");
         if ( $cron_ran_at ) {
 
-            if ( $t - strtotime($cron_ran_at) < ONE_DAY ){
+            $lastRunDay = strftime("%F", strtotime($cron_ran_at));
 
-                return false; // ran within the past 24 hours
+            if ( $today === $lastRunDay ){
+
+                return false; // ran today sometime
             }
         }
 
@@ -3157,53 +3178,9 @@ WHERE project_id=? AND log_entry_type=?
             $cron_time = "00:11:00";
             $this->setSystemSetting("cron-time", $cron_time);
         }
-        $runAt = strtotime( strftime("%F")." ".$cron_time ); // today's cron run time
+        $runAt = strtotime( $today." ".$cron_time ); // today's cron run time
 
-        return ( $t >= $runAt );
-    }
-
-    private function okayToRunJob( $settingPrefix, $alwaysEnabled = false )
-    {
-        if ( !$alwaysEnabled && $this->getProjectSetting($settingPrefix . "-enable") !== "Y" ){
-
-            return false;
-        }
-
-        // the hour of day to run this job, default 11pm
-        $runAt = (int) $this->getProjectSetting($settingPrefix . "-runat");
-
-        if ( !$runAt ) $runAt = 23;
-
-        $theTime = time();
-
-        $theDay = strftime("%F", $theTime);
-
-        $theHour = (int)strftime("%H", $theTime);
-
-        $lastRanAt = $this->getProjectSetting($settingPrefix . "-lastranat");
-
-        if ( !$lastRanAt ){
-
-            $lastRunTime = 0; 
-        }
-        else {
- 
-            $lastRunTime = strtotime($lastRanAt);
-        }
-
-        // never run
-        if ( !$lastRunTime ){
-
-            //Yes3::logDebugMessage($this->getProjectId(), "{$settingPrefix}: {$runAt}, {$theDay}, {$theHour}, {$lastRunTime}", "yes3_exporter_cron");
-
-            //return ( $theHour >= $runAt ) ? true:false;
-            return true; // run immediately
-        }
-
-        $lastRunDay = strftime("%F", $lastRunTime);
-
-        // last run yesterday or earlier
-        return ( $theDay > $lastRunDay && $theHour >= $runAt ) ? true:false;
+        return ( time() >= $runAt );
     }
 
     public function emailDailyLog(){
@@ -3232,7 +3209,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $fromName = "YES3 Exporter";
 
-        $subject = "YES3 Exporter Daily Log Report";
+        $subject = "YES3 Exporter Daily Log Report for PID #" . $this->getProjectId();
 
         $export_logs = $this->getExportLogs("", false, $sincewhen);
 
@@ -3358,22 +3335,35 @@ WHERE project_id=? AND log_entry_type=?
 
             $log .= "export_uuid=" . $export['export_uuid'] . ", export_name=" . $export['export_name'] . ", generation count=" . $nHx;
 
-            $theDamned = [];
-
             $k= 0;
+            $removed = 0;
+            $ts = "";
             foreach ( $specification_history as $hx) {
-        
-                $log_id = $hx['log_id'];
 
                 $k++;
 
-                if ( $k > $nGens ){
+                if ( $k <= $nGens ){
 
-                    $theDamned[] = $log_id;
+                    $ts = $hx['timestamp'];
+                }
+                else {
+
+                    $removed++;
                 }
             }
+
+            if ( !$removed ){
+
+                $log .= ": no backup generations removed.";
+            }
+            else {
             
-            $log .= ": " . count($theDamned) . " generations removed.";
+                $log .= ": " . $removed . " generations saved before " . strftime("%F %T", strtotime($ts)) . " removed. ";
+
+                $pSql = "project_id = ? and export_uuid = ? and message = ? and timestamp < ?";
+                $params = [$this->getProjectId(), $export['export_uuid'], EMLOG_MSG_EXPORT_SPECIFICATION, $ts];
+                $this->removeLogs( $pSql, $params);
+            }
         }
         return $log;
     }
