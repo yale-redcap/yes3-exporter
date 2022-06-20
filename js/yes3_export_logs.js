@@ -114,7 +114,7 @@ FMAPR.refreshExportLogTable = function( response )
 
     fmaprTableBody.empty().append(rowHtml);
 
-    fmaprTableRowCount.html( `${response.data.length} log records`)
+    fmaprTableRowCount.html( `${response.data.length} log records` );
 
     $(window).trigger('resize');
 }

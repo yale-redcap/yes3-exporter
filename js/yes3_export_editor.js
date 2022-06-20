@@ -22,7 +22,8 @@ FMAPR.tooltips = {
 
 }
 
-FMAPR.rapidEntryFormRowId = "yes3-fmapr-new-field-form";
+FMAPR.rapidEntryFormRowId = "yes3-fmapr-rapidentry-row";
+FMAPR.rapidEntryFormId = "yes3-fmapr-rapidentry-form";
 
 /**
  * YES3 FUNCTIONS FOR FMAPR
@@ -39,7 +40,7 @@ YES3.Functions.Help_formInsertion = function()
 {
     let thePanel = YES3.openPanel("yes3-fmapr-form-insertion-help-panel", true);
 
-    if ( YES3.moduleProperties.isLongitudinal ){
+    if ( FMAPR.project.is_longitudinal ){
         thePanel.find(".yes3-fmapr-longitudinal-only").show();
         thePanel.find(".yes3-fmapr-crossectional-only").hide(); 
     }
@@ -150,14 +151,24 @@ YES3.Functions.NewExport_openPanel = function()
 {
     YES3.openPanel("yes3-fmapr-new-export-form");
 
-    if ( YES3.moduleProperties.isLongitudinal ){
+    if ( FMAPR.project.is_longitudinal ){
 
         //$("input#yes3-fmapr-new-export-layout-h").prop("checked", true);
+        $("table#yes3-fmapr-new-export .yes3-longitudinal-only").show();
     }
     else {
 
         $("table#yes3-fmapr-new-export .yes3-longitudinal-only").hide();
         //$("input#yes3-fmapr-new-export-layout-v").prop("checked", true);
+    }
+
+    if ( FMAPR.project.repeating_forms ){
+
+        $("table#yes3-fmapr-new-export .yes3-has-repeating-forms").show();
+    }
+    else {
+
+        $("table#yes3-fmapr-new-export .yes3-has-repeating-forms").hide();
     }
 }
 
@@ -191,6 +202,12 @@ FMAPR.NewExport_execute = function()
     if ( !new_export_name || !new_export_layout ){
 
         YES3.hello("Please enter both the export name and the export layout.");
+        return false;
+    }
+
+    if ( !new_export_name.isValidFilename() ) {
+
+        YES3.hello(`Invalid export name '${new_export_name}'. An export name must begin with an alphabetic character, end with an alphanumeric character and contain only alphanumeric characters, spaces, underscores and hyphens in between.`);
         return false;
     }
 
@@ -303,6 +320,8 @@ FMAPR.closeDownloadForm = function()
 /**
  * sets: FMAPR.insertionRowId
  * 
+ * DEPRECATED
+ * 
  * @param {*} rowId 
  * @param {*} field_name 
  * @param {*} event_name
@@ -381,6 +400,9 @@ YES3.Functions.openFieldInsertionForm_lagacy = function(rowId, field_name, event
     FMAPR.fieldInsertionFormReady(field_name, event_name);
 }
 
+/**
+ * DEPRECATED
+ */
 YES3.Functions.openFieldInsertionForm = function()
 {
     YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false);
@@ -416,6 +438,9 @@ FMAPR.uSpecEditor_saveAndClose = function()
 }
 
 
+/**
+ * DEPRECATED
+ */
 FMAPR.closeFieldInsertionForm = function()
 {
     YES3.closePanel('yes3-fmapr-fieldinsertion-panel');
@@ -862,17 +887,159 @@ FMAPR.ensureNewFieldRowAtEndV2 = function()
     }
  
     const fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
-    const cols2span = ( FMAPR.project.is_longitudinal ) ? 2 : 1;
 
-    let html = `<tr class='yes3-fmapr-new-field-form' id="${FMAPR.rapidEntryFormRowId}">`;
-    html += `<td>&nbsp;</td>`;
-    html += `<td>&nbsp;</td>`;
-    html += `<td><em>new field</em></td>`;
-    html += `<td colspan=${cols2span}>-- form will go here --</td>`;
+    let html = `<tr class='yes3-fmapr-new-item-form' id="${FMAPR.rapidEntryFormRowId}">`;
+    html += `<td colspan="2" class="yes3-fmapr-rapidentry-stub">NEW ITEM</td>`;
+
+    html += `<td class="yes3-fmapr-redcap-object-type">`;
+    html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
+    html += `<option value="field" selected>field</option>`;
+    html += `<option value="form">form</option>`;
+    html += `</select>`;
+    html += `</td>`;
+
+    if (FMAPR.project.is_longitudinal  ){
+        html += `<td class="yes3-fmapr-redcap-object-event">`;
+        html += `<select name="object_event" id="yes3-fmapr-rapidentry-object-event">`;
+        html += FMAPR.getAllEventOptionsHtml();
+        html += `</select>`;
+        html += `</td>`;
+    }
+
+    html += `<td class="yes3-nopadding yes3-fmapr-redcap-object-name">`;
+    html += `<input type="text" name="object_name" id="yes3-fmapr-rapidentry-object-name" placeholder="start typing or spacebar for all" />`;
+    html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add item" />`;
+    html += `</td>`;
+
     html += `<td class='yes3-gutter-right-top yes3-td-right'>&nbsp</td>`;
+    
     html += "</tr>";
 
+    html 
+
     fmaprBody.append(html);
+
+    FMAPR.setRapidEntryFormListeners();
+
+    $("select#yes3-fmapr-rapidentry-object-type").trigger("change");
+}
+
+FMAPR.setRapidEntryFormListeners = function()
+{
+    $("select#yes3-fmapr-rapidentry-object-type, select#yes3-fmapr-rapidentry-object-event")
+        .off()
+        .on("change", function(){
+
+            let object_type =$("select#yes3-fmapr-rapidentry-object-type").val();
+            let object_event=$("select#yes3-fmapr-rapidentry-object-event").val();
+
+            $("input#yes3-fmapr-rapidentry-object-name")
+                .val("")
+                .autocomplete({
+                    source: ( object_type==="field" ) ? FMAPR.getFieldAutoCompleteSource(object_event) : FMAPR.getFormAutoCompleteSource(object_event),
+                    minLength: 1,
+                    select: function(event, ui) {
+
+                        if (!ui.item) {
+                            $(this)
+                                .val("")
+                                .prop("title", "")
+                            ;
+                            return false;
+                        }
+
+                        $(this)
+                            .val(ui.item.value)
+                            .prop("title", ui.item.label)
+                        ;
+                        return false;
+                    }
+                })
+                .off("change")
+                .on("change", function(){
+
+                    let object_name = $(this).val();
+                    let object_type =$("select#yes3-fmapr-rapidentry-object-type").val();
+
+                    if ( !object_name ){
+
+                        return false;
+                    }
+
+                    if ( object_type==="form" ){
+
+                        if ( !FMAPR.project.form_index[object_name] ) {
+
+                            YES3.hello(`'${$(this).val()}' is not a valid form name.`);
+                            $(this).val("");
+                        }                        
+                    }
+                    else if ( object_type==="field" ){
+
+                        if ( !FMAPR.project.field_index[object_name] ) {
+
+                            YES3.hello(`'${$(this).val()}' is not a valid field name.`);
+                            $(this).val("");
+                        }                        
+                    }
+            
+                })
+            ;
+        })
+    ;
+
+    $("input#yes3-fmapr-rapidentry-object-add")
+        .off()
+        .on("click", function(){
+
+            let object_type =$("select#yes3-fmapr-rapidentry-object-type").val();
+            let object_event=$("select#yes3-fmapr-rapidentry-object-event").val();
+            let object_name=$("input#yes3-fmapr-rapidentry-object-name").val();
+
+            // parms for inserting above the editor row
+            const mode = "insert";
+            const yes3_fmapr_data_element_name = "";
+            const theRowBeforeWhich = FMAPR.getExportRapidEntryEditor();
+
+            if ( !object_type || (FMAPR.project.is_longitudinal && !object_event) || !object_name ){
+
+                YES3.hello("Please enter all fields for this item (type, event, name).");
+                return false;
+            }
+
+            if ( FMAPR.exportItemAlreadyExists(object_type, object_name, object_event) ){
+
+                YES3.hello("No can do: this item is already included in this export.");
+                return false;
+            }
+
+            if ( object_type === "field" ){
+
+                saveResult = FMAPR.exportItemEditorSave_field(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
+            }
+            else if ( object_type === "form" ){
+
+                saveResult = FMAPR.exportItemEditorSave_form(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
+            }
+
+            console.log("save result:", saveResult);
+
+            FMAPR.renumberRows();
+
+            FMAPR.markAsDirty("Be sure to save your changes ( * - unsaved).");
+
+            FMAPR.resizeExportItemsTable();
+
+            FMAPR.scrollExportItemsTableToBottom();
+
+            FMAPR.resetExportItemEditors();
+
+            YES3.notBusy();
+
+        })
+    ;
+
+
 }
 
 FMAPR.getNewFieldRow = function()
@@ -1476,7 +1643,20 @@ FMAPR.resizeExportItemsTable = function()
     //let tableWidth = $('div#yes3-fmapr-wrapper').width();
     let tableWidth = fmaprTable.width();
 
-    let nameWidth  = (tableWidth - scrollbarWidth - 12*gutterWidth);
+    /**
+     * cell widths, in gutters
+     * 
+     * row number       2
+     * editor link      2
+     * object_type      3
+     * object_event     5
+     * object_name      *
+     * trashcan         1
+     */
+
+    let reserved = (FMAPR.project.is_longitudinal) ? 13:8;
+
+    let nameWidth  = (tableWidth - scrollbarWidth - reserved*gutterWidth);
  
     //fmaprTable.css({'width': tableWidth+'px', 'height': tableHeight+'px'});
 
@@ -1827,6 +2007,69 @@ FMAPR.getFieldAutoCompleteSource = function(event)
 
     return acSource;
 }
+
+
+FMAPR.getFormAutoCompleteSource = function(event)
+{
+    event = event || "all";
+
+    let accepted = false;
+    let form_name = "";
+    let j = 0;
+    let events = [];
+    let acSource = [];
+
+    for (let form_index=0; form_index<FMAPR.project.form_metadata.length; form_index++){
+
+        form_name = FMAPR.project.form_metadata[form_index].form_name;
+
+        // first make sure the form is appropriate for the layout
+        if ( !FMAPR.formApprovedForLayout( form_name )){
+
+            continue;
+        }
+
+        accepted = false;
+
+        try {
+
+            events = FMAPR.project.form_metadata[form_index].form_events;
+
+            // no need to check events if project is not longitudinal, or if events is "all"
+            if ( event === "all" || !FMAPR.project.is_longitudinal ){
+
+                accepted = true;
+            }
+            else {
+                for (j=0; j<events.length; j++){
+
+                    if ( events[j].event_id===event ){
+
+                        accepted = true;
+                        break;
+                    }
+                }
+            }
+        } catch(e){
+
+            console.log("getFormAutoCompleteSource ERROR", event, e);
+            accepted = false;
+        }
+
+        if ( accepted ){
+
+            acSource.push({
+                "value": FMAPR.project.form_metadata[form_index].form_name,
+                "label": FMAPR.project.form_metadata[form_index].form_label
+            });
+        }
+    }
+
+    console.log("getFormAutoCompleteSource", acSource);
+
+    return acSource;
+}
+
  
  FMAPR.getLovInputHtml = function( yes3_fmapr_data_element_name, value ){
     let id = FMAPR.lovInputId( yes3_fmapr_data_element_name, value );
@@ -2883,19 +3126,29 @@ FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event
     let this_object_name = "";
     let exists = false;
 
+    if ( !FMAPR.project.is_longitudinal ){
+
+        object_event = "";
+    }
+
     //console.log("exportItemAlreadyExists", object_type, object_name, object_event, typeof object_event);
 
     for (let i=0; i<allRows.length; i++){
 
         try {
 
-            this_object_event = allRows.eq(i).attr("data-object_event");
+            this_object_event = ( FMAPR.project.is_longitudinal ) ? allRows.eq(i).attr("data-object_event") : "";
             this_object_type = allRows.eq(i).attr("data-object_type");
             this_object_name = allRows.eq(i).attr("data-object_name");
 
             //console.log("---> checking", this_object_type, this_object_name, this_object_event, typeof this_object_event);
             
             if ( this_object_event===object_event && this_object_name===object_name && this_object_type===object_type ){
+
+                return true;
+            }
+             
+            if ( this_object_event==="all" && this_object_name===object_name && this_object_type===object_type ){
 
                 return true;
             }
@@ -3585,7 +3838,12 @@ FMAPR.copiedRowCount = function()
  
  }
 
-FMAPR.setExportItemFieldAutoselectInput_legacy = function( exportItemField ) {
+/**
+ * DEPRECATED
+ * 
+ * @param {*} exportItemField 
+ */
+ FMAPR.setExportItemFieldAutoselectInput_legacy = function( exportItemField ) {
 
     exportItemField
         .addClass("yes3-fmapr-listener-set")    
@@ -3765,7 +4023,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
 
  FMAPR.rawRawREDCapElementName = function( field_name, event_id )
  {
-    if ( field_name === YES3.moduleProperties.RecordIdField || !YES3.moduleProperties.isLongitudinal ){
+    if ( field_name === YES3.moduleProperties.RecordIdField || !FMAPR.project.is_longitudinal ){
 
         return field_name;
     }
@@ -4653,7 +4911,7 @@ FMAPR.populateExportItemRowsV2 = function( specification )
     FMAPR.setRowSelectorListenersV2();
 }
 
-FMAPR.resetExportItemEditor = function(mode, yes3_fmapr_data_element_name)
+FMAPR.resetExportItemEditors = function(mode, yes3_fmapr_data_element_name)
 {
     mode = mode || "unknown";
     yes3_fmapr_data_element_name = yes3_fmapr_data_element_name || "";
@@ -4665,6 +4923,9 @@ FMAPR.resetExportItemEditor = function(mode, yes3_fmapr_data_element_name)
     ed.find("input[name=mode]").val(mode);
     ed.find("div#yes3-fmapr-item-editor-mode").html(mode);
     ed.find(".yes3-save-button").css("visibility", "hidden");
+
+    let red = FMAPR.getExportRapidEntryEditor();
+    red.find("input[name=object_name]").val("");
 
     if ( yes3_fmapr_data_element_name ){
 
@@ -4683,7 +4944,7 @@ FMAPR.appendExportItem = function()
         mode = "insert";
     }
     
-    FMAPR.resetExportItemEditor(mode, yes3_fmapr_data_element_name);
+    FMAPR.resetExportItemEditors(mode, yes3_fmapr_data_element_name);
 
     let theForm = YES3.openPanel("yes3-fmapr-item-editor-panel");
     theForm.find(".yes3-hide-on-open").hide();
@@ -4692,7 +4953,7 @@ FMAPR.appendExportItem = function()
 FMAPR.editREDCapExportItem = function( yes3_fmapr_data_element_name )
 {
     FMAPR.clearSelections(true); // deselect all rows
-    FMAPR.resetExportItemEditor("edit");
+    FMAPR.resetExportItemEditors("edit");
 
     let theRow = $(`tr[data-yes3_fmapr_data_element_name='${yes3_fmapr_data_element_name}']`);
 
@@ -4877,7 +5138,7 @@ FMAPR.prepareExportItemEditorForm = function()
             FMAPR.scrollExportItemsTableToBottom();
         }
 
-        FMAPR.resetExportItemEditor();
+        FMAPR.resetExportItemEditors();
 
         YES3.notBusy();
     })
@@ -5322,6 +5583,13 @@ FMAPR.setExportNameListener = function()
             $(this).val(FMAPR.export_specification.export_name);
             return true;
         }
+
+        if ( !new_export_name.isValidFilename() ) {
+
+            YES3.hello(`Invalid export name '${new_export_name}'. An export name must begin with an alphabetic character, end with an alphanumeric character and contain only alphanumeric characters, spaces, underscores and hyphens in between.`);
+            $(this).val(FMAPR.export_specification.export_name);
+            return false;
+        }   
     })
     return false;
 }
@@ -5689,6 +5957,11 @@ FMAPR.getExportItemsTableBody = function()
 FMAPR.getExportItemEditor = function()
 {
     return $("div#yes3-fmapr-item-editor-panel");
+}
+
+FMAPR.getExportRapidEntryEditor = function()
+{
+    return $(`tr#${FMAPR.rapidEntryFormRowId}`);
 }
 
 /* === AUDITS === */

@@ -64,10 +64,10 @@ $module->getCodeFor("yes3_export_editor", true);
                     <input type="radio" class="balloon" value="v" name="new_export_layout" id="yes3-fmapr-new-export-layout-v">
                     <label for="yes3-fmapr-new-export-layout-v" title="Vertical layout (one row per record+event)">Vertical (one row per record+event)</label>
 
-                    <br>
+                    <br class="yes3-has-repeating-forms">
 
-                    <input type="radio" class="balloon" value="r" name="new_export_layout" id="yes3-fmapr-new-export-layout-r">
-                    <label for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>
+                    <input type="radio" class="balloon yes3-has-repeating-forms" value="r" name="new_export_layout" id="yes3-fmapr-new-export-layout-r">
+                    <label class="yes3-has-repeating-forms" for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>
 
                 </td>
             </tr>
@@ -134,7 +134,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-plus yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
-                        Add a REDCap field to the export specification.
+                        Open the bulk insertion tool, which will allow you to insert* or append one or more form or field items.
                     </td>
                 </tr>
                 
@@ -248,6 +248,16 @@ $module->getCodeFor("yes3_export_editor", true);
                 
             </tbody>
         </table>
+   </div>
+
+   <div class='yes3-panel-row'>
+        At the end of the Export Item list is a 'NEW ITEM' form that you may use to append a single study form or field to the item list.
+        It lacks the more advanced options available on the bulk insertion tool.
+   </div>
+
+   <div class='yes3-panel-row'>
+        * To insert item(s) at a specific location, first select the existing item above which the new item(s) should be inserted by clicking on its item number.
+          Then open the bulk insertion tool by clicking the <i class="fas fa-plus yes3-action-icon yes3-nohandler"></i> action icon.
    </div>
 
    <div class='yes3-panel-row'>
@@ -576,7 +586,7 @@ $module->getCodeFor("yes3_export_editor", true);
             <tr class="yes3-fmapr-field-only yes3-hide-on-open">
                 <td>Select the FIELD</td>
                 <td>
-                    <input type="text" name="redcap_field" id="yes3-fmapr-item-editor-field_name" />
+                    <input type="text" name="redcap_field" id="yes3-fmapr-item-editor-field_name" placeholder="start typing or spacebar for all" />
                 </td>
             </tr>
             
@@ -613,7 +623,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
 </div>
 
-<!-- BULK INSERTION -->
+<!-- BULK INSERTION -- DEPRECATED -->
 
 <div id="yes3-fmapr-fieldinsertion-panel" class="yes3-panel yes3-draggable" style="display:none">
 

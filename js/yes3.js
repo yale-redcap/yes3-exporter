@@ -45,6 +45,18 @@ String.prototype.truncateAt = function( n ){
         }
      )
 }
+
+String.prototype.isValidFieldname = function(){
+    const re = /^[a-z][0-9_a-z]+[0-9a-z]$/i;
+
+    return re.test(this);
+}
+
+String.prototype.isValidFilename = function(){
+    const re = /^[a-z][0-9_ -a-z]+[0-9a-z]$/i;
+
+    return re.test(this);
+}
   
  // formats date as mm-dd-yyyy
  Date.prototype.mdy = function() {

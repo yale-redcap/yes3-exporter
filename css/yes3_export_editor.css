@@ -142,13 +142,9 @@ td.yes3-fmapr-redcap-object-type {
 }
 
 td.yes3-fmapr-redcap-object-event {
-    width: calc(4 * var(--yes3-fmapr-gutter-width)) !important;
-    min-width: calc(4 * var(--yes3-fmapr-gutter-width)) !important;
-    max-width: calc(4 * var(--yes3-fmapr-gutter-width)) !important;
-}
-
-tr.yes3-fmapr-new-field-form td {
-    color: var(--yes3-fmapr-redcap-field-color) !important;
+    width: calc(5 * var(--yes3-fmapr-gutter-width)) !important;
+    min-width: calc(5 * var(--yes3-fmapr-gutter-width)) !important;
+    max-width: calc(5 * var(--yes3-fmapr-gutter-width)) !important;
 }
 /*
 td.yes3-fmapr-row-number {
@@ -235,8 +231,6 @@ tr.yes3-fmapr-data-element.yes3-fmapr-specmap .yes3-fmapr-specmap-element {
     color: var(--yes3-fmapr-specmap-color) !important;
     font-weight: var(--yes3-font-weight) !important;
 }
-
-
 
 /*
 tr:not(.yes3-fmapr-new-field) .yes3-fmapr-redcap-element:hover {
@@ -366,5 +360,64 @@ table.yes3-fmapr-settings tr td:nth-child(1){
     width: 20em;
 }
 
- 
+/* === item rapid entry form === */
+
+tr#yes3-fmapr-rapidentry-row td {
+    padding-top: var(--yes3-padding);
+    padding-bottom: 0;
+    padding-left: 0;
+    border: 0;
+    height: 200px !important;
+    vertical-align: top !important;
+}
+
+tr#yes3-fmapr-rapidentry-row td:not(.yes3-nopadding){
+    padding-right: var(--yes3-padding);
+}
+
+tr#yes3-fmapr-rapidentry-row td.yes3-nopadding {
+    padding-right: 0;
+}
+
+tr#yes3-fmapr-rapidentry-row select{
+    width: 100%;
+    border: 1px solid var(--yes3-input-border-color) !important;
+    background-color: var(--yes3-input-background-color) !important;
+    color: var(--yes3-input-color) !important;
+    padding-top: var(--yes3-padding) !important;
+    padding-bottom: var(--yes3-padding) !important;
+    padding-right: 1px !important;
+    padding-left: 1px !important;
+}
+
+tr#yes3-fmapr-rapidentry-row input#yes3-fmapr-rapidentry-object-name {
+    width: calc( 100% - var(--yes3-padding) - 100px );
+    border: 1px solid var(--yes3-input-border-color) !important;
+    background-color: var(--yes3-input-background-color) !important;
+    color: var(--yes3-input-color) !important;
+    padding: calc( var(--yes3-padding) + 1px) !important;
+}
+
+tr#yes3-fmapr-rapidentry-row input#yes3-fmapr-rapidentry-object-add {
+    width: 100px;
+    margin-left: var(--yes3-padding);
+    border: 1px solid var(--yes3-input-border-color) !important;
+    background-color: var(--yes3-fmapr-control-background-color) !important;
+    color: var(--yes3-fmapr-control-color) !important;
+    padding-top: calc( var(--yes3-padding) + 1px) !important;
+    padding-bottom: calc( var(--yes3-padding) + 1px) !important;
+    border-radius: 4px;
+}
+
+/*  
+    the first cell of the rapid entry form must have the combined width of the 'number' and 'editor link' cells
+    of the item rows (currently, 4 gutter widths)
+*/
+tr#yes3-fmapr-rapidentry-row td:first-child {
+    width: calc(4 * var(--yes3-fmapr-gutter-width)) !important; 
+    min-width: calc(4 * var(--yes3-fmapr-gutter-width)) !important; 
+    max-width: calc(4 * var(--yes3-fmapr-gutter-width)) !important; 
+    padding: var(--yes3-padding);
+}
+
  

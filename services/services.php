@@ -339,8 +339,6 @@ function downloadExportLog()
 
     //exit("downloadExportLog: {$export_uuid}, {$export_name}, {$path}, {$bytes}, {$sql}");
 
-    $n=0;
-
     foreach ( Yes3::recordGenerator($sql, [ $module->project_id, EMLOG_LOG_ENTRY_TYPE, $export_uuid ]) as $x ){
 
         if ( !$bytes ) {
@@ -351,12 +349,6 @@ function downloadExportLog()
         }
 
         $bytes += fputcsv($h, array_values($x));
-
-        $n++;
-        if ( $n > 100 ){
-
-            break;
-        }
     }
 
     rewind($h);
@@ -376,7 +368,14 @@ function downloadExportLog()
 
     while (!feof($h)){
 
-        print(@fread($h, $chunksize));
+        $s = fread($h, $chunksize);
+
+        if ( $s === FALSE ){
+
+            break;
+        }
+
+        print($s);
 
         ob_flush();
         flush();
@@ -942,9 +941,20 @@ function get_project_settings():string
         AND m.element_type<>'descriptive'";
     }
 
+    $repeating_forms = false;
+    foreach ( $form_metadata_structures['form_metadata'] as $form ){
+
+        if ( $form['form_repeating'] ){
+
+            $repeating_forms = true;
+            break;
+        }
+    }
+
     return Yes3::json_encode_pretty( [
         'project_id' => $module->project_id,
         'is_longitudinal' => \REDCap::isLongitudinal(),
+        'repeating_forms' => $repeating_forms,
         'field_index' => $field_metadata_structures['field_index'],
         'field_metadata' => $field_metadata_structures['field_metadata'],
         'field_count' => Yes3::fetchValue($sqlCount, [$module->project_id, \REDCap::getRecordIdField()]),

@@ -162,8 +162,6 @@ FMAPR.setExportEventPrefixListeners = function() {
 
             let prefix = '' + $(this).val();
 
-            let onlyLetters = /^[a-z]+$/;
-
             if ( !prefix ){
 
                 $(this.closest('tr')).find('td,input').addClass('yes3-error');
@@ -172,13 +170,13 @@ FMAPR.setExportEventPrefixListeners = function() {
 
                 prefix = prefix.toLowerCase();
 
-                if ( !onlyLetters.test(prefix.charAt(0)) ){
+                if ( !prefix.isValidFieldname() ){
 
                     $(this.closest('tr')).find('td,input').addClass('yes3-error');
 
-                    $(this).val("");
+                    //$(this).val("");
 
-                    YES3.hello(`Hold on there: '${prefix}' is an invalid prefix. A prefix must start with an alphabetic character.`);
+                    YES3.hello(`Hold on there: '${prefix}' is an invalid prefix. A prefix must start with an alphabetic character and no funny stuff thereafter.`);
                 }
                 else {
 
@@ -187,7 +185,6 @@ FMAPR.setExportEventPrefixListeners = function() {
                 }
             }
 
-    
             FMAPR.markAsDirty();
         })
     ;
@@ -204,12 +201,36 @@ FMAPR.inspectEventPrefixes = function()
     FMAPR.eventPrefixesTable().find(".yes3-error").removeClass("yes3-error");
 
     let errors = 0;
+    let prefixes = [];
 
     FMAPR.eventPrefixesTable().find("input").each(function(){
 
-        if ( !$(this).val() ){
+        let x = $(this).val();
+
+        if ( !x ){
             FMAPR.markAsBad( $(this) );
             errors++;
+        }
+        else {
+
+            if ( !x.isValidFieldname() ) {
+                FMAPR.markAsBad( $(this) );
+                errors++;
+            }
+            else {
+
+                if ( prefixes.includes(x) ){
+
+                    FMAPR.markAsBad( $(this) );
+                    errors++;    
+                }
+                else {
+
+                    prefixes.push(x);
+                    $(this).val(x.toLowerCase());
+                }
+            }
+
         }
     })
 

@@ -8,6 +8,19 @@
 3. Bug fix: Log record export failed
 4. Export log browser now displays the row count
 5. Export log browser UI tweaked for better responsiveness
+6. More thorough auditing of event prefixes:
+   * must start with an alpha (a-z)
+   * must end with an alphanumeric (a-z0-9)
+   * alphanumerics and underscores allowed in between
+   * cannot match another prefix (no duplicates) - caught on save
+7. More thorough auditing of export names, both when export created and when name is edited:
+   * must start with an alpha (a-z)
+   * must end with an alphanumeric (a-z0-9)
+   * alphanumerics, spaces, hyphens and underscores allowed in between
+   * cannot match another profile name (no duplicates) 
+8. Bug fix: the 'repeating form' layout option was offered to projects not having repeating forms
+9. Bug fix: the export item list was improerly sized for non-longitudinal projects
+10. New 'rapid entry' NEW ITEM form located at the bottom of the export items list  
 
 **Version 0.8.0 June 4, 2022**
 
