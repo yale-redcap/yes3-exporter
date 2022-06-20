@@ -130,6 +130,10 @@ article.markdown-body {
     margin: 0;
 }
 
+a {
+    color: inherit !important;
+}
+
 #stub-wrapper {
     position: relative;
 }

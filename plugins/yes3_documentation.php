@@ -12,6 +12,8 @@ defined('APP_PATH_WEBROOT_FULL') or define('APP_PATH_WEBROOT_FULL', '');
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 
+use \Parsedown;
+
 $githubCssUrl = $module->getUrl("css/github-markdown-v2.css");
 $yes3CssUrl = $module->getUrl("css/yes3_documentation.css");
 //$yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
@@ -339,6 +341,7 @@ function buildTOC( &$markdown, &$toc )
 
             $( function() {
 
+                // disable the changelog link if the loaded doc is the changelog
                 if ( doc.includes("changelog") ){
 
                     $("p#changelogLink").hide();
