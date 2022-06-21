@@ -305,15 +305,25 @@ redcap@yale.edu
 
 # In the Pipeline
 
--   Ability to filter, sort, or delete exports in drop-down menu
--   Ability to export repeating events
+-   Options for tagging, filtering, sorting, and removing exports
+-   A repeating events export layout
 -   Automated filesystem exports
--   SAS and R code generators for completely automated datamarts
+-   Export-specific SAS and R code generators for completely automated datamarts
 -   Additional YES3 modules!
     - YES3 Dashboard for data collection workflow management
     - YES3 Study Portal for single or multisite study monitoring and administration
 
 **YES3 Dashboard sneak peek**
+
+Below is a screenshot of the beta version of the YES3 Dashboard, which has been in use on selected Yale studies for over a year. We are currently refactoring and extending the features of the Dashboard, based on our experience developing the YES3 Exporter. The aim of the Dashboard is to organize REDCap features in a way that optimizes workflow efficiencies, thereby reducing operations costs. Some of the features illustrated in this screenshot include:
+
+- Suitable for single-site as well as large multisite studies.
+- User-defined sortable columns, the color-coded contents of which can adapt to contact status (e.g., target date, scheduled date, completion date+outcome). Column entries are links to specific REDCap forms.
+- Filters based on user-defined tracking indicators that classify records according to study progress states (screened, eligible, enrolled, completed study, withdrawn etc).
+- Flexible record ID generator that can combine site abbreviations with either sequential or Luhn numbers (Luhn numbers have self-validating "check" digits).
+- A popup "record inspector" that displays a user-configured overview of a participant's progess through the study.
+- A record-level chat-like tool for communicating and resolving issues between field and data management staff.
+- Dashboard remains open during data collection / data entry.
 
 <img src="media/yes3-dashboard-sneak-peek.png" alt="YES3 Dashboard sneak peek" />
 
