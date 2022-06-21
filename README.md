@@ -323,6 +323,7 @@ Below is a screenshot of the beta version of the YES3 Dashboard, which has been 
 - Flexible record ID generator that can combine site abbreviations with either sequential or Luhn numbers (Luhn numbers have self-validating "check" digits).
 - A popup "record inspector" that displays a user-configured overview of a participant's progess through the study.
 - A record-level chat-like tool for communicating and resolving issues between field and data management staff.
+- A "safety" mode in which data elements defined as PHI are hidden from display on the Dashboard.
 - Dashboard remains open during data collection / data entry.
 
 <img src="media/yes3-dashboard-sneak-peek.png" alt="YES3 Dashboard sneak peek" />
