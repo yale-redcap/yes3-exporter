@@ -316,7 +316,7 @@ redcap@yale.edu
 
 **YES3 Dashboard sneak peek**
 
-<img src="media/yes3-dashboard-sneak-peek.png" alt="YES3 Dashboard sneak peek" width="800" />
+<img src="media/yes3-dashboard-sneak-peek.png" alt="YES3 Dashboard sneak peek" />
 
 # Authors
 
