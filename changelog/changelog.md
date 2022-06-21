@@ -1,7 +1,9 @@
 
 # YES3 Exporter Change Log
 
-**Version 0.8.1 June 18, 2022**
+## Version 0.8.1
+
+June 18, 2022
 
 1. Major README edits and reorganization
 2. Export log browser date range selectors no longer updated based on observed range
@@ -22,7 +24,9 @@
 9. Bug fix: the export item list was improerly sized for non-longitudinal projects
 10. New 'rapid entry' NEW ITEM form located at the bottom of the export items list  
 
-**Version 0.8.0 June 4, 2022**
+## Version 0.8.0 
+
+June 4, 2022
 
 1. Designers now accorded permissions on all forms, regardless of form export and view permissions
 2. Major CSS cleanup
@@ -34,7 +38,9 @@
    * Field labels are displayed as well as field names
 5. Numerous UI tweaks based on user testing
 
-**Version 0.7.5 May 25, 2022**
+## Version 0.7.5 
+
+May 25, 2022
 
 1. Bug fix: The selection criterion value "list" syntax failed with no records selected.
 2. Bug fix: The selection criterion expression permitted a "=>" operator instead of ">=".
@@ -50,12 +56,16 @@
 12. YES3 logo added to the event preefix and log plugins.
 13. Bug fix: Action icons embedded in help popups were assigned click handlers.
 
-**Version 0.7.4 May 23, 2022**
+## Version 0.7.4 
+
+May 23, 2022
 
 1. Cron manager 'yes3_exporter_cron' redesigned. Now scheduled/reported in system settings instead of project settings. More consistent exception handling for cron tasks.
 2. New housekeeping function 'hk_generations' to cull old export specification backups.
 
-**Version 0.7.3 May 18, 2022**
+## Version 0.7.3 
+
+May 18, 2022
 
 1. Bug fix: Action icons that appeared to be disabled would under certain circumstances respond to clicks.
 2. Bug fix: Opening an export spec for a repeating layout would crash if the user was denied view or export rights on any form in the project.
@@ -63,7 +73,9 @@
 4. Bug fix: the count of data values written was incorrect in the logs (double counted).
 5. New plugin for displaying module markdown files, motivated by Parsedown apparently not supporting GitHub-flavored TOC tags. Uses GitHub CSS for light and dark themes, and has a sidebar TOC for navigation. Sidebar vanishes at the Bootstrap 'small' breakpoint. A vague plan is afoot to move all YES3 module documentation to a Docusaurus site.
 
-**Version 0.7.2 May 14, 2022**
+## Version 0.7.2 
+
+May 14, 2022
 
 1. Yes3::ellipsis() replaced by Yes3::truncate in all metadata contexts (ellipses taking up too much space when maxlen is small)
 2. Label sanitation function now strips all html tags, instead of just the 'dangerous' tags.

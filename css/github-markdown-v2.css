@@ -383,9 +383,12 @@
 
 .markdown-body blockquote {
   margin: 0;
-  padding: 0 1em;
+  padding: 0 .75em;
   color: var(--color-fg-muted);
-  border-left: .25em solid var(--color-border-default);
+  border-left: .4em solid var(--color-border-default);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 .markdown-body ul,

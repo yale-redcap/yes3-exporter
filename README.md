@@ -7,6 +7,8 @@
 REDCap External Module  
 Version 1.00, June 2022
 
+> For better formatting and access to a Table of Contents and the Change Log, we recommend that you view this guide using the YES3 Exporter Documentation plugin link, rather than the EM documentation link provided by REDCap. 
+
 # Introduction
 
 The YES3 Exporter external module compliments REDCap's reports and data export tool by adding functionality to support data visualization, data sharing, and integration with statistical software and datamarts.

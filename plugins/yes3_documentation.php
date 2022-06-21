@@ -12,8 +12,6 @@ defined('APP_PATH_WEBROOT_FULL') or define('APP_PATH_WEBROOT_FULL', '');
 
 $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 
-use \Parsedown;
-
 $githubCssUrl = $module->getUrl("css/github-markdown-v2.css");
 $yes3CssUrl = $module->getUrl("css/yes3_documentation.css");
 //$yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
@@ -118,7 +116,7 @@ function buildTOC( &$markdown, &$toc )
 
     <head>
 
-        <title>YES3 Exporter Readme</title>
+        <title>YES3 Documentation</title>
 
         <meta name="color-scheme" content="light dark" />
 
@@ -171,7 +169,7 @@ function buildTOC( &$markdown, &$toc )
 
                         <p>Wrought by the REDCap@Yale team</p>
                         <p>REDCap@yale.edu</p>
-                        <p id="changelogLink"><a href="javascript:openChangeLog();">change log</a></p>
+                        <p id="changelogLink"><a href="javascript:openChangeLog();">Change Log</a></p>
 
                     </div>
                 </div>
