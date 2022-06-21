@@ -12,8 +12,10 @@ body {
     word-wrap: break-word;
 }
 
-div.toc-entries {
+div#toc-entries {
     width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 div.toc-title {
@@ -118,7 +120,6 @@ article.markdown-body {
     color: var(--color-fg-subtle);
     font-size: 0.8em;
     line-height: 1em;
-    overflow-y: auto;
 }
 
 .authors p {

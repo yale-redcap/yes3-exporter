@@ -134,7 +134,7 @@ $module->getCodeFor("yes3_export_editor", true);
                         <i class="fas fa-plus yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
-                        Open the bulk insertion tool, which will allow you to insert* or append one or more form or field items.
+                        Open the bulk insertion tool, which will allow you to insert or append one or more form or field items.
                     </td>
                 </tr>
                 
@@ -253,11 +253,6 @@ $module->getCodeFor("yes3_export_editor", true);
    <div class='yes3-panel-row'>
         At the end of the Export Item list is a 'NEW ITEM' form that you may use to append a single study form or field to the item list.
         It lacks the more advanced options available on the bulk insertion tool.
-   </div>
-
-   <div class='yes3-panel-row'>
-        * To insert item(s) at a specific location, first select the existing item above which the new item(s) should be inserted by clicking on its item number.
-          Then open the bulk insertion tool by clicking the <i class="fas fa-plus yes3-action-icon yes3-nohandler"></i> action icon.
    </div>
 
    <div class='yes3-panel-row'>

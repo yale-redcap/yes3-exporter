@@ -160,7 +160,7 @@ function buildTOC( &$markdown, &$toc )
                             <div class='toc-title'>Table of Contents</div>
                         </div>
 
-                        <div class="toc-entries">
+                        <div class="toc-entries" id="toc-entries">
                             <?= $toc ?>
                         </div>
                     </div>
@@ -285,6 +285,7 @@ function buildTOC( &$markdown, &$toc )
                 let theDocWrapper = $("#yes3-document");
                 let theAuthors = $("#authors");
                 let stubFooter = $('#stub-footer');
+                let tocEntries = $('#toc-entries');
                 let toc = $("#toc");
 
                 let windowHeight = $(window).innerHeight();
@@ -301,15 +302,22 @@ function buildTOC( &$markdown, &$toc )
                     - 15
                 ;
 
-                if ( stubY < tocHeight ) stubY = tocHeight;
+                let tocEntriesHeight = docHeight 
+                    - stubFooter.outerHeight()
+                    - tocEntries.offset().top
+                ;
+
+                //if ( stubY < tocHeight ) stubY = tocHeight;
 
                 theDocWrapper.css({'height': docHeight+'px'});
 
-                if ( $("#stub").is(":visible") ){
+                //if ( $("#stub").is(":visible") ){
                     
                     stubFooter.css({'top': stubY + 'px'});
                     $("#stub").height(theDocWrapper.height());
-                }
+                //}
+
+                tocEntries.css({'height': tocEntriesHeight + 'px'})
             }
 
             function scrollDocTo( anchor_name ){
@@ -344,6 +352,10 @@ function buildTOC( &$markdown, &$toc )
 
                     $("p#changelogLink").hide();
                 }
+
+                // remove any blockquote about viewing in doc plugin
+                // (which is not relevant since this is the doc viewer)
+                $("blockquote:contains('documentation')").first().remove();
 
                 detectColorScheme();
                 resizeTheViewer();
