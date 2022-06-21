@@ -309,7 +309,14 @@ redcap@yale.edu
 -   Ability to filter, sort, or delete exports in drop-down menu
 -   Ability to export repeating events
 -   Automated filesystem exports
+-   SAS and R code generators for completely automated datamarts
+-   Additional YES3 modules!
+    - YES3 Dashboard for data collection workflow management
+    - YES3 Study Portal for single or multisite study monitoring and administration
 
+**YES3 Dashboard sneak peek**
+
+<img src="media/yes3-dashboard-sneak-peek.png" alt="YES3 Dashboard sneak peek" width="800" />
 
 # Authors
 
