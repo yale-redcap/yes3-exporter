@@ -262,7 +262,7 @@ Here you can designate event prefixes for horizontal layouts.
 
 **[event prefix]_[REDCap field name]**
 
-A prefix is a string of characters at the beginning of the field name that is used to designate the ‘event’. Auto-generated prefixes can be edited here. There is no restriction on the number of characters, but you should be aware of limitations imposed by statistical software. Special characters will be removed during exports and downloads.
+A prefix is a string of characters at the beginning of the field name that is used to designate the ‘event’. Auto-generated prefixes can be edited here. The first character must be alphabetic.  There is no restriction on the number of characters, but you should be aware of limitations imposed by statistical software. Special characters will be removed during exports and downloads.
 
 
 # YES3 Exporter Logs
