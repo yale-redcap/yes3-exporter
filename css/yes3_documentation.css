@@ -12,6 +12,11 @@ body {
     word-wrap: break-word;
 }
 
+div#toc {
+    width: 100%;
+    float: left;
+}
+
 div#toc-entries {
     width: 100%;
     overflow-y: auto;
@@ -117,7 +122,7 @@ article.markdown-body {
     margin-top: 20px;
     padding-top: 10px;
     border-top: 1px solid var(--color-border-default);
-    color: var(--color-fg-subtle);
+    color: var(--color-fg-muted);
     font-size: 0.8em;
     line-height: 1em;
 }
@@ -133,10 +138,64 @@ article.markdown-body {
 
 a {
     color: inherit !important;
+    text-decoration: underline !important;
+}
+
+a:hover {
+    color: var(--color-accent-fg) !important;
 }
 
 #stub-wrapper {
     position: relative;
+}
+
+#doc-options {
+    padding-top: 10px;
+    width: 100%;
+    float: left; 
+    line-height: 1.2em;
+}
+
+#doc-options label {
+    margin-bottom: 0 !important;
+    font-weight: normal !important;
+    font-size: 0.9em !important;
+    color: var(--color-fg-default) !important;
+}
+
+/* RADIO BALLOONS  */
+
+input[type=radio].balloon, input[type=checkbox].balloon {
+    /* Hide original inputs */
+    visibility: hidden;
+    position: absolute;
+}
+
+input[type=radio].balloon + label:before {
+    height: 14px;
+    width: 14px;
+    margin-right: 3px;
+    content: " ";
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid var(--color-fg-muted);
+    border-radius: 50%;
+    margin-bottom: 3px;
+}
+/*
+input[type=radio].balloon + label + input[type=radio].balloon + label:before, input[type=checkbox].balloon + label + input[type=checkbox].balloon + label:before {
+    margin-left: 6px;
+}
+*/
+
+input[type=radio].balloon:checked + label:before {
+    background: var(--color-fg-muted);
+    border-color: var(--color-fg-muted);
+}
+
+input[type=radio].balloon:hover + label:before {
+    border: 2px solid var(--color-fg-muted);
+    cursor: pointer;
 }
 
 /* --- BOOTSTRAP OVERRIDE --- */
@@ -144,3 +203,4 @@ a {
 #content {
     padding-right: 0 !important;
 }
+

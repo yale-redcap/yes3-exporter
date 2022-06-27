@@ -48,9 +48,11 @@ trait Yes3Trait {
 
     public function yes3UserRights()
     {
+        $isDesigner = ( $this->getUser()->hasDesignRights() ) ? 1:0;
+
         $user = $this->getUser()->getRights();
 
-        Yes3::logDebugMessage($this->project_id, print_r($user, true), "user rights");
+        //Yes3::logDebugMessage($this->project_id, print_r($user, true), "user rights");
 
         /**
          * The rank order of export permission codes
@@ -71,7 +73,7 @@ trait Yes3Trait {
             if ( $formPerm ){
                 
                 $formPermParts = explode(",", $formPerm);
-                $formPermissions[ $formPermParts[0] ] = $formPermParts[1];
+                $formPermissions[ $formPermParts[0] ] = ($isDesigner) ? 1 : (int) $formPermParts[1];
             }
         }
 
@@ -81,15 +83,21 @@ trait Yes3Trait {
 
         $formExportPermissions = [];
 
-        $export_tool = (int)$user['data_export_tool']; // this is always blank in v12, have to use form-specific
+        $exporter = $isDesigner;
 
-        $exporter = 0;
+        if ( $isDesigner ){
+
+            $export_tool = 1;
+        }
+        else {
+
+            $export_tool = (int)$user['data_export_tool']; // this is always blank in v12, have to use form-specific
+            if ( !$export_tool ) $export_tool = 0; // I'm paranoid
+        }
 
         if ( isset($user['data_export_instruments'])) {
 
             //Yes3::logDebugMessage($this->project_id, print_r($user['data_export_instruments'], true), "user[data_export_instruments]");
-
-            $export_tool = 0; // assume no access, will be set to most permissive setting
 
             $formExportPermString = str_replace("[", "", $user['data_export_instruments']);
 

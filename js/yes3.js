@@ -46,16 +46,28 @@ String.prototype.truncateAt = function( n ){
      )
 }
 
-String.prototype.isValidFieldname = function(){
-    const re = /^[a-z][0-9_a-z]+[0-9a-z]$/i;
+String.prototype.isValidFieldname = function()
+{
+    const reSingle = /^[a-z]$/i;
+    const reMultiple = /^[a-z][0-9_a-z]*[0-9a-z]$/i;
 
-    return re.test(this);
+    if ( this.length===0 ) return false;
+
+    if ( this.length===1 ) return reSingle.test(this);
+
+    return reMultiple.test(this);
 }
 
-String.prototype.isValidFilename = function(){
-    const re = /^[a-z][0-9_ -a-z]+[0-9a-z]$/i;
+String.prototype.isValidFilename = function()
+{
+    const reSingle = /^[a-z]$/i;
+    const reMultiple = /^[a-z][0-9_ -a-z]*[0-9a-z]$/i;
 
-    return re.test(this);
+    if ( this.length===0 ) return false;
+
+    if ( this.length===1 ) return reSingle.test(this);
+
+    return reMultiple.test(this);
 }
   
  // formats date as mm-dd-yyyy

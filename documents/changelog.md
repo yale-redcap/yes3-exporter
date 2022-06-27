@@ -1,6 +1,13 @@
 
 # YES3 Exporter Change Log
 
+## Version 0.8.2
+
+June 30, 2022
+
+1. Format of form autocomplete label changed to include the raw form_name value as well as the form label, i.e. same pattern as field autocomplete. Embedded space twixt the two components guarantees that spacebar will return all entries.
+2. Bug fix: reg expressions for event prefix, fieldname and filename validations corrected to allow single char names (min was 3).
+
 ## Version 0.8.1
 
 June 18, 2022
@@ -21,7 +28,7 @@ June 18, 2022
    * alphanumerics, spaces, hyphens and underscores allowed in between
    * cannot match another profile name (no duplicates) 
 8. Bug fix: the 'repeating form' layout option was offered to projects not having repeating forms
-9. Bug fix: the export item list was improerly sized for non-longitudinal projects
+9. Bug fix: the export item list was improperly sized for non-longitudinal projects
 10. New 'rapid entry' NEW ITEM form located at the bottom of the export items list  
 
 ## Version 0.8.0 

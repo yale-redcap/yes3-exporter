@@ -168,7 +168,7 @@ FMAPR.setExportEventPrefixListeners = function() {
             }
             else {
 
-                prefix = prefix.toLowerCase();
+                prefix = prefix.trim().toLowerCase();
 
                 if ( !prefix.isValidFieldname() ){
 
@@ -176,7 +176,7 @@ FMAPR.setExportEventPrefixListeners = function() {
 
                     //$(this).val("");
 
-                    YES3.hello(`Hold on there: '${prefix}' is an invalid prefix. A prefix must start with an alphabetic character and no funny stuff thereafter.`);
+                    YES3.hello(`Hold on there: '${prefix}' is an invalid prefix. A prefix must start with an alphabetic character followed by zero or more alphanumeric characters.`);
                 }
                 else {
 

@@ -31,6 +31,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $imageUrl = [];
     public $documentationUrl = "";
     public $changelogUrl = "";
+    public $technicalDocumentationUrl = "";
     public $form_export_permissions = [];
     private $token = "";
     private $salt = "";
@@ -52,7 +53,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/services.php');
             $this->documentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=README');
-            $this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=changelog%2Fchangelog');
+            $this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Fchangelog');
+            $this->technicalDocumentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Ftechnical');
             $this->imageUrl = [
                 'dark' => [
                     'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
@@ -547,9 +549,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $info = [
             "host" => APP_PATH_WEBROOT_FULL,
             "timestamp" => strftime("%F %T"),
-            "username" => $this->username,
             "project_id" => $project->getProjectId(),
+            "project_recordid_field" => \REDCap::getRecordIdField(),
             "project_title" => $project->getTitle(),
+            "project_is_longitudinal" => ( \REDCap::isLongitudinal() ) ? 1:0,
+            "project_has_dags" => ( \REDCap::getGroupNames() !== FALSE ) ? 1:0,
             "export_name" => $export_name,
             "export_layout" => $export_layout,
             "export_uuid" => $export_uuid,
@@ -559,7 +563,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             "columns" => $C,
             "rows" => $R,
             "destination" => $destination,
-            "notification_email" => $this->getProjectSetting("notification-email")
+            "notification_email" => $this->getProjectSetting("notification-email"),
+            "username" => $this->username
         ];
 
         $json = Yes3::json_encode_pretty($info);
@@ -1999,6 +2004,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $fields = "export_events_json";
 
+        // as of v1.1.0 this will be changed to use the 'log_entry_type parameter' instead of 'setting'
         $pSql = "SELECT {$fields} WHERE project_id=? AND setting='export-events' ORDER BY timestamp DESC LIMIT 1";
 
         if ( $x = $this->queryLogs($pSql, [$this->project_id])->fetch_assoc() ){
@@ -2039,7 +2045,7 @@ WHERE project_id=? AND log_entry_type=?
     {
         $uRights = $this->yes3UserRights();
 
-        Yes3::logDebugMessage($this->project_id, print_r($specification, true), "confirmSpecificationPermissions: spec");
+        //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "confirmSpecificationPermissions: spec");
 
         /**
          * specification properties useful here:

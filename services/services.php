@@ -102,6 +102,7 @@ function addExportSpecification()
 
     $qParams = [
         'removed' => "0"
+        , 'log_entry_type' => EMLOG_TYPE_EXPORT_SPECIFICATION
         , 'export_uuid' => $_POST['export_uuid']
         , 'export_name' => $_POST['export_name']
         , 'export_username' => $module->username
@@ -137,6 +138,7 @@ function saveExportSpecification()
 
     $qParams = [
         'removed' => ""
+        , 'log_entry_type' => EMLOG_TYPE_EXPORT_SPECIFICATION
         , 'export_uuid' => ""
         , 'export_name' => ""
         , 'export_username' => $module->username
@@ -715,10 +717,12 @@ function saveEventSettings()
         return -1;
     }
     
+    // the 'setting' parameter will be dropped in a future release (in favor of log_entry_type)
     $logId = $module->log(
-        "export_events",
+        EMLOG_MSG_EXPORT_EVENTS,
         [
             "user" => $module->username,
+            "log_entry_type" => EMLOG_TYPE_EXPORT_EVENTS,
             "setting" => "export-events",
             "export_events_json" => json_encode($events)
         ]

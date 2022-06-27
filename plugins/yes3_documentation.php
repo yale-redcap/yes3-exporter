@@ -14,6 +14,8 @@ $module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
 
 $githubCssUrl = $module->getUrl("css/github-markdown-v2.css");
 $yes3CssUrl = $module->getUrl("css/yes3_documentation.css");
+$yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
+
 //$yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
 
 $yes3SquareLogoUrl_light = $module->getUrl("images/YES3_Logo_Square_White.png");
@@ -38,7 +40,7 @@ $urlMediaFolder = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirecto
 //exit ( $urlBase );
 
 //$markdown = str_replace( ["(media/", "\r"], ["(" . $urlMediaFolder, ""], $markdown);
-$markdown = str_replace( ["media/", "\r"], [$urlMediaFolder, ""], $markdown);
+$markdown = strip_tags( str_replace( ["media/", "\r"], [$urlMediaFolder, ""], $markdown), "<img>");
 
 //exit($markdown);
 
@@ -51,7 +53,53 @@ buildTOC($markdown, $toc);
 
 $md = new \Parsedown();
 
-$html = $md->text( $markdown );
+$html = $md->text($markdown);
+
+$html_readme = "";
+$html_changelog = "";
+$html_technical = "";
+
+$toc_readme = "";
+$toc_changelog = "";
+$toc_technical = "";
+
+buildHtmlForDoc("README"   , $html_readme   , $toc_readme   );
+buildHtmlForDoc("changelog", $html_changelog, $toc_changelog);
+buildHtmlForDoc("technical", $html_technical, $toc_technical);
+
+function buildHtmlForDoc(  $docName, &$html, &$toc){
+    global $module;
+
+    if ( $docName === "README" ){
+
+        $urlDoc = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/README.md";
+    }
+    else {
+
+        $filename = $docName . ".md";
+        $urlDoc = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/documents/" . $filename;
+    }
+
+    $markdown = file_get_contents( $urlDoc );
+
+    // the media folder holds any embedded images.
+    $urlMediaFolder = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/media/";
+
+    // we only allow image tags
+    $markdown = strip_tags( str_replace( ["media/", "\r"], [$urlMediaFolder, ""], $markdown), "<img><br><b><a>");
+
+    //exit($markdown);
+
+    // table of contents HTML
+    $toc = "";
+
+    buildTOC($markdown, $toc);
+
+    $Parsedown = new \Parsedown();
+
+    // only image tags are allowed for YES3 documents
+    $html = $Parsedown->text( $markdown );
+}
 
 //exit( $html );
 
@@ -139,6 +187,31 @@ function buildTOC( &$markdown, &$toc )
 
         <link rel='stylesheet' type='text/css' href='<?= $yes3CssUrl ?>' />
 
+        <script>
+
+            let Yes3LogoUrl = {
+                "light": "<?= $yes3SquareLogoUrl_light ?>",
+                "dark": "<?= $yes3SquareLogoUrl_dark ?>"
+            }
+
+            let Yes3BannerUrl = {
+                "light": "<?= $yes3HorizLogoUrl_light ?>",
+                "dark": "<?= $yes3HorizLogoUrl_dark ?>"
+            }
+
+            let html_readme = `<?= $html_readme ?>`;
+            let toc_readme  = `<?= $toc_readme ?>`;
+
+            let html_changelog = `<?= $html_changelog ?>`;
+            let toc_changelog  = `<?= $toc_changelog ?>`;
+
+            let html_technical = `<?= $html_technical ?>`;
+            let toc_technical  = `<?= $toc_technical ?>`;
+
+        </script>
+
+        <script src="<?= $yes3JsUrl ?>" ></script>
+
     </head>
 
     <body>
@@ -151,217 +224,49 @@ function buildTOC( &$markdown, &$toc )
 
                 <div id="stub-wrapper hidden-xs">
 
+                    <div class='yes3-flex-container'> 
+                        <img src='<?= $yes3SquareLogoUrl_light ?>' class='yes3-flex-vcenter-hleft yes3-square-logo' title='click to return to the top of the document' height=50px onclick='scrollDocTo("top");' />
+                        <div class='yes3-flex-vcenter-hleft logo-title'>Exporter</div>
+                    </div>
+
+                    <div id="doc-options">
+
+                        <input type="radio" class="balloon" value="readme" name="doc" id="doc-readme" onclick="openReadme()" />
+                        <label for="doc-readme">EM documentation (readme)</label>
+                        <br/>
+                        <input type="radio" class="balloon" value="technical" name="doc" id="doc-technical" onclick="openTechnical()" />
+                        <label for="doc-technical">Technical documentation</label>
+                        <br />
+                        <input type="radio" class="balloon" value="changelog" name="doc" id="doc-changelog" onclick="openChangelog()" />
+                        <label for="doc-changelog">Change Log</label>
+
+                    </div>
+
                     <div id="toc">
+
                         <div class="toc-header">
-                            <div class='yes3-flex-container'> 
-                                <img src='<?= $yes3SquareLogoUrl_light ?>' class='yes3-flex-vcenter-hleft yes3-square-logo' title='click to return to the top of the document' height=50px onclick='scrollDocTo("top");' />
-                                <div class='yes3-flex-vcenter-hleft logo-title'>Exporter</div>
-                            </div>
                             <div class='toc-title'>Table of Contents</div>
                         </div>
 
-                        <div class="toc-entries" id="toc-entries">
-                            <?= $toc ?>
-                        </div>
+                        <div class="toc-entries" id="toc-entries"></div>
                     </div>
 
                     <div class="authors hidden-xs" id="stub-footer">
 
                         <p>Wrought by the REDCap@Yale team</p>
                         <p>REDCap@yale.edu</p>
-                        <p id="changelogLink"><a href="javascript:openChangeLog();">Change Log</a></p>
+                        <!--p id="changelogLink"><a href="javascript:openChangeLog();">Change Log</a></p>
+                        <p id="technicalDocumentationLink"><a href="javascript:openTechDoc();">Technical Documentation</a></p-->
 
                     </div>
                 </div>
             </div>
 
             <div class="col-sm-9" id="content">
-            <article class="markdown-body" id="yes3-document">
-                    <?= $html ?>
-                </article>
+                <article class="markdown-body" id="yes3-document"></article>
             </div>
         </div>
     </div>
-
-        <script>
-
-            let windowNumber = 0;
-
-            let doc = "<?= $_GET['doc'] ?>";
-
-            let Yes3LogoUrl = {
-                "light": "<?= $yes3SquareLogoUrl_light ?>",
-                "dark": "<?= $yes3SquareLogoUrl_dark ?>"
-            }
-
-            let Yes3BannerUrl = {
-                "light": "<?= $yes3HorizLogoUrl_light ?>",
-                "dark": "<?= $yes3HorizLogoUrl_dark ?>"
-            }
-
-            function openPopupWindow(url) 
-            {
-                let w = 1160;
-                let h = 700;
-                const windowNamePrefix = "YES3Window";
-
-                windowNumber++;
-
-                let windowName = windowNamePrefix+windowNumber;
-
-                //console.log(url,windowName);
-
-                // Fixes dual-screen position                         Most browsers      Firefox
-                let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-                let dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
-
-                let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-                let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-                let left = ((width / 2) - (w / 2)) + dualScreenLeft;
-                let top = ((height / 2) - (h / 2)) + dualScreenTop;
-                let newWindow = window.open(url, windowName, 'width=' + w + ',height=' + h + ',top=' + top + ',left=' + left);
-
-                if(!newWindow || newWindow.closed || typeof newWindow.closed=='undefined')   {
-                    alert("It looks like popups from REDCap are blocked on your computer.<br />Please call the data management team to enable REDCap popups.")
-                }
-
-                // Puts focus on the newWindow
-                if (window.focus) {
-                    //newWindow.focus();
-                }
-
-                //return false;
-            };
-
-            function openChangeLog()
-            {
-                let url="<?= $module->changelogUrl ?>";
-
-                openPopupWindow( url );
-            }
-
-            /*
-                === THEME ===
-
-                https://dev.to/ananyaneogi/create-a-dark-light-mode-switch-with-css-variables-34l8
-            */
-
-            //determines if the user has a set theme
-            function detectColorScheme(){
-                var theme="light";    //default to light
-
-                //local storage is used to override OS theme settingsvgb 
-                if(localStorage.getItem("theme")){
-                    if(localStorage.getItem("theme") == "dark"){
-                        var theme = "dark";
-                    }
-                } else if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-                    //OS theme setting detected as dark
-                    var theme = "dark";
-                }
-
-                setTheme(theme);
-            }
-
-            function setTheme(theme)
-            {
-                $('html').attr('data-theme', theme);
-                localStorage.setItem('theme', theme);
-                setThemeObjects();
-            }
-
-            function setThemeObjects()
-            {
-                theme = localStorage.getItem('theme');
-
-                $("img.yes3-square-logo").attr('src', Yes3LogoUrl[theme]);
-
-                $("img.yes3-horizontal-logo").attr('src', Yes3BannerUrl[theme]);
-            }
-
-            function resizeTheViewer()
-            {
-                let theDocWrapper = $("#yes3-document");
-                let theAuthors = $("#authors");
-                let stubFooter = $('#stub-footer');
-                let tocEntries = $('#toc-entries');
-                let toc = $("#toc");
-
-                let windowHeight = $(window).innerHeight();
-                let stubFooterHeight = stubFooter.outerHeight();
-                let tocHeight = toc.outerHeight();
-
-                let docHeight = windowHeight 
-                    - theDocWrapper.offset().top
-                    - 15
-                ;
-
-                let stubY = docHeight
-                    - stubFooter.outerHeight()
-                    - 15
-                ;
-
-                let tocEntriesHeight = docHeight 
-                    - stubFooter.outerHeight()
-                    - tocEntries.offset().top
-                ;
-
-                //if ( stubY < tocHeight ) stubY = tocHeight;
-
-                theDocWrapper.css({'height': docHeight+'px'});
-
-                //if ( $("#stub").is(":visible") ){
-                    
-                    stubFooter.css({'top': stubY + 'px'});
-                    $("#stub").height(theDocWrapper.height());
-                //}
-
-                tocEntries.css({'height': tocEntriesHeight + 'px'})
-            }
-
-            function scrollDocTo( anchor_name ){
-
-                if ( anchor_name==="top" ){
-                    let element = document.getElementById("yes3-document");
-                    element.scrollTop = 0;
-                    return true;
-                }
-
-                let element = document.querySelector(`a[name="${anchor_name}"]`);
-                //element.scrollIntoView({ behavior: 'smooth', block: 'start'});      
-                element.scrollIntoView();      
-            }
-
-            $("div.toc-entry").on("click", function(){
-                $("div.toc-entry.selected").removeClass("selected");
-                $(this).addClass("selected");
-                //console.log("onClick",$(this).attr("data-anchor_name"))
-                scrollDocTo($(this).attr("data-anchor_name"));
-            })
-
-            $(window).resize( function() {
-
-                resizeTheViewer();
-            })
-
-            $( function() {
-
-                // disable the changelog link if the loaded doc is the changelog
-                if ( doc.includes("changelog") ){
-
-                    $("p#changelogLink").hide();
-                }
-
-                // remove any blockquote about viewing in doc plugin
-                // (which is not relevant since this is the doc viewer)
-                $("blockquote:contains('documentation')").first().remove();
-
-                detectColorScheme();
-                resizeTheViewer();
-            })
-
-        </script>
 
     </body>
 

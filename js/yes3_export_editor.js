@@ -326,7 +326,7 @@ FMAPR.closeDownloadForm = function()
  * @param {*} field_name 
  * @param {*} event_name
  */
-YES3.Functions.openFieldInsertionForm_lagacy = function(rowId, field_name, event_name)
+YES3.Functions.openFieldInsertionForm_deprecated = function(rowId, field_name, event_name)
 {
     rowId = rowId || "";
     field_name = field_name || "";
@@ -2017,11 +2017,6 @@ FMAPR.getFormAutoCompleteSource = function(event)
     let events = [];
     let acSource = [];
 
-    acSource.push({
-        "value": "all",
-        "label": "all forms"
-    });
-
     for (let form_index=0; form_index<FMAPR.project.form_metadata.length; form_index++){
 
         form_name = FMAPR.project.form_metadata[form_index].form_name;
@@ -2063,9 +2058,18 @@ FMAPR.getFormAutoCompleteSource = function(event)
 
             acSource.push({
                 "value": FMAPR.project.form_metadata[form_index].form_name,
-                "label": FMAPR.project.form_metadata[form_index].form_label
+                "label": `[${FMAPR.project.form_metadata[form_index].form_name}] ${FMAPR.project.form_metadata[form_index].form_label}`
             });
         }
+    }
+
+    if ( acSource.length > 1 ){
+
+        acSource.unshift({
+            "value": "all",
+            "label": "all forms"
+        });
+    
     }
 
     console.log("getFormAutoCompleteSource", acSource);
@@ -3846,7 +3850,7 @@ FMAPR.copiedRowCount = function()
  * 
  * @param {*} exportItemField 
  */
- FMAPR.setExportItemFieldAutoselectInput_legacy = function( exportItemField ) {
+ FMAPR.setExportItemFieldAutoselectInput_deprecated = function( exportItemField ) {
 
     exportItemField
         .addClass("yes3-fmapr-listener-set")    
