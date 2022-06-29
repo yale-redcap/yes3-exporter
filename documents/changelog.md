@@ -6,7 +6,13 @@
 June 30, 2022
 
 1. Format of form autocomplete label changed to include the raw form_name value as well as the form label, i.e. same pattern as field autocomplete. Embedded space twixt the two components guarantees that spacebar will return all entries.
-2. Bug fix: reg expressions for event prefix, fieldname and filename validations corrected to allow single char names (min was 3).
+2. Bug fix: reg expressions for event prefix, fieldname and filename validations corrected to allow single char names (3+ chars had been required).
+3. Support for date_dmy and datetime_dmy formats added to the variable type mappings.
+4. Bug fix: NEW ITEM ('rapid entry') form was dysfunctional for repeating form layouts
+5. Bug fix: designers were not accorded 'exporter' status - and hence couldn't use the exporter - if denied export rights to any individual forms.
+6. Technical guide (documents/technical.md) added
+7. Document viewer redesigned to support readme, tech guide and changelog
+
 
 ## Version 0.8.1
 

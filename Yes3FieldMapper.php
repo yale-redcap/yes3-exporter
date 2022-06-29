@@ -3050,10 +3050,13 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( $field_validation === "date_mdy" ) return "DATE";
         if ( $field_validation === "date_ymd" ) return "DATE";
+        if ( $field_validation === "date_dmy" ) return "DATE";
         if ( $field_validation === "datetime_mdy" ) return "DATETIME";
         if ( $field_validation === "datetime_ymd" ) return "DATETIME";
+        if ( $field_validation === "datetime_dmy" ) return "DATETIME";
         if ( $field_validation === "datetime_seconds_mdy" ) return "DATETIME";
         if ( $field_validation === "datetime_seconds_ymd" ) return "DATETIME";
+        if ( $field_validation === "datetime_seconds_dmy" ) return "DATETIME";
         if ( $field_validation === "time" ) return "TIME";
         if ( $field_validation === "float" ) return "FLOAT";
         if ( $field_validation === "int" ) return "INTEGER";

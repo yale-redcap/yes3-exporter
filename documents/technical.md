@@ -114,12 +114,12 @@ Object properties:
 |:-----|:-------|:---------|
 | INTEGER | | REDCap field type `slider` or REDCap field validation `integer` |
 | FLOAT | w.d&nbsp;as&nbsp;determined&nbsp;by&nbsp;PHP | REDCap field type `calc` or REDCap field validation `float`. 14 significant digits (IEEE 64-bit). |
-| DATE | yyyy-dd-mm | REDCap field validations `date_mdy`, `date_ymd` |
-| DATETIME | yyyy-dd-mm hh:nn:ss | REDCap field validations `datetime_mdy`, `datetime_ymd`, `datetime_seconds_mdy`, `datetime_seconds_ymd`|
+| DATE | yyyy-mm-dd | REDCap field validations `date_mdy`, `date_ymd`, `date_dmy`, `date_dmy` |
+| DATETIME | yyyy-mm-dd hh:nn:ss | REDCap field validations `datetime_mdy`, `datetime_ymd`, `datetime_dmy`, `datetime_seconds_mdy`, `datetime_seconds_ymd`, `datetime_seconds_dmy`|
 |TIME| hh:nn:ss | REDCap field validation `time`|
-|NOMINAL| value set | REDCap field types `radio`, `dropdown`, `yesno`, `truefalse`, `select`|
+|NOMINAL| value set | REDCap field types `radio`, `yesno`, `truefalse`, `select` (dropdown)|
 |CHECKBOX| value set | REDCap field type `checkbox`|
-|TEXT| |REDCap field type `paragraph/notes`, or REDCap field type `text` with no REDCap field validation|
+|TEXT| |REDCap field type `paragraph/notes`, REDCap field type `sql` or REDCap field type `text` with no REDCap field validation|
 
 > CHECKBOX data values: If a "check all that apply" checkbox has multiple items, they will be returned in the export data as a comma-separated list of checked values. This is equivalent to the `combine_checkbox_values` option of the REDCap::getData() method.
 
@@ -150,11 +150,11 @@ warnings broadcast by the REDCap Field Editor.
 
 The YES3 Exporter currently supports three export layouts: Vertical(`v`), Horizontal(`h`) and Repeating forms(`r`).
 
-For all export layouts the first field or 'variable' in the exported record will the recordid, and the variable name will be the recordid field name as defined for the specific project.
+For all export layouts the first field or 'variable' in the exported record will be the recordid, and the variable name will be the recordid field name as defined for the specific project.
 
 Depending on the layout and study design, the recordid variable may be followed by a collection of "REDCap Attribute" variables that indicate the REDCap data access group and event.
 
-The remainder of the exported record is the collection of values for the selected fields, in the order specified. The variable name of each will be either the REDCap field name (vertical and repeating form layouts), or a composite of the REDCap event abbreviation and the REDCap field name (horizontal layout).
+The remainder of the exported record is the collection of values for the selected fields, in the order specified. The variable name of each will be either the REDCap field name (vertical and repeating form layouts), or a composite of the REDCap event prefix and the REDCap field name (horizontal layout).
 
 Following are more detailed descriptions of the export layouts.
 
@@ -195,9 +195,9 @@ Horizontal layouts are allowed only for longitudinal study designs, and have one
 | [recordId] | The record unique identifier | study-specific variable name |
 | redcap_data_access_group_id | The numeric DAG id | only present if DAGs are assigned to records |
 | redcap_data_access_group_name | The unique DAG name | only present if DAGs are assigned to records |
-| [composite fieldname] | the first selected field/event value | variable name is [event abbr]_[ REDCap field name] |
+| [composite fieldname] | the first selected field/event value | variable name is [event prefix]_[ REDCap field name] |
 | ... |
-| [composite fieldname] | the last selected field/event value | variable name is [event abbr]_[ REDCap field name] |
+| [composite fieldname] | the last selected field/event value | variable name is [event prefix]_[ REDCap field name] |
 
 ### The Repeating Form Export Layout
 
