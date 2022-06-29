@@ -889,8 +889,8 @@ FMAPR.ensureNewFieldRowAtEndV2 = function()
 
     html += `<td class="yes3-fmapr-redcap-object-type">`;
     html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
-    html += `<option value="field" selected>field</option>`;
-    html += `<option value="form">form</option>`;
+    html += `<option value="form" selected>form</option>`;
+    html += `<option value="field">field</option>`;
     html += `</select>`;
     html += `</td>`;
 

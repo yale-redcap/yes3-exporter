@@ -12,6 +12,7 @@ June 30, 2022
 5. Bug fix: designers were not accorded 'exporter' status - and hence couldn't use the exporter - if denied export rights to any individual forms.
 6. Technical guide (documents/technical.md) added
 7. Document viewer redesigned to support readme, tech guide and changelog
+8. NEW ITEM now defaults to 'form', since it is more likely to be used to add forms to the spec.
 
 
 ## Version 0.8.1
