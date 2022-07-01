@@ -345,6 +345,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
     * 
     * @param $s
     * 
+    * @psalm-suppress InvalidNullableReturnType
     * @return string
     */
     public static function normalized_string( $s )
@@ -363,7 +364,7 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
        /**
         * @psalm-suppress InvalidReturnStatement
         */
-       return preg_replace("/[^a-z0-9_]+/", "", strtolower(str_replace(' ', '_', $s)));
+       return preg_replace("/[^a-z0-9_]+/", "", strtolower(str_replace([' ', '-', '.'], '_', $s)));
     }
 
     /**
@@ -650,17 +651,17 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
          );
 
    */
+  
    public static function logDebugMessage($project_id, $msg, $msgcat="") 
    {
-      if ( !self::tableExists(DEBUG_LOG_TABLE) ) return false;
+        if ( !self::tableExists(DEBUG_LOG_TABLE) ) return false;
 
-      $sql = "INSERT INTO `".DEBUG_LOG_TABLE."` (project_id, debug_message, debug_message_category) VALUES (?,?,?)";
+        $sql = "INSERT INTO `".DEBUG_LOG_TABLE."` (project_id, debug_message, debug_message_category) VALUES (?,?,?)";
 
-      return self::query($sql, [$project_id, $msg, $msgcat]);
+        return self::query($sql, [$project_id, $msg, $msgcat]);
    }
 
    /**
-   * 
    * 
    * function: REDCapAPI
    * 

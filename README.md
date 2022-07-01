@@ -91,7 +91,7 @@ Users will not have access to an export unless they have both **view and export*
 
 If a user attempts to access an export with restricted data, they will receive the following message:
 
-<img src="media/b1c48997a8b0d2d04236543b701fcdfb.png"  width="40%">
+<img src="media/permission_denied_message.png"  width="40%">
 
 # Getting Started
 
@@ -111,11 +111,11 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 ### Quick Start
 
-1.  Click ![](media/cdcda9be5bb3bdb1c58c467b3c36cfa9.png) button to add a new export.
+1.  Click ![](media/new_export_icon.png) button to add a new export.
 
 2.  Enter the export name and select a layout.
 
-<img src="media/8ccc859bd32c48d61c4e10a102ff70a5.png"  width="50%">
+<img src="media/new_export_dialog.png"  width="50%">
 
 a.  Please be mindful of the following limitations when creating a new export: 
 - Export names cannot be duplicated. 
@@ -127,13 +127,13 @@ a.  Please be mindful of the following limitations when creating a new export:
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
 <img src="media/Export_Settings_Display.png"  width="75%">
 
-5.  Once you have selected your options, click ![](media/4f49fd820f5d9cb8ead41600d90d09c9.png) to save your changes.
+5.  Once you have selected your options, click ![](media/save_icon_unsaved_changes.png) to save your changes.
 
 6.  Select **'Export Items'** in the display setting to add forms/fields.
 
 <img src="media/Export_Settings_Red_Box.png"  width="75%">
 
-7.  Click the ![](media/709532227f87a43477374c0b9db4336b.png) button located along the top menu to add forms/fields.
+7.  Click the ![](media/bulk_insert_icon.png) button located along the top menu to add forms/fields.
 
 8.  <b>To add forms</b>
 
@@ -176,7 +176,7 @@ a.  Please be mindful of the following limitations when creating a new export:
      
       d.   After you have finished adding fields to the export items, save the changes.
 
-10. Click ![](media/d8bb96161d6fb4e8d63df81c028545d3.png) to download the data and/or data dictionary.
+10. Click ![](media/download_icon.png) to download the data and/or data dictionary.
 
      **Note:** For checkbox field, the checked-off options will be combined and export into a single column.
 
@@ -210,7 +210,7 @@ On the Export Settings view, you can specify how data is exported across all fie
 
 The selecting records option allows you to specify the field, event, and value required for inclusion in the export. This feature uses ONE field to identify the target records.
 
- <img src="media/f609e7aef49d1d92928008960fc4ff80.png" width="50%"> 
+ <img src="media/selection_criterion_settings.png" width="50%"> 
 
 As an example, you may wish to restrict an export to data on those individuals who screened positive on an assessment. To optimize this feature, the target status (e.g. screen positive) must be identified through a query to ONE field in your REDCap project. Additional examples are found in the **?** icon.
 
@@ -285,11 +285,11 @@ To use the exporter
      <img src="media/Exporter_Log_View.png" width="75%"> 
      
     
-4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/7b85b744b6e4165d5a288ccbfee2d668.tmp)icon.
+4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/yes3_inspector_icon.png)icon.
 
    <img src="media/YES3_logs_select_v1.gif" width="75%">
 
-5.  Click ![](media/d3dd32e55d06b7caad7e8200e65f1382.tmp)to download the log.
+5.  Click ![](media/download_icon.png)to download the log.
 
 
    <img src="media/Exporter_Log_Download.png" width="75%"> 
@@ -309,24 +309,9 @@ redcap@yale.edu
 -   A repeating events export layout
 -   Automated filesystem exports
 -   Export-specific SAS and R code generators for completely automated datamarts
--   Additional YES3 modules!
+-   Additional YES3 modules!**NEED LINK**
     - YES3 Dashboard for data collection workflow management
     - YES3 Study Portal for single or multisite study monitoring and administration
-
-**YES3 Dashboard sneak peek**
-
-Below is a screenshot of the beta version of the YES3 Dashboard, which has been in use on selected Yale studies for over a year. We are currently refactoring and extending the features of the Dashboard, based on our experience developing the YES3 Exporter. The aim of the Dashboard is to organize REDCap features in a way that optimizes workflow efficiencies, thereby reducing operations costs. Some of the features illustrated in this screenshot include:
-
-- Suitable for single-site as well as large multisite studies.
-- User-defined sortable columns, the color-coded contents of which can adapt to contact status (e.g., target date, scheduled date, completion date+outcome). Column entries are links to specific REDCap forms.
-- Filters based on user-defined tracking indicators that classify records according to study progress states (screened, eligible, enrolled, completed study, withdrawn etc).
-- Flexible record ID generator that can combine site abbreviations with either sequential or Luhn numbers (Luhn numbers have self-validating "check" digits).
-- A popup "record inspector" that displays a user-configured overview of a participant's progess through the study.
-- A record-level chat-like tool for communicating and resolving issues between field and data management staff.
-- A "safety" mode in which data elements defined as PHI are hidden from display on the Dashboard.
-- Dashboard remains open during data collection / data entry.
-
-<img src="media/yes3-dashboard-sneak-peek.png" alt="YES3 Dashboard sneak peek" />
 
 # Authors
 

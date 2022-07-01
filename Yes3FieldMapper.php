@@ -1460,7 +1460,7 @@ WHERE project_id=? AND log_entry_type=?
                         $y[ $dd[ $field_index]['var_name'] ] .= ",";
                     }
 
-                    $y[ $dd[ $field_index]['var_name'] ] .= $REDCapValue;
+                    $y[ $dd[ $field_index]['var_name'] ] .= Yes3::normalized_string( $REDCapValue );
                 }
                 else {
 

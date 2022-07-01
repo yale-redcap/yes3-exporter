@@ -882,6 +882,12 @@ FMAPR.ensureNewFieldRowAtEndV2 = function()
        return true;
     }
  
+    // make sure constraints applied before row is inserted
+    //if ( FMAPR.export_specification.export_layout==="r" ){
+ 
+        //FMAPR.setRepeatLayoutConstraints();
+    //}    
+ 
     const fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
 
     let html = `<tr class='yes3-fmapr-new-item-form' id="${FMAPR.rapidEntryFormRowId}">`;
@@ -966,7 +972,7 @@ FMAPR.setRapidEntryFormListeners = function()
 
                     if ( object_type==="form" && object_name !== "all" ){
 
-                        if ( !FMAPR.project.form_index[object_name] ) {
+                        if ( typeof FMAPR.project.form_index[object_name] !== 'number' ) {
 
                             YES3.hello(`'${$(this).val()}' is not a valid form name.`);
                             $(this).val("");
@@ -974,7 +980,7 @@ FMAPR.setRapidEntryFormListeners = function()
                     }
                     else if ( object_type==="field" ){
 
-                        if ( !FMAPR.project.field_index[object_name] ) {
+                        if ( typeof FMAPR.project.field_index[object_name] !== 'number' ) {
 
                             YES3.hello(`'${$(this).val()}' is not a valid field name.`);
                             $(this).val("");
@@ -4832,16 +4838,16 @@ FMAPR.populateExportItemsTable = function( specification )
     }
     */
 
-    //FMAPR.populateExportItemRows( specification );
+
     FMAPR.populateExportItemRowsV2( specification );
+
+    FMAPR.setRepeatLayoutConstraints();
 
     FMAPR.ensureNewFieldRowAtEndV2(); // the last row is a rapid field form
 
     FMAPR.resizeExportItemsTable();
 
     FMAPR.markAsBuildCompleted();
-
-    FMAPR.setRepeatLayoutConstraints();
 
     FMAPR.renumberRows();
 
