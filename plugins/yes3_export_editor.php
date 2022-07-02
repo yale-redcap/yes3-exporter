@@ -138,14 +138,14 @@ $module->getCodeFor("yes3_export_editor", true);
                     </td>
                 </tr>
                 
-                <tr>
+                <!--tr>
                     <td>
                         <i class="fas fa-plus-square yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Add a REDCap form (or all forms) to the export specification.
                     </td>
-                </tr>
+                </tr-->
                 
                 <tr>
                     <td>

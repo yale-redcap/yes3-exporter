@@ -85,19 +85,36 @@ There are four components to the Exporter External Module.
 
 ## User Interface considerations
 
-### Screen size recommendation
+### Device recommendations
 
-Each YES3 Exporter component has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones. Every component can be operated on a device having a screen width of 500 pixels or more. 
+Each YES3 Exporter component - like REDCap itself - has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones.
 
-However there are practical considerations, driven by the complexity of the export specification editor in the YES3 Exporter Main component. The YES3 Exporter Main component was optimized for use on a standard HD screen (1920 x 1080). For an optimal user experience, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels.
+The Event Prefixes, Export Logs and YES3 Exporter Documentation components all work tolerably well with a portrait-orientation device viewport width of 375 pixels, which covers most mobile phones.
+
+However there are practical considerations for the YES3 Exporter Main component, driven by the complexity of the export specification editor. Our target display device for the editor is a standard HD desktop screen (1920x1080 pixels). For an optimal user experience on a desktop, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels. 
+
+For mobile devices, the minimum viewport dimensions for editing export specifications appear to be 600x600 pixels, which should cover devices ranging from "phablets" to full-size tablets. Most mobile phones will *not* work for editing, in either portrait or horizontal orientation.
+
+### Action icons
+
+YES3 Exporter feaures are accessible through a collection of 'action icons,' which are clickable icons displayed in the top-right section of every YES3 Exporter page. For example:
+
+<img src="media/action_icons.png"  width="300px">
+
+
+The YES3 icon at the far right is not technically a YES3 Exporter action icon, rather it is a link that will take you to the YES3 page on our REDCap portal website. There you will find information about the history, goals and plans of the YES3 initiative.
+
+### Help panels
+
+Of particular interest is the question-mark action icon: clicking on **?** will display a page-specific help panel that will briefly explain all of the available features and their associated action icons. Help panels are overlays that can be repositioned or dragged out of the way as you work.
+
+Here is the help panel for the YES3 Exporter Main (editor) page:
+
+<img src="media/help_panel.png"  width="800px">
 
 ### Light and dark themes
 
-You can choose between a light and dark theme, and your choice will persist between sessions and between YES3 Exporter components. Theme selections work though 'action icons' that are displayed in the top right section of each page. A half-moon icon will switch to the dark theme, and a sunburst icon will switch to the light theme.
-
-## Help Panel
-
-Links to pop-up help Panels are identified by a **?** symbol. Help panels are located in the main menu and throughout the Exporter. Help panels are overlays that can be repositioned or dragged out of the way as you work.
+You can choose between a light and dark theme, and your choice will persist between sessions and between YES3 Exporter components. Theme selections work though action icons. A crescent moon icon will instantaneously switch to the dark theme, and a sunburst icon will switch to the light theme.
 
 ## User Rights
 
