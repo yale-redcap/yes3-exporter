@@ -232,10 +232,10 @@ function buildTOC( &$markdown, &$toc )
                     <div id="doc-options">
 
                         <input type="radio" class="balloon" value="readme" name="doc" id="doc-readme" onclick="openReadme()" />
-                        <label for="doc-readme">EM documentation (readme)</label>
+                        <label for="doc-readme">EM Documentation (readme)</label>
                         <br/>
                         <input type="radio" class="balloon" value="technical" name="doc" id="doc-technical" onclick="openTechnical()" />
-                        <label for="doc-technical">Technical documentation</label>
+                        <label for="doc-technical">Technical Guide</label>
                         <br />
                         <input type="radio" class="balloon" value="changelog" name="doc" id="doc-changelog" onclick="openChangelog()" />
                         <label for="doc-changelog">Change Log</label>
