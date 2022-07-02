@@ -7,7 +7,7 @@
 REDCap External Module  
 Version 1.00, June 2022
 
-> **For better formatting and access to a Table of Contents, a Technical Guide and the Change Log, we recommend that you view this guide using the YES3 Exporter Documentation plugin link, rather than the EM documentation link provided by REDCap.** 
+> **⚠ For better formatting and access to a Table of Contents, a Technical Guide and the Change Log, we recommend that you view this guide using the YES3 Exporter Documentation plugin link, rather than the 'View Documentation' link provided by REDCap on the External Modules - Projact Module Manager page.** 
 
 # Introduction
 
@@ -36,35 +36,43 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
 
 Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of clinical research needs.
 
-# Configuration Settings
+# Configuration
 
-## Global Configuration
+## System Configuration
 
-The YES3 Exporter performs daily tasks, such as removing old export backups. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
+The YES3 Exporter performs daily tasks, such as removing old export backups and emailing activity reports. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
 
 To configure, go to Control Panel -> External Modules -> Manage -> Yes3 Exporter ->Configure
 
+The time and results of the most recent daily housekeeping run for all projects are displayed in the YES3 Exporter system configuration page.
+
 ## Project Configuration
 
-Only users with project design and setup rights can configure the External Module Settings in the project.
+Only users with project design and setup rights can configure the External Module Settings for a project.
+
+Project settings include rules for retaining export specification backups, whether and where to send daily log reports, and settings for host filesystem exports.
+
+The date and result of the latest housekeeping run for the project are displayed in the Project Settings.
 
 To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
-### Daily Log Report
+### Daily Activity Log Report
 
-When enabled, you can designate one email address that will receive a daily summary of export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about export activity in last 24 hours.
+When enabled, you can designate one email address that will receive a daily summary of project export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours.
 
 To disable the daily log report, you may change the email notification setting to “no” at any time.
 
 ### Host File System Exports
 
-Data can be exported to a designated host file system (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. To safeguard data security, enabling this setting requires approval by a REDCap administrator.
+YES3 Exporter "payloads" can be written to a designated host file system folder (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. To safeguard data security, enabling this setting requires approval by a REDCap administrator. 
+
+> A payload consists of exported data, a comprehensive data dictionary and an information file having details about the export and project. See the Technical Guide for more information on YES3 Exporter payloads and datamart considerations.
 
 ### Backup Retention
 
-Export specifications (i.e. templates) can be rolled back and restored to a prior saved version. By default, 20 generations are retained.
+Export specifications can be rolled back and restored to a prior saved version. By default, 20 generations are retained, but you may choose to retain more or all generations.
 
-# Overview
+# YES3 Exporter Overview
 
 ## Components
 
@@ -75,23 +83,33 @@ There are four components to the Exporter External Module.
 3.  **YES3 Exporter Logs**
 4.  **YES3 Exporter Documentation**
 
-## Appearance
+## User Interface considerations
 
-The exporter was optimized for use on a standard desktop HD screen (1920 x 1080). The minimum recommended screen width, with the browser's magnification set to 100%, is 1200 pixels. You can choose between a light and dark mode in the top menu.
+### Screen size recommendation
+
+Each YES3 Exporter component has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones. Every component can be operated on a device having a screen width of 500 pixels or more. 
+
+However there are practical considerations, driven by the complexity of the export specification editor in the YES3 Exporter Main component. The YES3 Exporter Main component was optimized for use on a standard HD screen (1920 x 1080). For an optimal user experience, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels.
+
+### Light and dark themes
+
+You can choose between a light and dark theme, and your choice will persist between sessions and between YES3 Exporter components. Theme selections work though 'action icons' that are displayed in the top right section of each page. A half-moon icon will switch to the dark theme, and a sunburst icon will switch to the light theme.
 
 ## Help Panel
 
-Help Panels are identified by a **?** symbol. Help panels are located in the main menu and throughout the Exporter.
+Links to pop-up help Panels are identified by a **?** symbol. Help panels are located in the main menu and throughout the Exporter. Help panels are overlays that can be repositioned or dragged out of the way as you work.
 
 ## User Rights
 
 Users *with* project-design rights have the ability to create, modify and download exports.  Users *without* project-design rights can access what is created; they can view the export and download data.
 
-Users will not have access to an export unless they have both **view and export** permissions. This protects the data and prevents unblinding. For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the v12 form-specific exporter permissions.
+Users will not have access to a specific export unless they have both **view and export** permissions on all items (forms and fields) in the export specification. This protects the data and prevents unblinding. For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the REDCap Version 12 form-specific exporter permissions, by using the form-specific user data entry rights as proxies for export rights (assuming that the user has overall project export rights).
 
 If a user attempts to access an export with restricted data, they will receive the following message:
 
 <img src="media/permission_denied_message.png"  width="40%">
+
+> Permission denial is based not only on export rights, but on other user rights such as the right to view PHI.
 
 # Getting Started
 
