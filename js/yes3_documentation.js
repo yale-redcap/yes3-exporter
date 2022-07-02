@@ -132,7 +132,7 @@ function removeReadmeDocViewerAdvisory()
 {
     // remove any blockquote about viewing in doc plugin
     // (which is not relevant since this is the doc viewer)
-    $("blockquote:contains('documentation')").first().remove();
+    $("blockquote:contains('For better formatting')").first().remove();
 }
 
 $(window).resize( function() {
