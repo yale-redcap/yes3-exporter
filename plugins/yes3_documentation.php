@@ -24,6 +24,8 @@ $yes3SquareLogoUrl_dark  = $module->getUrl("images/YES3_Logo_Square_Black.png");
 $yes3HorizLogoUrl_light = $module->getUrl("images/YES3_Logo_Horizontal_White_v3_500.png");
 $yes3HorizLogoUrl_dark  = $module->getUrl("images/YES3_Logo_Horizontal_Black_v3_500.png");
 
+/*
+
 $filename = $_GET["doc"] . ".md";
 
 $urlDoc = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/" . $filename;
@@ -54,6 +56,7 @@ buildTOC($markdown, $toc);
 $md = new \Parsedown();
 
 $html = $md->text($markdown);
+*/
 
 $html_readme = "";
 $html_changelog = "";
