@@ -27,9 +27,9 @@ else {
    toesUp("request parameter not passed");
 }
  
-if ( !requestIsValid($request) ) {
-    toesUp("error: invalid request: ".$request);
-};
+//if ( !requestIsValid($request) ) {
+//    toesUp("error: invalid request: ".$request);
+//};
 
 /**
  * validate the csrf token
@@ -63,15 +63,63 @@ if ( !$csrf_token ){
 if ( !in_array( $csrf_token, $_SESSION['redcap_csrf_token']) ){
     toesUp("error: invalid csrf token for request '{$request}'.");
 }
-
-//if ( $csrf_token !== $module->getCSRFToken() ){
-//    toesUp("error: invalid csrf token.");
-//}
  
 /**
  * Execute the requested function and head out.
+*/
+
+/**
+ * list of allowed function requests.
+ * Can be updated using output from listNamespaceFunctions()
  */
-exit ( call_user_func( __NAMESPACE__."\\".$request ) );
+$function_registry = [
+    'addexportspecification'
+    , 'checkdownloadpermission'
+    , 'checkexportpermission'
+    , 'countexportitems'
+    , 'downloaddata'
+    , 'downloaddatadictionary'
+    , 'downloadexportlog'
+    , 'downloadzip'
+    , 'eschtml'
+    , 'exportdata'
+    , 'get_event_abbreviation_settings'
+    , 'get_event_metadata'
+    , 'get_event_select_options_html'
+    , 'get_field_mappings'
+    , 'get_field_metadata_structures'
+    , 'get_fields'
+    , 'get_first_event_id'
+    , 'get_form_metadata_structures'
+    , 'get_project_event_metadata'
+    , 'get_project_settings'
+    , 'get_specification_settings'
+    , 'get_wayback_html'
+    , 'getdefaulteventprefixes'
+    , 'geteventsettings'
+    , 'getexportlogdata'
+    , 'getexportlogrecord'
+    , 'getexportlogrecordsql'
+    , 'getexportlogs'
+    , 'getexportspecification'
+    , 'getexportspecificationlist'
+    , 'getfieldmaprecord'
+    , 'hello_world'
+    , 'requestisvalid'
+    , 'sanitizeuploadspec'
+    , 'save_field_mappings'
+    , 'saveeventsettings'
+    , 'saveexportspecification'
+];
+
+$fnIndex = array_search( $request, $function_registry );
+
+if ( $fnIndex === false ){
+
+    toesUp("error: invalid request: ".$request);
+}
+    
+exit ( call_user_func( __NAMESPACE__ . "\\". $function_registry[$fnIndex] ) );
 
 function getDefaultEventPrefixes()
 {
@@ -90,10 +138,14 @@ function toesUp($errmsg)
  
  /**
   * Only functions defined in this namespace will be accepted.
+  * Modified to use the function registry array, to avoid taint issues.
   */
-function requestIsValid( $request ):bool 
+function requestIndex( $request )
 {
-    return function_exists( __NAMESPACE__."\\".$request );
+    global $function_registry;
+    return array_search( $request, $function_registry );
+
+    //return function_exists( __NAMESPACE__."\\".$request );
 }
 
 function addExportSpecification()
@@ -1179,6 +1231,27 @@ function get_event_select_options_html()
     }
 
     return $eventSelectOptionsHtml;
+}
+
+function listNamespaceFunctions()
+{
+    $f = get_defined_functions()['user'];
+
+    sort( $f );
+
+    $registry_list = "";
+    
+    foreach ( $f as $fn ){
+
+        if ( stripos($fn, strtolower(__NAMESPACE__)) === 0 ) {
+
+            $registry_list .= $fn . "\n";
+        }
+    }
+
+    Yes3::logDebugMessage( 0, $registry_list, 'yes3 exporter servive functions' );
+
+    return $registry_list;
 }
 
  

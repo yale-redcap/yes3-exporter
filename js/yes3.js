@@ -690,35 +690,47 @@ YES3.uuidv4 = function() {
     );
 }
 
+/* === MISC UTILITY FUNCTIONS === */
+
 function listAllEventListeners() {
     const allElements = Array.prototype.slice.call(document.querySelectorAll('*'));
     allElements.push(document);
     allElements.push(window);
-  
+
     const types = [];
-  
+
     for (let ev in window) {
-      if (/^on/.test(ev)) types[types.length] = ev;
+    if (/^on/.test(ev)) types[types.length] = ev;
     }
-  
+
     let elements = [];
     for (let i = 0; i < allElements.length; i++) {
-      const currentElement = allElements[i];
-      for (let j = 0; j < types.length; j++) {
+    const currentElement = allElements[i];
+    for (let j = 0; j < types.length; j++) {
         if (typeof currentElement[types[j]] === 'function') {
-          elements.push({
+        elements.push({
             "node": currentElement,
             "type": types[j],
             "func": currentElement[types[j]].toString(),
-          });
+        });
         }
-      }
     }
-  
+    }
+
     return elements.sort(function(a,b) {
-      return a.type.localeCompare(b.type);
+    return a.type.localeCompare(b.type);
     });
-  }
+}
+
+YES3.listServiceFunctions = function()
+{
+    YES3.requestService({'request': "listnamespacefunctions"}, YES3.listServiceFunctionsCallback );
+}
+
+YES3.listServiceFunctionsCallback = function( response )
+{
+    console.log("service functions", response);
+}
 
 /* === AJAX === */
 
