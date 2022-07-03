@@ -4,6 +4,8 @@ namespace Yale\Yes3FieldMapper;
 
 use Exception;
 
+use function Yale\Yes3FieldMapper\toesUp as Yes3FieldMapperToesUp;
+
 /*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
@@ -68,58 +70,9 @@ if ( !in_array( $csrf_token, $_SESSION['redcap_csrf_token']) ){
  * Execute the requested function and head out.
 */
 
-/**
- * list of allowed function requests.
- * Can be updated using output from listNamespaceFunctions()
- */
-$function_registry = [
-    'addexportspecification'
-    , 'checkdownloadpermission'
-    , 'checkexportpermission'
-    , 'countexportitems'
-    , 'downloaddata'
-    , 'downloaddatadictionary'
-    , 'downloadexportlog'
-    , 'downloadzip'
-    , 'eschtml'
-    , 'exportdata'
-    , 'get_event_abbreviation_settings'
-    , 'get_event_metadata'
-    , 'get_event_select_options_html'
-    , 'get_field_mappings'
-    , 'get_field_metadata_structures'
-    , 'get_fields'
-    , 'get_first_event_id'
-    , 'get_form_metadata_structures'
-    , 'get_project_event_metadata'
-    , 'get_project_settings'
-    , 'get_specification_settings'
-    , 'get_wayback_html'
-    , 'getdefaulteventprefixes'
-    , 'geteventsettings'
-    , 'getexportlogdata'
-    , 'getexportlogrecord'
-    , 'getexportlogrecordsql'
-    , 'getexportlogs'
-    , 'getexportspecification'
-    , 'getexportspecificationlist'
-    , 'getfieldmaprecord'
-    , 'hello_world'
-    , 'requestisvalid'
-    , 'sanitizeuploadspec'
-    , 'save_field_mappings'
-    , 'saveeventsettings'
-    , 'saveexportspecification'
-];
+exit(execRequest($request));
 
-$fnIndex = array_search( $request, $function_registry );
-
-if ( $fnIndex === false ){
-
-    toesUp("error: invalid request: ".$request);
-}
-    
-exit ( call_user_func( __NAMESPACE__ . "\\". $function_registry[$fnIndex] ) );
+//exit ( call_user_func( __NAMESPACE__ . "\\". $request ) ); // tainted version
 
 function getDefaultEventPrefixes()
 {
@@ -135,19 +88,61 @@ function toesUp($errmsg)
 {
     throw new \Exception("YES3 Services reports ".$errmsg);  
 }
- 
- /**
-  * Only functions defined in this namespace will be accepted.
-  * Modified to use the function registry array, to avoid taint issues.
-  */
-function requestIndex( $request )
-{
-    global $function_registry;
-    return array_search( $request, $function_registry );
 
-    //return function_exists( __NAMESPACE__."\\".$request );
+function execRequest( $request ){
+    /**
+     * list of allowed function requests.
+     * Can be updated using output from listNamespaceFunctions()
+     */
+    $function_registry = [
+        'addexportspecification'
+        , 'checkdownloadpermission'
+        , 'checkexportpermission'
+        , 'countexportitems'
+        , 'downloaddata'
+        , 'downloaddatadictionary'
+        , 'downloadexportlog'
+        , 'downloadzip'
+        , 'eschtml'
+        , 'exportdata'
+        , 'get_event_abbreviation_settings'
+        , 'get_event_metadata'
+        , 'get_event_select_options_html'
+        , 'get_field_mappings'
+        , 'get_field_metadata_structures'
+        , 'get_fields'
+        , 'get_first_event_id'
+        , 'get_form_metadata_structures'
+        , 'get_project_event_metadata'
+        , 'get_project_settings'
+        , 'get_specification_settings'
+        , 'get_wayback_html'
+        , 'getdefaulteventprefixes'
+        , 'geteventsettings'
+        , 'getexportlogdata'
+        , 'getexportlogrecord'
+        , 'getexportlogrecordsql'
+        , 'getexportlogs'
+        , 'getexportspecification'
+        , 'getexportspecificationlist'
+        , 'getfieldmaprecord'
+        , 'hello_world'
+        , 'sanitizeuploadspec'
+        , 'save_field_mappings'
+        , 'saveeventsettings'
+        , 'saveexportspecification'
+    ];
+
+    $fnIndex = array_search( strtolower($request), $function_registry );
+
+    if ( $fnIndex===false ){
+
+        toesUp("error: invalid request '{$request}'.");
+    }
+
+    return call_user_func( __NAMESPACE__ . "\\". $function_registry[ $fnIndex ] );
 }
-
+    
 function addExportSpecification()
 {
     global $module;
