@@ -13,7 +13,7 @@ I started my career 50 years ago, as a mainly self-taught mainframe and minicomp
 
 For one reason or another, I have almost always been the sole programmer attached to any project. Yale is a small place, once you get down to the research support infrastructure. In recent years however, we have built a team around REDCap of which I am enormously proud to be a part, as I am proud to be a part of the larger REDCap community.
 
-My days of solo programming projects are over, and this is very good. Our team integrates highly experienced and skilled staff with students and fellows enrolled in Yale's expanding informatics and data science programs. I don't know if this is particularly unusual at other institutions, but it really works. We often use the phrase "drinking from a firehose" to descibe the uncomfortable feeling of too much information too fast, but this is more like rafting down a river of software engineering technology. It's exciting and the direction, while occasionally unexpected, feels right.
+My days of solo programming projects are over, and this is very good. Our team integrates highly experienced and skilled staff with students and fellows enrolled in Yale's expanding informatics and data science programs. I don't know if this is particularly unusual at other institutions, but it really works. We often use the phrase "drinking from a firehose" to descibe the uncomfortable feeling of too many new things all at once, but this is more like rafting. It's exciting and the direction, if occasionally unexpected, feels right.
 
 I am happy to be the mentee now, learning about new software frameworks, working within an integrated developer workflow and taking halting steps toward actual retirement.
 
