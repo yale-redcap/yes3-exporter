@@ -890,30 +890,49 @@ FMAPR.ensureNewFieldRowAtEndV2 = function()
  
     const fmaprBody = $('table.yes3-fmapr-specification').first().find('tbody');
 
-    let html = `<tr class='yes3-fmapr-new-item-form' id="${FMAPR.rapidEntryFormRowId}">`;
-    html += `<td colspan="2" class="yes3-fmapr-rapidentry-stub">NEW ITEM</td>`;
+    let colSpans = ( FMAPR.project.is_longitudinal ) ? 6 : 5;
 
-    html += `<td class="yes3-fmapr-redcap-object-type">`;
+    let html = `<tr class='yes3-fmapr-new-item-form' id="${FMAPR.rapidEntryFormRowId}">`;
+    //html += `<td colspan="2" class="yes3-fmapr-rapidentry-stub">NEW ITEM</td>`;
+
+    html += `<td colspan="${colSpans}">`;
+
+    html += `<div class="yes3-flex-container">`;
+
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+    html += "NEW ITEM";
+    html += "</div>";
+
+    //html += `<td class="yes3-fmapr-redcap-object-type">`;
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
     html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
     html += `<option value="form" selected>form</option>`;
     html += `<option value="field">field</option>`;
     html += `</select>`;
-    html += `</td>`;
+    html += `</div>`;
+    //html += `</td>`;
 
     if (FMAPR.project.is_longitudinal  ){
-        html += `<td class="yes3-fmapr-redcap-object-event">`;
+        //html += `<td class="yes3-fmapr-redcap-object-event">`;
+        html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
         html += `<select name="object_event" id="yes3-fmapr-rapidentry-object-event">`;
         html += FMAPR.getAllEventOptionsHtml();
         html += `</select>`;
-        html += `</td>`;
+        html += `</div>`;
+        //html += `</td>`;
     }
 
-    html += `<td class="yes3-nopadding yes3-fmapr-redcap-object-name">`;
+    //html += `<td colspan="2" class="yes3-nopadding yes3-fmapr-redcap-object-name-foo">`;
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
     html += `<input type="text" name="object_name" id="yes3-fmapr-rapidentry-object-name" placeholder="start typing or spacebar for all" />`;
+    html += `</div>`;
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
     html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add item" />`;
+    html += `</div>`;
+    html += `</div>`;
     html += `</td>`;
 
-    html += `<td class='yes3-gutter-right-top yes3-td-right'>&nbsp</td>`;
+    //html += `<td class='yes3-gutter-right-top yes3-td-right'>&nbsp</td>`;
     
     html += "</tr>";
 
@@ -1652,13 +1671,13 @@ FMAPR.resizeExportItemsTable = function()
      * 
      * row number       2
      * editor link      2
-     * object_type      3
-     * object_event     5
+     * object_type      2
+     * object_event     4
      * object_name      *
      * trashcan         1
      */
 
-    let reserved = (FMAPR.project.is_longitudinal) ? 13:8;
+    let reserved = (FMAPR.project.is_longitudinal) ? 11:7;
 
     let nameWidth  = (tableWidth - scrollbarWidth - reserved*gutterWidth);
  

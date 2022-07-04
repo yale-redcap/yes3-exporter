@@ -70,7 +70,7 @@ if ( !in_array( $csrf_token, $_SESSION['redcap_csrf_token']) ){
  * Execute the requested function and head out.
 */
 
-exit(execRequest($request));
+execRequest($request);
 
 //exit ( call_user_func( __NAMESPACE__ . "\\". $request ) ); // tainted version
 
@@ -140,7 +140,7 @@ function execRequest( $request ){
         toesUp("error: invalid request '{$request}'.");
     }
 
-    return call_user_func( __NAMESPACE__ . "\\". $function_registry[ $fnIndex ] );
+    exit( call_user_func( __NAMESPACE__ . "\\". $function_registry[ $fnIndex ] ) );
 }
     
 function addExportSpecification()

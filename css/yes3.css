@@ -1480,74 +1480,90 @@ div.yes3-dashboard-head input[type=radio].balloon:hover + label:before, input[ty
    cursor: pointer;
 }
 
+input[type=radio].balloon + label:before {
+   border-radius: 50%;
+   margin-bottom: 3px;
+}
 
- input[type=radio].balloon + label:before {
-    border-radius: 50%;
-    margin-bottom: 3px;
- }
- 
- input[type=checkbox].balloon + label:before {
-    border-radius: 50%;
-    margin-bottom: 3px;
- }
- 
- .yes3-title {
-    font-size: 2em;
-    font-weight: 800;
-    color: var(--yes3-title-color);
- }
- 
- .yes3-subtitle {
-    font-size: 2em;
-    font-weight: var(--yes3-font-weight-light);
-    letter-spacing: -1px;
-    word-spacing: -2px;
-    color: var(--yes3-title-color);
- }
- 
- .yes3-inline-parent {
-    display: block;
-    width: 100%;
-    margin-bottom: calc(2 * var(--yes3-margin));
- }
- 
- .yes3-inline-element {
-    vertical-align: middle;
-    display: inline-block;
- }
- 
- .yes3-inline-element-right {
-    vertical-align: middle;
-    text-align: right;
-    display: inline-block;
- }
- 
- div#niayes3-study-info {
-    max-width: 500px;
-    white-space: nowrap;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    overflow: hidden;
- }
- 
- .yes3-ellipsis {
-    white-space: nowrap;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    overflow: hidden;
- }
- 
- .yes3-float-left {
-    float: left !important;
-    width: auto !important;
-    margin-right: var(--yes3-margin);
- }
+input[type=checkbox].balloon + label:before {
+   border-radius: 50%;
+   margin-bottom: 3px;
+}
 
- .yes3-float-right {
-    float: right !important;
-    width: auto !important;
-    margin-left: var(--yes3-margin);
- }
+.yes3-title {
+   font-size: 2em;
+   font-weight: 800;
+   color: var(--yes3-title-color);
+}
+
+.yes3-subtitle {
+   font-size: 2em;
+   font-weight: var(--yes3-font-weight-light);
+   letter-spacing: -1px;
+   word-spacing: -2px;
+   color: var(--yes3-title-color);
+}
+
+.yes3-inline-parent {
+   display: block;
+   width: 100%;
+   margin-bottom: calc(2 * var(--yes3-margin));
+}
+
+.yes3-inline-element {
+   vertical-align: middle;
+   display: inline-block;
+}
+
+.yes3-inline-element-right {
+   vertical-align: middle;
+   text-align: right;
+   display: inline-block;
+}
+
+div#niayes3-study-info {
+   max-width: 500px;
+   white-space: nowrap;
+   -ms-text-overflow: ellipsis;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+.yes3-ellipsis {
+   white-space: nowrap;
+   -ms-text-overflow: ellipsis;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+.yes3-float-left {
+   float: left !important;
+   width: auto !important;
+   margin-right: var(--yes3-margin);
+}
+
+.yes3-float-right {
+   float: right !important;
+   width: auto !important;
+   margin-left: var(--yes3-margin);
+}
+
+.yes3-margin-right {
+   margin-right: var(--yes3-margin);
+}
+
+.yes3-margin-left {
+   margin-left: var(--yes3-margin);
+}
+
+.yes3-margin-bottom {
+   margin-bottom: var(--yes3-margin);
+}
+
+.yes3-margin-top {
+   margin-top: var(--yes3-margin);
+}
+ 
  
  th label {
     opacity: 0.75 !important;
