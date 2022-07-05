@@ -25,6 +25,8 @@ let YES3 = {
     }
 };
 
+const ALL_OF_THEM = "_all_";
+
 String.prototype.truncateAt = function( n ){
     if ( this.length > n-3 ) return this.substring(0, n-3) + "...";
     else if ( this.length > n ) return this.substring(0, n);
