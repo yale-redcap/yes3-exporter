@@ -1,6 +1,15 @@
 
 # YES3 Exporter Change Log
 
+## Version 0.9.0
+
+July 5, 2022
+
+1. The internal keyword for "all events" and "all forms" changed from "all" to "\_all\_" to allow forms named "all" to be exported.
+2. NEW ITEM form redesigned for better responsiveness. 
+3. services.php updated to address taint warning.
+3. Minor bugs and code cleanup
+
 ## Version 0.8.2
 
 June 30, 2022
