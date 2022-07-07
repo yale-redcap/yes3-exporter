@@ -5,7 +5,7 @@
 **YES3 Exporter Documentation**
 
 REDCap External Module  
-Version 1.00, June 2022
+Version 1.00, July 2022
 
 > ⚠ For better formatting and access to a Table of Contents, a Technical Guide and the Change Log, we recommend that you view this guide using the YES3 Exporter Documentation plugin link, rather than the 'View Documentation' link provided by REDCap on the External Modules - Project Module Manager page. ⚠ 
 
@@ -30,7 +30,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
 -   **Any number of export templates may be designed and re-used**
 -   **Export specifications can be rolled back and restored to a prior version**
 -   **Can export directly to a host filesystem**
--   **Dark and Light themes**
+-   **Light and dark themes**
 
 # About YES3
 
