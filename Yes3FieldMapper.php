@@ -65,7 +65,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                     'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_White.png')
                 ]
             ];
-            $this->RecordIdField = REDCap::getRecordIdField();
+            $this->RecordIdField = $this->getRecordIdField();
             $this->isLongitudinal = REDCap::isLongitudinal();
 
             $this->token = "this-should-be-private";
@@ -319,7 +319,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         /**
          * Start with recordid field; always the first column
          */
-        $field_name = REDCap::getRecordIdField();
+        $field_name = $this->getRecordIdField();
 
         $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
 
@@ -550,7 +550,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             "host" => APP_PATH_WEBROOT_FULL,
             "timestamp" => strftime("%F %T"),
             "project_id" => $project->getProjectId(),
-            "project_recordid_field" => \REDCap::getRecordIdField(),
+            "project_recordid_field" => $this->getRecordIdField(),
             "project_title" => $project->getTitle(),
             "project_is_longitudinal" => ( \REDCap::isLongitudinal() ) ? 1:0,
             "project_has_dags" => ( \REDCap::getGroupNames() !== FALSE ) ? 1:0,
@@ -880,7 +880,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                     }
                 }
 
-                if ( strlen($critXVal)>0 && is_numeric($critXVal) ){
+                if ( $critXOp==="<>" && ( $critXVal==="" || $critXVal==="''" || $critXVal==='""' ) ){
+
+                    $critXQ = "<>''";
+                }
+                elseif ( strlen($critXVal)>0 && is_numeric($critXVal) ){
 
                     $critXQ = $critXOp . intval($critXVal);
                 }
@@ -1328,7 +1332,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $BOR = true;
 
-        $RecordIdField = REDCap::getRecordIdField();
+        $RecordIdField = $this->getRecordIdField();
 
         $bytesWritten = 0;
 
@@ -2161,7 +2165,11 @@ WHERE project_id=? AND log_entry_type=?
      */
     private function fieldExcludedByExportOptions( $specification, $field )
     {
-        if ( $specification['export_remove_phi'] && $field['field_phi'] ){
+        if ( $field['field_name'] === $this->getRecordIdField() ){
+
+            return false;
+        }
+        elseif ( $specification['export_remove_phi'] && $field['field_phi'] ){
 
             return true;
         }
@@ -2693,7 +2701,7 @@ WHERE project_id=? AND log_entry_type=?
              *     since only forms are allowed on repeating layouts.
              * (2) The record ID field is not selectable. Its inclusion is determined at export time.
              */
-            if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== \REDCap::getRecordIdField() ) {
+            if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
                 $field_autoselect_source[] = [
                     'value' => $field['field_name'],
                     'label' => "[" . $field['field_name'] . "] " . $field_label
@@ -2837,26 +2845,30 @@ WHERE project_id=? AND log_entry_type=?
 
         /**
          * data dictionary inclusion depends on the export options and the user's form export permissions
+         * the record id field always gets a pass
          */
 
-        if ( $field_phi && (!$allowed['phi'] || $form_export_permission != 1) ){
+        if (  $redcap_field_name !== $this->getRecordIdField() ){
 
-            return 0;
-        }
+            if ( $field_phi && (!$allowed['phi'] || $form_export_permission != 1) ){
 
-        if ( $field_largetext && (!$allowed['largetext'] || $form_export_permission == 2 ) ){
+                return 0;
+            }
 
-            return 0;
-        }
+            if ( $field_largetext && (!$allowed['largetext'] || $form_export_permission == 2 ) ){
 
-        if ( $field_smalltext && (!$allowed['smalltext'] || $form_export_permission == 2 ) ){
+                return 0;
+            }
 
-            return 0;
-        }
+            if ( $field_smalltext && (!$allowed['smalltext'] || $form_export_permission == 2 ) ){
 
-        if ( $field_date && (!$allowed['dates'] || $form_export_permission == 2 ) ){
+                return 0;
+            }
 
-            return 0;
+            if ( $field_date && (!$allowed['dates'] || $form_export_permission == 2 ) ){
+
+                return 0;
+            }
         }
 
         $event_ids = [];
@@ -2993,7 +3005,7 @@ WHERE project_id=? AND log_entry_type=?
 
     private function exportFieldName( $export, $field_name, $event_id, $event_settings)
     {
-        if ( $export->export_layout==="h" && $field_name !== REDCap::getRecordIdField() ) {
+        if ( $export->export_layout==="h" && $field_name !== $this->getRecordIdField() ) {
     
             return $this->eventPrefixForEventId($event_id, $event_settings) . "_" . $field_name;
         }

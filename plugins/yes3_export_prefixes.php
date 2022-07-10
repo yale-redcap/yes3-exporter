@@ -108,23 +108,12 @@ $module->getCodeFor("yes3_export_prefixes", true);
         </p><p>
             <pre>[event prefix]_[REDCap field name]</pre>
         </p><p>
-            These prefixes are initialized by an algorithm that seeks to find the smallest run 
-            of (non whitespace) characters from the event labels that will uniquely
-            distinguish the events.
             You should inspect and edit the default prefixes, for both brevity and clarity.
         </p>
         <p>
             <span class='yes3-information-em'>Field names:</span>
             As you design a project, you should be aware of any field name length limits 
             imposed by the statistical package(s) that will process the exported data.
-        </p><p>
-            For example, the variable name limit for SAS and STATA is 32 characters, 
-            for MATLAB the limit is 63 characters and for R the limit is 64 characters.
-            You should be okay, even considering the event prefixes, if you adhere to the length
-            warnings broadcast by the REDCap Field Editor.
-        </p><p>
-            Currently the YES3 Exporter will not truncate or otherwise condition the REDCap field name,
-            although we will consider this feature for future releases.
         </p>
 
         <p>
@@ -187,8 +176,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
                 <p>
                 For horizontal export layouts the YES3 Exporter attaches event prefixes to column names.
                 Keep the prefixes as short as you can manage. 
-                Click <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_openPanel" title="get some help"></i> for more information on event prefixes
-                and REDCap field name considerations.
+                <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_openPanel" title="Click for more information on event prefixes and REDCap field name considerations."></i>
                 </p>
                 <p>
                     Click <a href="javascript:FMAPR.restoreToDefaultValues()">here</a> to restore your event prefixes to their default values.

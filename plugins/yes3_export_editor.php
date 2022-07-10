@@ -250,10 +250,10 @@ $module->getCodeFor("yes3_export_editor", true);
         </table>
    </div>
 
-   <div class='yes3-panel-row'>
+   <!--div class='yes3-panel-row'>
         At the end of the Export Item list is a 'NEW ITEM' form that you may use to append a single study form or field to the item list.
         It lacks the more advanced options available on the bulk insertion tool.
-   </div>
+   </div-->
 
    <div class='yes3-panel-row'>
         <span class='yes3-information-em'>Need more help?</span> 
@@ -376,24 +376,22 @@ $module->getCodeFor("yes3_export_editor", true);
             You may also enter a <em>criterion expression</em> to select based on a range of values.
             <br>Here are examples of valid criterion expression syntax: 
         </p>
-        <ul>
-            <li><span class="yes3-information-em">1</span> - select records having a value of 1</li>
-            <li><span class="yes3-information-em">3,1,4,5,9</span> - select records having a value of 3, 1, 4, 5 or 9</li>
-            <li><span class="yes3-information-em">< 10</span> - select records having a non-blank value less than 10</li>
-            <li><span class="yes3-information-em"><= 10</span> - select records having a non-blank value less than or equal to 10</li>
-            <li><span class="yes3-information-em">> 10</span> - select records having a non-blank value greater than 10</li>
-            <li><span class="yes3-information-em">>= 10</span> - select records having a non-blank value greater than or equal to 10</li>
-            <li><span class="yes3-information-em"><> 10</span> - select records having a non-blank value not equal to 10</li>
-        </ul>
-
-        <p>
-            <span class="yes3-information-em-light">string values</span>: if your criterion value is non-numeric, do not enclose it in quotes.
-            <br>Use this: <span class="yes3-information-em-light">apple, table, penny</span>,
-            <br>not this: <span class="yes3-information-em-light">'apple', 'table', 'penny'</span>.
-        </p>
+        <table class="yes3-fmapr-panel-table">
+            <tr><td class="propvalue">1        </td><td>Value must be 1.</td></tr>
+            <tr><td class="propvalue">= 1      </td><td>Value must be 1 (alternate syntax).</td></tr>
+            <tr><td class="propvalue">3,1,4,5,9</td><td>Value must be 3, 1, 4, 5 or 9.</td></tr>
+            <tr><td class="propvalue">< 10     </td><td>Value must be less than 10 (numeric comparison).</td></tr>
+            <tr><td class="propvalue"><= 10    </td><td>Value must be less than or equal to 10 (numeric comparison).</td></tr>
+            <tr><td class="propvalue">> 10     </td><td>Value must be greater than 10 (numeric comparison).</td></tr>
+            <tr><td class="propvalue">>= 10    </td><td>Value must be greater than or equal to 10 (numeric comparison).</td></tr>
+            <tr><td class="propvalue"><> 10    </td><td>Value must be not equal to 10.</td></tr>
+            <tr><td class="propvalue">apple, table, penny</td><td>Value must be 'apple', 'table' or 'penny'.</td></tr>
+            <tr><td class="propvalue">>= 1952-06-05</td><td>Value must be 1952-06-05 or later (date comparision; see Note on date values below).</td></tr>
+            <tr><td class="propvalue"><></td><td>Value must be nonblank.</td></tr>
+        </table>
         
         <p>
-            <span class="yes3-information-em-light">date values</span>: Dates behave like strings, but you must use the format yyyy-mm-dd.
+            <span class="yes3-information-em-light">Note on date values</span>: Dates behave like strings, but you must use the format yyyy-mm-dd.
             For example, to select based on a date being on or after June 5, 1952 use this expression:
             <br><span class="yes3-information-em-light">>= 1952-06-05</span>.
         </p>
@@ -412,21 +410,21 @@ $module->getCodeFor("yes3_export_editor", true);
         
                 <tr property="field_name">
                     <td>
-                        REDCap field name
+                        REDCa&nbsp;field&nbsp;name
                     </td>
                     <td class="propvalue"></td>
                 </tr>
        
                 <tr property="field_label">
                     <td>
-                        REDCap field label
+                        REDCap&nbsp;field&nbsp;label
                     </td>
                     <td class="propvalue"></td>
                 </tr>
                  
                 <tr property="field_type" class="yes3-fmapr-criterion-field-defined">
                     <td>
-                        REDCap field type
+                        REDCap&nbsp;field&nbsp;type
                     </td>
                     <td class="propvalue"></td>
                 </tr>
@@ -447,6 +445,11 @@ $module->getCodeFor("yes3_export_editor", true);
             </tbody>
         </table>
 
+    </div>
+
+   <div class='yes3-panel-row'>
+        <span class='yes3-information-em'>Need more help?</span> 
+            Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
     </div>
 
 </div>

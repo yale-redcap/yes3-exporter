@@ -952,6 +952,7 @@ div.yes3-information p {
 .yes3-information-em {
     color: var(--yes3-information-em-color) !important;
     font-weight: var(--yes3-font-weight-semibold) !important;
+    font-style: italic !important;
 }
 
 .yes3-information-em-light {

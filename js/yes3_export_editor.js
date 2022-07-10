@@ -1093,7 +1093,7 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
 
     if ( FMAPR.someBadSettings() ){
 
-        YES3.hello("WARNING: at least one error was detected (a required entry is blank, an invalid entry etc). You must fix the indicated error(s) before you may save the export specificaytion.");
+        YES3.hello("WARNING: at least one error was detected (a required entry is blank, an invalid entry etc). You must fix the indicated error(s) before you may save the export specification.");
 
         FMAPR.postMessage("You must fix the indicated error(s) before adding fields or saving.", true);
 

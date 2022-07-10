@@ -163,13 +163,13 @@ $module->getCodeFor("yes3_export_logs", true);
             The display can be filtered by user and/or date range.
         </p>
 
-        <p>
+        <!--p>
             You may download a spreadsheet containing all of the export log records by clicking the 
             <i class="fas fa-download yes3-action-icon yes3-action-icon-inline yes3-loaded" action="downloadExportLog" title="Download all logs for the selected export specification."></i> 
             icon at the top right.
-        </p>
+        </p-->
 
-        <p>
+        <p style="margin-top: 1em">
             <span class='yes3-information-em'>Need more help?</span> 
             Click <a href="javascript:YES3.Help_openReadMe();">here</a> for the Yes3 Exporter documentation.
         </p>
