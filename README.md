@@ -10,8 +10,8 @@ The YES3 Exporter External Module includes a User Guide, Technical Guide and EM 
      -   Purpose: How-to tutorial and information for end-users
      -   Audience: REDCap project designers  
  -    **Technical Guide**
-     -   Purpose: Explains functionality, technical specifications about the exported data, the data dictionaries, and the software design.
-     -   Audience: Analysts, Statisticians, Software Designers/Programmers
+     -    Purpose: Explains functionality, technical specifications about the exported data, the data dictionaries, and the software design.
+     -    Audience: Analysts, Statisticians, Software Designers/Programmers
 -   **Change Log** 
      -   Purpose: Basic information about feature updates and bug fixes
      -   Audience: REDCap System Administrators
