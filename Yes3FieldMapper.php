@@ -1,20 +1,21 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-
-/**
- * an autoloader for Yes3 classes and traits
- */
-require "autoload.php";
+*/
 
 /**
  * defines and enums
  */
 require "defines/yes3_defines.php";
+
+/**
+ * an autoloader for Yes3 classes and traits
+ */
+require "autoload.php";
 
 use Exception;
 use REDCap;

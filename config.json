@@ -8,43 +8,20 @@
     "prefix": "yes3_exporter",
 
     "authors": [
-    {
-        "name": "Peter Charpentier",
-        "email": "peter.charpentier@criwebtools.com",
-        "institution": "CRI Web Tools LLC"
+        {
+            "name": "Peter Charpentier",
+            "email": "redcap@yale.edu",
+            "role": "developer",
+            "institution": "Yale University"
         }
     ],
 
     "versions": [
         {
-            "number": "0.3.0",
-            "date": "2022-03-16",
-            "description": "Export logging",
-            "comments": ""
-        },
-        {
-            "number": "0.2.1",
-            "date": "2022-03-06",
-            "description": "Exports and downloads functioning",
-            "comments": ""
-        },
-        {
-            "number": "0.1.2",
-            "date": "2022-02-26",
-            "description": "Minor change to config.json",
-            "comments": ""
-        },
-        {
-            "number": "0.1.1",
-            "date": "2022-02-24",
-            "description": "Settings and Specifications functional",
-            "comments": ""
-        },
-        {
-            "number": "0.0.1",
-            "date": "2021-12-29",
-            "description": "and away we go",
-            "comments": ""
+            "number": "1.0.0",
+            "date": "2022-07-15",
+            "description": "First production release",
+            "comments": "See change log for pre-production versions"
         }
     ],
 
