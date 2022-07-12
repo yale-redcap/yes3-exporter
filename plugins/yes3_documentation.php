@@ -61,13 +61,16 @@ $html = $md->text($markdown);
 $html_readme = "";
 $html_changelog = "";
 $html_technical = "";
+$html_userguide = "";
 
 $toc_readme = "";
 $toc_changelog = "";
 $toc_technical = "";
+$toc_userguide = "";
 
 buildHtmlForDoc("README"   , $html_readme   , $toc_readme   );
 buildHtmlForDoc("changelog", $html_changelog, $toc_changelog);
+buildHtmlForDoc("userguide", $html_userguide, $toc_userguide);
 buildHtmlForDoc("technical", $html_technical, $toc_technical);
 
 function buildHtmlForDoc(  $docName, &$html, &$toc){
@@ -86,7 +89,7 @@ function buildHtmlForDoc(  $docName, &$html, &$toc){
     $markdown = file_get_contents( $urlDoc );
 
     // the media folder holds any embedded images.
-    $urlMediaFolder = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/media/";
+    $urlMediaFolder = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/documents/media/";
 
     // we only allow image tags
     $markdown = strip_tags( str_replace( ["media/", "\r"], [$urlMediaFolder, ""], $markdown), "<img><br><b><a>");
@@ -211,6 +214,9 @@ function buildTOC( &$markdown, &$toc )
             let html_technical = `<?= $html_technical ?>`;
             let toc_technical  = `<?= $toc_technical ?>`;
 
+            let html_userguide = `<?= $html_userguide ?>`;
+            let toc_userguide  = `<?= $toc_userguide ?>`;
+
         </script>
 
         <script src="<?= $yes3JsUrl ?>" ></script>
@@ -234,14 +240,20 @@ function buildTOC( &$markdown, &$toc )
 
                     <div id="doc-options">
 
-                        <input type="radio" class="balloon" value="readme" name="doc" id="doc-readme" onclick="openReadme()" />
-                        <label for="doc-readme">EM Documentation (readme)</label>
+                        <input type="radio" class="balloon" value="userguide" name="doc" id="doc-userguide" onclick="openUserGuide()" />
+                        <label for="doc-userguide">User Guide</label>
                         <br/>
+
                         <input type="radio" class="balloon" value="technical" name="doc" id="doc-technical" onclick="openTechnical()" />
                         <label for="doc-technical">Technical Guide</label>
                         <br />
+
                         <input type="radio" class="balloon" value="changelog" name="doc" id="doc-changelog" onclick="openChangelog()" />
                         <label for="doc-changelog">Change Log</label>
+                        <br/>
+
+                        <input type="radio" class="balloon" value="readme" name="doc" id="doc-readme" onclick="openReadme()" />
+                        <label for="doc-readme">readme</label>
 
                     </div>
 

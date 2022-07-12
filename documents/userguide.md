@@ -1,4 +1,8 @@
-**YES3 Exporter User Guide**
+![psalm-security](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
+![psalm-static](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
+![codeql-javascript](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
+
+# YES3 Exporter User Guide
 
 REDCap External Module  
 Version 1.00, July 2022
@@ -94,7 +98,6 @@ For mobile devices, the minimum viewport dimensions for editing export specifica
 YES3 Exporter feaures are accessible through a collection of 'action icons,' which are clickable icons displayed in the top-right section of every YES3 Exporter page. For example:
 
 <img src="media/action_icons.png"  width="300px">
-
 
 The YES3 icon at the far right is not technically a YES3 Exporter action icon, rather it is a link that will take you to the YES3 page on our REDCap portal website. There you will find information about the history, goals and plans of the YES3 initiative.
 
@@ -332,27 +335,10 @@ To use the exporter
 
 redcap@yale.edu 
 
-# In the Pipeline
-
--   Options for tagging, filtering, sorting, and removing exports
--   A repeating events export layout
--   Automated filesystem exports
--   Export-specific SAS and R code generators for completely automated datamarts
--   Additional YES3 modules!**NEED LINK**
-    - YES3 Dashboard for data collection workflow management
-    - YES3 Study Portal for single or multisite study monitoring and administration
-
-# Authors
-
-## Lead Designer
-
--   Peter Charpentier, CRI Web Tools
-
-## Contributors
-
 **REDCap@Yale Team:**
 -   Katy Araujo, Yale University
 -   Venugopal Bhatia, Yale University
+-   Peter Charpentier, Yale University (retired) and CRI Web Tools LLC
 -   Brian Funaro, Yale University
 -   Mary Geda, Yale University
 -   Janet Miceli, Yale University

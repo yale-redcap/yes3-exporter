@@ -14,6 +14,11 @@ function openReadme()
     removeReadmeDocViewerAdvisory();
 }
 
+function openUserGuide()
+{
+    loadDocument( html_userguide, toc_userguide );
+}
+
 /*
     === THEME ===
 
@@ -142,7 +147,7 @@ $(window).resize( function() {
 
 $( function() {
 
-    $("input[type=radio]#doc-readme").trigger("click");
+    $("input[type=radio]#doc-userguide").trigger("click");
 
     // disable the changelog link if the loaded doc is the changelog
     /*
