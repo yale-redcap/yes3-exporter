@@ -5,10 +5,10 @@ Version 1.00, July 2022
 
 ## Important note about documentation
 
-The YES3 Exporter External Module includes a User Guide, Technical Guide and EM Changelog. These are all available through the _YES3 Exporter Documentation_ link.
+The external module includes a User Guide, Technical Guide and EM Changelog. These are all available through the _YES3 Exporter Documentation_ link.
 -   **User Guide** 
-     -   Purpose: How-to tutorial and information for end-users
-     -   Audience: REDCap end users  
+     -   Purpose: How-to tutorial and information 
+     -   Audience: REDCap end-users  
  -   **Technical Guide** 
      -   Purpose: Explains functionality, technical specifications about the exported data, the data dictionaries, and the software design.
      -   Audience: Analysts, Statisticians, Software Designers/Programmers  
@@ -18,11 +18,7 @@ The YES3 Exporter External Module includes a User Guide, Technical Guide and EM 
 
 ## Introduction and Features
 
-The YES3 Exporter external module complements REDCap's reports and data export tool by adding functionality to support data visualization, data sharing, host file system exports, and integration with statistical software and datamarts.  Major features include flexible layouts (horizontal, vertical, repeating form), fast performance speed, and export-specific data dictionaries.  Other neat built-in features include detailed audit reports, metadata and data distributions within the data dictionary, the ability to roll-back export templates to a previous version. The user-right functionality, unlimited ability to design and re-use export templates, and the ability to generate deidentified/coded datasets mirrors that of the parent REDCap system.  UI elements include light/dark theme, embedded instructions, and easy to access documentation.
-
-## About YES3
-
-Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of clinical research needs.
+The YES3 Exporter external module complements REDCap's reports and data export tool by adding functionality to support data visualization, data sharing, host file system exports, and integration with statistical software and datamarts.  Major features include flexible layouts (horizontal, vertical, repeating form), fast performance speed, and export-specific data dictionaries.  Other helpful built-in features include detailed audit reports, metadata and data distributions within the data dictionary, and the ability to roll-back export templates. The user-right functionality, unlimited ability to design and re-use export templates, and the ability to generate deidentified/coded datasets mirrors that of the parent REDCap system.  UI elements include light/dark theme, embedded instructions, and easy to access documentation.
 
 ## Configuration
 
@@ -65,6 +61,11 @@ A link to the public GitHub repository is provided on the REDCap Consortium's Ex
 ## Contact
 
 redcap@yale.edu 
+
+
+## About YES3
+
+Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of clinical research needs.
 
 ## Authors
 
