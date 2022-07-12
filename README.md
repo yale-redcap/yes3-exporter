@@ -8,17 +8,17 @@ Version 1.00, July 2022
 The YES3 Exporter External Module includes a User Guide, Technical Guide and EM Changelog. These are all available through the _YES3 Exporter Documentation_ link.
 -   **User Guide** 
      -   Purpose: How-to tutorial and information for end-users
-     -   Audience: REDCap project designers  
- -    **Technical Guide**
+     -   Audience: REDCap end users  
+ -   **Technical Guide** 
      -   Purpose: Explains functionality, technical specifications about the exported data, the data dictionaries, and the software design.
-     -   Audience: Analysts, Statisticians, Software Designers/Programmers
+     -   Audience: Analysts, Statisticians, Software Designers/Programmers  
 -   **Change Log** 
      -   Purpose: Basic information about feature updates and bug fixes
      -   Audience: REDCap System Administrators
 
 ## Introduction and Features
 
-The YES3 Exporter external module compliments REDCap's reports and data export tool by adding functionality to support data visualization, data sharing, host file system exports, and integration with statistical software and datamarts.  Major features include flexible layouts (horizontal, vertical, repeating form), fast performance speed, and export-specific data dictionaries.  Other neat built-in features include detailed audit reports, metadata and data distributions within the data dictionary, the ability to roll-back export templates to a previous version. The user-right functionality, unlimited ability to design and re-use export templates, and the ability to generate deidentified/coded datasets mirrors that of the parent REDCap system.  UI elements include light/dark theme, embedded instructions, and easy to access documentation.
+The YES3 Exporter external module complements REDCap's reports and data export tool by adding functionality to support data visualization, data sharing, host file system exports, and integration with statistical software and datamarts.  Major features include flexible layouts (horizontal, vertical, repeating form), fast performance speed, and export-specific data dictionaries.  Other neat built-in features include detailed audit reports, metadata and data distributions within the data dictionary, the ability to roll-back export templates to a previous version. The user-right functionality, unlimited ability to design and re-use export templates, and the ability to generate deidentified/coded datasets mirrors that of the parent REDCap system.  UI elements include light/dark theme, embedded instructions, and easy to access documentation.
 
 ## About YES3
 
@@ -28,19 +28,13 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 ### System Configuration
 
-The YES3 Exporter performs daily tasks, such as removing old export backups and emailing activity reports. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
+The YES3 Exporter performs daily tasks, such as removing old export backups and emailing activity reports. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.  The time and results of the most recent daily housekeeping run for all projects are displayed in the YES3 Exporter system configuration page.
 
 To configure, go to Control Panel -> External Modules -> Manage -> Yes3 Exporter ->Configure
 
-The time and results of the most recent daily housekeeping run for all projects are displayed in the YES3 Exporter system configuration page.
-
 ### Project Configuration
 
-Only users with project design and setup rights can configure the External Module Settings for a project.
-
-Project settings include rules for retaining export specification backups, whether and where to send daily log reports, and settings for host filesystem exports.
-
-The date and result of the latest housekeeping run for the project are displayed in the Project Settings.
+Only users with project design and setup rights can configure the External Module Settings for a project. Project settings include rules for retaining export specification backups, whether and where to send daily log reports, and settings for host filesystem exports. The date and result of the latest housekeeping run for the project are displayed in the Project Settings.
 
 To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
