@@ -1,13 +1,7 @@
-![psalm-security](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
-![psalm-static](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
-![codeql-javascript](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
-
-**YES3 Exporter Documentation**
+**YES3 Exporter User Guide**
 
 REDCap External Module  
 Version 1.00, July 2022
-
-> ⚠ For better formatting and access to a Table of Contents, a Technical Guide and the Change Log, we recommend that you view this guide using the YES3 Exporter Documentation plugin link, rather than the 'View Documentation' link provided by REDCap on the External Modules - Project Module Manager page. ⚠ 
 
 # Introduction
 
