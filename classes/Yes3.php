@@ -9,9 +9,8 @@ use ExternalModules\ExternalModules;
 /*
  * Table to hold debug log messages. Must be created by dba, see logDebugMessage() below.
  */
-define( 'DEBUG_LOG_TABLE', "ydcclib_debug_messages");
-define('YES3_DEBUG_MESSAGES', false); // enable/disable debug message logging
-
+define('DEBUG_LOG_TABLE', "ydcclib_debug_messages");
+//define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
 
 /**
  * 
@@ -655,8 +654,8 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
    */
   
    public static function logDebugMessage($project_id, $msg, $msgcat="") 
-   {
-        if ( !YES3_DEBUG_MESSAGES || !self::tableExists(DEBUG_LOG_TABLE) ) return false;
+   {   
+        if ( !defined('LOG_DEBUG_MESSAGES') || !self::tableExists(DEBUG_LOG_TABLE) ) return false;
 
         $sql = "INSERT INTO `".DEBUG_LOG_TABLE."` (project_id, debug_message, debug_message_category) VALUES (?,?,?)";
 
