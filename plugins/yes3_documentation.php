@@ -16,47 +16,11 @@ $githubCssUrl = $module->getUrl("css/github-markdown-v2.css");
 $yes3CssUrl = $module->getUrl("css/yes3_documentation.css");
 $yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
 
-//$yes3JsUrl = $module->getUrl("js/yes3_documentation.js");
-
 $yes3SquareLogoUrl_light = $module->getUrl("images/YES3_Logo_Square_White.png");
 $yes3SquareLogoUrl_dark  = $module->getUrl("images/YES3_Logo_Square_Black.png");
 
 $yes3HorizLogoUrl_light = $module->getUrl("images/YES3_Logo_Horizontal_White_v3_500.png");
 $yes3HorizLogoUrl_dark  = $module->getUrl("images/YES3_Logo_Horizontal_Black_v3_500.png");
-
-/*
-
-$filename = $_GET["doc"] . ".md";
-
-$urlDoc = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/" . $filename;
-
-//exit( $urlDoc );
-
-$markdown = file_get_contents( $urlDoc );
-
-//exit( $markdown );
-
-// the media folder holds any embedded images.
-$urlMediaFolder = APP_PATH_WEBROOT_FULL . "modules/" . $module->getModuleDirectoryName() . "/media/";
-
-//exit ( $urlBase );
-
-//$markdown = str_replace( ["(media/", "\r"], ["(" . $urlMediaFolder, ""], $markdown);
-$markdown = strip_tags( str_replace( ["media/", "\r"], [$urlMediaFolder, ""], $markdown), "<img>");
-
-//exit($markdown);
-
-// table of contents HTML
-$toc = "";
-
-buildTOC($markdown, $toc);
-
-//$markdown = file_get_contents($fileName);
-
-$md = new \Parsedown();
-
-$html = $md->text($markdown);
-*/
 
 $html_readme = "";
 $html_changelog = "";

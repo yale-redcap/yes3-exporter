@@ -88,14 +88,14 @@ FMAPR.postMessage(response);
 
 FMAPR.getProjectSettings = function() 
 {
-    console.log( 'getProjectSettings' );
+    YES3.debugMessage( 'getProjectSettings' );
 
     YES3.requestService({'request':'get_project_settings'}, FMAPR.getProjectSettingsCallback, true);
 }
 
 FMAPR.getProjectSettingsCallback = function(response) 
 {
-    console.log( 'getProjectSettingsCallback', response );
+    YES3.debugMessage( 'getProjectSettingsCallback', response );
 
     FMAPR.project = response;
 
@@ -113,7 +113,7 @@ FMAPR.getExportSettings = function()
 
 FMAPR.getExportSettingsCallback = function(response)
 {
-    console.log('getExportSettingsCallback:', response);
+    YES3.debugMessage('getExportSettingsCallback:', response);
 
     FMAPR.stored_export_settings = response;
     

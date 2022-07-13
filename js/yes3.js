@@ -25,6 +25,8 @@ let YES3 = {
     }
 };
 
+const YES3_DEBUG_MESSAGES = false;
+
 const ALL_OF_THEM = "_all_";
 
 String.prototype.truncateAt = function( n ){
@@ -187,7 +189,7 @@ YES3.openPopupWindow = function(url, w, h, windowNamePrefix) {
 
     let windowName = windowNamePrefix+YES3.windowNumber;
 
-    //console.log(url,windowName);
+    YES3.debugMessage(url,windowName);
 
     // Fixes dual-screen position                         Most browsers      Firefox
     let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
@@ -273,7 +275,7 @@ YES3.contextMenuClose = function( Fn, keepPointer )
 
     YES3.closePanel('yes3-contextmenu-panel');
 
-    //console.log("contextMenuClose", Fn, typeof Fn);
+    YES3.debugMessage("contextMenuClose", Fn, typeof Fn);
 
     if ( typeof Fn === "function" ) {
 
@@ -410,7 +412,7 @@ YES3.hideContextMenuOnClickOutside = function()
                 YES3.contextMenuClose();
             }
 
-            //console.log('hideContextMenuOnClickOutside:', e, p);
+            YES3.debugMessage('hideContextMenuOnClickOutside:', e, p);
         }
     })
 }
@@ -731,7 +733,7 @@ YES3.listServiceFunctions = function()
 
 YES3.listServiceFunctionsCallback = function( response )
 {
-    console.log("service functions", response);
+    YES3.debugMessage("service functions", response);
 }
 
 /* === AJAX === */
@@ -743,7 +745,7 @@ YES3.requestService = function( params, doneFn, json )
    json = json || false;
    doneFn = doneFn || YES3.noop;
 
-   //console.log('requestService', params);
+   YES3.debugMessage('requestService', params);
 
    $.ajax(
     {
@@ -757,7 +759,7 @@ YES3.requestService = function( params, doneFn, json )
    )
    .fail(function(jqXHR, textStatus, errorThrown) 
    {
-      console.log(jqXHR);
+      console.error(jqXHR);
       alert('AJAX error: ' + jqXHR.responseText);
    });
 }
@@ -815,6 +817,8 @@ YES3.setCaptions = function()
 
 window.onerror = function(message, source, lineno, error)
 { 
+    if ( !YES3_DEBUG_MESSAGES ) return false;
+
     // make sure the damn cursor is not spinning
     YES3.notBusy();
 
@@ -830,7 +834,18 @@ window.onerror = function(message, source, lineno, error)
     ;
 
     YES3.hello( msg );
+
+    return true;
 }
+
+YES3.debugMessage = function()
+{
+    if ( !YES3_DEBUG_MESSAGES ) return false;
+
+    console.log.apply(null, arguments);
+}
+
+/*** ONLOAD ***/
 
 
 /*

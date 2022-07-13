@@ -116,7 +116,6 @@ function buildTOC()
     $("div.toc-entry").off("click").on("click", function(){
         $("div.toc-entry.selected").removeClass("selected");
         $(this).addClass("selected");
-        //console.log("onClick",$(this).attr("data-anchor_name"))
         scrollDocTo($(this).attr("data-anchor_name"));
     })
 }

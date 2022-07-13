@@ -281,8 +281,6 @@ FMAPR.newExportSpecificationExecute = function()
 
 YES3.Functions.uSpecEditor_openForm = function()
 {
-    //console.log('uSpecEditor_openForm' this);
-
     let editor = FMAPR.uSpecEditor();
 
     let export_name = $("input[name=export_name]").val();
@@ -538,7 +536,7 @@ FMAPR.setConstrainedAutocompleteSource = function(){
                 okay = FMAPR.project.form_metadata[FMAPR.project.form_index[form_name]].form_repeating;
             } catch(error){
 
-                console.log('setConstrainedAutocompleteSource:ERROR resolving form_repeating property for form [' + form_name + '].');
+                console.error('setConstrainedAutocompleteSource:ERROR resolving form_repeating property for form [' + form_name + '].');
                 okay = 0;
             }
         }
@@ -552,7 +550,7 @@ FMAPR.setConstrainedAutocompleteSource = function(){
         }
     }
 
-    console.log('setConstrainedAutocompleteSource', FMAPR.constrainedAutocompleteSource.length + "items");
+    YES3.debugMessage('setConstrainedAutocompleteSource', FMAPR.constrainedAutocompleteSource.length + "items");
 }
 
 FMAPR.rowSelectorHtml = function()
@@ -584,14 +582,14 @@ FMAPR.addREDCapFormV2 = function( form_name, event, theRowBeforeWhich, yes3_fmap
     }
     mode = ( YES3.isEmpty(theRowBeforeWhich) ) ? "append" : "insert";
 
-    //console.log("addREDCapFormV2:theRowBeforeWhich", theRowBeforeWhich, mode, FMAPR.getNewFieldRow(), YES3.isEmpty( theRowBeforeWhich ));
+    YES3.debugMessage("addREDCapFormV2:theRowBeforeWhich", theRowBeforeWhich, mode, FMAPR.getNewFieldRow(), YES3.isEmpty( theRowBeforeWhich ));
 
     if ( form_name !== ALL_OF_THEM ){
 
         form_index = FMAPR.project.form_index[form_name];
 
         if ( typeof form_index !== "number" && form_name !== ALL_OF_THEM ){
-            console.log("addREDCapFormV2: invalid form name", form_name);
+            YES3.debugMessage("addREDCapFormV2: invalid form name", form_name);
             return false;
         }
         else {
@@ -691,13 +689,13 @@ FMAPR.addREDCapFieldV2 = function( field_name, event, theRowBeforeWhich, yes3_fm
     let field_index = FMAPR.project.field_index[field_name];
 
     if ( typeof field_index !== "number" && field_name !== ALL_OF_THEM ){
-        console.log("addREDCapFieldV2: invalid field name", field_name);
+        YES3.debugMessage("addREDCapFieldV2: invalid field name", field_name);
         return false;
     }
 
     //mode = "append";
 
-    //console.log("addREDCapFieldV2:theRowBeforeWhich", theRowBeforeWhich, mode, FMAPR.getNewFieldRow(), YES3.isEmpty( theRowBeforeWhich ));
+    YES3.debugMessage("addREDCapFieldV2:theRowBeforeWhich", theRowBeforeWhich, mode, FMAPR.getNewFieldRow(), YES3.isEmpty( theRowBeforeWhich ));
 
     let field_label = FMAPR.project.field_metadata[field_index].field_label;
  
@@ -916,7 +914,7 @@ FMAPR.setRapidEntryFormListeners = function()
                 saveResult = FMAPR.exportItemEditorSave_form(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
             }
 
-            console.log("save result:", saveResult);
+            YES3.debugMessage("save result:", saveResult);
 
             FMAPR.renumberRows();
 
@@ -1104,7 +1102,7 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
 
         YES3.isBusy( YES3.captions.wait_saving_specification );
         
-        console.log( 'saveExportSpecification', postParams );
+        YES3.debugMessage( 'saveExportSpecification', postParams );
 
         YES3.requestService( postParams, FMAPR.saveExportSpecificationCallback, false );
     }
@@ -1112,13 +1110,13 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
  
 FMAPR.saveExportSpecificationCallback = function( response ){
   
-    console.log( 'saveExportSpecificationCallback', response );
+    YES3.debugMessage( 'saveExportSpecificationCallback', response );
 
     YES3.notBusy();
 
     if ( FMAPR.reloadParms.export_uuid.length > 0 ){
 
-        console.log( 'saveExportSpecificationCallback:reload', FMAPR.reloadParms.export_uuid );
+        YES3.debugMessage( 'saveExportSpecificationCallback:reload', FMAPR.reloadParms.export_uuid );
         FMAPR.loadSpecifications();
     }
 
@@ -1158,7 +1156,7 @@ FMAPR.downloadDataDictionary = function()
         + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
     ;
 
-    //console.log(url);
+    YES3.debugMessage(url);
 
     window.open(url);
 }
@@ -1171,7 +1169,7 @@ FMAPR.downloadData = function()
         + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
     ;
 
-    //console.log(url);
+    YES3.debugMessage(url);
 
     window.open(url);
 }
@@ -1184,14 +1182,14 @@ FMAPR.downloadZip = function()
         + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
     ;
 
-    //console.log(url);
+    YES3.debugMessage(url);
 
     window.open(url);
 }
 
 FMAPR.downloadDataDictionaryCallback = function( response )
 {
-  console.log(response);
+  YES3.debugMessage(response);
 }
 
 YES3.Functions.exportToHost = function()
@@ -1271,7 +1269,7 @@ YES3.Functions.Wayback_openForm = function()
 
 FMAPR.Wayback_openFormCallback = function( response )
 {
-    console.log('Wayback_openFormCallback', response);
+    YES3.debugMessage('Wayback_openFormCallback', response);
     $("select#yes3-fmapr-wayback-select").empty().append(response);
 }
 
@@ -1334,7 +1332,7 @@ FMAPR.Wayback_closeForm = function(log_id)
  
  FMAPR.updateProjectSettingsCallback = function(response) {
     FMAPR.postMessage(response.message);
-    console.log('updateProjectSettingsCallback', response);
+    YES3.debugMessage('updateProjectSettingsCallback', response);
     if ( response.result==="success" ) {
        FMAPR.getProjectSettings();
     } 
@@ -1351,7 +1349,7 @@ FMAPR.specificationSelect = function()
 
     if ( export_uuid.length ){
 
-        console.log('specificationSelect', FMAPR.specification_index, FMAPR.export_specification, export_uuid);
+        YES3.debugMessage('specificationSelect', FMAPR.specification_index, FMAPR.export_specification, export_uuid);
 
     }
 }
@@ -1400,7 +1398,7 @@ FMAPR.makeSortable = function( parentElement )
         },
         stop: function (e, ui) {
             ui.item.removeClass("yes3-fmapr-row-selected");
-            //console.log('sortable', FMAPR.rowsToMove);
+            YES3.debugMessage('sortable', FMAPR.rowsToMove);
             for (let j=FMAPR.rowsToMove.length; j>0; j--){
                 ui.item.after(FMAPR.rowsToMove[j-1]);
             }
@@ -1563,7 +1561,7 @@ FMAPR.resizeExportItemsTable = function()
 
     fmaprTableBody.css({'height': bodyHeight+'px'});
 
-    //console.log("resizeExportItemsTable: halfSplit="+halfSplit);
+    YES3.debugMessage("resizeExportItemsTable: halfSplit="+halfSplit);
 
     fmaprTable.find('td.yes3-fmapr-redcap-object-name').css({'width': nameWidth+'px', 'max-width': nameWidth+'px'});
     //fmaprTable.find('td.yes3-fmapr-redcap-object-event').css({'width': eventWidth+'px', 'max-width': eventWidth+'px'});
@@ -1782,7 +1780,7 @@ FMAPR.formApprovedForLayout = function( form_name )
 
     } catch (e) {
 
-        console.log("formApprovedForLayout ERROR", form_name, e);
+        console.error("formApprovedForLayout ERROR", form_name, e);
 
         return false;
     }
@@ -1798,14 +1796,14 @@ FMAPR.getFormOptionsHtmlForEvent = function( event )
     let j = 0;
     let kount = 0;
 
-    console.log("getFormOptionsHtmlForEvent", event);
+    YES3.debugMessage("getFormOptionsHtmlForEvent", event);
 
     for ( let i=0; i<forms.length; i++ ){
 
         // first make sure the form is appropriate for the layout
         if ( !FMAPR.formApprovedForLayout( forms[i].form_name )){
 
-            console.log("-->failed by formApprovedForLayout: ", event, forms[i].form_name);
+            YES3.debugMessage("-->failed by formApprovedForLayout: ", event, forms[i].form_name);
             continue;
         }
 
@@ -1889,7 +1887,7 @@ FMAPR.getFieldAutoCompleteSource = function(event)
             }
         } catch(e){
 
-            console.log("getFieldAutoCompleteSource ERROR", event, e);
+            console.error("getFieldAutoCompleteSource ERROR", event, e);
             accepted = false;
         }
 
@@ -1902,7 +1900,7 @@ FMAPR.getFieldAutoCompleteSource = function(event)
         }
     }
 
-    console.log("getFieldAutoCompleteSource", acSource);
+    YES3.debugMessage("getFieldAutoCompleteSource", acSource);
 
     return acSource;
 }
@@ -1951,7 +1949,7 @@ FMAPR.getFormAutoCompleteSource = function(event)
             }
         } catch(e){
 
-            console.log("getFormAutoCompleteSource ERROR", event, e);
+            console.error("getFormAutoCompleteSource ERROR", event, e);
             accepted = false;
         }
 
@@ -1973,7 +1971,7 @@ FMAPR.getFormAutoCompleteSource = function(event)
     
     }
 
-    console.log("getFormAutoCompleteSource", acSource);
+    YES3.debugMessage("getFormAutoCompleteSource", acSource);
 
     return acSource;
 }
@@ -2027,7 +2025,7 @@ FMAPR.getFormAutoCompleteSource = function(event)
              FMAPR.setLovTogglePriorities(yes3_fmapr_data_element_name);
           }
  
-          //console.log('LovInputListener', yes3_fmapr_data_element_name, value );
+          YES3.debugMessage('LovInputListener', yes3_fmapr_data_element_name, value );
        })
     ;
 }
@@ -2066,7 +2064,7 @@ FMAPR.setRowSelectorListenerV2 = function( theRow )
     theRow.find('td.yes3-fmapr-row-number')
         .off()
         .on("contextmenu", function(e){
-            //console.log( 'contextmenu', e );
+            YES3.debugMessage( 'contextmenu', e );
 
             FMAPR.REDCapFieldContextMenu($(this), e);
 
@@ -2074,7 +2072,7 @@ FMAPR.setRowSelectorListenerV2 = function( theRow )
         })
         .on("click", function(e){
 
-            //console.log( 'click', e );
+            YES3.debugMessage( 'click', e );
 
             let theRow = $(this).parent();
 
@@ -2155,7 +2153,7 @@ FMAPR.setRowSelectorListeners = function()
     $('td.yes3-fmapr-row-number')
         .off()
         .on("contextmenu", function(e){
-            //console.log( 'contextmenu', e );
+            YES3.debugMessage( 'contextmenu', e );
 
             FMAPR.REDCapFieldContextMenu($(this), e);
 
@@ -2163,7 +2161,7 @@ FMAPR.setRowSelectorListeners = function()
         })
         .on("click", function(e){
 
-            //console.log( 'click', e );
+            YES3.debugMessage( 'click', e );
 
             let theRow = $(this).parent();
 
@@ -2254,7 +2252,7 @@ FMAPR.setSpecialKeyListeners = function() {
 
             FMAPR.contextMenuCutRowSelections();
 
-            //console.log('Ctrl+X pressed');
+            YES3.debugMessage('Ctrl+X pressed');
         }
         /*
         else if ( ch === 'C') {
@@ -2266,7 +2264,7 @@ FMAPR.setSpecialKeyListeners = function() {
 
             FMAPR.contextMenuCopyRowSelections();
 
-            console.log('Ctrl+C pressed');
+            YES3.debugMessage('Ctrl+C pressed');
         }
         */
         else if ( ch === 'V') {
@@ -2278,7 +2276,7 @@ FMAPR.setSpecialKeyListeners = function() {
 
             FMAPR.contextMenuPasteRowSelections();
 
-            //console.log('Ctrl+V pressed');
+            YES3.debugMessage('Ctrl+V pressed');
         }
 
         else if ( ch === 'Z') {
@@ -2290,7 +2288,7 @@ FMAPR.setSpecialKeyListeners = function() {
 
             FMAPR.contextMenuClearRowSelections();
 
-            //console.log('Ctrl+Z pressed');
+            YES3.debugMessage('Ctrl+Z pressed');
         }
 
         else {
@@ -2315,7 +2313,7 @@ FMAPR.markSelectionRange = function()
 
     if ( !startRow.length || !endRow.length ) {
         return 0;
-        //console.log('markSelectionRange: bailing');
+        YES3.debugMessage('markSelectionRange: bailing');
     }
     
     let inRange = false;
@@ -2339,7 +2337,7 @@ FMAPR.markSelectionRange = function()
         }
 
         if ( inRange ){
-            //console.log('markSelectionRange: marking as selected:', row);
+            YES3.debugMessage('markSelectionRange: marking as selected:', row);
             FMAPR.markRowSelected( row );
         }
 
@@ -2467,7 +2465,7 @@ FMAPR.markSelectionRangeStart = function( ele )
 
     ele.addClass("yes3-selection-range-start");
 
-    console.log('markSelectionRangeStart', ele);
+    YES3.debugMessage('markSelectionRangeStart', ele);
 }
 
 FMAPR.markSelectionRangeEnd = function( ele )
@@ -2476,7 +2474,7 @@ FMAPR.markSelectionRangeEnd = function( ele )
 
     ele.addClass("yes3-selection-range-end");
 
-    console.log('markSelectionRangeEnd', ele);
+    YES3.debugMessage('markSelectionRangeEnd', ele);
 }
 
 FMAPR.toggleSelected = function( ele, sticky )
@@ -2885,7 +2883,7 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
     let k = 0;
     let items = 0;
 
-    //console.log('addREDcapObjectToSpecification', data_element_name, form_name, field_name, event_id_option);
+    YES3.debugMessage('addREDcapObjectToSpecification', data_element_name, form_name, field_name, event_id_option);
 
     /**
      * add a single item (redcap field)
@@ -2994,7 +2992,7 @@ FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event
         object_event = "";
     }
 
-    //console.log("exportItemAlreadyExists", object_type, object_name, object_event, typeof object_event);
+    YES3.debugMessage("exportItemAlreadyExists", object_type, object_name, object_event, typeof object_event);
 
     for (let i=0; i<allRows.length; i++){
 
@@ -3004,7 +3002,7 @@ FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event
             this_object_type = allRows.eq(i).attr("data-object_type");
             this_object_name = allRows.eq(i).attr("data-object_name");
 
-            //console.log("---> checking", this_object_type, this_object_name, this_object_event, typeof this_object_event);
+            YES3.debugMessage("---> checking", this_object_type, this_object_name, this_object_event, typeof this_object_event);
             
             if ( this_object_event===object_event && this_object_name===object_name && this_object_type===object_type ){
 
@@ -3017,7 +3015,7 @@ FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event
             }
         } catch(e) {
 
-            console.log("exportItemAlreadyExists ERROR", e);
+            console.error("exportItemAlreadyExists ERROR", e);
         }
     }
 
@@ -3065,7 +3063,7 @@ FMAPR.enumerateSpecificationElements = function()
                 //form_name = FMAPR.getFormForField(field_name);
             }
 
-            //console.log('enumerateSpecificationElements', data_element_name, form_name, field_name, object_event);
+            YES3.debugMessage('enumerateSpecificationElements', data_element_name, form_name, field_name, object_event);
 
             FMAPR.addREDcapObjectToSpecification(data_element_name, form_name, field_name, object_event);
         }
@@ -3169,7 +3167,7 @@ FMAPR.fieldsAllowedForForm = function(form_name)
 
     if ( typeof form_index !== "number") {
 
-        console.log("fieldsAllowedForForm: invalid form name", form_name)
+        YES3.debugMessage("fieldsAllowedForForm: invalid form name", form_name)
         return [];
     }
 
@@ -3185,7 +3183,7 @@ FMAPR.getFormOptionsHtml = function(event_id)
 {
     event_id = event_id || ALL_OF_THEM;
 
-    //console.log('getFormOptionsHtml', 'event_id='+event_id)
+    YES3.debugMessage('getFormOptionsHtml', 'event_id='+event_id)
 
     let allowed = true;
     let j = 0;
@@ -3281,7 +3279,7 @@ FMAPR.setREDCapElementListeners = function()
 
 FMAPR.REDCapFieldContextMenu = function( element, e )
 {
-    //console.log( e );
+    YES3.debugMessage( e );
 
     let theMenuPanel = YES3.getContextMenuElement();
 
@@ -3306,7 +3304,7 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
     //$('tr.yes3-row-focused').removeClass('yes3-row-focused');
     //thisRow.addClass('yes3-row-focused');
 
-    //console.log( theParentOffset );
+    YES3.debugMessage( theParentOffset );
 
     e.preventDefault();
 
@@ -3326,7 +3324,7 @@ FMAPR.REDCapFieldContextMenu = function( element, e )
     let x = e.pageX - theParentOffset.left + 10; // just to the right of the cursor
     let y = e.pageY - theParentOffset.top - h - 3; // just above the cursor
 
-    //console.log('contextmenu: h=' + h + '; w=' + w);
+    YES3.debugMessage('contextmenu: h=' + h + '; w=' + w);
 
     if ( x+w > theParentWidth ) {
         x = theParentWidth - w - 10; // right-justified
@@ -3494,7 +3492,7 @@ FMAPR.contextMenuPasteRowSelections = function(rowId)
     // clear range, cut and copied tags bu leave rows selected
     FMAPR.clearRowTagsButLeaveSelected();
 
-    //console.log('contextMenuPasteRowSelections', theRows);
+    YES3.debugMessage('contextMenuPasteRowSelections', theRows);
 
     FMAPR.markAsDirty();
 
@@ -3633,7 +3631,7 @@ FMAPR.copiedRowCount = function()
  
     let tbl = FMAPR.getExportItemsTable();
 
-    console.log('setValuePickers', yes3_fmapr_data_element_name, redcap_field_name);
+    YES3.debugMessage('setValuePickers', yes3_fmapr_data_element_name, redcap_field_name);
  
     if ( !FMAPR.project.field_metadata[FMAPR.project.field_index[redcap_field_name]].field_valueset.length ) {
        tbl.find(`tr[data-yes3_fmapr_data_element_name=${yes3_fmapr_data_element_name}].yes3-fmapr-lov a.yes3-fmapr-value-picker-toggler`).hide();
@@ -3645,7 +3643,7 @@ FMAPR.copiedRowCount = function()
  
     let picker_wrappers = tbl.find(`tr[data-yes3_fmapr_data_element_name=${yes3_fmapr_data_element_name}].yes3-fmapr-lov div.yes3-fmapr-value-picker-wrapper`);
 
-    //console.log('setValuePickers:picker_wrappers=', picker_wrappers);
+    YES3.debugMessage('setValuePickers:picker_wrappers=', picker_wrappers);
  
     let pkrHtml = "";
  
@@ -3658,7 +3656,7 @@ FMAPR.copiedRowCount = function()
        pkrHtml += `<label><input type='checkbox' value='${value}' />${value}. ${label}</label>`;
     }
 
-    //console.log('setValuePickers:pkrHtml=', pkrHtml);
+    YES3.debugMessage('setValuePickers:pkrHtml=', pkrHtml);
  
     picker_wrappers.html(pkrHtml);
  
@@ -3695,7 +3693,7 @@ FMAPR.copiedRowCount = function()
  
           ctl.val(ctlVal).trigger('change');
  
-          //console.log('CLICK', checked, ctlVal, ctlValues);
+          YES3.debugMessage('CLICK', checked, ctlVal, ctlValues);
  
        })
     ;
@@ -3882,7 +3880,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
     }
     else {
 
-        console.log('setRawREDCapPseudoElementName: null string', yes3_fmapr_data_element_name);
+        YES3.debugMessage('setRawREDCapPseudoElementName: null string', yes3_fmapr_data_element_name);
     }
  }
 
@@ -4098,7 +4096,7 @@ FMAPR.setLovConstantExecute = function() {
 
     FMAPR.setLovTogglePriorities(FMAPR.params.yes3_fmapr_data_element_name);
 
-//console.log('setLovConstantExecute', FMAPR.params);
+YES3.debugMessage('setLovConstantExecute', FMAPR.params);
 }
 
 FMAPR.loadEventSettings = function()
@@ -4110,7 +4108,7 @@ FMAPR.loadEventSettings = function()
 
 FMAPR.loadloadEventSettingsCallback = function( response )
 {
-    console.log('loadloadEventSettingsCallback', response);
+    YES3.debugMessage('loadloadEventSettingsCallback', response);
 
     FMAPR.event_settings = response;
 
@@ -4124,7 +4122,7 @@ FMAPR.loadSpecifications = function( get_removed )
 {
     YES3.isBusy( YES3.captions.wait_loading_specifications );
 
-    console.log('loadSpecifications');
+    YES3.debugMessage('loadSpecifications');
 
     get_removed = get_removed || 0;
     
@@ -4136,7 +4134,7 @@ FMAPR.loadSpecifications = function( get_removed )
 
 FMAPR.loadSpecificationsCallback = function( response )
 {
-    console.log('loadSpecificationsCallback', response, typeof response);
+    YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
 
     let select = FMAPR.getExportUUIDSelect();
 
@@ -4245,7 +4243,7 @@ FMAPR.loadSpecification = function( log_id )
 
 FMAPR.loadSpecificationCallback = function( response )
 {
-    console.log('loadSpecificationCallback', response, typeof response);
+    YES3.debugMessage('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 
@@ -4611,7 +4609,7 @@ FMAPR.buildExportItemsTableUspecRows = function( specification )
     
     let uSpec = JSON.parse(specification.export_uspec_json);
 
-    console.log(uSpec);
+    YES3.debugMessage(uSpec);
 
     let tbl = FMAPR.getExportItemsTable();
 
@@ -4746,7 +4744,7 @@ FMAPR.populateExportItemRowsV2 = function( specification )
 
         item = items[i];
 
-        //console.log("populateExportItemRowsV2", item.redcap_object_type, item.redcap_field_name, item.redcap_form_name);
+        YES3.debugMessage("populateExportItemRowsV2", item.redcap_object_type, item.redcap_field_name, item.redcap_form_name);
 
         if ( item.export_item_origin==="redcap" ){
 
@@ -4756,7 +4754,7 @@ FMAPR.populateExportItemRowsV2 = function( specification )
                 (item.redcap_object_type==="field") ? item.redcap_field_name:item.redcap_form_name,
                 item.redcap_event_id )){
 
-                console.log("Duplicate item not added: ", item.redcap_object_type, item.redcap_form_name, item.redcap_field_name, item.redcap_event_id);
+                YES3.debugMessage("Duplicate item not added: ", item.redcap_object_type, item.redcap_form_name, item.redcap_field_name, item.redcap_event_id);
             }
             else {
                 //field_name, event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode, unsaved, batch
@@ -4828,7 +4826,7 @@ FMAPR.editREDCapExportItem = function( yes3_fmapr_data_element_name )
 
     FMAPR.selectRow(theRow);
 
-    console.log("editREDCapExportItem", object_type, object_event, object_name);
+    YES3.debugMessage("editREDCapExportItem", object_type, object_event, object_name);
 
     let theForm = YES3.openPanel("yes3-fmapr-item-editor-panel");
 
@@ -4896,7 +4894,7 @@ FMAPR.prepareExportItemEditorForm = function()
             insert_as = "item";
         }
 
-        console.log(
+        YES3.debugMessage(
             "object_type=" + object_type,
             "object_event=" + object_event,
             "object_name=" + object_name,
@@ -4982,7 +4980,7 @@ FMAPR.prepareExportItemEditorForm = function()
             saveResult = FMAPR.exportItemEditorSave_fields(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
         }
 
-        console.log("save result:", saveResult);
+        YES3.debugMessage("save result:", saveResult);
         
         FMAPR.removeMarkedRows();
 
@@ -5066,7 +5064,7 @@ FMAPR.prepareExportItemEditorForm = function()
 
         let event = $(this).val();
 
-        console.log(objectType, event);
+        YES3.debugMessage(objectType, event);
 
         if ( objectType==="form") {
         
@@ -5167,7 +5165,7 @@ FMAPR.exportItemEditorSave_forms = function(object_name, object_event, theRowBef
     for (let i=0; i<forms.length; i++){
         if ( FMAPR.exportItemAlreadyExists("form", forms[i], object_event) ){
             d++;
-            console.log("Duplicate form item not added: ", forms[i], object_event);
+            YES3.debugMessage("Duplicate form item not added: ", forms[i], object_event);
         }
         else {
             k++;
@@ -5217,7 +5215,7 @@ FMAPR.exportItemEditorSave_fields = function(object_name, object_event, theRowBe
 
                 if ( FMAPR.exportItemAlreadyExists("field", object_name, object_event) ){
                     d++;
-                    console.log("Duplicate field item not added: ", object_name, object_event);
+                    YES3.debugMessage("Duplicate field item not added: ", object_name, object_event);
                 }
                 else {
                     k++;
@@ -5347,7 +5345,7 @@ FMAPR.setExportSettingsLayoutListeners = function() {
         .off()
         .on('click', function(){
 
-            //console.log('setExportSettingsLayoutListeners', $(this).val());
+            YES3.debugMessage('setExportSettingsLayoutListeners', $(this).val());
 
             if ( $(this).val()==="r" ){
 
@@ -5472,11 +5470,11 @@ FMAPR.getExportItemsJSONV2 = function()
     let origin = "";
     let itemError = false;
 
-    //console.log("getExportItemsJSONV2: itemRows", itemRows);
+    YES3.debugMessage("getExportItemsJSONV2: itemRows", itemRows);
 
     itemRows.each(function(){
 
-        //console.log("getExportItemsJSONV2:itemRow", $(this));
+        YES3.debugMessage("getExportItemsJSONV2:itemRow", $(this));
 
         item = Object.create(itemProto);
         itemError = false;
@@ -5523,7 +5521,7 @@ FMAPR.getExportItemsJSONV2 = function()
         }
     });
 
-    console.log('getExportItemsJSON', items);
+    YES3.debugMessage('getExportItemsJSON', items);
 
     return JSON.stringify( items );
 }
@@ -5630,15 +5628,15 @@ FMAPR.getExportItemsJSON = function()
              */
             lovRows = tbl.find(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name="${item.uspec_element_name}"]`);
 
-            //console.log(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name="${item.uspec_element_name}"]`);
+            YES3.debugMessage(`tr.yes3-fmapr-lov[data-yes3_fmapr_data_element_name="${item.uspec_element_name}"]`);
 
-            //console.log('lovRows -->', lovRows);
+            YES3.debugMessage('lovRows -->', lovRows);
 
             for (j=0; j<lovRows.length; j++){
 
                 lovRow = lovRows.eq(j);
 
-                //console.log('lovRow ---->', lovRow);
+                YES3.debugMessage('lovRow ---->', lovRow);
 
                 vMap = Object.create(vMapProto);
 
@@ -5663,7 +5661,7 @@ FMAPR.getExportItemsJSON = function()
         }
     }
 
-    console.log('getExportItemsJSON', items);
+    YES3.debugMessage('getExportItemsJSON', items);
 
     return JSON.stringify( items );
 }
@@ -5773,7 +5771,7 @@ $(window).resize( function() {
  */
 $(document).on('yes3-fmapr.settings', function(){
 
-    console.log("on.yes3-fmapr.settings");
+    YES3.debugMessage("on.yes3-fmapr.settings");
 
     //return true;
 

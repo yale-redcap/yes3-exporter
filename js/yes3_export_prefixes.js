@@ -13,8 +13,6 @@
 
 YES3.Functions.Exportspecifications_saveSettings = function()
 {
-    //console.log('MappingsEditor_undoSettings' this);
-
     let errors = FMAPR.inspectEventPrefixes();
 
     if ( errors ){
@@ -28,7 +26,7 @@ YES3.Functions.Exportspecifications_saveSettings = function()
 
 YES3.Functions.Exportspecifications_undoSettings = function()
 {
-    //console.log('MappingsEditor_undoSettings' );
+    YES3.debugMessage('MappingsEditor_undoSettings' );
 
     YES3.YesNo("Are you SURE you would like to roll back all changes since the last save?", FMAPR.getExportSettings, null);
 }
@@ -47,7 +45,7 @@ FMAPR.restoreToDefaultValues = function()
 
 FMAPR.restoreToDefaultValuesCallback = function(response)
 {
-    console.log("restoreToDefaultValuesCallback",response);
+    YES3.debugMessage("restoreToDefaultValuesCallback",response);
 
     FMAPR.event_settings = response;
 
@@ -82,8 +80,8 @@ FMAPR.saveExportSettings = function()
 
     YES3.requestService(requestParams, FMAPR.saveExportSettingsCallback, false);
 
-    //console.log(events); 
-    //console.log(specifications); 
+    YES3.debugMessage(events); 
+    YES3.debugMessage(specifications); 
 }
 
 FMAPR.saveExportSettingsCallback = function(response)
@@ -100,7 +98,7 @@ FMAPR.getExportSettings = function()
 
 FMAPR.getExportSettingsCallback = function(response)
 {
-    console.log('getExportSettingsCallback:', response);
+    YES3.debugMessage('getExportSettingsCallback:', response);
 
     FMAPR.event_settings = response;
 
@@ -258,7 +256,7 @@ $(window).resize( function() {
  */
 $(document).on('yes3-fmapr.settings', function(){
 
-    console.log("on.yes3-fmapr.settings");
+    YES3.debugMessage("on.yes3-fmapr.settings");
 
     /**
      * now we fetch the export settings

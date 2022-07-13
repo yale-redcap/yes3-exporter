@@ -11,14 +11,14 @@ YES3.Functions.downloadExportLog = function()
     + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
     ;
 
-    //console.log(url);
+    YES3.debugMessage(url);
 
     window.open(url);
 }
 
 FMAPR.downloadExportLogCallback = function( response )
 {
-    console.log('downloadExportLogCallback', response);
+    YES3.debugMessage('downloadExportLogCallback', response);
 }
 
 FMAPR.exportUUIDSelect = function()
@@ -59,7 +59,7 @@ FMAPR.exportConstraintSelect = function()
 
 FMAPR.exportUUIDSelectCallback = function( response )
 {
-    //console.log( 'exportUUIDSelectCallback', response );
+    //YES3.debugMessage( 'exportUUIDSelectCallback', response );
 
     if ( response.message ){
 
@@ -139,7 +139,7 @@ FMAPR.inspectLogRecord = function(log_id)
 
 FMAPR.inspectLogRecordCallback = function( response )
 {
-    console.log("inspectLogRecordCallback", response);
+    YES3.debugMessage("inspectLogRecordCallback", response);
 
     let tr = {};
 
@@ -158,7 +158,7 @@ FMAPR.inspectLogRecordCallback = function( response )
                 .html( escapeHTML( ''+response[item] ) );
         }
 
-        //console.log(item, response[item]);
+        YES3.debugMessage(item, response[item]);
     }
 
 
@@ -236,7 +236,7 @@ FMAPR.getExportUUIDSelect = function()
 
 FMAPR.loadSpecifications = function( get_removed )
 {
-    console.log('loadSpecifications');
+    YES3.debugMessage('loadSpecifications');
 
     get_removed = get_removed || 0;
     
@@ -248,7 +248,7 @@ FMAPR.loadSpecifications = function( get_removed )
 
 FMAPR.loadSpecificationsCallback = function( response )
 {
-    console.log('loadSpecificationsCallback', response, typeof response);
+    YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
 
     let select = FMAPR.getExportUUIDSelect();
 
