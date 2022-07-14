@@ -181,13 +181,13 @@ a.  Please be mindful of the following limitations when creating a new export:
       
       - You may choose to insert as one export item per form which will display as: 
      
-          <img src="media/Insert_one_export_item_per_field.png"  width="75%"> 
+          <img src="media/Insert_one_export_item_per_form.png"  width="75%"> 
          
          
          
       - You may choose to insert as one export item per field which will display as:
       
-          <img src="media/Insert_one_export_item_per_form.png"  width="75%">  
+          <img src="media/Insert_one_export_item_per_field.png"  width="75%">  
         
      b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
      
@@ -199,7 +199,7 @@ a.  Please be mindful of the following limitations when creating a new export:
      
      -  As you type, the field will auto-populate.
      
-          <img src="media/Insert_one_export_item_per_field_1.png"  width="60%"> 
+          <img src="media/autopopulate.png"  width="60%"> 
               
       b.   Select the field that you would like to add to the export and click ‘**make it so’**.
 
