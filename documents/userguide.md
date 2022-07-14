@@ -157,7 +157,7 @@ a.  Please be mindful of the following limitations when creating a new export:
 3.  Once completed, click “**make it so**”.
 
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
-<img src="media/Export_Settings_Display.png"  width="75%">
+<img src="media/Export_Settings_Display_1.png"  width="75%">
 
 5.  Once you have selected your options, click ![](media/save_icon_unsaved_changes.png) to save your changes.
 
