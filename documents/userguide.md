@@ -143,7 +143,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 ### Quick Start
 
-1.  Click ![](media/new_export_icon.png) button to add a new export.
+1.  Click ![](media/new_export_icon_1.png) button to add a new export.
 
 2.  Enter the export name and select a layout.
 
@@ -157,13 +157,13 @@ a.  Please be mindful of the following limitations when creating a new export:
 3.  Once completed, click “**make it so**”.
 
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
-<img src="media/Export_Settings_Display.png"  width="75%">
+<img src="media/Export_Settings_Display_1.png"  width="75%">
 
 5.  Once you have selected your options, click ![](media/save_icon_unsaved_changes.png) to save your changes.
 
 6.  Select **'Export Items'** in the display setting to add forms/fields.
 
-<img src="media/Export_Settings_Red_Box.png"  width="75%">
+<img src="media/Export_Settings_Red_Box.png"  width="60%">
 
 7.  Click the ![](media/bulk_insert_icon.png) button located along the top menu to add forms/fields.
 
@@ -175,19 +175,19 @@ a.  Please be mindful of the following limitations when creating a new export:
 
       - You may choose to insert as single export item which will display as:
       
-          <img src="media/Oops.png"  width="75%">  
+          <img src="media/Insert_single_export_item_2.png"  width="75%">  
       
       
       
       - You may choose to insert as one export item per form which will display as: 
      
-          <img src="media/Insert_single_export_item_1.png"  width="75%"> 
+          <img src="media/Insert_one_export_item_per_form.png"  width="75%"> 
          
          
          
       - You may choose to insert as one export item per field which will display as:
       
-          <img src="media/Insert_one_export_item_per_form_1.png"  width="75%"> 
+          <img src="media/Insert_one_export_item_per_field.png"  width="75%">  
         
      b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
      
@@ -199,7 +199,7 @@ a.  Please be mindful of the following limitations when creating a new export:
      
      -  As you type, the field will auto-populate.
      
-          <img src="media/Insert_one_export_item_per_field_1.png"  width="60%"> 
+          <img src="media/autopopulate.png"  width="60%"> 
               
       b.   Select the field that you would like to add to the export and click ‘**make it so’**.
 
@@ -328,7 +328,7 @@ To use the exporter
    
 
 
-**CONGRATULATIONS!- YOU MADE IT THROUGH THE READ ME FILE.**  
+**CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.  YOU ARE AN EXPORTER SAGE.**  
 
 
 # Contact

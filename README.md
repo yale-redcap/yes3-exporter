@@ -9,7 +9,7 @@ The external module includes a User Guide, Technical Guide and EM Changelog. The
 -   **User Guide** 
      -   Purpose: How-to tutorial and information 
      -   Audience: REDCap end-users  
- -   **Technical Guide** 
+ -  **Technical Guide** 
      -   Purpose: Explains functionality, technical specifications about the exported data, the data dictionaries, and the software design.
      -   Audience: Analysts, Statisticians, Software Designers/Programmers  
 -   **Change Log** 
