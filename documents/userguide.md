@@ -175,13 +175,13 @@ a.  Please be mindful of the following limitations when creating a new export:
 
       - You may choose to insert as single export item which will display as:
       
-          <img src="media/Oops.png"  width="75%">  
+          <img src="media/Insert_single_export_item_2.png"  width="75%">  
       
       
       
       - You may choose to insert as one export item per form which will display as: 
      
-          <img src="media/Insert_single_export_item_2.png"  width="75%"> 
+          <img src="media/Insert_one_export_item_per_field_2.png"  width="75%"> 
          
          
          
