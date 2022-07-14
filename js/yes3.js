@@ -189,7 +189,7 @@ YES3.openPopupWindow = function(url, w, h, windowNamePrefix) {
 
     let windowName = windowNamePrefix+YES3.windowNumber;
 
-    YES3.debugMessage(url,windowName);
+    //YES3.debugMessage(url,windowName);
 
     // Fixes dual-screen position                         Most browsers      Firefox
     let dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
@@ -275,7 +275,7 @@ YES3.contextMenuClose = function( Fn, keepPointer )
 
     YES3.closePanel('yes3-contextmenu-panel');
 
-    YES3.debugMessage("contextMenuClose", Fn, typeof Fn);
+    //YES3.debugMessage("contextMenuClose", Fn, typeof Fn);
 
     if ( typeof Fn === "function" ) {
 
@@ -412,7 +412,7 @@ YES3.hideContextMenuOnClickOutside = function()
                 YES3.contextMenuClose();
             }
 
-            YES3.debugMessage('hideContextMenuOnClickOutside:', e, p);
+            //YES3.debugMessage('hideContextMenuOnClickOutside:', e, p);
         }
     })
 }
@@ -733,7 +733,7 @@ YES3.listServiceFunctions = function()
 
 YES3.listServiceFunctionsCallback = function( response )
 {
-    YES3.debugMessage("service functions", response);
+    //YES3.debugMessage("service functions", response);
 }
 
 /* === AJAX === */
@@ -745,7 +745,7 @@ YES3.requestService = function( params, doneFn, json )
    json = json || false;
    doneFn = doneFn || YES3.noop;
 
-   YES3.debugMessage('requestService', params);
+   //YES3.debugMessage('requestService', params);
 
    $.ajax(
     {

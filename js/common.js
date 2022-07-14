@@ -26,14 +26,12 @@ FMAPR.conditionUserInput = function( s ){
 FMAPR.noop = function(){}
  
 FMAPR.isEmptyArray = function( x ){
-    //console.log('isEmptyArray', typeof x, x);
     if ( typeof x === "undefined" ) return true;
     return !x.length;
  
 }
  
 FMAPR.isTruthy = function( x ){
-    //console.log('isEmptyArray', typeof x, x);
     if ( typeof x === "undefined" ) return false;
     return x;
  
@@ -88,14 +86,14 @@ FMAPR.postMessage(response);
 
 FMAPR.getProjectSettings = function() 
 {
-    YES3.debugMessage( 'getProjectSettings' );
+    //YES3.debugMessage( 'getProjectSettings' );
 
     YES3.requestService({'request':'get_project_settings'}, FMAPR.getProjectSettingsCallback, true);
 }
 
 FMAPR.getProjectSettingsCallback = function(response) 
 {
-    YES3.debugMessage( 'getProjectSettingsCallback', response );
+    //YES3.debugMessage( 'getProjectSettingsCallback', response );
 
     FMAPR.project = response;
 
@@ -113,7 +111,7 @@ FMAPR.getExportSettings = function()
 
 FMAPR.getExportSettingsCallback = function(response)
 {
-    YES3.debugMessage('getExportSettingsCallback:', response);
+    //YES3.debugMessage('getExportSettingsCallback:', response);
 
     FMAPR.stored_export_settings = response;
     
