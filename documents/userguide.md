@@ -163,7 +163,7 @@ a.  Please be mindful of the following limitations when creating a new export:
 
 6.  Select **'Export Items'** in the display setting to add forms/fields.
 
-<img src="media/Export_Settings_Red_Box.png"  width="75%">
+<img src="media/Export_Settings_Red_Box.png"  width="60%">
 
 7.  Click the ![](media/bulk_insert_icon.png) button located along the top menu to add forms/fields.
 
