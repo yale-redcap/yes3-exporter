@@ -181,7 +181,7 @@ a.  Please be mindful of the following limitations when creating a new export:
       
       - You may choose to insert as one export item per form which will display as: 
      
-          <img src="media/Insert_one_export_item_per_field_1.png"  width="75%"> 
+          <img src="media/Insert_one_export_item_per_field.png"  width="75%"> 
          
          
          
