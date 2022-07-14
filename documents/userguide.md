@@ -199,7 +199,7 @@ a.  Please be mindful of the following limitations when creating a new export:
      
      -  As you type, the field will auto-populate.
      
-          <img src="media/Insert_one_export_item_per_field_2.png"  width="60%"> 
+          <img src="media/Insert_one_export_item_per_field_1.png"  width="60%"> 
               
       b.   Select the field that you would like to add to the export and click ‘**make it so’**.
 
@@ -328,7 +328,7 @@ To use the exporter
    
 
 
-**CONGRATULATIONS!- YOU MADE IT THROUGH THE READ ME FILE.**  
+**CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.  YOU ARE AN EXPORTER SAGE.**  
 
 
 # Contact
