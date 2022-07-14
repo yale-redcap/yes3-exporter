@@ -187,7 +187,7 @@ a.  Please be mindful of the following limitations when creating a new export:
          
       - You may choose to insert as one export item per field which will display as:
       
-          <img src="media/Insert_one_export_item_per_form_1.png"  width="75%">  
+          <img src="media/Insert_one_export_item_per_form.png"  width="75%">  
         
      b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
      
