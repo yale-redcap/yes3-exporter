@@ -143,7 +143,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 ### Quick Start
 
-1.  Click ![](media/new_export_icon_1.png) button to add a new export.
+1.  Click ![](media/new_export_icon_1.png  width="50%") button to add a new export.
 
 2.  Enter the export name and select a layout.
 
