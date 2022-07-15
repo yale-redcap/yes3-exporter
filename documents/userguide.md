@@ -50,9 +50,7 @@ To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
 ### Daily Activity Log Report
 
-When enabled, you can designate one email address that will receive a daily summary of project export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours.
-
-To disable the daily log report, you may change the email notification setting to “no” at any time.
+When enabled, you can designate one email address that will receive a daily summary of project export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours.  To disable the daily log report, you may change the email notification setting to “no” at any time.
 
 ### Host File System Exports
 
@@ -79,13 +77,7 @@ There are four components to the Exporter External Module.
 
 ### Device recommendations
 
-Each YES3 Exporter component - like REDCap itself - has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones.
-
-The Event Prefixes, Export Logs and YES3 Exporter Documentation components all work tolerably well with a portrait-orientation device viewport width of 375 pixels, which covers most mobile phones.
-
-However there are practical considerations for the YES3 Exporter Main component, driven by the complexity of the export specification editor. Our target display device for the editor is a standard HD desktop screen (1920x1080 pixels). For an optimal user experience on a desktop, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels. 
-
-For mobile devices, the minimum viewport dimensions for editing export specifications appear to be 600x600 pixels, which should cover devices ranging from "phablets" to full-size tablets. Most mobile phones will *not* work for editing, in either portrait or horizontal orientation.
+Each YES3 Exporter component - like REDCap itself - has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones. The Event Prefixes, Export Logs and YES3 Exporter Documentation components all work tolerably well with a portrait-orientation device viewport width of 375 pixels, which covers most mobile phones. However there are practical considerations for the YES3 Exporter Main component, driven by the complexity of the export specification editor. Our target display device for the editor is a standard HD desktop screen (1920x1080 pixels). For an optimal user experience on a desktop, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels.  For mobile devices, the minimum viewport dimensions for editing export specifications appear to be 600x600 pixels, which should cover devices ranging from "phablets" to full-size tablets. Most mobile phones will *not* work for editing, in either portrait or horizontal orientation.
 
 ### Action icons
 
@@ -93,7 +85,7 @@ YES3 Exporter feaures are accessible through a collection of 'action icons,' whi
 
 <img src="media/action_icons.png"  width="300px">
 
-The YES3 icon at the far right is not technically a YES3 Exporter action icon, rather it is a link that will take you to the YES3 page on our REDCap portal website. There you will find information about the history, goals and plans of the YES3 initiative.
+The YES3 icon at the far right is not technically a YES3 Exporter action icon, rather it is a link that will take you to the YES3 page on our REDCap portal website. There you will find information about the background, goals and plans of the YES3 initiative.
 
 ### Help panels
 
@@ -322,7 +314,7 @@ To use the exporter
    
 
 
-**CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.  YOU ARE AN EXPORTER SAGE.**  
+**CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.  YOU ARE AN EXPORTER EXPERT.**  
 
 
 # Contact
