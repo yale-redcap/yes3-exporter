@@ -38,19 +38,13 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 ## System Configuration
 
-The YES3 Exporter performs daily tasks, such as removing old export backups and emailing activity reports. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks.
+The YES3 Exporter performs daily tasks, such as removing old export backups and emailing activity reports. By default, daily housekeeping tasks are run at 11 minutes past midnight, but an administrator can specify a different time to run these tasks. The time and results of the most recent daily housekeeping run for all projects are displayed in the YES3 Exporter system configuration page.
 
 To configure, go to Control Panel -> External Modules -> Manage -> Yes3 Exporter ->Configure
 
-The time and results of the most recent daily housekeeping run for all projects are displayed in the YES3 Exporter system configuration page.
-
 ## Project Configuration
 
-Only users with project design and setup rights can configure the External Module Settings for a project.
-
-Project settings include rules for retaining export specification backups, whether and where to send daily log reports, and settings for host filesystem exports.
-
-The date and result of the latest housekeeping run for the project are displayed in the Project Settings.
+Only users with project design and setup rights can configure the External Module Settings for a project. Project settings include rules for retaining export specification backups, whether and where to send daily log reports, and settings for host filesystem exports. The date and result of the latest housekeeping run for the project are displayed in the Project Settings.
 
 To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
