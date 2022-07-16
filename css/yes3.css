@@ -438,15 +438,14 @@ img.yes3-logo {
 
 img.yes3-logo:hover {
     cursor: pointer;
-    /*animation: 3s infinite alternate yes3-logo-glow;*/
-    /* box-shadow: 0 0 8px 0 #aef4af;*/
+    /* animation: 1s infinite alternate yes3-logo-glow; */
 }
 
 @keyframes yes3-logo-glow {
     from {
     }
     to {
-      box-shadow: 0 0 5px 5px #aef4af;
+      box-shadow: 0 0 5px 5px #88c189;
     }
   }
 
@@ -1048,6 +1047,12 @@ table.yes3-removed .yes3-if-removed {
  
  /* --- PANELS --- */
 
+
+div#yes3-help-panel, div.yes3-help-panel {
+   width: auto !important;
+   max-width: 900px !important;
+}
+
 i.yes3-selected {
     color: var(--yes3-selected-color);
 }
@@ -1115,11 +1120,19 @@ i.yes3-selected {
      max-width: 600px !important;
  }
  
- .yes3-panel p {
-    margin-top: 0;
-    margin-bottom: 8px;
- }
- 
+ .yes3-panel p:not(.yes3-headroom) {
+   margin-top: 0;
+   margin-bottom: 0.75em;
+}
+
+.yes3-panel div.yes3-headroom {
+   margin-top: 0.75em !important;
+}
+
+.yes3-panel div.yes3-legroom {
+   margin-bottom: 0.75em !important;
+}
+
  .yes3-panel a {
     color: var(--yes3-panel-color) !important;
  }
@@ -1349,18 +1362,24 @@ i.yes3-selected {
 
  .yes3-panel td, .yes3-panel th {
     vertical-align: middle;
-    padding: 5px;
+    padding: 2px;
     border-top: 1px solid transparent;
     border-bottom: 1px solid transparent;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
  }
- 
+
  .yes3-panel td {
-    color: var(--yes3-td-color);
-    background-color: transparent;
- }
- 
+   color: var(--yes3-td-color);
+   background-color: transparent;
+}
+
+.yes3-panel table.yes3-table-borders td {
+   border-color: var(--yes3-table-border-color) !important;
+   padding-left: 5px !important;
+   padding-right: 5px !important;
+}
+
  .yes3-panel th {
     color: var(--yes3-th-color);
     background-color: transparent;

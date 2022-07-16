@@ -376,7 +376,7 @@ $module->getCodeFor("yes3_export_editor", true);
             You may also enter a <em>criterion expression</em> to select based on a range of values.
             <br>Here are examples of valid criterion expression syntax: 
         </p>
-        <table class="yes3-fmapr-panel-table">
+        <table class="yes3-fmapr-panel-table yes3-table-borders">
             <tr><td class="propvalue">1        </td><td>Value must be 1.</td></tr>
             <tr><td class="propvalue">= 1      </td><td>Value must be 1 (alternate syntax).</td></tr>
             <tr><td class="propvalue">3,1,4,5,9</td><td>Value must be 3, 1, 4, 5 or 9.</td></tr>
@@ -386,31 +386,23 @@ $module->getCodeFor("yes3_export_editor", true);
             <tr><td class="propvalue">>= 10    </td><td>Value must be greater than or equal to 10 (numeric comparison).</td></tr>
             <tr><td class="propvalue"><> 10    </td><td>Value must be not equal to 10.</td></tr>
             <tr><td class="propvalue">apple, table, penny</td><td>Value must be 'apple', 'table' or 'penny'.</td></tr>
-            <tr><td class="propvalue">>= 1952-06-05</td><td>Value must be 1952-06-05 or later (date comparision; see Note on date values below).</td></tr>
+            <tr><td class="propvalue">>= 1952-06-25</td><td>Value must be June 25th, 1952 or later (note: you must use the date format yyyy-mm-dd).</td></tr>
             <tr><td class="propvalue"><></td><td>Value must be nonblank.</td></tr>
         </table>
-        
-        <p>
-            <span class="yes3-information-em-light">Note on date values</span>: Dates behave like strings, but you must use the format yyyy-mm-dd.
-            For example, to select based on a date being on or after June 5, 1952 use this expression:
-            <br><span class="yes3-information-em-light">>= 1952-06-05</span>.
-        </p>
-
-        <p>
-            <span class="yes3-information-em-light">Criterion field properties</span>: below is a table of REDCap properties for the criterion field you have selected.
-            Your selection criterion must be consistent with the field type and, if noted, the possible values that the field can take on.
-        </p>
 
     </div>
 
-    <div class="yes3-panel-bottom-row yes3-panel-row-border-top">
+    <div class="yes3-panel-bottom-row yes3-panel-row-border-top yes3-headroom">
+        <p class="yes3-headroom">
+            <span class="yes3-information-em-light">Criterion field properties</span>: below is a table of REDCap properties for the criterion field you have selected.
+        </p>
 
         <table class='yes3-fmapr-panel-table'>
             <tbody>
         
                 <tr property="field_name">
                     <td>
-                        REDCa&nbsp;field&nbsp;name
+                        REDCap&nbsp;field&nbsp;name
                     </td>
                     <td class="propvalue"></td>
                 </tr>

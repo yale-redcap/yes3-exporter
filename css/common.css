@@ -319,8 +319,12 @@ div#yes3-fmapr-status {
 
 /*** HELP PANELS ***/
 
-div#yes3-help-panel, div.yes3-help-panel {
-    max-width: 75% !important;
+table.yes3-fmapr-panel-table td {
+    text-align: left;
+    vertical-align: top;
+    font-family: var(--yes3-font-family) !important;
+    font-weight: 400 !important;
+    font-size: var(--yes3-font-size) !important;
 }
 
 table.yes3-fmapr-panel-table td {

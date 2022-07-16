@@ -10,7 +10,7 @@ use ExternalModules\ExternalModules;
  * Table to hold debug log messages. Must be created by dba, see logDebugMessage() below.
  */
 define('DEBUG_LOG_TABLE', "ydcclib_debug_messages");
-//define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
+define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
 
 /**
  * 
@@ -28,17 +28,16 @@ class Yes3 {
     // too bad this logic is private in ExternalModules
     public static function getREDCapProjectId()
     {
-        if (defined('PROJECT_ID')) {
-            return (int) PROJECT_ID;
-        }
         if (isset($_GET['pid'])) {
             return (int) $_GET['pid'];
+        }
+        if (defined('PROJECT_ID')) {
+            return (int) PROJECT_ID;
         }
         return 0;
     }
 
     // the framework getDAG crashes for longitudinal studies
-    // this version accepts ANY event_id and assumes no database issues
     public static function getGroupIdForRecord($recordId, $pid=0){
 
         if ( !$pid ){

@@ -6,7 +6,7 @@ let YES3 = {
     dirty: false,
     initial_help_offered: false,
     busy: false,
-    projectUrl: "https://portal.redcap.yale.edu/news/redcapyale-team-secures-nih-funding-support-redcap-external-modules",
+    yes3Url: "https://portal.redcap.yale.edu/resources/yes3",
 
     captions: {
         "yes" : "yes",
@@ -676,7 +676,7 @@ YES3.setThemeObjects = function(theme)
 
     $("img.yes3-logo").off().on("click", function(){
 
-        window.open(YES3.projectUrl, "popup=yes");
+        window.open(YES3.yes3Url, "popup=yes");
     })
 }
 

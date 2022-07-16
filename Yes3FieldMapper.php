@@ -945,8 +945,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         //$sql .= " LIMIT 10";
 
-        Yes3::logDebugMessage($this->getProjectId(), $sql, "writeExportFiles: CritX SQL");
-        Yes3::logDebugMessage($this->getProjectId(), implode(",", $sqlParams), "writeExportFiles: CritX Params");
+        //Yes3::logDebugMessage($this->getProjectId(), $sql, "writeExportFiles: CritX SQL");
+        //Yes3::logDebugMessage($this->getProjectId(), implode(",", $sqlParams), "writeExportFiles: CritX Params");
         //Yes3::logDebugMessage($this->getProjectId(), print_r($critXFieldMetadata, true), "writeExportFiles: CritX Metadata");
 
         $records = [];
@@ -1339,8 +1339,8 @@ WHERE project_id=? AND log_entry_type=?
 
         $exportValues = 0;
 
-        //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
-        //Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
+        Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
+        Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
 
         foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
         //$xx = Yes3::fetchRecords($sql, $sqlParams);
@@ -1378,6 +1378,7 @@ WHERE project_id=? AND log_entry_type=?
                  * fill out the record
                  */
                 $y = [];
+
                 foreach ($dd as $d){
 
                     if ( !isset($y[$d['var_name']]) ){
@@ -1407,6 +1408,12 @@ WHERE project_id=? AND log_entry_type=?
                     $y[VARNAME_INSTANCE  ] = $x_instance;
                 }
 
+                if ( isset($y[VARNAME_GROUP_ID]) ) {
+
+                    $y[VARNAME_GROUP_ID  ] = Yes3::getGroupIdForRecord($record);
+                    $y[VARNAME_GROUP_NAME] = $dagNameForGroupId[ $y[VARNAME_GROUP_ID  ] ];
+                }
+
                 $exportValues = 0;
 
                 $BOR = false;
@@ -1424,11 +1431,13 @@ WHERE project_id=? AND log_entry_type=?
 
             $REDCapValue = $this->conditionREDCapValue( $x['value'], $export_max_text_length, $export_inoffensive_text );
 
+            /*
             if ( $field_name === "__GROUPID__" && isset($y[VARNAME_GROUP_ID])) {
 
                 $y[VARNAME_GROUP_ID  ]   = $x['value'];
                 $y[VARNAME_GROUP_NAME] = $dagNameForGroupId[ $x['value'] ];
             }
+            */
 
             if ( $export_layout==="h" ){
 
