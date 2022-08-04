@@ -438,14 +438,16 @@ img.yes3-logo {
 
 img.yes3-logo:hover {
     cursor: pointer;
-    /* animation: 1s infinite alternate yes3-logo-glow; */
+    animation: 5s infinite alternate yes3-logo-glow;
 }
 
 @keyframes yes3-logo-glow {
     from {
+      transform:rotate(0deg);
     }
     to {
-      box-shadow: 0 0 5px 5px #88c189;
+      transform:rotate(360deg);
+      box-shadow: 0 0 25px 5px var(--yes3-color); /* #88c189; */
     }
   }
 

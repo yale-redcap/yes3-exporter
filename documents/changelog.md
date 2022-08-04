@@ -5,11 +5,15 @@
 
 ## Version 0.9.1
 
-July 10, 2022
+July 30, 2022
 
 1. Bug Fix: The 'remove freetext fields' option also removed the record id field(!).
 2. Edits to the help popups in the editor, prefixes and logs plugins.
 3. New selection criterion syntax for selecting all nonblank values.
+4. Bug Fix: Changing just the event in the Export Item Editor would sometimes be blocked with a 'No can do: this item is already in the specification' message
+5. Bug Fix: The bulk insertion action icon could become enabled on the Settings tab.
+6. Bug Fix: Export name not displayed in the Export Log Inspector.
+7. Export spec SELECT options are now displayed in order of export name. 
 
 ## Version 0.9.0
 

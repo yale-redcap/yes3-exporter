@@ -310,6 +310,10 @@ function getExportSpecificationList():string
         }
     }
 
+    $xnames = array_column($data, 'export_name');
+
+    array_multisort($xnames, SORT_STRING | SORT_FLAG_CASE, $data);
+
     return json_encode($data);
 }
 

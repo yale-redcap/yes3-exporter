@@ -62,10 +62,12 @@ $module->getCodeFor("yes3_export_logs", true);
 <div class='yes3-panel-row' id='yes3-record-content'>
 
         <table id="yes3-export-record">
-            
-            <tr id="yes3-export-project_id"><td>Project ID</td><td></td></tr>
                     
             <tr id="yes3-export-log_id"><td>Log ID</td><td></td></tr>
+            
+            <tr id="yes3-export-project_id"><td>Project ID</td><td></td></tr>
+                
+            <tr id="yes3-export-export_name"><td>Export Name</td><td></td></tr>
                 
             <tr id="yes3-export-export_uuid"><td>Export UUID</td><td></td></tr>
                 

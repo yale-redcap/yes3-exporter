@@ -2976,14 +2976,17 @@ FMAPR.getExportItemRows = function()
     return $("tr.yes3-fmapr-data-element");
 }
 
-FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event )
+FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event, yes3_fmapr_data_element_name )
 {
     let allRows = FMAPR.getExportItemRows();
 
     let this_object_event = "";
     let this_object_type = "";
     let this_object_name = "";
+    let this_object_id = "";
     let exists = false;
+
+    yes3_fmapr_data_element_name = yes3_fmapr_data_element_name || "null";
 
     if ( !FMAPR.project.is_longitudinal ){
 
@@ -2996,20 +2999,26 @@ FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event
 
         try {
 
-            this_object_event = ( FMAPR.project.is_longitudinal ) ? allRows.eq(i).attr("data-object_event") : "";
-            this_object_type = allRows.eq(i).attr("data-object_type");
-            this_object_name = allRows.eq(i).attr("data-object_name");
+            this_object_id = allRows.eq(i).attr("id");
 
-            //YES3.debugMessage("---> checking", this_object_type, this_object_name, this_object_event, typeof this_object_event);
-            
-            if ( this_object_event===object_event && this_object_name===object_name && this_object_type===object_type ){
+            // do not check the item being edited
+            if ( yes3_fmapr_data_element_name !== allRows.eq(i).data('yes3_fmapr_data_element_name') ) {
 
-                return true;
-            }
-             
-            if ( this_object_event===ALL_OF_THEM && this_object_name===object_name && this_object_type===object_type ){
+                this_object_event = ( FMAPR.project.is_longitudinal ) ? allRows.eq(i).attr("data-object_event") : "";
+                this_object_type = allRows.eq(i).attr("data-object_type");
+                this_object_name = allRows.eq(i).attr("data-object_name");
 
-                return true;
+                //YES3.debugMessage("---> checking", this_object_type, this_object_name, this_object_event, typeof this_object_event);
+                
+                if ( this_object_event===object_event && this_object_name===object_name && this_object_type===object_type ){
+
+                    return true;
+                }
+                
+                if ( this_object_event===ALL_OF_THEM && this_object_name===object_name && this_object_type===object_type ){
+
+                    return true;
+                }
             }
         } catch(e) {
 
@@ -4314,11 +4323,15 @@ FMAPR.dashboardOptionHandler = function()
         FMAPR.showExportItems();
         FMAPR.hideExportSettings();
         FMAPR.resizeExportItemsTable();
+        $('i.yes3-fmapr-option-items-only').removeClass('yes3-action-disabled');
+        $('i.yes3-fmapr-option-settings-only').addClass('yes3-action-disabled');
     }
     else if ( yes3_dashboard_option==="settings" ){
 
         FMAPR.hideExportItems();
         FMAPR.showExportSettings();
+        $('i.yes3-fmapr-option-items-only').addClass('yes3-action-disabled');
+        $('i.yes3-fmapr-option-settings-only').removeClass('yes3-action-disabled');
     }
     
     $('div.yes3-dashboard-title').html( optionTitle[yes3_dashboard_option] );
@@ -4903,7 +4916,7 @@ FMAPR.prepareExportItemEditorForm = function()
             "mode=" + mode
         )*/
 
-        if ( FMAPR.exportItemAlreadyExists(object_type, object_name, object_event) ) {
+        if ( FMAPR.exportItemAlreadyExists(object_type, object_name, object_event, yes3_fmapr_data_element_name) ) {
 
             YES3.hello("No can do: this item is already in the export specification.");
 

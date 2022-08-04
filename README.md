@@ -5,16 +5,22 @@ Version 1.00, July 2022
 
 ## Important note about documentation
 
-The external module includes a User Guide, Technical Guide and EM Changelog. These are all available through the _YES3 Exporter Documentation_ link.
+The external module includes a User Guide, Technical Guide and EM Changelog. These are all available through the _YES3 Exporter Documentation_ link. You may also view them on GitHub by clicking the links provided below.
+
 -   **User Guide** 
      -   Purpose: How-to tutorial and information 
-     -   Audience: REDCap end-users  
- -  **Technical Guide** 
+     -   Audience: REDCap Project Designers  
+     -   [Click here to view the YES3 Exporter User Guide on GitHub](https://github.com/yale-redcap/yes3-exporter/blob/main/documents/userguide.md)
+
+-   **Technical Guide** 
      -   Purpose: Explains functionality, technical specifications about the exported data, the data dictionaries, and the software design.
      -   Audience: Analysts, Statisticians, Software Designers/Programmers  
+     -   [Click here to view the YES3 Exporter Technical Guide on GitHub](https://github.com/yale-redcap/yes3-exporter/blob/main/documents/technical.md)
+
 -   **Change Log** 
      -   Purpose: Basic information about feature updates and bug fixes
      -   Audience: REDCap System Administrators
+     -   [Click here to view the YES3 Exporter Change Log on GitHub](https://github.com/yale-redcap/yes3-exporter/blob/main/documents/changelog.md)
 
 ## Introduction and Features
 

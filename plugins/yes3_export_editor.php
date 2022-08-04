@@ -656,7 +656,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <div class="yes3-flex-vcenter-hright">
 
-            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-item-view" action="appendExportItem" title="Add an export item (form or field) to the specification."></i>
+            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view" action="appendExportItem" title="Add an export item (form or field) to the specification."></i>
             
             <!--i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-bulk-insert yes3-designer-only yes3-fmapr-settings-okay" action="openFieldInsertionForm" title="Add a form (or all forms) to the export specification."></i-->
             

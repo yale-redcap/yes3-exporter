@@ -25,9 +25,10 @@ class Yes3 {
       return "hello world!";
    }
 
-    // too bad this logic is private in ExternalModules
+    // we'll use the framework function henceforth
     public static function getREDCapProjectId()
     {
+        /*
         if (isset($_GET['pid'])) {
             return (int) $_GET['pid'];
         }
@@ -35,6 +36,9 @@ class Yes3 {
             return (int) PROJECT_ID;
         }
         return 0;
+        */
+		
+        return ExternalModules::getProjectID();
     }
 
     // the framework getDAG crashes for longitudinal studies

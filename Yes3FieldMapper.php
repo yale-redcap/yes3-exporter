@@ -47,9 +47,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         parent::__construct(); // call parent (AbstractExternalModule) constructor
 
-        if ( $_GET['pid'] ){
+        $projId = $this->getProjectId();
 
-            $this->project_id = Yes3::getREDCapProjectId();
+        if ( $projId ){
+
+            $this->project_id = $projId;
 
             $this->username = $this->getUser()->getUsername();
             $this->serviceUrl = $this->getUrl('services/services.php');
