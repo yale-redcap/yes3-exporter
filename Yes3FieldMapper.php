@@ -2389,9 +2389,13 @@ WHERE project_id=? AND log_entry_type=?
 
         $export_events = [];
 
+        $eventNum = 0;
+
         foreach( $events as $event_id => $event_name ){
 
             $strEventId = (string) $event_id;
+
+            $eventNum++;
 
             if ( $uniquePrefixLen ){
 
@@ -2399,7 +2403,8 @@ WHERE project_id=? AND log_entry_type=?
             }
             else {
 
-                $prefix = "e" . $strEventId;
+                //$prefix = "e" . $strEventId;
+                $prefix = "e" . strval($eventNum);
             }
 
             $export_events[] = ['event_id'=>$strEventId, 'event_name'=>$event_name, 'event_prefix'=>$prefix];        
