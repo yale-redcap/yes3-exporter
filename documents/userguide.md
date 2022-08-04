@@ -9,7 +9,7 @@ Version 1.00, July 2022
 
 # Introduction
 
-The YES3 Exporter external module compliments REDCap's reports and data export tool by adding functionality to support data visualization, data sharing, and integration with statistical software and datamarts.
+The YES3 Exporter external module compliments REDCap's reports and data export tool by adding functionality to support integration with statistical software and datamarts.
 
 # Features
 
