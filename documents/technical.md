@@ -1,7 +1,7 @@
 # YES3 Exporter Technical Guide
 
-YES3 Exporter version 1.0.0
-August 2022
+YES3 Exporter 
+Version 1.0.0, August 2022
 
 ## Intended Audience
 
