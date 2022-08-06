@@ -5,7 +5,7 @@
 # YES3 Exporter User Guide
 
 REDCap External Module  
-Version 1.00, July 2022
+Version 1.0.0, August 2022
 
 # Introduction
 
