@@ -3251,7 +3251,12 @@ WHERE project_id=? AND log_entry_type=?
 
         $export_logs = $this->getExportLogs("", false, $sincewhen);
 
-        if ( !$export_logs ) $export_logs = [];
+        if ( !$export_logs ) {
+            
+            $export_logs = [];
+
+            return "The daily activity log summary was NOT emailed because there was nothing to report.";
+        }
 
         $msg = '<html><body style="font-family:arial,helvetica;">';
 

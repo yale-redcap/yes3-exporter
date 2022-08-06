@@ -27,13 +27,31 @@
    </div>
 
    <div class="yes3-panel-row">
-      <div style='float:left'>
-         <input type="button" onClick="YES3.Yes();" class="yes3-panel-button yes3-button-caption-okay" />
+
+      <div class="yes3-flex-container-evenly-distributed">
+
+          <div class="yes3-flex-vcenter-hleft">
+
+          </div>
+
+          <div class="yes3-flex-vcenter-hright">
+
+              <div class="yes3-flex-container-right-aligned">
+
+                  <div class="yes3-flex-vcenter-hright">
+                      <input type="button" onClick="YES3.No();" class="yes3-panel-button yes3-button-caption-cancel" />
+                  </div>
+
+                  <div class="yes3-flex-vcenter-hright">
+                      <input type="button" onClick="YES3.Yes();" class="yes3-panel-button yes3-button-caption-proceed" />
+                  </div>
+
+              </div>
+
+          </div>
+
       </div>
-      <div style='float:right'>
-         <input type="button" onClick="YES3.No();" class="yes3-panel-button yes3-button-caption-cancel" />
-      </div>
-   </div>
+  </div>
 
 </div> <!-- YesNo -->
 

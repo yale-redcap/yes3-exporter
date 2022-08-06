@@ -10,12 +10,14 @@ let YES3 = {
 
     captions: {
         "yes" : "yes",
-        "okay" : "make it so",
+        "okay" : "okay",
+        "save" : "save",
         "done" : "done",
         "no": "no",
         "cancel": "cancel",
         "close": "close",
         "proceed": "proceed",
+        "restore": "restore",
         "wait": "PLEASE WAIT",
         "wait_loading_specifications": "PLEASE WAIT: loading all export specifications",
         "wait_loading_specification": "PLEASE WAIT: loading the export specification",
@@ -805,6 +807,8 @@ YES3.setCaptions = function()
 {
     $("input[type=button].yes3-button-caption-yes").val(YES3.captions.yes);
     $("input[type=button].yes3-button-caption-okay").val(YES3.captions.okay);
+    $("input[type=button].yes3-button-caption-restore").val(YES3.captions.restore);
+    $("input[type=button].yes3-button-caption-save").val(YES3.captions.save);
     $("input[type=button].yes3-button-caption-done").val(YES3.captions.done);
     $("input[type=button].yes3-button-caption-no").val(YES3.captions.no);
     $("input[type=button].yes3-button-caption-cancel").val(YES3.captions.cancel);

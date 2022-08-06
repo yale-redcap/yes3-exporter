@@ -513,15 +513,23 @@ div#yes3-red-pointer {
  }
 
  .yes3-flex-container-evenly-distributed {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    align-content: space-between;  
- }
- 
+   width: 100%;
+   display: flex;
+   flex-direction: row;
+   flex-wrap: nowrap;
+   justify-content: space-between;
+   align-items: center;
+   align-content: space-between;  
+}
+
+.yes3-flex-container-right-aligned {
+   width: 100%;
+   display: flex;
+   flex-direction: row-reverse;
+   flex-wrap: nowrap;
+   column-gap: 1rem;
+}
+
  .yes3-flex-container {
     width: 100%;
     display: flex !important;

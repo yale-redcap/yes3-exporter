@@ -85,11 +85,23 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="yes3-flex-container-evenly-distributed">
 
             <div class="yes3-flex-vcenter-hleft">
-                <input type="button" onClick="FMAPR.NewExport_execute();" class="yes3-panel-button yes3-button-caption-okay" />
+
             </div>
 
             <div class="yes3-flex-vcenter-hright">
-                <input type="button" onClick="FMAPR.NewExport_closePanel();" class="yes3-panel-button yes3-button-caption-cancel" />
+
+                <div class="yes3-flex-container-right-aligned">
+
+                    <div class="yes3-flex-vcenter-hright">
+                        <input type="button" onClick="FMAPR.NewExport_closePanel();" class="yes3-panel-button yes3-button-caption-cancel" />
+                    </div>
+
+                    <div class="yes3-flex-vcenter-hright">
+                        <input type="button" onClick="FMAPR.NewExport_execute();" class="yes3-panel-button yes3-button-caption-save" />
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
@@ -250,10 +262,10 @@ $module->getCodeFor("yes3_export_editor", true);
         </table>
    </div>
 
-   <!--div class='yes3-panel-row'>
-        At the end of the Export Item list is a 'NEW ITEM' form that you may use to append a single study form or field to the item list.
+   <div class='yes3-panel-row'>
+        At the end of the Export Item list is a 'QUICK ADD' form that you may use to append a single study form or field to the item list.
         It lacks the more advanced options available on the bulk insertion tool.
-   </div-->
+   </div>
 
    <div class='yes3-panel-row'>
         <span class='yes3-information-em'>Need more help?</span> 
@@ -460,16 +472,23 @@ $module->getCodeFor("yes3_export_editor", true);
    </div>
 
    <div class="yes3-panel-row yes3-duck" >
-        <select id="yes3-fmapr-wayback-select" class="yes3-select"></select>
+        <select id="yes3-fmapr-wayback-select" class="yes3-select" onchange="FMAPR.Wayback_Buttons();"></select>
    </div>
 
-   <div class="yes3-panel-row">
-      <div style='float:left'>
-         <input type="button" onClick="FMAPR.Wayback_Execute();" class="yes3-panel-button yes3-button-caption-okay" />
-      </div>
-      <div style='float:right'>
-         <input type="button" onClick="FMAPR.Wayback_closeForm();" class="yes3-panel-button yes3-button-caption-cancel" />
-      </div>
+    <div class="yes3-panel-row">
+
+        <div class="yes3-flex-container-right-aligned">
+
+            <div class="yes3-flex-vcenter-hright">
+                <input type="button" onClick="FMAPR.Wayback_closeForm();" class="yes3-panel-button yes3-button-caption-cancel" />
+            </div>
+
+            <div class="yes3-flex-vcenter-hright">
+                <input type="button" onClick="FMAPR.Wayback_Execute();" id="yes3-fmapr-wayback-restore" class="yes3-panel-button yes3-button-caption-restore" />
+            </div>
+
+        </div>
+
    </div>
 
 </div>
@@ -518,15 +537,29 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="yes3-flex-container-evenly-distributed">
 
             <div class="yes3-flex-vcenter-hleft">
-                <input type="button" onClick="FMAPR.downloadExecute();" class="yes3-panel-button yes3-button-caption-okay" />
+
             </div>
 
             <div class="yes3-flex-vcenter-hright">
-                <input type="button" onClick="FMAPR.closeDownloadForm();" class="yes3-panel-button yes3-button-caption-close" />
+
+                <div class="yes3-flex-container-right-aligned">
+
+                    <div class="yes3-flex-vcenter-hright">
+                        <input type="button" onClick="FMAPR.closeDownloadForm();" class="yes3-panel-button yes3-button-caption-close" />
+                    </div>
+
+                    <div class="yes3-flex-vcenter-hright">
+                        <input type="button" onClick="FMAPR.downloadExecute();" class="yes3-panel-button yes3-button-caption-proceed" />
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
+
     </div>
+
 </div>
 
 <!-- EXPORT ITEM EDITOR -->
@@ -599,16 +632,26 @@ $module->getCodeFor("yes3_export_editor", true);
     </div>
     <div class="yes3-flex-container-evenly-distributed">
 
-    <div class="yes3-flex-vcenter-hleft">
-            <input type="button" class="yes3-panel-button yes3-button-caption-okay yes3-save-button" />
-        </div>
+        <div class="yes3-flex-vcenter-hleft" id="yes3-fmapr-item-editor-mode">
 
-        <div class="yes3-flex-vcenter-hcenter" id="yes3-fmapr-item-editor-mode">
         </div>
 
         <div class="yes3-flex-vcenter-hright">
-            <input type="button" class="yes3-panel-button yes3-button-caption-cancel" />
+
+            <div class="yes3-flex-container-right-aligned">
+
+                <div class="yes3-flex-vcenter-hright">
+                    <input type="button" class="yes3-panel-button yes3-button-caption-cancel" />
+                </div>
+
+                <div class="yes3-flex-vcenter-hright">
+                    <input type="button" class="yes3-panel-button yes3-button-caption-save yes3-save-button" />
+                </div>
+
+            </div>
+
         </div>
+
     </div>
 
 </div>
@@ -656,7 +699,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
             <div class="yes3-flex-vcenter-hright">
 
-            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view" action="appendExportItem" title="Add an export item (form or field) to the specification."></i>
+            <i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view" action="appendExportItem" title="Append or insert one or more export item(s) (forms or fields) to the specification."></i>
             
             <!--i class="fas fa-plus-square yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-fmapr-bulk-insert yes3-designer-only yes3-fmapr-settings-okay" action="openFieldInsertionForm" title="Add a form (or all forms) to the export specification."></i-->
             

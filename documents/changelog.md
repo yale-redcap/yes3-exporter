@@ -3,6 +3,18 @@
 
 ## Version 1.0.0
 
+## Version 0.9.2
+
+August 8, 2022
+
+1. Dialog buttons rearranged to match REDCap (right justified, Save then Cancel).
+2. Rapid entry row now labeled QUICK ADD.
+3. New BULK ADD row placed below QUICK ADD; loads bulk insertion form.
+4. Weekly activity emails sent only if activity detected since last weekly roundup.
+5. Links to GitHub documents added to README so they can be reached from the REDCap EM management page.
+6. Item Editor mode text improved ("Item(s) will be inserted above selected row." etc)
+7. Default event prefix algorithm changed to produce [e1, e2, ... ek] if unique string length not determined (pattern was "e" + event_id code ).
+
 ## Version 0.9.1
 
 July 30, 2022

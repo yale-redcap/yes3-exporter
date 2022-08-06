@@ -617,7 +617,7 @@ FMAPR.addREDCapFormV2 = function( form_name, event, theRowBeforeWhich, yes3_fmap
         html += `<td class='yes3-fmapr-redcap-object-event'>${FMAPR.exportItemRowEventLabel(event)}</td>`;
     }
     html += `<td class='yes3-fmapr-redcap-object-name' title="REDcap form">${form_label}</td>`;
-    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
+    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");' title='${FMAPR.tooltips.row_trashcan}'></i></td>`;
     html += "</tr>";
 
     if ( batch ){
@@ -714,7 +714,7 @@ FMAPR.addREDCapFieldV2 = function( field_name, event, theRowBeforeWhich, yes3_fm
         html += `<td class='yes3-fmapr-redcap-object-event'>${FMAPR.exportItemRowEventLabel(event)}</td>`;
     }
     html += `<td class='yes3-fmapr-redcap-object-name' title="REDcap field">${field_name}<span class='yes3-fmapr-field-label'> - ${field_label}</span></td>`;
-    html += `<td class='yes3-gutter-right-top yes3-td-right' title='${FMAPR.tooltips.row_trashcan}'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
+    html += `<td class='yes3-gutter-right-top yes3-td-right' title='${FMAPR.tooltips.row_trashcan}'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");' title='${FMAPR.tooltips.row_trashcan}'></i></td>`;
     html += "</tr>";
 
     if ( batch ){
@@ -766,14 +766,14 @@ FMAPR.ensureNewItemRowAtEndV2 = function()
 
     html += `<td colspan="${colSpans}">`;
 
-    html += `<div class="yes3-flex-container">`;
+    html += `<div class="yes3-flex-container yes3-margin-bottom">`;
 
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
-    html += "NEW ITEM";
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
+    html += "QUICK ADD";
     html += "</div>";
 
     //html += `<td class="yes3-fmapr-redcap-object-type">`;
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
     html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
     html += `<option value="form" selected>form</option>`;
     html += `<option value="field">field</option>`;
@@ -783,7 +783,7 @@ FMAPR.ensureNewItemRowAtEndV2 = function()
 
     if (FMAPR.project.is_longitudinal  ){
         //html += `<td class="yes3-fmapr-redcap-object-event">`;
-        html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+        html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
         html += `<select name="object_event" id="yes3-fmapr-rapidentry-object-event">`;
         html += FMAPR.getAllEventOptionsHtml();
         html += `</select>`;
@@ -792,20 +792,48 @@ FMAPR.ensureNewItemRowAtEndV2 = function()
     }
 
     //html += `<td colspan="2" class="yes3-nopadding yes3-fmapr-redcap-object-name-foo">`;
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
     html += `<input type="text" name="object_name" id="yes3-fmapr-rapidentry-object-name" placeholder="start typing or spacebar for all" />`;
     html += `</div>`;
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
     html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add item" />`;
     html += `</div>`;
+   
     html += `</div>`;
+/*    
     html += `</td>`;
 
     //html += `<td class='yes3-gutter-right-top yes3-td-right'>&nbsp</td>`;
     
     html += "</tr>";
 
-    html 
+    // BULK ADD
+
+    html += `<tr class='yes3-fmapr-new-item-form'>`;
+
+    html += `<td colspan="${colSpans}">`;
+*/
+    html += `<div class="yes3-flex-container">`;
+
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+    html += "BULK ADD";
+    html += "</div>";
+
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+
+    html += `<i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view" action="appendExportItem" title="Append or insert one or more export item(s) (forms or fields) to the specification."></i>`;
+
+    html += "</div>"
+
+    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+
+    html += "Append or insert one or more export item(s) (forms or fields) to the specification."
+
+    html += "</div>"
+
+    html += `</td>`;
+    
+    html += "</tr>";
 
     fmaprBody.append(html);
 
@@ -985,7 +1013,7 @@ FMAPR.addREDCapForm = function( form_name, event, theRowBeforeWhich )
     html += `<td class='yes3-3 yes3-td-left' title="REDcap form"><span class='yes3-fmapr-redcap-element'>${yes3_fmapr_data_element_name}</span></td>`;
     html += `<td class='yes3-3 yes3-td-middle'>up to ${field_count} fields</td>`;
     html += `<td class='yes3-3 yes3-td-middle'><span class="yes3-fmapr-horizontal-only-xxx">${eventSelectHtml}</span></td>`;
-    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");'></i></td>`;
+    html += `<td class='yes3-gutter-right-top yes3-td-right'><i class='far fa-trash-alt' onclick='FMAPR.removeDataElement("${yes3_fmapr_data_element_name}");' title='${FMAPR.tooltips.row_trashcan}'></i></td>`;
     html += "</tr>";
 
     /**
@@ -1271,6 +1299,21 @@ FMAPR.Wayback_openFormCallback = function( response )
 {
     //YES3.debugMessage('Wayback_openFormCallback', response);
     $("select#yes3-fmapr-wayback-select").empty().append(response);
+
+    FMAPR.Wayback_Buttons();
+}
+
+FMAPR.Wayback_Buttons = function(){
+
+    let log_id = $("select#yes3-fmapr-wayback-select").val();
+    if ( !log_id ){
+
+        $("input#yes3-fmapr-wayback-restore").css('visibility', 'hidden');
+    }
+    else {
+
+        $("input#yes3-fmapr-wayback-restore").css('visibility', 'visible');
+    }
 }
 
 FMAPR.Wayback_Execute = function()
@@ -4792,11 +4835,27 @@ FMAPR.resetExportItemEditors = function(mode, yes3_fmapr_data_element_name)
     
     let ed = FMAPR.getExportItemEditor();
 
+    let mode_message = "";
+
     ed.find("input[type='text'], input[type='hidden'], select").val("");
     ed.find("input[type=radio]").prop("checked", false);
     ed.find("input[name=mode]").val(mode);
-    ed.find("div#yes3-fmapr-item-editor-mode").html(mode);
     ed.find(".yes3-save-button").css("visibility", "hidden");
+
+    if ( mode === "edit" ){
+
+        mode_message = "Editing the selected item.";
+    }
+    else if ( mode === "append" ){
+
+        mode_message = "Items(s) will be appended to the export.";
+    }
+    else if ( mode === "insert" ){
+
+        mode_message = "Items(s) will be inserted above the selected row.";
+    }
+
+    ed.find("div#yes3-fmapr-item-editor-mode").html(mode_message);
 
     let red = FMAPR.getExportRapidEntryEditor();
     red.find("input[name=object_name]").val("");
@@ -4882,7 +4941,7 @@ FMAPR.prepareExportItemEditorForm = function()
 
     // save button
 
-    theForm.find("input[type='button'].yes3-button-caption-okay").on("click", function(){
+    theForm.find("input[type='button'].yes3-button-caption-save").on("click", function(){
 
         let theForm = FMAPR.getExportItemEditor();
 

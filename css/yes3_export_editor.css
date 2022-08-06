@@ -367,7 +367,7 @@ tr#yes3-fmapr-rapidentry-row td {
     padding-bottom: 0;
     padding-left: 0;
     border: 0;
-    height: 200px !important;
+    /* height: 200px !important; */
     vertical-align: top !important;
 }
 
