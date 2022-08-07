@@ -415,6 +415,10 @@ i.yes3-action-icon-inline {
     margin: 0 !important;
 }
 
+.yes3-wrap {
+   white-space: break-spaces !important;
+}
+
 .yes3-nomargin {
    margin: 0!important;
 }

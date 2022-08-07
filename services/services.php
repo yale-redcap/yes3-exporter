@@ -334,6 +334,7 @@ function getExportLogRecordSQL( $log_id=0 )
     , p7.`value` AS `exported_items`
     , p8.`value` AS `exported_rows`
     , p9.`value` AS `exported_columns`
+    , p10.`value` AS `export_specification`
     FROM redcap_external_modules_log x
     INNER JOIN redcap_external_modules_log_parameters p0 ON p0.log_id=x.log_id AND p0.name='export_name'
     INNER JOIN redcap_external_modules_log_parameters p1 ON p1.log_id=x.log_id AND p1.name='log_entry_type'
@@ -345,6 +346,7 @@ function getExportLogRecordSQL( $log_id=0 )
     LEFT  JOIN redcap_external_modules_log_parameters p7 ON p7.log_id=x.log_id AND p7.name='exported_items'
     LEFT  JOIN redcap_external_modules_log_parameters p8 ON p8.log_id=x.log_id AND p8.name='exported_rows'
     LEFT  JOIN redcap_external_modules_log_parameters p9 ON p9.log_id=x.log_id AND p9.name='exported_columns'
+    LEFT  JOIN redcap_external_modules_log_parameters p10 ON p10.log_id=x.log_id AND p10.name='export_specification'
     LEFT  JOIN redcap_user_information ui ON ui.ui_id=x.ui_id
     ";
 

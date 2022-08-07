@@ -765,60 +765,71 @@ FMAPR.ensureNewItemRowAtEndV2 = function()
 
     html += `<td colspan="${colSpans}">`;
 
-    // ITEM ADD
+    if ( FMAPR.everythingIsAdded() ){
 
-    html += `<div class="yes3-flex-container-left-aligned yes3-margin-top">`;
+        FMAPR.disableIconsWhenEverythingAdded();
 
-    html += `<div class="yes3-flex-vcenter-hleft">`;
-    html += "ADD SINGLE FORM OR FIELD:";
-    html += "</div>";
+        html += `<div class="yes3-flex-container-left-aligned yes3-margin-top yes3-wrap">`;
+        html += "Note: since all forms and events are already specified for this export, additional items cannot be added. The 'all forms' item must be deleted if you would like to add specific forms or fields.";
+        html += "</div>";
+    } 
+    else {
 
-    html += `<div class="yes3-flex-vcenter-hleft">`;
-    html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
-    html += `<option value="form" selected>form</option>`;
-    html += `<option value="field">field</option>`;
-    html += `</select>`;
-    html += `</div>`;
+        // ITEM ADD
 
-    if (FMAPR.project.is_longitudinal  ){
+        html += `<div class="yes3-flex-container-left-aligned yes3-margin-top">`;
+
         html += `<div class="yes3-flex-vcenter-hleft">`;
-        html += `<select name="object_event" id="yes3-fmapr-rapidentry-object-event">`;
-        html += FMAPR.getAllEventOptionsHtml();
+        html += "ADD SINGLE FORM OR FIELD:";
+        html += "</div>";
+
+        html += `<div class="yes3-flex-vcenter-hleft">`;
+        html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
+        html += `<option value="form" selected>form</option>`;
+        html += `<option value="field">field</option>`;
         html += `</select>`;
         html += `</div>`;
-    }
 
-    html += `<div class="yes3-flex-vcenter-hleft">`;
-    html += `<input type="text" name="object_name" id="yes3-fmapr-rapidentry-object-name" placeholder="start typing or spacebar for all" />`;
-    html += `</div>`;
-
-    html += `<div class="yes3-flex-vcenter-hleft">`;
-    html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add single item" />`;
-    html += `</div>`;
-   
-    html += `</div>`;
-
-    // BULK ADD
-
-    html += `<div class="yes3-flex-container-left-aligned yes3-margin-top">`;
-
-    html += `<div class="yes3-flex-vcenter-hleft">`;
-    html += "BULK ADD:";
-    html += "</div>";
-
-    html += `<div class="yes3-flex-vcenter-hleft">`;
-
-    html += `<i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view yes3-nomargin" action="appendExportItem" title="Append or insert one or more export item(s) (forms or fields) to the specification."></i>&nbsp;Add one or more forms or fields to the export`;
-
-    html += "</div>"
-
-    if ( FMAPR.export_specification.export_layout !== "r" ) {
-
-        let bText = ( FMAPR.project.is_longitudinal ) ? "add all forms and events" : "add all forms";
+        if (FMAPR.project.is_longitudinal  ){
+            html += `<div class="yes3-flex-vcenter-hleft">`;
+            html += `<select name="object_event" id="yes3-fmapr-rapidentry-object-event">`;
+            html += FMAPR.getAllEventOptionsHtml();
+            html += `</select>`;
+            html += `</div>`;
+        }
 
         html += `<div class="yes3-flex-vcenter-hleft">`;
-        html += `OR:&nbsp;&nbsp;<input type="button" id="yes3-fmapr-rapidentry-object-add-everything" value="${bText}" />`;
+        html += `<input type="text" name="object_name" id="yes3-fmapr-rapidentry-object-name" placeholder="start typing or spacebar for all" />`;
         html += `</div>`;
+
+        html += `<div class="yes3-flex-vcenter-hleft">`;
+        html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add single item" />`;
+        html += `</div>`;
+    
+        html += `</div>`;
+
+        // BULK ADD
+
+        html += `<div class="yes3-flex-container-left-aligned yes3-margin-top">`;
+
+        html += `<div class="yes3-flex-vcenter-hleft">`;
+        html += "BULK ADD:";
+        html += "</div>";
+
+        html += `<div class="yes3-flex-vcenter-hleft">`;
+
+        html += `<i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view yes3-nomargin" action="appendExportItem" title="Append or insert one or more export item(s) (forms or fields) to the specification."></i>&nbsp;Add one or more forms or fields to the export`;
+
+        html += "</div>"
+
+        if ( FMAPR.export_specification.export_layout !== "r" ) {
+
+            let bText = ( FMAPR.project.is_longitudinal ) ? "add all forms and events" : "add all forms";
+
+            html += `<div class="yes3-flex-vcenter-hleft">`;
+            html += `OR:&nbsp;&nbsp;<input type="button" id="yes3-fmapr-rapidentry-object-add-everything" value="${bText}" />`;
+            html += `</div>`;
+        }
     }
 
     html += `</td>`;
@@ -964,6 +975,26 @@ FMAPR.addRapidEntryItem = function( object_type, object_name, object_event){
     YES3.notBusy();
 }
 
+FMAPR.everythingIsAdded = function(){
+
+    let itemRows = FMAPR.getExportItemRows();
+
+    if ( itemRows.length !== 1 ) return false;
+
+    let theItemRow = itemRows.eq(0);
+
+    let object_type = theItemRow.data('object_type');
+    let object_name = theItemRow.data('object_name');
+    let object_event = ALL_OF_THEM;
+
+    if ( FMAPR.project.is_longitudinal ){
+
+        object_event = theItemRow.data('object_event');
+    }
+
+    return ( object_type==="form" && object_name===ALL_OF_THEM && object_event===ALL_OF_THEM ) ? true : false;
+}
+
 FMAPR.addEverything = function()
 {
     let K = FMAPR.getExportItemRowCount() || 0;
@@ -985,6 +1016,7 @@ FMAPR.addEverything_Yes = function()
 {
     FMAPR.getExportItemRows().remove();
     FMAPR.addRapidEntryItem("form", ALL_OF_THEM, ALL_OF_THEM);
+    FMAPR.ensureNewItemRowAtEndV2(); // to ensure the rapid entry form is suppressed
 }
 
 FMAPR.getNewFieldRow = function()
@@ -2091,7 +2123,7 @@ FMAPR.getFormAutoCompleteSource = function(event)
 
              FMAPR.markAsDirty();
  
-             FMAPR.setLovTogglePriorities(yes3_fmapr_data_element_name);
+             FMAPR.setLovTogglePriorgetExportItemRowsities(yes3_fmapr_data_element_name);
           }
  
           //YES3.debugMessage('LovInputListener', yes3_fmapr_data_element_name, value );
@@ -4418,6 +4450,8 @@ FMAPR.dashboardOptionHandler = function()
         YES3.displayActionIcons();
         FMAPR.displayActionIcons();
     }
+
+    FMAPR.disableIconsWhenEverythingAdded();
 }
 
 FMAPR.showDashboardHead = function() {
@@ -4550,8 +4584,19 @@ FMAPR.displayActionIcons = function()
         $('i.yes3-export-to-host-filesystem-enabled:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
+    // squelch any controls not allowed when all items already selected
+    FMAPR.disableIconsWhenEverythingAdded();
+
     // make sure disabled icons are unbound
     YES3.setActionIconListeners( YES3.container() );
+}
+
+FMAPR.disableIconsWhenEverythingAdded = function() {
+
+    if ( FMAPR.everythingIsAdded() ){
+
+        $('i.yes3-fmapr-not-everything').addClass('yes3-action-disabled');
+    }
 }
 
 FMAPR.someBadSettings = function()
@@ -4787,11 +4832,11 @@ FMAPR.populateExportItemsTable = function( specification )
 
     FMAPR.renumberRows();
 
-    FMAPR.ensureNewItemRowAtEndV2();
-
     YES3.displayActionIcons();
 
     FMAPR.displayActionIcons();
+
+    FMAPR.ensureNewItemRowAtEndV2();
 
     return true;
 }
@@ -5017,6 +5062,12 @@ FMAPR.prepareExportItemEditorForm = function()
         }
 
         FMAPR.closeItemEditorForm();
+
+        if ( insert_as==="item" && object_type==="form" && object_name===ALL_OF_THEM && (!FMAPR.project.is_longitudinal || object_event===ALL_OF_THEM) ){
+
+            FMAPR.addEverything();
+            return true;
+        }
 
         YES3.isBusy("Please wait.. processing your request.");
 

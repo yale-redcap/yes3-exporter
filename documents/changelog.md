@@ -11,6 +11,9 @@ August 10, 2022
 2. An "add all forms and events" option added to the BULK ADD form.
 3. Bug fix: Wayback had displayed the "save" button even when no backup selected.
 4. The number of records downloaded is reported after a data download. Requires cookies to be enabled.
+5. Export specification included in log records for "export files written" entries. Log browser updated to include a specification inspection.
+6. Export log browser scrolls to the end of the list when opened.
+7. DAG logic in record selection queries improved
 
 ## Version 0.9.2
 

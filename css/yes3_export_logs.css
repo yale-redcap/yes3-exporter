@@ -36,3 +36,32 @@ table#yes3-fmapr-export-log-table {
     align-items: center;
     margin-left: 1em;    
 }
+
+.yes3-fmapr-value-cell {
+
+    color: var(--yes3-input-color) !important;
+}
+
+table.yes3-fmapr-inspector-table tr:not(#yes3-export-specification) td {
+
+    vertical-align: top !important;
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+tr#yes3-export-specification td {
+
+    vertical-align: middle;
+    white-space: nowrap;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+div#yes3-specification-inspector div.yes3-panel-content {
+
+    max-height: 600px;
+    overflow-y: auto;
+}

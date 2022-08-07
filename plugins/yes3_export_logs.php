@@ -54,14 +54,14 @@ $module->getCodeFor("yes3_export_logs", true);
       </div>
 
       <div class="yes3-panel-row-right">
-         <a href="javascript: YES3.closePanel('yes3-record-inspector')"><i class="fas fa-times fa-2x"></i></a>
+         <a href="javascript: FMAPR.closeInspectionPanels();"><i class="fas fa-times fa-2x"></i></a>
       </div>
 
    </div>
 
-<div class='yes3-panel-row' id='yes3-record-content'>
+    <div class='yes3-panel-row' id='yes3-record-content'>
 
-        <table id="yes3-export-record">
+        <table id="yes3-export-record" class="yes3-fmapr-inspector-table">
                     
             <tr id="yes3-export-log_id"><td>Log ID</td><td></td></tr>
             
@@ -92,11 +92,35 @@ $module->getCodeFor("yes3_export_logs", true);
             <tr id="yes3-export-exported_rows"><td>Rows</td><td></td></tr>
                 
             <tr id="yes3-export-exported_columns"><td>Columns</td><td></td></tr>
+                
+            <tr id="yes3-export-specification"><td>Export specification</td><td><input type="button" value="inspect" onclick="FMAPR.inspectExportSpecification();" /></td></tr>
 
         </table>
     </div>
+</div>
+
+<!-- EXPORT SPECIFICATION INSPECTOR -->
+
+<div class="yes3-panel yes3-draggable" id="yes3-specification-inspector">
+
+   <div class="yes3-panel-header-row">
+
+      <div class="yes3-panel-row-left">
+         YES3 Export Specification
+      </div>
+
+      <div class="yes3-panel-row-right">
+         <a href="javascript: YES3.closePanel('yes3-specification-inspector')"><i class="fas fa-times fa-2x"></i></a>
+      </div>
+
+   </div>
+
+   <div class='yes3-panel-row yes3-panel-content'>
+
+   </div>
 
 </div>
+
 
 <div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
 

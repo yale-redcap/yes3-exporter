@@ -153,18 +153,25 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         /**
          * Export specification (assoc array):
          * 
-         *      export_uuid,
-         *      export_name,
-         *      export_layout,
-         *      export_selection,
-         *      export_criterion_field,
-         *      export_criterion_event,
-         *      export_criterion_value,
-         *      export_target,
-         *      export_max_label_length,
-         *      export_max_text_length,
-         *      export_inoffensive_text,
-         *      export_uspec_json, 
+         *      export_uuid
+         *      export_name
+         *      export_username
+         *      export_layout
+         *      export_selection
+         *      export_criterion_field
+         *      export_criterion_event
+         *      export_criterion_value
+         *      export_target
+         *      export_max_label_length
+         *      export_max_text_length
+         *      export_inoffensive_text
+         *      export_remove_phi
+         *      export_remove_freetext
+         *      export_remove_largetext
+         *      export_remove_dates
+         *      export_shift_dates
+         *      export_hash_recordid
+         *      export_uspec_json
          *      export_items_json
          *      removed
          *      
@@ -407,6 +414,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         //return print_r($dd, true);
         //return "";
 
+        /**
+         * Goal: reduce this down to 3 props: export_specification, export_data_dictionary, fields_rejected
+         */
+
         return [
             'export_uuid' => $export_uuid,
             'export_name' => $export->export_name,
@@ -424,6 +435,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'export_shift_dates' => $export->export_shift_dates,
             'export_group_id' => $allowed['group_id'],
             'export_event_list' => $export->export_event_list,
+            'export_specification' => $export_specification,
             'export_data_dictionary' => $dd,
             'export_fields_rejected' => $fields_rejected
         ];
@@ -689,6 +701,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $dd = $ddPackage['export_data_dictionary'];
 
+        $export_specification = $ddPackage['export_specification'];
+
         if ( !$export_target_folder || $destination==="download" ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
@@ -924,10 +938,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $sql = "
                 SELECT DISTINCT d.`record`
                 FROM redcap_data d
-                INNER JOIN redcap_data dg ON dg.`project_id`=d.`project_id` AND dg.`event_id`=d.`event_id` AND dg.`record`=d.`record` AND dg.`field_name`='__GROUPID__'
-                WHERE d.`project_id`=? AND dg.`value`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}";
-
-                $sqlParams = array_merge([ $this->project_id, $export_group_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
+                WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}
+                AND d.`record` IN(SELECT DISTINCT dg.`record` FROM redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?)
+                ";
+                $sqlParams = array_merge([ $this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams, [$this->project_id, $export_group_id]);
             }
             else {
 
@@ -943,20 +957,13 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             if ( $export_group_id ){
 
-                $sql = "       
-                SELECT DISTINCT d.`record`
-                FROM redcap_data d
-                INNER JOIN redcap_data dg ON dg.`project_id`=d.`project_id` AND dg.`event_id`=d.`event_id` AND dg.`record`=d.`record` AND dg.`field_name`='__GROUPID__'
-                WHERE d.`project_id`=? AND dg.`value`=?";
+                $sql = "SELECT DISTINCT dg.`record` FROM redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?";
 
                 $sqlParams = [ $this->project_id, $export_group_id ];
             }
             else {
 
-                $sql = "       
-                SELECT DISTINCT d.`record`
-                FROM redcap_data d
-                WHERE d.`project_id`=?";
+                $sql = "SELECT DISTINCT d.`record` FROM redcap_data d WHERE d.`project_id`=?";
 
                 $sqlParams = [ $this->project_id ];                
             }
@@ -970,7 +977,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         //Yes3::logDebugMessage($this->getProjectId(), $sql, "writeExportFiles: CritX SQL");
         //Yes3::logDebugMessage($this->getProjectId(), implode(",", $sqlParams), "writeExportFiles: CritX Params");
-        //Yes3::logDebugMessage($this->getProjectId(), print_r($critXFieldMetadata, true), "writeExportFiles: CritX Metadata");
 
         $records = [];
         $all_numeric = true;
@@ -1085,10 +1091,17 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $bytesWritten,
             $K,
             $R,
-            $C
+            $C,
+            $export_specification
         );
 
-        $this->setExportCookie( $export_uuid, $export_name, $R );
+        /**
+         * the results of a download are communicated to the browser by way of a cookie
+         */
+        if ( $destination==="download") {
+
+            $this->setExportCookie( $export_uuid, $export_name, $R );
+        }
 
         return [
             'export_data_message' => "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.",
@@ -1116,10 +1129,63 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         setcookie($cookie_name, $value, $expires);
     }
 
-    private function logExport($message, $destination, $export_uuid, $export_name, $filename_data, $filename_data_dictionary, $filename_zip, $bytes, $items, $rows, $columns)
+    private function logExport(
+        $message, 
+        $destination, 
+        $export_uuid, 
+        $export_name, 
+        $filename_data, 
+        $filename_data_dictionary, 
+        $filename_zip, 
+        $bytes, 
+        $items, 
+        $rows, 
+        $columns,
+        $export_specification = []
+        )
     {
+
+        // uspec is deprecated, will be replaced by crosswalk
+        if ( isset($export_specification['export_uspec_json']) ){
+
+            unset( $export_specification['export_uspec_json'] );
+        }
+
+        /**
+         * Pull out just the basics from the specification items. This structure is a mess...
+         */
+
+        $xitems = [];
+
+        if ( isset($export_specification['export_items_json']) ){
+
+            if ( Yes3::is_json_decodable($export_specification['export_items_json']) ){
+
+                $export_spec_items = json_decode( $export_specification['export_items_json'], true );
+
+                foreach ( $export_spec_items as $export_spec_item ){
+
+                    // this is the structure we are working toward
+                    $xitems[] = [
+                        'redcap_object_type' => $export_spec_item['redcap_object_type'],
+                        'redcap_object_name' => ( $export_spec_item['redcap_object_type'] === "form" ) ? $export_spec_item['redcap_form_name'] : $export_spec_item['redcap_field_name'],
+                        'redcap_object_event_id' => $export_spec_item['redcap_event_id'],
+                        'redcap_object_event_name' => $this->getEventNameForEventId($export_spec_item['redcap_event_id'])
+                    ];
+                }
+            }
+
+            unset($export_specification['export_items_json']);
+        }
+
+        $export_specification['export_items'] = $xitems;
+
+        $uRights = $this->yes3UserRights();
+
         $params = [
             'username' => $this->username,
+            'user_designer' => $uRights['isDesigner'],
+            'user_dag' => $uRights['dag'],
             'log_entry_type' => EMLOG_TYPE_EXPORT_LOG_ENTRY,
             'destination' => $destination,
             'export_uuid' => $export_uuid,
@@ -1130,7 +1196,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'exported_bytes' => $bytes,
             'exported_items' => $items,
             'exported_rows' => $rows,
-            'exported_columns' => $columns
+            'exported_columns' => $columns,
+            'export_specification' => json_encode( $export_specification )
         ];
 
         $log_id = $this->log(
@@ -1147,7 +1214,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 SELECT project_id, log_id, timestamp, username, message
     , log_entry_type, destination, export_uuid, export_name
     , filename_data, filename_data_dictionary, filename_zip 
-    , exported_bytes, exported_items, exported_rows, exported_columns
+    , exported_bytes, exported_items, exported_rows, exported_columns, export_specification
 WHERE project_id=? AND log_entry_type=?
         ";
 
@@ -2582,6 +2649,19 @@ WHERE project_id=? AND log_entry_type=?
             'form_index'=>$form_index, 
             'form_metadata'=>$form_metadata
         ];
+    }
+
+    function getEventNameForEventId( $event_id )
+    {
+        if ( !REDCap::isLongitudinal() ) return "n/a";
+
+        if ( !$event_id ) return "";
+
+        if ( $event_id === ALL_OF_THEM ) return "all events";
+
+        $event_id = intval($event_id); if ( !$event_id ) return "";
+
+        return REDCap::getEventNames(true, true, $event_id);
     }
 
     private function getFormDataEntryFieldMetadata($form_name)

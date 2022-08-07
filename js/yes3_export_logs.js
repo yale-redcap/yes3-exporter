@@ -1,5 +1,7 @@
 FMAPR.useYes3Functions = true; // override FMAPR function if function of same name exists in YES3 namespace
 
+FMAPR.export_specification = {};
+
 /**
  * defined in YES3 namespace because handled by YES action icon listener
  */
@@ -139,9 +141,12 @@ FMAPR.inspectLogRecord = function(log_id)
 
 FMAPR.inspectLogRecordCallback = function( response )
 {
-    //YES3.debugMessage("inspectLogRecordCallback", response);
+    //console.log( 'inspectLogRecordCallback', response );
+    //console.log( 'typeof', typeof response['export_specification'] );
 
     let tr = {};
+
+    FMAPR.export_specification = {};
 
     $("table#yes3-export-record tr").hide();
 
@@ -157,14 +162,103 @@ FMAPR.inspectLogRecordCallback = function( response )
                 })
                 .html( escapeHTML( ''+response[item] ) );
         }
-
-        //YES3.debugMessage(item, response[item]);
     }
 
+    if ( response['export_specification'] 
+        && response['export_specification'].length
+        && response['export_specification'].length > 2 ){
+
+        try {
+
+            FMAPR.export_specification = JSON.parse( response['export_specification'] );
+
+            if ( !YES3.isEmptyObject(FMAPR.export_specification) ){
+
+                $("tr#yes3-export-specification").show();
+            }
+    
+        } catch (e) {
+    
+            FMAPR.export_specification = {};
+        }
+    }
 
     YES3.openPanel("yes3-record-inspector");
 }
 
+FMAPR.closeInspectionPanels = function(){
+
+    YES3.closePanel('yes3-record-inspector');
+    YES3.closePanel('yes3-specification-inspector');
+}
+
+FMAPR.inspectExportSpecification = function(){
+
+    const panelContent = $('div#yes3-specification-inspector div.yes3-panel-content');
+
+    let html = "<table class='yes3-fmapr-inspector-table'><tbody>";
+
+    let itemHtml = "";
+
+    for (const item in FMAPR.export_specification){
+
+        html += `<tr>`;
+
+        html += `<td>${item}</td>`;
+
+        if ( item === "export_items" ){
+
+            itemHtml = FMAPR.inspectExportSpecificationItemsHtml(FMAPR.export_specification[item]);
+        } 
+        else {
+
+            itemHtml = FMAPR.export_specification[item];
+        }
+
+        html += `<td class='yes3-fmapr-value-cell'>${itemHtml}</td>`;
+
+        html += `</tr>`;
+    }
+
+    html += "</tbody></table>";
+
+    panelContent.html( html );
+
+    YES3.openPanel('yes3-specification-inspector');
+
+    let pWidth = $("div#yes3-specification-inspector").outerWidth();
+    let cWidth = $("div#yes3-container").innerWidth();
+
+    if ( pWidth >= cWidth ){
+
+        $("div#yes3-specification-inspector").css("width", cWidth);
+    }
+    
+}
+
+FMAPR.inspectExportSpecificationItemsHtml = function(items){
+
+    let html = "";
+
+    //console.log('items', items);
+
+    if ( YES3.isEmptyObject(items) ) return "";
+
+    html = "<table><tbody>";
+
+    for (let i=0; i<items.length; i++){
+
+        html += "<tr>";
+        html += `<td class="yes3-fmapr-value-cell">${items[i].redcap_object_type}</td>`;
+        html += `<td class="yes3-fmapr-value-cell">${items[i].redcap_object_name}</td>`;
+        html += `<td class="yes3-fmapr-value-cell">${items[i].redcap_object_event_name}</td>`;
+        html += "</tr>";
+    }
+
+    html += "</tbody></table>";
+
+    return html;
+}
 
 FMAPR.resizeExportLogTable = function()
 {
@@ -222,6 +316,8 @@ FMAPR.resizeExportLogTable = function()
     fmaprTable.find('.yes3-cw35').css({'width': cw35+'px', 'max-width': cw35+'px'});
     fmaprTable.find('.yes3-cw40').css({'width': cw40+'px', 'max-width': cw40+'px'});
     fmaprTable.find('.yes3-cw50').css({'width': cw50+'px', 'max-width': cw50+'px'});
+
+    fmaprTableBody.scrollTop(fmaprTableBody.prop('scrollHeight') - fmaprTableBody.height());
 }
 
 FMAPR.getExportUUID = function()

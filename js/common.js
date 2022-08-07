@@ -183,6 +183,8 @@ FMAPR.displayActionIconsAndInputs = function()
         }
     }
 
+    FMAPR.disableIconsWhenEverythingAdded();
+
     YES3.setActionIconListeners( YES3.container() );
 }
 
