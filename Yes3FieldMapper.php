@@ -1144,46 +1144,48 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_specification = []
         )
     {
-
-        // uspec is deprecated, will be replaced by crosswalk
-        if ( isset($export_specification['export_uspec_json']) ){
-
-            unset( $export_specification['export_uspec_json'] );
-        }
-
         /**
          * Pull out just the basics from the specification items. This structure is a mess...
          */
 
-        $xitems = [];
+        if ( $export_specification ){
 
-        if ( isset($export_specification['export_items_json']) ){
+            // uspec is deprecated, will be replaced by crosswalk
+            if ( isset($export_specification['export_uspec_json']) ){
 
-            if ( Yes3::is_json_decodable($export_specification['export_items_json']) ){
-
-                $export_spec_items = json_decode( $export_specification['export_items_json'], true );
-
-                foreach ( $export_spec_items as $export_spec_item ){
-
-                    // this is the structure we are working toward
-                    $xitems[] = [
-                        'redcap_object_type' => $export_spec_item['redcap_object_type'],
-                        'redcap_object_name' => ( $export_spec_item['redcap_object_type'] === "form" ) ? $export_spec_item['redcap_form_name'] : $export_spec_item['redcap_field_name'],
-                        'redcap_object_event_id' => $export_spec_item['redcap_event_id'],
-                        'redcap_object_event_name' => $this->getEventNameForEventId($export_spec_item['redcap_event_id'])
-                    ];
-                }
+                unset( $export_specification['export_uspec_json'] );
             }
 
-            unset($export_specification['export_items_json']);
-        }
+            $xitems = [];
 
-        $export_specification['export_items'] = $xitems;
+            if ( isset($export_specification['export_items_json']) ){
+
+                if ( Yes3::is_json_decodable($export_specification['export_items_json']) ){
+
+                    $export_spec_items = json_decode( $export_specification['export_items_json'], true );
+
+                    foreach ( $export_spec_items as $export_spec_item ){
+
+                        // this is the structure we are working toward
+                        $xitems[] = [
+                            'redcap_object_type' => $export_spec_item['redcap_object_type'],
+                            'redcap_object_name' => ( $export_spec_item['redcap_object_type'] === "form" ) ? $export_spec_item['redcap_form_name'] : $export_spec_item['redcap_field_name'],
+                            'redcap_object_event_id' => $export_spec_item['redcap_event_id'],
+                            'redcap_object_event_name' => $this->getEventNameForEventId($export_spec_item['redcap_event_id'])
+                        ];
+                    }
+                }
+
+                $export_specification['export_items'] = $xitems;
+
+                unset($export_specification['export_items_json']);
+            }
+        }
 
         $uRights = $this->yes3UserRights();
 
         $params = [
-            'username' => $this->username,
+            'user_name' => $uRights['username'],
             'user_designer' => $uRights['isDesigner'],
             'user_dag' => $uRights['dag'],
             'log_entry_type' => EMLOG_TYPE_EXPORT_LOG_ENTRY,

@@ -322,8 +322,15 @@ function getExportLogRecordSQL( $log_id=0 )
     $sql = "
     SELECT x.project_id, x.log_id
     , x.`timestamp`
-    , ui.username
+    , x.`ui_id`
     , x.`message`
+
+    , ui.`username`
+
+    , u1.`value` AS `user_name`
+    , u2.`value` AS `user_dag`
+    , u3.`value` AS `user_designer`
+
     , p0.`value` AS `export_name`
     , p1.`value` AS `log_entry_type`
     , p2.`value` AS `export_uuid`
@@ -335,10 +342,16 @@ function getExportLogRecordSQL( $log_id=0 )
     , p8.`value` AS `exported_rows`
     , p9.`value` AS `exported_columns`
     , p10.`value` AS `export_specification`
+
     FROM redcap_external_modules_log x
     INNER JOIN redcap_external_modules_log_parameters p0 ON p0.log_id=x.log_id AND p0.name='export_name'
     INNER JOIN redcap_external_modules_log_parameters p1 ON p1.log_id=x.log_id AND p1.name='log_entry_type'
     INNER JOIN redcap_external_modules_log_parameters p2 ON p2.log_id=x.log_id AND p2.name='export_uuid'
+
+    LEFT  JOIN redcap_external_modules_log_parameters u1 ON u1.log_id=x.log_id AND u1.name='user_name'
+    LEFT  JOIN redcap_external_modules_log_parameters u2 ON u2.log_id=x.log_id AND u2.name='user_dag'
+    LEFT  JOIN redcap_external_modules_log_parameters u3 ON u3.log_id=x.log_id AND u3.name='user_designer'
+   
     LEFT  JOIN redcap_external_modules_log_parameters p3 ON p3.log_id=x.log_id AND p3.name='destination'
     LEFT  JOIN redcap_external_modules_log_parameters p4 ON p4.log_id=x.log_id AND p4.name='filename_data'
     LEFT  JOIN redcap_external_modules_log_parameters p5 ON p5.log_id=x.log_id AND p5.name='filename_data_dictionary'
@@ -347,6 +360,7 @@ function getExportLogRecordSQL( $log_id=0 )
     LEFT  JOIN redcap_external_modules_log_parameters p8 ON p8.log_id=x.log_id AND p8.name='exported_rows'
     LEFT  JOIN redcap_external_modules_log_parameters p9 ON p9.log_id=x.log_id AND p9.name='exported_columns'
     LEFT  JOIN redcap_external_modules_log_parameters p10 ON p10.log_id=x.log_id AND p10.name='export_specification'
+
     LEFT  JOIN redcap_user_information ui ON ui.ui_id=x.ui_id
     ";
 

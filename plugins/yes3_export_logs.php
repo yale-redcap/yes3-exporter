@@ -75,6 +75,8 @@ $module->getCodeFor("yes3_export_logs", true);
                 
             <tr id="yes3-export-username"><td>User</td><td></td></tr>
                 
+            <tr id="yes3-export-user_dag"><td>DAG</td><td></td></tr>
+                
             <tr id="yes3-export-message"><td>Message</td><td></td></tr>
                 
             <tr id="yes3-export-destination"><td>Destination</td><td></td></tr>
