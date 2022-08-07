@@ -402,7 +402,7 @@ tr#yes3-fmapr-rapidentry-row input#yes3-fmapr-rapidentry-object-name {
     padding: calc( var(--yes3-padding) + 1px) !important;
 }
 
-tr#yes3-fmapr-rapidentry-row input#yes3-fmapr-rapidentry-object-add {
+tr#yes3-fmapr-rapidentry-row input[type=button] {
     /*
     width: 100px;
     */
@@ -419,7 +419,7 @@ tr#yes3-fmapr-rapidentry-row input#yes3-fmapr-rapidentry-object-add {
     border-radius: 1.25em;
 }
 
-tr#yes3-fmapr-rapidentry-row input#yes3-fmapr-rapidentry-object-add:hover {
+tr#yes3-fmapr-rapidentry-row input[type=button]:hover {
     border: 1px solid var(--yes3-fmapr-control-color) !important;
     color: var(--yes3-fmapr-control-background-color) !important;
     background-color: var(--yes3-fmapr-control-color) !important;

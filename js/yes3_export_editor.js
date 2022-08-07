@@ -762,74 +762,64 @@ FMAPR.ensureNewItemRowAtEndV2 = function()
     let colSpans = ( FMAPR.project.is_longitudinal ) ? 6 : 5;
 
     let html = `<tr class='yes3-fmapr-new-item-form' id="${FMAPR.rapidEntryFormRowId}">`;
-    //html += `<td colspan="2" class="yes3-fmapr-rapidentry-stub">NEW ITEM</td>`;
 
     html += `<td colspan="${colSpans}">`;
 
-    html += `<div class="yes3-flex-container yes3-margin-bottom">`;
+    // ITEM ADD
 
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
-    html += "QUICK ADD";
+    html += `<div class="yes3-flex-container-left-aligned yes3-margin-top">`;
+
+    html += `<div class="yes3-flex-vcenter-hleft">`;
+    html += "ADD SINGLE FORM OR FIELD:";
     html += "</div>";
 
-    //html += `<td class="yes3-fmapr-redcap-object-type">`;
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
+    html += `<div class="yes3-flex-vcenter-hleft">`;
     html += `<select name="object_type" id="yes3-fmapr-rapidentry-object-type">`;
     html += `<option value="form" selected>form</option>`;
     html += `<option value="field">field</option>`;
     html += `</select>`;
     html += `</div>`;
-    //html += `</td>`;
 
     if (FMAPR.project.is_longitudinal  ){
-        //html += `<td class="yes3-fmapr-redcap-object-event">`;
-        html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
+        html += `<div class="yes3-flex-vcenter-hleft">`;
         html += `<select name="object_event" id="yes3-fmapr-rapidentry-object-event">`;
         html += FMAPR.getAllEventOptionsHtml();
         html += `</select>`;
         html += `</div>`;
-        //html += `</td>`;
     }
 
-    //html += `<td colspan="2" class="yes3-nopadding yes3-fmapr-redcap-object-name-foo">`;
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
+    html += `<div class="yes3-flex-vcenter-hleft">`;
     html += `<input type="text" name="object_name" id="yes3-fmapr-rapidentry-object-name" placeholder="start typing or spacebar for all" />`;
     html += `</div>`;
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right">`;
-    html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add item" />`;
+
+    html += `<div class="yes3-flex-vcenter-hleft">`;
+    html += `<input type="button" id="yes3-fmapr-rapidentry-object-add" value="add single item" />`;
     html += `</div>`;
    
     html += `</div>`;
-/*    
-    html += `</td>`;
-
-    //html += `<td class='yes3-gutter-right-top yes3-td-right'>&nbsp</td>`;
-    
-    html += "</tr>";
 
     // BULK ADD
 
-    html += `<tr class='yes3-fmapr-new-item-form'>`;
+    html += `<div class="yes3-flex-container-left-aligned yes3-margin-top">`;
 
-    html += `<td colspan="${colSpans}">`;
-*/
-    html += `<div class="yes3-flex-container">`;
-
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
-    html += "BULK ADD";
+    html += `<div class="yes3-flex-vcenter-hleft">`;
+    html += "BULK ADD:";
     html += "</div>";
 
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
+    html += `<div class="yes3-flex-vcenter-hleft">`;
 
-    html += `<i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view" action="appendExportItem" title="Append or insert one or more export item(s) (forms or fields) to the specification."></i>`;
-
-    html += "</div>"
-
-    html += `<div class="yes3-flex-vcenter-hleft yes3-margin-right yes3-margin-bottom">`;
-
-    html += "Append or insert one or more export item(s) (forms or fields) to the specification."
+    html += `<i class="fas fa-plus yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-designer-only yes3-fmapr-settings-okay yes3-fmapr-option-items-only yes3-fmapr-item-view yes3-nomargin" action="appendExportItem" title="Append or insert one or more export item(s) (forms or fields) to the specification."></i>&nbsp;Add one or more forms or fields to the export`;
 
     html += "</div>"
+
+    if ( FMAPR.export_specification.export_layout !== "r" ) {
+
+        let bText = ( FMAPR.project.is_longitudinal ) ? "add all forms and events" : "add all forms";
+
+        html += `<div class="yes3-flex-vcenter-hleft">`;
+        html += `OR:&nbsp;&nbsp;<input type="button" id="yes3-fmapr-rapidentry-object-add-everything" value="${bText}" />`;
+        html += `</div>`;
+    }
 
     html += `</td>`;
     
@@ -916,52 +906,85 @@ FMAPR.setRapidEntryFormListeners = function()
             let object_event=$("select#yes3-fmapr-rapidentry-object-event").val();
             let object_name=$("input#yes3-fmapr-rapidentry-object-name").val();
 
-            // parms for inserting above the editor row
-            const mode = "insert";
-            const yes3_fmapr_data_element_name = "";
-            const theRowBeforeWhich = FMAPR.getExportRapidEntryEditor();
-
-            if ( !object_type || (FMAPR.project.is_longitudinal && !object_event) || !object_name ){
-
-                YES3.hello("Please enter all fields for this item (type, event, name).");
-                return false;
-            }
-
-            if ( FMAPR.exportItemAlreadyExists(object_type, object_name, object_event) ){
-
-                YES3.hello("No can do: this item is already included in this export.");
-                return false;
-            }
-
-            if ( object_type === "field" ){
-
-                saveResult = FMAPR.exportItemEditorSave_field(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
-            }
-            else if ( object_type === "form" ){
-
-                saveResult = FMAPR.exportItemEditorSave_form(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
-            }
-
-            //YES3.debugMessage("save result:", saveResult);
-
-            FMAPR.renumberRows();
-
-            FMAPR.establishItemTableColumns(); // hide the dummy row if indicated
-
-            FMAPR.markAsDirty("Be sure to save your changes ( * - unsaved).");
-
-            FMAPR.resizeExportItemsTable();
-
-            FMAPR.scrollExportItemsTableToBottom();
-
-            FMAPR.resetExportItemEditors();
-
-            YES3.notBusy();
-
+            FMAPR.addRapidEntryItem(object_type, object_name, object_event);
         })
     ;
 
+    $("input#yes3-fmapr-rapidentry-object-add-everything")
+        .off()
+        .on("click", function(){
 
+            FMAPR.addEverything();
+        })
+    ;
+}
+
+FMAPR.addRapidEntryItem = function( object_type, object_name, object_event){
+
+    // parms for inserting above the editor row
+    const mode = "insert";
+    const yes3_fmapr_data_element_name = "";
+    const theRowBeforeWhich = FMAPR.getExportRapidEntryEditor();
+
+    if ( !object_type || (FMAPR.project.is_longitudinal && !object_event) || !object_name ){
+
+        YES3.hello("Please enter all fields for this item (type, event, name).");
+        return false;
+    }
+
+    if ( FMAPR.exportItemAlreadyExists(object_type, object_name, object_event) ){
+
+        YES3.hello("No can do: this item is already included in this export.");
+        return false;
+    }
+
+    if ( object_type === "field" ){
+
+        saveResult = FMAPR.exportItemEditorSave_field(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
+    }
+    else if ( object_type === "form" ){
+
+        saveResult = FMAPR.exportItemEditorSave_form(object_name, object_event, theRowBeforeWhich, yes3_fmapr_data_element_name, mode);
+    }
+
+    //YES3.debugMessage("save result:", saveResult);
+
+    FMAPR.renumberRows();
+
+    FMAPR.establishItemTableColumns(); // hide the dummy row if indicated
+
+    FMAPR.markAsDirty("Be sure to save your changes ( * - unsaved).");
+
+    FMAPR.resizeExportItemsTable();
+
+    FMAPR.scrollExportItemsTableToBottom();
+
+    FMAPR.resetExportItemEditors();
+
+    YES3.notBusy();
+}
+
+FMAPR.addEverything = function()
+{
+    let K = FMAPR.getExportItemRowCount() || 0;
+
+    if ( K > 0 ){
+
+        YES3.YesNo(
+            `WARNING: You are about to add all forms (and events if applicable) to the export, but this will cause your current ${K} item(s) to be discarded. Are you sure that you would like to proceed?`,
+            FMAPR.addEverything_Yes
+        );
+    }
+    else {
+
+        FMAPR.addEverything_Yes();
+    }
+}
+
+FMAPR.addEverything_Yes = function()
+{
+    FMAPR.getExportItemRows().remove();
+    FMAPR.addRapidEntryItem("form", ALL_OF_THEM, ALL_OF_THEM);
 }
 
 FMAPR.getNewFieldRow = function()
@@ -1160,6 +1183,11 @@ FMAPR.saveExportSpecificationCallback = function( response ){
 FMAPR.downloadExecute = function()
 {
     let exportOption = $("input[type=radio][name=yes3-fmapr-export]:checked").val();
+
+    /**
+     * start listening for export cookies
+     */
+    FMAPR.awakenTheCookieMonster();
 
     if ( exportOption==="datadictionary"){
         FMAPR.downloadDataDictionary();
@@ -3019,6 +3047,11 @@ FMAPR.getExportItemRows = function()
     return $("tr.yes3-fmapr-data-element");
 }
 
+FMAPR.getExportItemRowCount = function()
+{
+    return $("tr.yes3-fmapr-data-element").length;
+}
+
 FMAPR.exportItemAlreadyExists = function( object_type, object_name, object_event, yes3_fmapr_data_element_name )
 {
     let allRows = FMAPR.getExportItemRows();
@@ -4368,6 +4401,7 @@ FMAPR.dashboardOptionHandler = function()
         FMAPR.resizeExportItemsTable();
         $('i.yes3-fmapr-option-items-only').removeClass('yes3-action-disabled');
         $('i.yes3-fmapr-option-settings-only').addClass('yes3-action-disabled');
+        FMAPR.scrollExportItemsTableToBottom();
     }
     else if ( yes3_dashboard_option==="settings" ){
 
@@ -5822,6 +5856,62 @@ FMAPR.validateAndReportExportUspecJson = function()
             FMAPR.markAsBad( reportElement );
             return false;
         }
+    }
+}
+
+/**
+ * 
+ * The cookie monster waits for the server to send an export cookie
+ * (#records exported).
+ * 
+ * This seems to be the only way to communicate download info
+ * back to the browser
+ * 
+ * Stops when cookie is handled or 5 minutes elapsed
+ * 
+ * @returns 
+ * 
+ */
+
+FMAPR.awakenTheCookieMonster = function(){
+
+    FMAPR.intervalCounter = 0;
+    FMAPR.intervalId = window.setInterval(function(){
+
+        FMAPR.intervalCounter++;
+
+        if ( FMAPR.cookieMonster() || FMAPR.intervalCounter > 300 ){
+
+            FMAPR.killTheCookieMonster();
+        }
+
+    }, 1000);
+}
+
+FMAPR.killTheCookieMonster = function(){
+
+    clearInterval( FMAPR.intervalId );
+    FMAPR.intervalId = -1;
+}
+
+FMAPR.cookieMonster = function() {
+
+    if ( !document.cookie ) return false;
+
+    if ( typeof FMAPR.export_specification === "undefined" ) return false;
+
+    if ( typeof FMAPR.export_specification.export_uuid === "undefined" ) return false;
+
+    if ( !FMAPR.export_specification.export_uuid.length ) return false;
+
+    let exportedRows = YES3.cookieValue( FMAPR.export_specification.export_uuid );
+
+    if ( exportedRows.length ){
+
+        YES3.deleteCookie( FMAPR.export_specification.export_uuid );
+        YES3.hello(`Note: ${exportedRows} records were downloaded.`);
+        
+        return true;
     }
 }
 

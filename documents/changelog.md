@@ -3,9 +3,18 @@
 
 ## Version 1.0.0
 
+## Version 0.9.3
+
+August 10, 2022
+
+1. Data distribution columns removed from dd if the dd is downloaded by itself (no data export).
+2. An "add all forms and events" option added to the BULK ADD form.
+3. Bug fix: Wayback had displayed the "save" button even when no backup selected.
+4. The number of records downloaded is reported after a data download. Requires cookies to be enabled.
+
 ## Version 0.9.2
 
-August 8, 2022
+August 5, 2022
 
 1. Dialog buttons rearranged to match REDCap (right justified, Save then Cancel).
 2. Rapid entry row now labeled QUICK ADD.
@@ -48,7 +57,6 @@ June 30, 2022
 6. Technical guide (documents/technical.md) added
 7. Document viewer redesigned to support readme, tech guide and changelog
 8. NEW ITEM now defaults to 'form', since it is more likely to be used to add forms to the spec.
-
 
 ## Version 0.8.1
 

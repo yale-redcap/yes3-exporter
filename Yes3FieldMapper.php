@@ -473,8 +473,24 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
      * 
      * @return void
      */
-    private function dataDictionaryForExport( $dd, $export_layout):array
+    private function dataDictionaryForExport( $dd, $export_layout, $dd_only_download=false):array
     {
+        // columns that must be removed if this a dd-only download
+        $dx_colnames = [
+            'non_missing_count',
+            'min_length',
+            'max_length',
+            'min_value',
+            'max_value',
+            'sum_of_values',
+            'sum_of_squared_values', 
+            'mean', 
+            'standard_deviation', 
+            'formatted_min_value',
+            'formatted_max_value',
+            'formatted_mean',
+            'frequency_table'  
+        ];
 
         // delete event columns as needed
         $columns_to_delete = [];
@@ -488,6 +504,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         for ($i=0; $i<count($colnames); $i++){
 
             if ( $colnames[$i]==="redcap_events") {
+
+                $columns_to_delete[] = $i;
+            }
+
+            elseif ( $dd_only_download && in_array($colnames[$i], $dx_colnames) ){
 
                 $columns_to_delete[] = $i;
             }
@@ -1067,6 +1088,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $C
         );
 
+        $this->setExportCookie( $export_uuid, $export_name, $R );
+
         return [
             'export_data_message' => "Success: {$bytesWritten} bytes, {$R} rows and {$C} columns written to {$path}.",
             'export_data_filename' => $path,
@@ -1083,6 +1106,14 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'export_info' => $export_info_file_response['export_info']
             
         ];
+    }
+
+    private function setExportCookie( $export_uuid, $export_name, $R )
+    {
+        $cookie_name = $export_uuid;
+        $expires = time() + 30 * 60 * 60; // expires in 30 minutes
+        $value = $R;
+        setcookie($cookie_name, $value, $expires);
     }
 
     private function logExport($message, $destination, $export_uuid, $export_name, $filename_data, $filename_data_dictionary, $filename_zip, $bytes, $items, $rows, $columns)
@@ -1341,8 +1372,8 @@ WHERE project_id=? AND log_entry_type=?
 
         $exportValues = 0;
 
-        Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
-        Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
+        //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
+        //Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
 
         foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
         //$xx = Yes3::fetchRecords($sql, $sqlParams);
@@ -1753,15 +1784,6 @@ WHERE project_id=? AND log_entry_type=?
 
     public function downloadDataDictionary($export_uuid)
     {
-     
-        //$h = fopen('php://output', 'w');
-        $h = $this->fopen_w_utf8('php://output');
-
-        if ( $h===false ){
-
-            throw new Exception("Fail: could not open PHP output stream.");
-        }
-
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
         $filename = $this->exportDataDictionaryFilename( $ddPackage['export_name'], "download" );
@@ -1770,7 +1792,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $delim = ",";
 
-        $xx = (array) $this->dataDictionaryForExport($ddPackage['export_data_dictionary'], $ddPackage['export_layout']);
+        $xx = (array) $this->dataDictionaryForExport($ddPackage['export_data_dictionary'], $ddPackage['export_layout'], true);
 
         $this->logExport(
             "export data dictionary downloaded",
@@ -1785,6 +1807,14 @@ WHERE project_id=? AND log_entry_type=?
             null,
             null
         );
+     
+        //$h = fopen('php://output', 'w');
+        $h = $this->fopen_w_utf8('php://output');
+
+        if ( $h===false ){
+
+            throw new Exception("Fail: could not open PHP output stream.");
+        }
 
         ob_start();
 
@@ -2089,7 +2119,7 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( !$allowed_forms ) {
 
-            Yes3::logDebugMessage($this->project_id, "no form access", "confirmSpecificationPermissions: denied");
+            //Yes3::logDebugMessage($this->project_id, "no form access", "confirmSpecificationPermissions: denied");
 
             return false; // user has no form access
         }
@@ -2099,7 +2129,7 @@ WHERE project_id=? AND log_entry_type=?
          */
         $allowed_fields = array_keys( $this->getFieldMetadataStructures()['field_index'] );
 
-        Yes3::logDebugMessage($this->project_id, print_r($allowed_fields, true), "confirmSpecificationPermissions: allowed_fields");
+        //Yes3::logDebugMessage($this->project_id, print_r($allowed_fields, true), "confirmSpecificationPermissions: allowed_fields");
  
         /**
          * the forms and fields to be exported are recorded in spec.export_items
@@ -2113,7 +2143,7 @@ WHERE project_id=? AND log_entry_type=?
                 // form is not exportable by user
                 if ( $export_item['redcap_form_name'] !== ALL_OF_THEM && !in_array($export_item['redcap_form_name'], $allowed_forms) ){
 
-                    Yes3::logDebugMessage($this->project_id, $export_item['redcap_form_name'], "confirmSpecificationPermissions: disallowed item form");
+                    //Yes3::logDebugMessage($this->project_id, $export_item['redcap_form_name'], "confirmSpecificationPermissions: disallowed item form");
 
                     return false;
                 }
@@ -2126,7 +2156,7 @@ WHERE project_id=? AND log_entry_type=?
 
                     if ( !$this->fieldExcludedByExportOptions( $specification, $field ) && !in_array($field['field_name'], $allowed_fields) ){
 
-                        Yes3::logDebugMessage($this->project_id, $field['field_name'], "confirmSpecificationPermissions: disallowed form field");
+                        //Yes3::logDebugMessage($this->project_id, $field['field_name'], "confirmSpecificationPermissions: disallowed form field");
 
                         return false;
                     }
@@ -2141,7 +2171,7 @@ WHERE project_id=? AND log_entry_type=?
 
                 if ( !$this->fieldExcludedByExportOptions( $specification, $field ) && !in_array($field_name, $allowed_fields) ){
 
-                    Yes3::logDebugMessage($this->project_id, $export_item['redcap_field_name'], "confirmSpecificationPermissions: disallowed item field");
+                    //Yes3::logDebugMessage($this->project_id, $export_item['redcap_field_name'], "confirmSpecificationPermissions: disallowed item field");
                     
                     return false;
                 }
@@ -2586,7 +2616,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $sql .= " ORDER BY m.field_order";
 
-        Yes3::logDebugMessage($this->project_id, $sql, "getFormDataEntryFieldMetadata:" . $form_name);
+        //Yes3::logDebugMessage($this->project_id, $sql, "getFormDataEntryFieldMetadata:" . $form_name);
 
         return Yes3::fetchRecords($sql, $params);
     }

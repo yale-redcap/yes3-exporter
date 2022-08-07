@@ -415,6 +415,10 @@ i.yes3-action-icon-inline {
     margin: 0 !important;
 }
 
+.yes3-nomargin {
+   margin: 0!important;
+}
+
 i.yes3-action-icon-gutter {
     font-size: 1.5em;
     line-height: 1.5em;
@@ -522,12 +526,20 @@ div#yes3-red-pointer {
    align-content: space-between;  
 }
 
+.yes3-flex-container-left-aligned {
+   width: 100%;
+   display: flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   column-gap: 0.5rem;
+}
+
 .yes3-flex-container-right-aligned {
    width: 100%;
    display: flex;
    flex-direction: row-reverse;
    flex-wrap: nowrap;
-   column-gap: 1rem;
+   column-gap: 0.5rem;
 }
 
  .yes3-flex-container {

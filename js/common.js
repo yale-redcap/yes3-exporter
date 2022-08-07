@@ -4,6 +4,8 @@ let FMAPR = {
     dirty: false,
     buildInProgress: false,
     mapperLoaded: false,
+    intervalId: -1,
+    intervalCounter: 0,
     specificationElements: [],
     insertionElements: [],
     insertionForms: [],
@@ -14,6 +16,9 @@ let FMAPR = {
     settings: {},
     reloadParms: {
         "export_uuid": ""
+    },
+    export_specification: {
+        "export_uuid" : ""
     }
 }
  

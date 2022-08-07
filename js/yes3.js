@@ -216,6 +216,24 @@ YES3.openPopupWindow = function(url, w, h, windowNamePrefix) {
     //return false;
 };
 
+// === COOKIES ====
+
+YES3.cookieValue = function( cookieName )
+{
+    let S = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${cookieName}=`))
+        ?.split('=')[1]
+    ;
+
+    return ( S ) ? S : "";
+}
+
+YES3.deleteCookie = function( cookieName )
+{
+    document.cookie = `${cookieName} = -1; expires = Thu, 01 Jan 1970 00:00:00 GMT`;
+}
+
 // === PANEL FUNCTIONS ==================================================================================
 
 YES3.hello = function(msg, fn, nonmodal) {
