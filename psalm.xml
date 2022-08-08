@@ -54,7 +54,6 @@
         <file name="Yes3FieldMapper.php" />
         <directory name="classes" />
         <directory name="plugins" />
-        <directory name="assets" />
         <directory name="defines" />
         <directory name="services" />
         <directory name="html" />
