@@ -19,20 +19,20 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   Large volume exports have minimal impact on performance speed
      -   In testing it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file
 -   **Enhanced data dictionary that includes metadata and data distributions** 
-     -   Each export is accompanied by a customized data dictionary to simplify data sharing
+     -   Each export is accompanied by a customized data dictionary 
 -   **Detailed audit for every export download**
      -   Includes the ability to email daily activity summaries- automatically
 -   **Incorporates form-specific user access and export rights**
-     -   Compatible with REDCap v12 user-rights and backward compatible with earlier permissions models
--   **Supports deidentified and coded datasets** that mirror the REDCap parent system
+     -   Supports REDCap v12 user-rights (backward compatible)
+-   **Supports deidentified and coded dataset options** that mirror the REDCap parent system
 -   **Any number of export templates may be designed and re-used**
--   **Export specifications can be rolled back and restored to a prior version**
+-   **Export specifications can be rolled back and restored**
 -   **Can export directly to a host filesystem**
 -   **Light and dark themes**
 
 # About YES3
 
-Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of clinical research needs.
+Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of epidemiological and clinical research needs.
 
 # Configuration
 
@@ -44,17 +44,17 @@ To configure, go to Control Panel -> External Modules -> Manage -> Yes3 Exporter
 
 ## Project Configuration
 
-Only users with project design and setup rights can configure the External Module Settings for a project. Project settings include rules for retaining export specification backups, whether and where to send daily log reports, and settings for host filesystem exports. The date and result of the latest housekeeping run for the project are displayed in the Project Settings.
+Only users with project design and setup rights can configure the External Module Settings for a project. Project settings include rules for retaining export specification backups, whether and where to send daily email notifications, and settings for host filesystem exports. The date and result of the latest housekeeping run for the project are displayed in the Project Settings. 
 
 To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
-### Daily Activity Log Report
+### Daily Email Notifications
 
-When enabled, you can designate one email address that will receive a daily summary of project export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours.  To disable the daily log report, you may change the email notification setting to “no” at any time.
+When enabled, you can designate one email address that will receive a summary of project export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours.  Notifications are released only when exports occur. To disable the daily email notification, you may change the email notification setting to “no” at any time.
 
 ### Host File System Exports
 
-YES3 Exporter "payloads" can be written to a designated host file system folder (i.e. automounting to secure institutional file shares) which, among other things, is intended to support Datamart integration. To safeguard data security, enabling this setting requires approval by a REDCap administrator. 
+YES3 Exporter "payloads" can be written to a designated host file system folder (i.e. to mounted secure institutional file shares) which, among other things, is intended to support Datamart integration. To safeguard data security, enabling this setting requires approval by a REDCap administrator. 
 
 > A payload consists of exported data, a comprehensive data dictionary and an information file having details about the export and project. See the Technical Guide for more information on YES3 Exporter payloads and datamart considerations.
 
@@ -77,7 +77,7 @@ There are four components to the Exporter External Module.
 
 ### Device recommendations
 
-Each YES3 Exporter component - like REDCap itself - has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones. The Event Prefixes, Export Logs and YES3 Exporter Documentation components all work tolerably well with a portrait-orientation device viewport width of 375 pixels, which covers most mobile phones. However there are practical considerations for the YES3 Exporter Main component, driven by the complexity of the export specification editor. Our target display device for the editor is a standard HD desktop screen (1920x1080 pixels). For an optimal user experience on a desktop, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels.  For mobile devices, the minimum viewport dimensions for editing export specifications appear to be 600x600 pixels, which should cover devices ranging from "phablets" to full-size tablets. Most mobile phones will *not* work for editing, in either portrait or horizontal orientation.
+Each YES3 Exporter component - like REDCap itself - has a responsive interface, that is it will adapt to various screen geometries from 4k desktops to mobile phones. The Event Prefixes, Export Logs and YES3 Exporter Documentation components all work tolerably well with a portrait-orientation device viewport width of 375 pixels, which covers most mobile phones. However there are practical considerations for the YES3 Exporter Main component, driven by the complexity of the export specification editor. Our target display device for the editor is a standard HD desktop screen (1920x1080 pixels). <b>For an optimal user experience on a desktop, we recommend a minimum screen width, with the browser's magnification set to 100%, of 1200 pixels.</b>  For mobile devices, the minimum viewport dimensions for editing export specifications appear to be 600x600 pixels, which should cover devices ranging from "phablets" to full-size tablets. Most mobile phones will *not* work for editing, in either portrait or horizontal orientation.
 
 ### Action icons
 
@@ -140,7 +140,7 @@ a.  Please be mindful of the following limitations when creating a new export:
 - Special characters are permitted but will be removed during download.
 - Create new exports judiciously. Unlike the parent system, you cannot filter, sort, or delete exports in the YES3 Exporter. 
          
-3.  Once completed, click “**make it so**”.
+3.  Once completed, click “**Save**”.
 
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
 <img src="media/Export_Settings_Display_1.png"  width="75%">
@@ -175,7 +175,7 @@ a.  Please be mindful of the following limitations when creating a new export:
       
           <img src="media/Insert_one_export_item_per_field.png"  width="75%">  
         
-     b.  Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
+     b.  Once you have chosen your display, click ‘**Save**’.  An asterisk will appear next to each unsaved item. 
      
      c.  After you have finished adding forms to the export items, save the changes.
      
@@ -187,10 +187,10 @@ a.  Please be mindful of the following limitations when creating a new export:
      
           <img src="media/autopopulate.png"  width="60%"> 
               
-      b.   Select the field that you would like to add to the export and click ‘**make it so’**.
+      b.   Select the field that you would like to add to the export and click ‘**Save**’.
 
 
-      c.   Once you have chosen your display, click ‘**make it so**’.  An asterisk will appear next to each unsaved item. 
+      c.   Once you have chosen your display, click ‘**Save**’.  An asterisk will appear next to each unsaved item. 
      
       d.   After you have finished adding fields to the export items, save the changes.
 
@@ -306,6 +306,7 @@ To use the exporter
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/yes3_inspector_icon.png)icon.
 
    <img src="media/YES3_logs_select_v1.gif" width="75%">
+   a. You may also click **‘Inspect’** to obtain detailed information about the export settings and variables.
 
 5.  Click ![](media/download_icon.png)to download the log.
 
@@ -313,8 +314,9 @@ To use the exporter
    <img src="media/Exporter_Log_Download.png" width="75%"> 
    
 
+**CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.**  
 
-**CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.  YOU ARE AN EXPORTER EXPERT.**  
+<c>Excellent work exceeding expectations.  May all your exports be exceptional.</c> 
 
 
 # Contact
