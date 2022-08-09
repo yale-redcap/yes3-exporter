@@ -306,12 +306,13 @@ To use the exporter
 4.  The log contains information about the exports. Detailed information can be found by clicking on the ![](media/yes3_inspector_icon.png)icon.
 
    <img src="media/YES3_logs_select_v1.gif" width="75%">
-   a. You may also click **‘Inspect’** to obtain detailed information about the export settings and variables.
+   a. You may also click **'Inspect'** to obtain detailed information about the export settings and variables.
 
 5.  Click ![](media/download_icon.png)to download the log.
 
 
    <img src="media/Exporter_Log_Download.png" width="75%"> 
+   
    
 
 **CONGRATULATIONS!- YOU MADE IT THROUGH THE USER GUIDE.**  
