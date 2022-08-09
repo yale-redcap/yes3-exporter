@@ -406,7 +406,7 @@ YES3.closePanel = function(panelName) {
     let panel = $(`#${panelName}`);
     panel.hide();
     YES3.endModalState();
-    return panel;
+    /*return panel;*/
 };
 
 YES3.startModalState = function(){

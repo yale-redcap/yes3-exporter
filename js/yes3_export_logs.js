@@ -192,6 +192,11 @@ FMAPR.closeInspectionPanels = function(){
     YES3.closePanel('yes3-specification-inspector');
 }
 
+FMAPR.closeSpecificationInspectionPanel = function(){
+
+    YES3.closePanel('yes3-specification-inspector');
+}
+
 FMAPR.inspectExportSpecification = function(){
 
     const panelContent = $('div#yes3-specification-inspector div.yes3-panel-content');

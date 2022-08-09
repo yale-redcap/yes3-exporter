@@ -928,6 +928,8 @@ FMAPR.setRapidEntryFormListeners = function()
             FMAPR.addEverything();
         })
     ;
+
+    YES3.setActionIconListeners( $(`tr#${FMAPR.rapidEntryFormRowId}`) );
 }
 
 FMAPR.addRapidEntryItem = function( object_type, object_name, object_event){

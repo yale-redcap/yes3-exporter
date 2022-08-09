@@ -112,7 +112,7 @@ $module->getCodeFor("yes3_export_logs", true);
       </div>
 
       <div class="yes3-panel-row-right">
-         <a href="javascript: YES3.closePanel('yes3-specification-inspector')"><i class="fas fa-times fa-2x"></i></a>
+         <a href="javascript: FMAPR.closeSpecificationInspectionPanel();"><i class="fas fa-times fa-2x"></i></a>
       </div>
 
    </div>
