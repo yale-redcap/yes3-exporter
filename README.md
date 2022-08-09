@@ -37,9 +37,9 @@ Only users with project design and setup rights can configure the External Modul
 
 To configure, go to External Modules -\> Manage -\> Yes3 Exporter -\>Configure
 
-#### Daily Activity Log Report
+#### Activity Log Report
 
-When enabled, you can designate one email address that will receive a daily summary of project export activity including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours.
+When enabled, you can designate one email address that will receive a notification and summary of project export activities including: (1.) date and time of report, (2.) REDCap project information, and (3.) details about download and export activity in the last 24 hours. Daily log reports are only released when exports occur.   
 
 To disable the daily log report, you may change the email notification setting to “no” at any time.
 
@@ -68,7 +68,7 @@ redcap@yale.edu
 
 ## About YES3
 
-Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of clinical research needs.
+Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-shelf’ suite of external modules within REDCap that features popular, high-utility software tools to meet a wide variety of epidemiological and clinical research needs.
 
 ## Authors
 
