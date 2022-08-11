@@ -132,7 +132,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 2.  Enter the export name and select a layout.
 
-<img src="media/new_export_dialog.png"  width="50%">
+<img src="media/new_export_dialogue.png"  width="50%">
 
 a.  Please be mindful of the following limitations when creating a new export: 
 - Export names cannot be duplicated. 
