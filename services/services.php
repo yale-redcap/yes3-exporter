@@ -1264,7 +1264,7 @@ function listNamespaceFunctions()
         }
     }
 
-    Yes3::logDebugMessage( 0, $registry_list, 'yes3 exporter servive functions' );
+    //Yes3::logDebugMessage( 0, $registry_list, 'yes3 exporter service functions' );
 
     return $registry_list;
 }

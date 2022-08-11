@@ -141,7 +141,7 @@ FMAPR.inspectLogRecord = function(log_id)
 
 FMAPR.inspectLogRecordCallback = function( response )
 {
-    console.log( 'inspectLogRecordCallback', response );
+    //console.log( 'inspectLogRecordCallback', response );
     //console.log( 'typeof', typeof response['export_specification'] );
 
     let tr = {};
