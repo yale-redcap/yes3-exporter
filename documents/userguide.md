@@ -1,7 +1,3 @@
-![psalm-security](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
-![psalm-static](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
-![codeql-javascript](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
-
 # YES3 Exporter User Guide
 
 REDCap External Module  

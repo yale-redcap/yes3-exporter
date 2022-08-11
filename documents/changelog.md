@@ -3,6 +3,13 @@
 
 ## Version 1.0.0
 
+### FIRST PRODUCTION VERSION
+
+August 15, 2022
+
+1. Updates to README based on v0.9.3 feature changes
+2. Minor changes to technical.md
+
 ## Version 0.9.3
 
 August 10, 2022

@@ -1,3 +1,7 @@
+![psalm-security](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-security.yml/badge.svg)
+![psalm-static](https://github.com/yale-redcap/yes3-exporter/actions/workflows/psalm-static.yml/badge.svg)
+![codeql-javascript](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
+
 # YES3 Exporter Technical Guide
 
 YES3 Exporter 
@@ -45,8 +49,6 @@ Since host filesystem mount points must be configured by ITS system administrato
 1. Create a single mount point as a folder on a secure, very restricted institutional fileshare.
 2. Create a subfolder for each study requiring a filesystem export. This will be that study's filesystem export target - but will not be accessible to that study.
 3. Build an external application that will sweep through the daily exports, validate them against the REDCap database and if validated, pass each to a folder that is accessible to that export's study staff.
-
-We are building a Python application called the "YES3 Datamart Junction" to do just this, and more. If you would like to check in with us and share ideas as we design and develop this application, please feel free to contact us. Once it's running we'll make it available on a public repository.
 
 ### The YES3 Exporter Payload
 
@@ -282,6 +284,4 @@ We are currently evaluating our script to see which feature tests can be automat
 
 Our function testing is based on a Python application that processes exported data and data dictionaries and performs a number of validations. These validations include consistency checks twixt the exported data and data dictionary, but most importantly, through REDCap API calls it conducts a thorough comparision between the exported data and the data stored in REDCap. All of these checks are run on the exports used in the feature testing.
 
-The Python functional testing application will eventually become the "YES3 Datamart Junction" mentioned above (see "Managing multiple datamarts"), and will validate all automated filesystem exports supported by our REDCap implementation.
-
-> Venugopal Bhatia is the developer of the YES3 Exporter functional testing application / YES3 Datamart Junction
+> Venugopal Bhatia is the developer of the YES3 Exporter functional testing application 
