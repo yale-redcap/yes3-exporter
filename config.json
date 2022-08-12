@@ -1,9 +1,9 @@
 {
-    "name": "Yes3 Exporter",
+    "name": "YES3 Exporter",
 
     "namespace": "Yale\\Yes3FieldMapper",
 
-    "description": "YES3 Exporter",
+    "description": "Specialized data export module for datamart integrations and data sharing",
 
     "prefix": "yes3_exporter",
 
@@ -12,7 +12,7 @@
             "name": "Peter Charpentier",
             "email": "redcap@yale.edu",
             "role": "developer",
-            "institution": "Yale University"
+            "institution": "CRI Web Tools LLC"
         }
     ],
 
