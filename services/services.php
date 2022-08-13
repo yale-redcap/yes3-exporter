@@ -29,46 +29,9 @@ else {
    toesUp("request parameter not passed");
 }
  
-//if ( !requestIsValid($request) ) {
-//    toesUp("error: invalid request: ".$request);
-//};
-
-/**
- * validate the csrf token
- * which can be passed by AJAX calls in the request header as 'X-CSRF-Token'
- * or as a POST from a redcap form as 'redcap_csrf_token'
-**/
-
-$csrf_token = "";
-
-if ( isset($_POST['csrf_token']) ) {
-    $csrf_token = $_POST['csrf_token'];
- }
- else if ( isset($_GET['csrf_token']) ) {
-    $csrf_token = $_GET['csrf_token'];
- }
- else {
-   $headers = apache_request_headers();
-   if ( $headers['X-CSRF-Token'] ){
-      $csrf_token = $headers['X-CSRF-Token'];
-   }   
-}
-
-if ( !$csrf_token ){
-   toesUp("error: csrf token missing for request '{$request}'.");
-}
-
-/**
- * Validate the csrf token against the list of REDCap-generated tokens
- * for this session.
- */
-if ( !in_array( $csrf_token, $_SESSION['redcap_csrf_token']) ){
-    toesUp("error: invalid csrf token for request '{$request}'.");
-}
- 
 /**
  * Execute the requested function and head out.
-*/
+ */
 
 execRequest($request);
 

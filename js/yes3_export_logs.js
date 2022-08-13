@@ -7,15 +7,11 @@ FMAPR.export_specification = {};
  */
 YES3.Functions.downloadExportLog = function()
 {
-    let url = YES3.moduleProperties.serviceUrl
-    + "&request=downloadExportLog"
-    + "&export_uuid=" + encodeURIComponent($("select#export_uuid").val())
-    + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
-    ;
+    YES3.postServiceRequest({
 
-    //YES3.debugMessage(url);
-
-    window.open(url);
+        request: "downloadExportLog",
+        export_uuid: FMAPR.getExportUUID()
+    });
 }
 
 FMAPR.downloadExportLogCallback = function( response )

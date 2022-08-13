@@ -237,7 +237,7 @@ The data distribution summaries stored in the YES3 Exporter data dictionary were
 
 The distribution summaries can be used to validate a data management process, for example an R or SAS program to import data into a datamart. Be sure to make appropriately "fuzzy" comparisons for distributional parameters like mean and variance. If I (PC) remember correctly, SAS has a bit-level truncation function that's useful in this regard.
 
-> For performance reasons, we don't include quantiles in the export data dictionaries. There might be other, less expensive calulations that we can add if there is any interest. For example, the geometric mean was once - almost literally a lifetime ago - used as a proxy for the median in skewed distributions. In those days CPU cycles cost real money!
+> For performance reasons, we don't include quantiles in the export data dictionaries. There might be other, less expensive calulations that we can add if there is any interest. For example, the geometric mean was once used as a proxy for the median in skewed distributions. In those days CPU cycles cost real money!
 
 #### Ad hoc reports
 

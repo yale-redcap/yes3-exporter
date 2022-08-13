@@ -756,6 +756,41 @@ YES3.listServiceFunctionsCallback = function( response )
     //YES3.debugMessage("service functions", response);
 }
 
+/* === POST TO SERVICE URL === */
+
+/**
+ * Builds a form to post the supplied params + redcap_csrf_token to the services URL,
+ * submits then destroys the form. No callback function.
+ * Intended for downloads.
+ * 
+ * @param {*} params 
+ */
+YES3.postServiceRequest = function( params ){
+
+    params.redcap_csrf_token = redcap_csrf_token;
+
+    const form = document.createElement('form');
+
+    form.method = 'post';
+    form.action = YES3.moduleProperties.serviceUrl;
+
+    document.body.appendChild(form);
+
+    for (const key in params){
+
+        const formField = document.createElement('input');
+        formField.type = 'hidden';
+        formField.name = key;
+        formField.value = params[key];
+  
+        form.appendChild(formField);
+    }
+
+    form.submit();
+
+    form.remove();
+}
+
 /* === AJAX === */
 
 YES3.noop = function(){}
@@ -834,7 +869,6 @@ YES3.setCaptions = function()
     $("input[type=button].yes3-button-caption-proceed").val(YES3.captions.proceed);
 }
 
-
 /*** DEBUGGING ***/
 
 window.onerror = function(message, source, lineno, error)
@@ -880,6 +914,7 @@ $( function () {
     YES3.detectColorScheme();
 
     /*
+    DEPRECATED AS OF FRAMEWORK 9:
     attach the csrf token to every AJAX request
     https://stackoverflow.com/questions/22063612/adding-csrftoken-to-ajax-request
     */

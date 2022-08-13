@@ -259,9 +259,9 @@
     ],
 
     "compatibility": {
-    "php-version-min": "7.2",
-    "redcap-version-min": "10.0.0"
+    "php-version-min": "7.4",
+    "redcap-version-min": "12.0.4"
     },
 
-    "framework-version": 5
+    "framework-version": 9
 }

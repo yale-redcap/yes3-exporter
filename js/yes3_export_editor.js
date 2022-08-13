@@ -1240,41 +1240,29 @@ FMAPR.downloadExecute = function()
 
 FMAPR.downloadDataDictionary = function()
 {
-    let url = YES3.moduleProperties.serviceUrl
-        + "&request=downloadDataDictionary"
-        + "&export_uuid=" + encodeURIComponent(FMAPR.getExportUUID())
-        + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
-    ;
+    YES3.postServiceRequest({
 
-    //YES3.debugMessage(url);
-
-    window.open(url);
+        request: "downloadData",
+        export_uuid: FMAPR.getExportUUID()
+    });
 }
 
 FMAPR.downloadData = function()
 {
-    let url = YES3.moduleProperties.serviceUrl
-        + "&request=downloadData"
-        + "&export_uuid=" + encodeURIComponent(FMAPR.getExportUUID())
-        + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
-    ;
+    YES3.postServiceRequest({
 
-    //YES3.debugMessage(url);
-
-    window.open(url);
+        request: "downloadDataDictionary",
+        export_uuid: FMAPR.getExportUUID()
+    });
 }
 
 FMAPR.downloadZip = function()
 {
-    let url = YES3.moduleProperties.serviceUrl
-        + "&request=downloadZip"
-        + "&export_uuid=" + encodeURIComponent(FMAPR.getExportUUID())
-        + "&csrf_token=" + encodeURIComponent(redcap_csrf_token)
-    ;
+    YES3.postServiceRequest({
 
-    //YES3.debugMessage(url);
-
-    window.open(url);
+        request: "downloadZip",
+        export_uuid: FMAPR.getExportUUID()
+    });
 }
 
 FMAPR.downloadDataDictionaryCallback = function( response )

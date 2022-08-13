@@ -20,7 +20,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
      -   Ability to receive automatic email notifications summarizing export activity
      -   Audit logs can be easily browsed and downloaded
 -   **Incorporates form-specific user access and export rights**
-     -   REDCap v12 user-rights (backward compatible)
+     -   REDCap v12 user-rights
 -   **Supports deidentified and coded dataset options** that mirror the REDCap parent system
 -   **Any number of export templates may be designed and re-used**
       -   Export specifications can be rolled back and restored
@@ -100,7 +100,7 @@ You can choose between a light and dark theme, and your choice will persist betw
 
 Users *with* project-design rights have the ability to create, modify and download exports. Users *without* project-design rights and ability to export (e.g., de-identified data) can access what is created; they can view the export and download data. Users with no project-design or data export rights will not see the Exporter module listed on right-hand panel.
 
-Users will not have access to a specific export unless they have both **view and export** permissions on all items (forms and fields) in the export specification. This protects the data and prevents unblinding. For those working on earlier REDCap versions, the YES3 Exporter handling of form access permissions effectively mimic the REDCap Version 12 form-specific exporter permissions, by using the form-specific user data entry rights as proxies for export rights (assuming that the user has overall project export rights).
+Users will not have access to a specific export unless they have both **view and export** permissions on all items (forms and fields) in the export specification. This protects the data and prevents unblinding.
 
 If a user attempts to access an export with restricted data, they will receive the following message:
 
