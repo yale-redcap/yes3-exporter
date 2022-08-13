@@ -2785,24 +2785,6 @@ FMAPR.insertFields = function(theRowBeforeWhich, callback)
     }
 }
 
-FMAPR.insertAllFormsForEvent_legacy = function(event, theRowBeforeWhich)
-{
-    let yes3_fmapr_data_element_name = "";
-
-    let forms = FMAPR.formsAllowedForEvent(event);
-
-    for (let k=0; k<forms.length; k++){
-
-        yes3_fmapr_data_element_name = FMAPR.addREDCapForm( 
-            forms[k], 
-            event, 
-            theRowBeforeWhich
-        );
-
-        theRowBeforeWhich = $(`tr#${FMAPR.dataElementRowId(yes3_fmapr_data_element_name)}`);
-    }
-}
-
 FMAPR.fieldInsertionSetCounterListeners = function()
 {
      
@@ -2858,6 +2840,9 @@ FMAPR.enumerateInsertionElements = function(form_name, event_id)
     //-xxxif ( FMAPR.isVerticalLayout() ){
     //    event_id = "all";
     //}
+
+    console.log(form_name, event_id);
+
     
     if ( !form_name || !event_id ) {
         return {'fields':0, 'columns':0};
@@ -2878,6 +2863,8 @@ FMAPR.enumerateInsertionElements = function(form_name, event_id)
     if ( form_name === ALL_OF_THEM ) {
 
         forms = FMAPR.formsAllowedForEvent( event_id );
+
+        console.log(forms);
     }
 
     FMAPR.insertionElements = [];
@@ -2974,7 +2961,7 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
     let k = 0;
     let items = 0;
 
-    //YES3.debugMessage('addREDcapObjectToSpecification', data_element_name, form_name, field_name, event_id_option);
+    YES3.debugMessage('addREDcapObjectToSpecification', data_element_name, form_name, field_name, event_id_option);
 
     /**
      * add a single item (redcap field)
@@ -3015,13 +3002,18 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
      */
     for (j=0; j<FMAPR.project.form_metadata.length; j++){
 
-        // gotta fix this; the entire field list is processed for each form
-        for (k=0; k<FMAPR.project.field_metadata.length; k++){
+        // form allowed for layout?
+        if ( (FMAPR.isRepeatedLayout() && FMAPR.project.form_metadata[j].form_repeating) ||
+             (!FMAPR.isRepeatedLayout() && !FMAPR.project.form_metadata[j].form_repeating) ) {
 
-            if ( FMAPR.project.field_metadata[k].form_name === FMAPR.project.form_metadata[j].form_name ){
+            // gotta fix this; the entire field list is processed for each form
+            for (k=0; k<FMAPR.project.field_metadata.length; k++){
 
-                items++;
-                FMAPR.addREDcapItemToSpecification(data_element_name, FMAPR.project.field_metadata[k].form_name, FMAPR.project.field_metadata[k].field_name, event_id_option);
+                if ( FMAPR.project.field_metadata[k].form_name === FMAPR.project.form_metadata[j].form_name ){
+
+                    items++;
+                    FMAPR.addREDcapItemToSpecification(data_element_name, FMAPR.project.field_metadata[k].form_name, FMAPR.project.field_metadata[k].field_name, event_id_option);
+                }
             }
         }
     }
@@ -3237,21 +3229,40 @@ FMAPR.formsAllowedForEvent = function(event_id)
         event_id = ALL_OF_THEM;
     }
     let allowed = true;
+    let ok4layout = true;
     let j = 0;
     let forms = [];
 
     for (let i=0; i<FMAPR.project.form_metadata.length; i++){
 
-        if ( event_id !== ALL_OF_THEM ){
+        allowed = false;
 
-            allowed = false;
+        ok4layout = false;
 
-            for (j=0; j<FMAPR.project.form_metadata[i].form_events.length; j++){
+        if ( FMAPR.project.form_metadata[i].form_repeating==1 && FMAPR.isRepeatedLayout() ) {
 
-                if ( FMAPR.project.form_metadata[i].form_events[j].event_id==event_id ){
+            ok4layout = true;
+        }
+        else if ( FMAPR.project.form_metadata[i].form_repeating==0 && !FMAPR.isRepeatedLayout() ) {
 
-                    allowed = true;
-                    break;
+            ok4layout = true;
+        }
+
+        if ( ok4layout ){
+
+            if ( event_id === ALL_OF_THEM ){
+
+                allowed = true;
+            }
+            else {
+
+                for (j=0; j<FMAPR.project.form_metadata[i].form_events.length; j++){
+
+                    if ( FMAPR.project.form_metadata[i].form_events[j].event_id==event_id ){
+
+                        allowed = true;
+                        break;
+                    }
                 }
             }
         }
