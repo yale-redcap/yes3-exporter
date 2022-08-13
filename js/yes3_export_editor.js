@@ -1242,7 +1242,7 @@ FMAPR.downloadDataDictionary = function()
 {
     YES3.postServiceRequest({
 
-        request: "downloadData",
+        request: "downloadDataDictionary",
         export_uuid: FMAPR.getExportUUID()
     });
 }
@@ -1251,7 +1251,7 @@ FMAPR.downloadData = function()
 {
     YES3.postServiceRequest({
 
-        request: "downloadDataDictionary",
+        request: "downloadData",
         export_uuid: FMAPR.getExportUUID()
     });
 }

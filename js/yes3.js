@@ -800,6 +800,8 @@ YES3.requestService = function( params, doneFn, json )
    json = json || false;
    doneFn = doneFn || YES3.noop;
 
+   params.redcap_csrf_token = redcap_csrf_token;
+
    //YES3.debugMessage('requestService', params);
 
    $.ajax(

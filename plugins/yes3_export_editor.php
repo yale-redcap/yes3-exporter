@@ -17,7 +17,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
 <!-- NEW EXPORT FORM -->
 
-<div id="yes3-fmapr-new-export-form" class="yes3-panel yes3-draggable" style="display:none">
+<div id="yes3-fmapr-new-export-form" class="yes3-panel yes3-panel-medium yes3-draggable" style="display:none">
 
     <div class="yes3-panel-header-row">
 
@@ -112,7 +112,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
 <!-- HELP -->
 
-<div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
+<div id="yes3-help-panel" class="yes3-panel yes3-help-panel" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left" id="yes3-help-panel-title">
@@ -460,7 +460,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
 <!-- WAYBACK -->
 
-<div id="yes3-fmapr-wayback-panel" class="yes3-panel yes3-draggable" style="display:none">
+<div id="yes3-fmapr-wayback-panel" class="yes3-panel yes3-panel-small yes3-draggable" style="display:none">
 
    <div class="yes3-panel-header-row">
       <div class="yes3-panel-row-left" id="yes3-fmapr-wayback-panel-title">
@@ -495,7 +495,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
 <!-- DOWNLOAD -->
 
-<div id="yes3-fmapr-download-panel" class="yes3-panel yes3-draggable" style="display:none">
+<div id="yes3-fmapr-download-panel" class="yes3-panel yes3-draggable yes3-panel-small" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left">
@@ -519,7 +519,6 @@ $module->getCodeFor("yes3_export_editor", true);
         <input type="radio" class="balloon" value="datadictionary" name="yes3-fmapr-export" id="yes3-fmapr-export-datadictionary" checked />
         <label for="yes3-fmapr-export-datadictionary">Download the data dictionary file</label>
 
-
         <br class="yes3-fmapr-data-download-enabled">
 
         <input type="radio" class="balloon yes3-fmapr-data-download-enabled" value="data" name="yes3-fmapr-export" id="yes3-fmapr-export-data" />
@@ -528,7 +527,7 @@ $module->getCodeFor("yes3_export_editor", true);
         <br class="yes3-fmapr-data-download-enabled">
 
         <input type="radio" class="balloon yes3-fmapr-data-download-enabled" value="zip" name="yes3-fmapr-export" id="yes3-fmapr-export-zip" />
-        <label for="yes3-fmapr-export-zip" class="yes3-fmapr-data-download-enabled">Download a zip of the data dictionary and data files</label>
+        <label for="yes3-fmapr-export-zip" class="yes3-fmapr-data-download-enabled">Download the full export payload <br><span style="margin-left: 20px">(zip of the data dictionary, data and export information files)</span></label>
 
     </div>
 
@@ -564,7 +563,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
 <!-- EXPORT ITEM EDITOR -->
 
-<div id="yes3-fmapr-item-editor-panel" class="yes3-panel yes3-draggable" style="display:none;width:600px">
+<div id="yes3-fmapr-item-editor-panel" class="yes3-panel yes3-panel-small yes3-draggable" style="display:none;width:600px">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left" id="yes3-fmapr-fieldinsertion-panel-title">

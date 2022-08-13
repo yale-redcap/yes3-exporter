@@ -10,13 +10,8 @@ YES3.Functions.downloadExportLog = function()
     YES3.postServiceRequest({
 
         request: "downloadExportLog",
-        export_uuid: FMAPR.getExportUUID()
+        export_uuid: $("select#export_uuid").val()
     });
-}
-
-FMAPR.downloadExportLogCallback = function( response )
-{
-    //YES3.debugMessage('downloadExportLogCallback', response);
 }
 
 FMAPR.exportUUIDSelect = function()

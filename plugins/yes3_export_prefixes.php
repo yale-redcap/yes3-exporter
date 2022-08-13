@@ -23,7 +23,7 @@ $module->getCodeFor("yes3_export_prefixes", true);
 
 ?>
 
-<div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
+<div id="yes3-help-panel" class="yes3-panel yes3-help-panel yes3-draggable" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left" id="yes3-help-panel-title">

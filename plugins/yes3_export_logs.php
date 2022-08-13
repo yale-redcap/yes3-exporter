@@ -45,7 +45,7 @@ $module->getCodeFor("yes3_export_logs", true);
     }
 </style-->
 
-<div class="yes3-panel yes3-draggable" id="yes3-record-inspector">
+<div class="yes3-panel yes3-panel-medium yes3-draggable" id="yes3-record-inspector">
 
    <div class="yes3-panel-header-row">
 
@@ -124,7 +124,7 @@ $module->getCodeFor("yes3_export_logs", true);
 </div>
 
 
-<div id="yes3-help-panel" class="yes3-panel yes3-draggable" style="display:none">
+<div id="yes3-help-panel" class="yes3-panel yes3-help-panel yes3-draggable" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left" id="yes3-help-panel-title">
