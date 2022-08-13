@@ -315,100 +315,6 @@ FMAPR.closeDownloadForm = function()
     YES3.closePanel('yes3-fmapr-download-panel');
 }
 
-/**
- * sets: FMAPR.insertionRowId
- * 
- * DEPRECATED
- * 
- * @param {*} rowId 
- * @param {*} field_name 
- * @param {*} event_name
- */
-YES3.Functions.openFieldInsertionForm_deprecated = function(rowId, field_name, event_name)
-{
-    rowId = rowId || "";
-    field_name = field_name || "";
-    event_name = event_name || "";
-    
-    let thePanel = $("div#yes3-fmapr-fieldinsertion-panel");
-    let theParent = thePanel.parent();
-    let theRow = null;
-
-    // clear the progress bar
-    $("div#yes3-fmapr-bulk-insertion-progress").css("width", 0);
-
-    /**
-     * if rowId is not provided and if only one row is selected, make that the insertion point
-     */
-
-    /**
-     * if called with no params, set up for append
-     */
-    if ( !rowId.length ){
-
-        theRow = $('tr.yes3-fmapr-data-element').last();
-
-        if ( theRow ){
-
-            FMAPR.insertionRowId = theRow.attr('id');
-            field_name = theRow.find('input.yes3-fmapr-input-element').first().val();
-            let theEvent = theRow.find('select.yes3-fmapr-event-select').first();
-            event_name = theEvent.find("option:selected").text();
-            FMAPR.scrollExportItemsTableToBottom();
-        }
-        else {
-
-            FMAPR.insertionRowId = "";
-        }
-    }
-    else {
-
-        FMAPR.insertionRowId = rowId;
-        theRow = $(`tr#${rowId}`);
-    }
-
-    /**
-     * If no 'insert after' element row is found, 
-     * this is the first element and so insertion panel will be centered.
-     * YES3.openPanel will center if (x, y) === (0, 0)
-     */
-
-    let x = 0;
-    let y = 0;
-
-    if ( theRow.length ) {
-
-        x = theRow.offset().left - theParent.offset().left;
-        y = theRow.offset().top - theParent.offset().top;
-
-        //YES3.showRedPointer( theRow );
-
-        if ( y > $(window).innerHeight()/2 ) {
-            y = y - thePanel.outerHeight();
-        }
-        else {
-            y = y + theRow.outerHeight();
-        }
-
-        YES3.contextMenuClose(null, true);
-    }
-
-    YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false, x, y);
-
-    FMAPR.fieldInsertionFormReady(field_name, event_name);
-}
-
-/**
- * DEPRECATED
- */
-YES3.Functions.openFieldInsertionForm = function()
-{
-    YES3.openPanel("yes3-fmapr-fieldinsertion-panel", false);
-
-    FMAPR.fieldInsertionFormReady();
-}
-
-
 FMAPR.uSpecEditor = function()
 {
     return $("div#yes3-fmapr-uspec-editor");
@@ -433,16 +339,6 @@ FMAPR.uSpecEditor_saveAndClose = function()
     FMAPR.markAsDirty();
     
     FMAPR.uSpecEditor_closeForm();
-}
-
-
-/**
- * DEPRECATED
- */
-FMAPR.closeFieldInsertionForm = function()
-{
-    YES3.closePanel('yes3-fmapr-fieldinsertion-panel');
-    YES3.hideRedPointer();
 }
 
 FMAPR.countNewFieldRows = function()
@@ -855,7 +751,7 @@ FMAPR.setRapidEntryFormListeners = function()
             $("input#yes3-fmapr-rapidentry-object-name")
                 .val("")
                 .autocomplete({
-                    source: ( object_type==="field" ) ? FMAPR.getFieldAutoCompleteSource(object_event) : FMAPR.getFormAutoCompleteSource(object_event),
+                    source: ( object_type==="field" ) ? FMAPR.getFieldAutoCompleteSource(object_event) : FMAPR.getFormAutoCompleteSource(object_event, true),
                     minLength: 1,
                     select: function(event, ui) {
 
@@ -1997,9 +1893,11 @@ FMAPR.getFieldAutoCompleteSource = function(event)
 }
 
 
-FMAPR.getFormAutoCompleteSource = function(event)
+FMAPR.getFormAutoCompleteSource = function(event, suppressAllForms)
 {
     event = event || ALL_OF_THEM;
+
+    suppressAllForms = suppressAllForms || false;
 
     let accepted = false;
     let form_name = "";
@@ -2053,7 +1951,7 @@ FMAPR.getFormAutoCompleteSource = function(event)
         }
     }
 
-    if ( acSource.length > 1 ){
+    if ( acSource.length > 1 && !suppressAllForms ){
 
         acSource.unshift({
             "value": ALL_OF_THEM,
@@ -2665,266 +2563,6 @@ FMAPR.isRepeatedLayout = function()
         return false;
     }
     else return ( FMAPR.export_specification.export_layout === "r" );
-}
-
-FMAPR.fieldInsertionFormReady = function()
-{
-    let insertionRow = null;
-    let insertionRowObjName = "";
-    let insertionRowObjType = "";
-    let insertionRowEvent = "";
-    let insertionLocation = "";
-
-    let formSelector = $("select#yes3-fmapr-fieldinsertion-form");
-    let eventSelector = $("select#yes3-fmapr-fieldinsertion-event");
-
-    // clear the progress bar
-    $("div#yes3-fmapr-bulk-insertion-progress").css("width", 0);
-
-    if ( FMAPR.selectedRowCount()===1 ){
-
-        insertionRow = FMAPR.firstSelectedRow();
-        insertionRowObjType = insertionRow.data("object_type");
-        insertionLocation = "The insertion will be <em>before</em> item #" + insertionRow.find("td.yes3-fmapr-row-number").text();
-
-        if ( insertionRowObjType==="form"){
-
-            insertionLocation += ` (form '${insertionRow.data("form_name")}').`;
-        }
-        else if ( insertionRowObjType==="field"){
-
-            insertionLocation += ` (field '${insertionRow.find("input.yes3-fmapr-input-element").val()}'`;
-            insertionLocation += `, event '${insertionRow.find("select.yes3-fmapr-field-event option:selected").val()}').`;
-        }
-    }
-
-    if ( !insertionRow ){
-
-        insertionRow = theRow = $('tr.yes3-fmapr-data-element').last();
-        insertionLocation = "The insertion will be at end of the list.";
-    }
-
-    FMAPR.insertionRowId = insertionRow.attr('id');
-    
-    $("div#yes3-fmapr-bulkinsert-where").html(insertionLocation);
-
-    //$("div#yes3-fmapr-bulk-insertion-progress").css('visibility', 'hidden');
-    let progBar = $("div#yes3-fmapr-bulk-insertion-progress");
-    progBar.parent().css({"visibility": "hidden"});
-
-    formSelector.empty().append( FMAPR.getFormOptionsHtml() );
-    eventSelector.empty().off();
-    
-    FMAPR.fieldInsertionSetFormSelectListener();
-    FMAPR.fieldInsertionSetEventSelectListener();
-
-    formSelector.trigger('change');
-
-    FMAPR.fieldInsertionSetCounterListeners();
-    FMAPR.fieldInsertionReportCounts();
-}
-
-FMAPR.insertionWrapup = function()
-{
-    FMAPR.closeFieldInsertionForm();
-
-    FMAPR.renumberRows();
-
-    FMAPR.doExportItemsTableHousekeeping( true );
-
-    FMAPR.enumerateSpecificationElements();
-
-    FMAPR.updateStatus();
-
-    FMAPR.markAsDirty();
-
-    // FMAPR.ensureNewItemRowAtEndV2();
-
-    //FMAPR.setRepeatLayoutConstraints();
-}
-
-FMAPR.insertFields = function(theRowBeforeWhich, callback)
-{
-    let i = 0;
-    let progBar = $("div#yes3-fmapr-bulk-insertion-progress");
-    let progBarParent = progBar.parent();
-    let progBarWidth = progBarParent.width();
-    let batchSize = 10;
-
-    progBarParent.css({"visibility": "visible"});
-
-    insertNextBatchOfFields();
-
-    function insertNextBatchOfFields()
-    {
-        let iEnd = Math.min( FMAPR.insertionElements.length, i+batchSize );
-        let yes3_fmapr_data_element_name = "";
-
-        while ( i < iEnd ){
-
-            yes3_fmapr_data_element_name = YES3.Functions.addRawREDCapField( FMAPR.insertionElements[i], theRowBeforeWhich, true );
-
-            theRowBeforeWhich = $(`tr#${FMAPR.dataElementRowId(yes3_fmapr_data_element_name)}`);
-    
-            FMAPR.insertionElements[i].element_name = yes3_fmapr_data_element_name;
-            
-            i++;
-        }
-
-        progBar
-            .width(progBarWidth*i/FMAPR.insertionElements.length)
-            .html("&nbsp;" + parseInt(100*i/FMAPR.insertionElements.length) + "%")
-        ;
-
-        if ( i < FMAPR.insertionElements.length ){
-            setTimeout(insertNextBatchOfFields, 0);
-        }
-        else {
-            callback();
-        }  
-    }
-}
-
-FMAPR.fieldInsertionSetCounterListeners = function()
-{
-     
-    $('select#yes3-fmapr-fieldinsertion-form, select#yes3-fmapr-fieldinsertion-event').on("change", function(){
-       
-        FMAPR.fieldInsertionReportCounts();
-    });
-}
-
-FMAPR.fieldInsertionReportCounts = function()
-{
-    let form_name = $('select#yes3-fmapr-fieldinsertion-form').val();
-    let event_id = $('select#yes3-fmapr-fieldinsertion-event').val();
-
-    let statusDiv = $('div#yes3-fmapr-fieldinsertion-counts');
-
-    let counts = FMAPR.enumerateInsertionElements(form_name, event_id);
-
-    statusDiv.html(`Up to ${counts.forms} forms, ${counts.fields} fields and ${counts.columns} columns.`);
-
-}
-
-FMAPR.fieldInsertionSetFormSelectListener = function()
-{
-    $('select#yes3-fmapr-fieldinsertion-form').off().on("change", function(){
-
-        //-xxxif ( !FMAPR.isVerticalLayout() ){
-    
-            $("select#yes3-fmapr-fieldinsertion-event").empty().append( FMAPR.getEventOptionsHtml($(this).val()) );
-        //}
-
-        if ( $(this).val()===ALL_OF_THEM ){
-
-            $(".yes3-fmapr-allforms-only").show();
-        }
-        else {
-
-            $(".yes3-fmapr-allforms-only").hide();
-        }
-    });
-}
-
-FMAPR.fieldInsertionSetEventSelectListener = function()
-{
-    $('select#yes3-fmapr-fieldinsertion-event').off().on("change", function(){
-
-        $("select#yes3-fmapr-fieldinsertion-form").empty().append( FMAPR.getFormOptionsHtml($(this).val()) );
-    });    
-}
-
-FMAPR.enumerateInsertionElements = function(form_name, event_id)
-{
-    //-xxxif ( FMAPR.isVerticalLayout() ){
-    //    event_id = "all";
-    //}
-
-    console.log(form_name, event_id);
-
-    
-    if ( !form_name || !event_id ) {
-        return {'fields':0, 'columns':0};
-    }
-
-    let field_count = 0;
-    let column_count = 0;
-    let this_form_name = "";
-    let i = 0;
-    let j = 0;
-    let k = 0;
-    let forms = [form_name];
-    let form_index = 0;
-
-    /**
-     * 'all forms' really means 'all forms for the selected event'
-     */
-    if ( form_name === ALL_OF_THEM ) {
-
-        forms = FMAPR.formsAllowedForEvent( event_id );
-
-        console.log(forms);
-    }
-
-    FMAPR.insertionElements = [];
-
-    FMAPR.insertionForms = [];
-
-    if ( FMAPR.isVerticalLayout() ){
-
-        column_count = 1;
-    }
-    else if ( FMAPR.isRepeatedLayout() ){
-
-        column_count = 2;
-    }
-
-    for (i=0; i<forms.length; i++){
-
-        this_form_name = forms[i];
-        form_index = FMAPR.project.form_index[this_form_name];
-        fields = FMAPR.project.form_metadata[form_index].form_fields;
-        events = FMAPR.project.form_metadata[form_index].form_events;
-
-        FMAPR.insertionForms.push({
-            redcap_form_name: this_form_name,
-            redcap_event_id: event_id,
-            events: events
-        });
-
-        for(j=0; j<fields.length; j++){
-
-            field_name = fields[j];
-            
-            if ( field_name !== YES3.moduleProperties.RecordIdField ){
-
-                FMAPR.insertionElements.push({
-                    redcap_form_name: this_form_name,
-                    redcap_field_name: field_name,
-                    redcap_event_id: event_id/*,
-                    events: events*/
-                });
-                field_count++;
-
-                if ( event_id===ALL_OF_THEM && FMAPR.isHorizontalLayout()  ){
-
-                    column_count += events.length;
-                }
-                else {
-
-                    column_count++;
-                }
-            }
-        }
-        
-    }
-
-    return {
-        'forms': FMAPR.insertionForms.length, 
-        'fields': FMAPR.insertionElements.length, 
-        'columns': column_count
-    };
 }
 
 FMAPR.isSpecificationElement = function(field_name, event_id)
