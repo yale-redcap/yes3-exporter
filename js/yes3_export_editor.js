@@ -54,14 +54,16 @@ YES3.Functions.Help_criterionValue = function()
 {
     let thePanel = YES3.openPanel("yes3-fmapr-criterion-value-help-panel", true);
     let export_criterion_field = $('input#export_criterion_field').val() || "";
+    let export_selection = $('input[name=export_selection]:checked').val();
     let export_criterion_value = $('input#export_criterion_value').val() || "";
     let m = {};
     let field_type = "";
     let field_valueset_list = "";
 
-    if ( !export_criterion_field.length ){
+    if ( export_selection==='1' || !export_criterion_field.length ){
 
-        thePanel.find("td[property=field_name]").html("(no field selected)");
+        thePanel.find("tr[property=field_name] td.propvalue").html("(no field selected)");
+        thePanel.find("tr[property=field_label]").hide();
         thePanel.find("tr.yes3-fmapr-criterion-field-defined").hide();
     }
     else {
@@ -72,8 +74,8 @@ YES3.Functions.Help_criterionValue = function()
             field_type += " (" + m.field_validation + ")";
         }
         thePanel.find("tr[property=field_name] td.propvalue").html(export_criterion_field);       
-        thePanel.find("tr[property=field_type] td.propvalue").html(field_type);
-        thePanel.find("tr[property=field_label] td.propvalue").html(m.field_label);
+        thePanel.find("tr[property=field_type] td.propvalue").html(field_type).show();
+        thePanel.find("tr[property=field_label]").show().find("td.propvalue").html(m.field_label);
         thePanel.find("tr.yes3-fmapr-criterion-field-defined").show();
         
         field_valueset_list = FMAPR.valueSetList( m.field_type, m.field_valueset );
