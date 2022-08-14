@@ -1,11 +1,18 @@
 
 # YES3 Exporter Change Log
 
+## Version 1.0.1
+
+August 14, 2022
+
+1. Framework changed from 5 to 9; v12.0.4 now the minimum REDCap version
+2. Plugin CSRF token handling modified to meet F9 requirement
+3. Minor UI tweaks
+4. Client-side export column count estimation improved
+
 ## Version 1.0.0
 
-### FIRST PRODUCTION VERSION
-
-August 15, 2022
+August 12, 2022
 
 1. Updates to README based on v0.9.3 feature changes
 2. Minor changes to technical.md
