@@ -667,10 +667,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $path = $root . $filename;   
         }
 
-        return $this->fopen_w( $path, "w+", $root, $utf8 );
+        return $this->fopen_w_safe( $path, "w+", $root, $utf8 );
     }
 
-    public function fopen_w( $filename, $mode="w", $root = "", $utf8=true )
+    public function fopen_w_safe( $filename, $mode="w", $root = "", $utf8=true )
     {
         $h = fopen( $this->getSafePath($filename, $root), $mode );
 
@@ -682,6 +682,25 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         if ( $utf8 ){
 
             fwrite($h, "\xEF\xBB\xBF" );
+        }
+
+        return $h;
+    }
+
+    /**
+     * fopen_r
+     * 
+     * @param mixed $path   path of file to open, must be from the PHP system temp dir
+     * @return resource 
+     * @throws Exception 
+     */
+    public function fopen_r_safe( $path )
+    {
+        $h = fopen(  $this->getSafePath($path, sys_get_temp_dir()), 'r' );
+
+        if ( $h===false ){
+
+            throw new Exception("Fail: could not open file " . $this->getSafePath($path, sys_get_temp_dir()) );
         }
 
         return $h;
@@ -1941,7 +1960,7 @@ WHERE project_id=? AND log_entry_type=?
             throw new Exception("Fail: download export file not written");
         }
 
-        $h = fopen( $xFileResponse['export_data_filename'], "r");
+        $h = $this->fopen_r_safe( $xFileResponse['export_data_filename'] );
 
         if ( $h === false ) {
 
@@ -2031,12 +2050,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $size = intval(sprintf("%u", filesize($zipFilename)));
 
-        $h = fopen($zipFilename, "r");
-
-        if ( $h === false ) {
-
-            throw new Exception("Fail: download export file could not be opened");
-        }
+        $h = $this->fopen_r_safe($zipFilename);
 
         $this->logExport(
             "export zip downloaded",
