@@ -18,7 +18,13 @@
 
     "versions": [
         {
-            "number": "1.0.0",
+            "number": "1.0.2",
+            "date": "2022-08-15",
+            "description": "Security updates",
+            "comments": "per VUMC taint analysis"
+        },
+        {
+            "number": "1.0.1",
             "date": "2022-08-15",
             "description": "First production release",
             "comments": "See change log for pre-production versions"

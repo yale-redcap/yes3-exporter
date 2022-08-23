@@ -1,6 +1,11 @@
 
 # YES3 Exporter Change Log
 
+## Version 1.0.2
+
+1. basename() used to sanitize download filename headers
+2. getSafePath() used for file writes
+
 ## Version 1.0.1
 
 August 14, 2022

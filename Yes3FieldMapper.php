@@ -445,35 +445,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         //return count($dd) . " export columns defined.";
     }
 
-    private function openTempFile()
-    {
-        if ( !$filename = tempnam(sys_get_temp_dir(), "ys3") ){
-
-            return false;
-        }
-
-        // ensure file is erased as soon as script finishes
-        register_shutdown_function( function() use($filename){
-
-            unlink($filename);
-        });
-
-        //return fopen( $filename, "w+" );
-        return $this->fopen_w_utf8( $filename );
-    }
-
-    public function fopen_w_utf8( $filename, $mode="w" )
-    {
-        $h = fopen( $filename, $mode );
-
-        if ( $h !== false ){
-
-            fwrite($h, "\xEF\xBB\xBF" );
-        }
-
-        return $h;
-    }
-
     /**
      * Returns a non-assoc array suitable for CSV export
      * Utility columns removed
@@ -558,9 +529,12 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
     private function writeExportInfoFile($export_name, $export_target_folder, $export_uuid, $export_layout, $bytesWritten, $R, $C, $data_file_path, $destination){
        
+        /*
         if ( !$export_target_folder || $destination==="download" ) {
 
-            $path = tempnam(sys_get_temp_dir(), "ys3");
+            $root = sys_get_temp_dir();
+            $path = tempnam($root, "ys3");
+
         }
         else {
 
@@ -569,16 +543,21 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $export_target_folder .= DIRECTORY_SEPARATOR;
             }
 
-            $path = $export_target_folder . $this->exportInfoFilename($export_name, $destination);           
+            $root = $export_target_folder;
+            $path = $root . $this->exportInfoFilename($export_name, $destination);           
         }
 
-        //$h = fopen( $path, "w+" );
-        $h = $this->fopen_w_utf8( $path, "w+" );
+        $h = $this->fopen_w_utf8( $path, "w+", $root );
 
         if ( $h===false ){
 
             throw new Exception("Fail: could not create export file {$path}");
-        }
+        }        
+        */
+
+        $path = "";
+
+        $h = $this->export_file_handle( $path, $destination, $export_target_folder, $this->exportInfoFilename($export_name, $destination) );
 
         $project = $this->getProject();
 
@@ -612,7 +591,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return [
             'export_info_filename' => $path,
             'export_info_message' => "Success: {$bytesWritten} bytes written to {$path}.",
-            'export_info_filename' => $path,
             'export_info_file_size' => $bytesWritten,
             'export_info' => $info
         ];
@@ -621,7 +599,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     private function writeExportDataDictionaryFile( $export_name, $export_target_folder, $dd, $destination, $export_layout, &$bytesWritten=0 )
     {
         $delim = ",";
-        
+        /*
         if ( !$export_target_folder || $destination==="download" ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
@@ -644,6 +622,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             throw new Exception("Fail: could not create export file {$path}");
         }
 
+        $path = "";
+        */
+
+        $h = $this->export_file_handle( $path, $destination, $export_target_folder, $this->exportDataDictionaryFilename($export_name, "filesystem") );
+
         $R = 0;
 
         $xx = (array) $this->dataDictionaryForExport($dd, $export_layout);
@@ -665,6 +648,43 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             'export_data_dictionary_filename' => $path,
             'export_data_dictionary_file_size' => $bytesWritten
         ];
+    }
+
+    private function export_file_handle( &$path, &$destination, $export_target_folder, $filename="", $utf8 = true)
+    {
+        if ( !$export_target_folder || $destination==="download" ) {
+
+            $root = sys_get_temp_dir();
+            $path = tempnam($root, "ys3");
+        }
+        else {
+
+            $root = $export_target_folder;
+            if ( substr($export_target_folder, -1) !== DIRECTORY_SEPARATOR ){
+
+                $root .= DIRECTORY_SEPARATOR;
+            }
+            $path = $root . $filename;   
+        }
+
+        return $this->fopen_w( $path, "w+", $root, $utf8 );
+    }
+
+    public function fopen_w( $filename, $mode="w", $root = "", $utf8=true )
+    {
+        $h = fopen( $this->getSafePath($filename, $root), $mode );
+
+        if ( $h===false ){
+
+            throw new Exception("Fail: could not open file " . $this->getSafePath($filename, $root) );
+        }
+
+        if ( $utf8 ){
+
+            fwrite($h, "\xEF\xBB\xBF" );
+        }
+
+        return $h;
     }
 
     public function get_export_target_folder()
@@ -703,6 +723,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $export_specification = $ddPackage['export_specification'];
 
+        /*
         if ( !$export_target_folder || $destination==="download" ) {
 
             $path = tempnam(sys_get_temp_dir(), "ys3");
@@ -728,6 +749,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             throw new Exception("Fail: could not create export file {$path}");
         }
+        */
+
+        $path = "";
+
+        $h = $this->export_file_handle( $path, $destination, $export_target_folder, $this->exportDataFilename($export_name, "filesystem") );
 
         /**
          * build an assoc array for rapid event name resolution
@@ -1877,19 +1903,20 @@ WHERE project_id=? AND log_entry_type=?
             null
         );
      
-        //$h = fopen('php://output', 'w');
-        $h = $this->fopen_w_utf8('php://output');
+        $h = fopen('php://output', 'w');
 
         if ( $h===false ){
 
             throw new Exception("Fail: could not open PHP output stream.");
         }
 
+        $path = "";
+
         ob_start();
 
         header("Content-type: text/csv");
         header("Cache-Control: no-store, no-cache");
-        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Content-Disposition: attachment; filename=' . basename($filename) );
      
         foreach ( $xx as $x ) {
 
@@ -1945,8 +1972,9 @@ WHERE project_id=? AND log_entry_type=?
 
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
+        header("Cache-Control: no-store, no-cache");
         header('Content-Length: '.$size);
-        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Content-Disposition: attachment;filename=' . basename($filename) );
 
         while (!feof($h)){
 
@@ -2028,8 +2056,9 @@ WHERE project_id=? AND log_entry_type=?
 
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
+        header("Cache-Control: no-store, no-cache");
         header('Content-Length: '.$size);
-        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Content-Disposition: attachment;filename=' . basename($filename) );
 
         while (!feof($h)){
 
