@@ -3,6 +3,7 @@ name: Psalm Security Scan
 on: [push, pull_request]
 
 jobs:
+
   psalm:
     name: Psalm
     runs-on: ubuntu-latest

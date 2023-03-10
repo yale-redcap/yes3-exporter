@@ -1,7 +1,5 @@
 <?php
 
-define('YES3_NAMESPACE_PREFIX', "Yale\\Yes3FieldMapper\\");
-
 /**
  * EM class/trait autoloader
  * 
@@ -25,9 +23,11 @@ define('YES3_NAMESPACE_PREFIX', "Yale\\Yes3FieldMapper\\");
  */
 spl_autoload_register(function ($classOrTrait) {
 
+   $namespacePrefix = "Yale\\Yes3FieldMapper\\";
+
    // does the class/trait use the namespace prefix?
-   $len = strlen(YES3_NAMESPACE_PREFIX);
-   if (strncmp(YES3_NAMESPACE_PREFIX, $classOrTrait, $len) !== 0) {
+   $len = strlen( $namespacePrefix );
+   if (strncmp($namespacePrefix, $classOrTrait, $len) !== 0) {
       // no, move to the next registered autoloader
       return;
    }
