@@ -1085,7 +1085,7 @@ YES3.Functions.saveExportSpecification = function(auditOnly)
 
         YES3.isBusy( YES3.captions.wait_saving_specification );
         
-        //YES3.debugMessage( 'saveExportSpecification', postParams );
+        YES3.debugMessage( 'saveExportSpecification', postParams );
 
         YES3.requestService( postParams, FMAPR.saveExportSpecificationCallback, false );
     }
@@ -3999,7 +3999,7 @@ FMAPR.loadSpecification = function( log_id )
 
 FMAPR.loadSpecificationCallback = function( response )
 {
-    //YES3.debugMessage('loadSpecificationCallback', response, typeof response);
+    YES3.debugMessage('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 

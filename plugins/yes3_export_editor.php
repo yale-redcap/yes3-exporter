@@ -754,7 +754,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
         <div class="row yes3-fmapr yes3-editor">
 
-            <div class="col-xl-6">
+            <div class="col-xl-8">
 
                 <table id="yes3-fmapr-settings-1" name="yes3-fmapr-settings" class="yes3-fmapr-settings">
 
@@ -772,8 +772,36 @@ $module->getCodeFor("yes3_export_editor", true);
                     <tr>
                         <td>Export layout:</td>
                         
-                        <td class="yes3-fmapr-export-layout-text">
+                        <td>
+                            <div class="yes3-fmapr-export-layout-text"></div>
                         </td>                    
+                    </tr>
+                    </tr>
+
+                    <tr>
+                        <td>Multi-select values exported as:</td>
+
+                        <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
+
+                            <input type="radio" class="balloon" value="1" name="export_multiselect" data-setting="export_multiselect" id="yes3-fmapr-export_multiselect-1">
+                            <label for="yes3-fmapr-export_multiselect-1" title="Export as multiple columns (one per option, each having 1=selected, 0=not selected values)">Multiple (0,1) columns</label>&nbsp;
+
+                            <input type="radio" class="balloon" value="2" name="export_multiselect" data-setting="export_multiselect" id="yes3-fmapr-export_multiselect-2">
+                            <label for="yes3-fmapr-export_multiselect-2" title="Export as a single column (a list of selected option values)">Single column (list of selected options)</label>&nbsp;
+
+                        </td>               
+                        
+                        <!--td>
+                            <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                                <label 
+                                class="yes3-checkmarkContainer"
+                                title="If checked, every 'check all that apply' field will be exported as multiple columns, one for each option."
+                                >
+                                    <input type="checkbox" name="export_multiselect" data-setting="export_multiselect" value="1" />
+                                    <span class="yes3-checkmark"></span>Multicolumn multiselects
+                                </label>
+                            </div>
+                        </td-->                    
                     </tr>
 
                     <tr class="yes3-fmapr-beta">

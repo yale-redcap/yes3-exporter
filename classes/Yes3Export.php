@@ -7,6 +7,7 @@ class Yes3Export {
     public $export_name = "";
     public $export_uuid = "";
     public $export_layout = "";
+    public $export_multiselect = "";
     public $export_selection = "";
     public $export_criterion_field = "";
     public $export_criterion_event = "";
@@ -34,8 +35,9 @@ class Yes3Export {
     public function __construct( $exportSettings )
     {
         $this->export_name = $exportSettings['export_name'] ?? "noname";
-        $this->export_uuid = $exportSettings['export_uuid'] ?? "";
+        $this->export_uuid = $exportSettings['export_uuid'] ?? "";          
         $this->export_layout = $exportSettings['export_layout'] ?? "";
+        $this->export_multiselect = $exportSettings['export_multiselect'] ?? "1";
         $this->export_selection = $exportSettings['export_selection'] ?? "";
         $this->export_criterion_field = $exportSettings['export_criterion_field'] ?? "";
         $this->export_criterion_event = $exportSettings['export_criterion_event'] ?? "";
