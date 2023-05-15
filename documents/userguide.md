@@ -227,9 +227,7 @@ There are three export layouts.
 
 #### Exporting Repeating Events and Forms
 
-It is more efficient to include only a single repeating form in an export specification, rather than combine one or more repeating forms. Otherwise, your export will have as many rows per record (and event, for the vertical layout) as the maximum number of instances among all the repeatable forms - and probably a lot of blank cells. For example, say you are exporting two repeatable forms, one for meds and one for chronic conditions. If a record has 4 meds and 10 chronic conditions, the export will have 10 rows for that record/event, only 4 of which will have data for both forms. Not only is storage space wasted, it can be quite difficult to process the data in the statistical database. It's usually best to treat them as separate data tables.
-
-A similar problem can occur when combining different repeating events in the same export, only potentially worse since more fields might be involved. Best to export repeating events separately.
+Care must be taken when exporting repeating events and forms. It is more efficient to include only a single repeating event or form in an export specification, rather than to combine one or more repeating entities. Otherwise, your export will have as many rows per record (and event, for the vertical layout) as the maximum number of instances among all the repeatable entities - and probably a lot of blank cells. For example, say you are exporting two repeatable forms, one for meds and one for chronic conditions. If a record has 4 meds and 10 chronic conditions, the export will have 10 rows for that record/event, only 4 of which will have data for both forms. Not only is storage space wasted, it can be quite difficult to process the data using a statistical software package. A similar problem can occur when combining different repeating events in the same export, only potentially worse since more fields might be involved. It's usually best to export them separately and to treat them as separate data tables.
 
 ### Export Settings View
 

@@ -62,7 +62,7 @@ When exporting to a host filesystem folder, or downloading to a .zip export pack
 
 The export name is "normalized" by converting to lower case and replacing spaces and other non-alphanumeric characters with underscores.
 
->Future versions of the YES3 Exporter will include execution-ready generated code - in SAS, R and possibly other formats - tailored to the specific export. This code will be added to the YES3 Exporter payload. If you are writing code for importing YES3 Exports into datamarts and would like to share tips and techniques with us, please let us know.
+>Future versions of the YES3 Exporter may include execution-ready generated code - in SAS, R and possibly other formats - tailored to the specific export. This code will be added to the YES3 Exporter payload. If you are writing code for importing YES3 Exports into datamarts and would like to share tips and techniques with us, please let us know.
 
 ### How export specifications are identified
 
@@ -215,13 +215,13 @@ Horizontal layouts are allowed only for longitudinal study designs, and have one
 | ... |
 | [composite fieldname] | the last selected field/event value | variable name is [event prefix]_[ REDCap field name] |
 
-### The Repeating Form Export Layout
+### The Repeating Event/Form Export Layout
 
-For classic (cross sectional) study designs, the repeating form export layout has one row for each observed record and instance combination.
+For classic (cross sectional) study designs, the repeating event/form export layout has one row for each observed record and instance combination.
 
-For longitudinal study designs, the repeating form export layout has one row per observed record, event and instance combination.
+For longitudinal study designs, the repeating event/form export layout has one row per observed record, event and instance combination.
 
-> Note that only one form is allowed in a repeating form layout. This is because 'instance' normally has no meaning across forms. We are considering a new repeating _event_ export layout that would allow multiple forms. Please let us know if the repeating event layout would be useful for your studies.
+> See **Exporting Repeating Events and Forms** in the User Guide for adiscussion on how to best use this feature.
 
 #### Export record specification for a Repeating Form layout
 
