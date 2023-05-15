@@ -346,11 +346,16 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->addExportItem_otherProperty($export, VARNAME_EVENT_ID,   "REDCap Event Id", "INTEGER");
             $this->addExportItem_otherProperty($export, VARNAME_EVENT_NAME, "REDCap Event Name", "TEXT");
         }
-
+/*
         if ( $export->export_layout === "r" ) {
 
             $this->addExportItem_otherProperty($export, VARNAME_INSTANCE, "REDCap Repeat Instance", "INTEGER");
         }
+*/
+        /**
+         * as of v1.1.0, instance is included on every export
+         */
+        $this->addExportItem_otherProperty($export, VARNAME_INSTANCE, "REDCap Repeat Instance", "INTEGER");
 
         $export_items = json_decode( $export_specification['export_items_json'], true);
 
@@ -887,7 +892,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
         }
 
-        Yes3::logDebugMessage($this->getProjectId(), print_r($dd_multiselect_index, true), "DD_MULTISELECT_INDEX");
+        //Yes3::logDebugMessage($this->getProjectId(), print_r($dd_multiselect_index, true), "DD_MULTISELECT_INDEX");
 
         /**
          * Assemble the SELECT query and event params to be passed to the record writer
@@ -912,13 +917,24 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $sqlEvent .= ")";
         }
 
+        /**
+         * WITHIN-RECORD SORT ORDER
+         * horizontal layout: breaks instance
+         * vertical layout: breaks on event, instance
+         * repeating layout (DEPRECATED): breaks on event, instance
+         */
+
         if ( $ddPackage['export_layout']==="r" ){
 
             $sqlOrderBy = " ORDER BY d.`event_id`, d.`instance`";
         }
         else if ( $ddPackage['export_layout']==="v" ){
 
-            $sqlOrderBy = "ORDER BY d.`event_id`";
+            $sqlOrderBy = "ORDER BY d.`event_id, d.`instance`";
+        }
+        else {
+
+            $sqlOrderBy = " ORDER BY d.`instance`, d.`event_id`";
         }
 
         if ( $sqlEvent ){
@@ -1532,7 +1548,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $exportValues = 0;
 
-        Yes3::logDebugMessage($this->project_id, print_r($multiselect_fields, true), "writeExportDataFileRecord: multiselects");
+        //Yes3::logDebugMessage($this->project_id, print_r($multiselect_fields, true), "writeExportDataFileRecord: multiselects");
 
 
         //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
@@ -1551,7 +1567,7 @@ WHERE project_id=? AND log_entry_type=?
 
             //$K++;
 
-            $x_instance = $x['instance']; if ( !$x_instance ) $x_instance=1;
+            $x_instance = strval($x['instance']); if ( !$x_instance ) $x_instance="1";
 
             /**
              * $BOR: beginning of record
@@ -1559,8 +1575,8 @@ WHERE project_id=? AND log_entry_type=?
              * No break for horiz layouts,
              *   (event_id) for vertical,
              *   (event_id, instance) for repeating
-             */
-
+            */
+            /*
             if ( $export_layout==="v" ) {
 
                 $BOR = ( $x['event_id'] !== $event_id );
@@ -1569,8 +1585,21 @@ WHERE project_id=? AND log_entry_type=?
 
                 $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
             }
+            */
+
+            if ( $export_layout==="h" ) {
+
+                $BOR = ( $x_instance !== $instance );
+            }
+            else {
+
+                $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
+            }
+
+            //Yes3::logDebugMessage($this->getProjectId(), $BOR, "writeExportDataFileRecord: BOR");
 
             $event_id = $x['event_id'];
+            $instance = $x_instance;
 
             //Yes3::logDebugMessage($this->getProjectId(),$BOR, "writeExportDataFileRecord: BOR");
 
@@ -1609,11 +1638,13 @@ WHERE project_id=? AND log_entry_type=?
                     $y[VARNAME_EVENT_ID  ] = $x['event_id'];
                     $y[VARNAME_EVENT_NAME] = $eventName[$x['event_id']];
                 }
-
+                /*
                 if ( $export_layout==="r" ) {
     
                     $y[VARNAME_INSTANCE  ] = $x_instance;
                 }
+                */
+                $y[VARNAME_INSTANCE] = $x_instance;
 
                 if ( isset($y[VARNAME_GROUP_ID]) ) {
 
@@ -1782,8 +1813,11 @@ WHERE project_id=? AND log_entry_type=?
                 $this->doValidationCalculations($dd[$specmap_field_index], $specValue);
            }
 
-        }
+        } // foreach record...
 
+        /**
+         * write the last (or only) export for this record
+         */
         if ( $y && $exportValues ){
 
             $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);

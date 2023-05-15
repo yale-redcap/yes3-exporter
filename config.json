@@ -3,7 +3,7 @@
 
     "namespace": "Yale\\Yes3FieldMapper",
 
-    "description": "Adds export functionality to support integration with statistical software and datamarts. The EM allows you to export longitudinal data in horizontal layout (one row per record), add prefixes to distinguish fields from different events, export large datasets that may not complete on REDCap export, generate export-specific data dictionaries, and export to an institutional fileshare mounted on the host filesystem.  Other features and functionality is described in the User Guide and Technical Guide.",
+    "description": "Adds export functionality for analysis, statistical software, and datamarts.  Fast export speeds with good performance on large exports.  EM features: (1.) two export layouts including a horizontal layout for longitudinal studies (one row per record), (2.) support for repeating events and forms, (3.) event prefix editor for variable naming, (4.) export-specific data dictionaries, (5.) ability to write directly to host filesystem (i.e. mounted institutional file shares), (6.) detailed export audit logs and daily export reports, (7.) payloads for datamart integration that include data, data dictionary, data distributions and metadata.",
 
     "prefix": "yes3_exporter",
 
@@ -18,10 +18,16 @@
 
     "versions": [
         {
+            "number": "1.1.0",
+            "date": "2023-06-01",
+            "description": "Feature update",
+            "comments": "(1) New multi-column layout for multiselect exports, (2) Support for repeating forms and events for all export layouts."
+        },
+        {
             "number": "1.0.3",
             "date": "2023-05-15",
-            "description": "Security updates",
-            "comments": "bug fixes"
+            "description": "bug fix",
+            "comments": "form exports for classic projects could fail"
         },
         {
             "number": "1.0.2",

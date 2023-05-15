@@ -5,7 +5,7 @@
 # YES3 Exporter Technical Guide
 
 YES3 Exporter 
-Version 1.0.0, August 2022
+Version 1.1.0, June 2023
 
 ## Intended Audience
 
@@ -22,9 +22,9 @@ Katy Araujo _ninja, testing, documentation_
 <br>Brian Funaro _lead IT system engineer_
 <br>Mary Geda _program manager, documentation lead_
 <br>Kaitlin Maciejewski _testing_
+<br>Baylah Tessier-Sherman _testing_
 <br>Janet Miceli _ninja, testing_
 <br>Sui Tsang _lead ninja, testing lead, documentation_
-<br>Maxwell Wibert _EM developer, REDCap@Yale portal website manager_
 
 ## Fundamentals
 
@@ -125,6 +125,18 @@ Object properties:
 
 > CHECKBOX data values: If a "check all that apply" checkbox has multiple items, they will be returned in the export data as a comma-separated list of checked values. This is equivalent to the `combine_checkbox_values` option of the REDCap::getData() method.
 
+### Variable Names
+
+Exported variable names will generally match the underlying REDCap field names.
+However, _composite_ variable names will be generated under certain circumstances, by combing the REDCap field name with a prefix or a suffix (or both).
+
+| scenario | export layout | prefix | suffix | example |
+|:---|:---|:---|:---|:---|
+| longitudinal project | horizontal | event abbreviation | | scrn_eligible |
+| multiselect field, multiple-column option | all | | option value | meds___2 |
+
+> A note on multiselect ("check all that apply") exports: If the multiselect "single column" option is selected in the export settings, then a single export column will be generated with the same name as the REDCap field, and this column will contain a list of the selected options for the record, for example "1,5,12". If the "multiple column" export option is selected, then one column for every option will be generated, and its name will be the REDCap field name followed by three underscores, followed by the option value.
+
 ### REDCap Attribute variables
 
 Depending on the export layout and study design, an exported dataset may include one or more "REDCap Attribute" variables. These are the intrinsic REDCap attributes that may be associated with an output record: data access group, event and instance. Where possible we have used the same names that are used by the REDCap API. The full list is shown below.
@@ -141,7 +153,7 @@ Depending on the export layout and study design, an exported dataset may include
 
 All exported datasets include REDCap data values of course, and these are stored in REDCap Data variables. For vertical and repeated export layouts, the variable names for REDCap data will be the same as the underlying REDCap field_name. For horizontal layouts the variable names will be composites of the REDCap event prefix and the REDCap field name.
 
-> Work with REDCap project designers to ensure that for longitudinbal studies the length of no composite field name exceeds the limits imposed by any statistical packages that will be used to process the exports.
+> Work with REDCap project designers to ensure that for longitudinal studies the length of no composite field name exceeds the limits imposed by any statistical packages that will be used to process the exports.
 > 
 > For example, the variable name limit for SAS and STATA is 32 characters, 
 for MATLAB the limit is 63 characters and for R the limit is 64 characters.
@@ -176,6 +188,7 @@ For longitudinal study designs, the vertical export layout has one row per obser
 | [recordId] | The record unique identifier | study-specific variable name |
 | redcap_data_access_group_id | The numeric DAG id | only present if DAGs are assigned to records |
 | redcap_data_access_group_name | The unique DAG name | only present if DAGs are assigned to records |
+| redcap_repeat_instance | The instance number | always present |
 | redcap_event_id | The numeric event id | only present for longitudinal studies |
 | redcap_event_name | The unique REDCap event name | only present for longitudinal studies |
 | [fieldname] | the first selected field value | variable name is the underlying REDCap field name |
@@ -197,6 +210,7 @@ Horizontal layouts are allowed only for longitudinal study designs, and have one
 | [recordId] | The record unique identifier | study-specific variable name |
 | redcap_data_access_group_id | The numeric DAG id | only present if DAGs are assigned to records |
 | redcap_data_access_group_name | The unique DAG name | only present if DAGs are assigned to records |
+| redcap_repeat_instance | The instance number | always present |
 | [composite fieldname] | the first selected field/event value | variable name is [event prefix]_[ REDCap field name] |
 | ... |
 | [composite fieldname] | the last selected field/event value | variable name is [event prefix]_[ REDCap field name] |
@@ -281,7 +295,3 @@ Our code checking relies on static code analyses implemented in VSCode (psalm, i
 Our feature testing is based on an extensive checklist that works through all of the features, with UI/UX probes throughout. This checklist is used by a team of REDCap project designers on a curated set of classic and longitudinal studies, all export layout options, and download and filesystem destinations.
 
 We are currently evaluating our script to see which feature tests can be automated, perhaps by a Python-based 'robotic user'.
-
-Our function testing is based on a Python application that processes exported data and data dictionaries and performs a number of validations. These validations include consistency checks twixt the exported data and data dictionary, but most importantly, through REDCap API calls it conducts a thorough comparision between the exported data and the data stored in REDCap. All of these checks are run on the exports used in the feature testing.
-
-> Venugopal Bhatia is the developer of the YES3 Exporter functional testing application 

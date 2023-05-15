@@ -57,20 +57,48 @@ $module->getCodeFor("yes3_export_editor", true);
                 <td>
 
                     <input class="balloon yes3-longitudinal-only" type="radio" class="balloon" value="h" name="new_export_layout" id="yes3-fmapr-new-export-layout-h">
-                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record)">Horizontal (longitudinal projects: one row per record)</label>
+                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record per repeat instance)">
+                        Horizontal: one row per record (per repeat instance)
+                    </label>
 
                     <br class="yes3-longitudinal-only">
 
                     <input type="radio" class="balloon" value="v" name="new_export_layout" id="yes3-fmapr-new-export-layout-v">
-                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical layout (one row per record+event)">Vertical (one row per record+event)</label>
+                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical: one row per record per event (per repeat instance)">
+                        Vertical: one row per record per event (per repeat instance)
+                    </label>
 
                     <br class="yes3-has-repeating-forms">
 
                     <input type="radio" class="balloon yes3-has-repeating-forms" value="r" name="new_export_layout" id="yes3-fmapr-new-export-layout-r">
-                    <label class="yes3-has-repeating-forms" for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>
+                    <label class="yes3-has-repeating-forms" for="yes3-fmapr-new-export-layout-r" title="Repeating SINGLE Form: one row per record per event (per repeat instance), only one form allowed">
+                        Repeating Form (DEPRECATED): one row per record per event per repeat instance
+                    </label>
 
                 </td>
             </tr>
+
+            <tr><td colspan="2">
+                    
+                <p class="yes3-panel-subtitle yes3-duck">Random thoughts</p>
+
+                <div class="yes3-information">
+
+                    <p class="yes3-information-bold">
+                        As of version 1.1.0 (June 2023), the Horizontal and Vertical layouts can accommodate repeating forms and events.
+                    </p>
+
+                    <p>
+                        We recommend that repeating events or forms be exported in separate export specifications, unless a given repeat instance has the same interpretation across events or forms (this will be rare).
+                    </p>
+
+                    <p>
+                        The Repeating Form layout is equivalent to the Vertical layout for a single repeating form, and is deprecated. 
+                        This layout option will be removed in a future version.
+                    </p>
+
+                </div>
+            </td></tr>
 
         </table>
 

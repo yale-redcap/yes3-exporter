@@ -975,9 +975,14 @@ div.yes3-information p {
 }
 
 .yes3-information-em {
-    color: var(--yes3-information-em-color) !important;
-    font-weight: var(--yes3-font-weight-semibold) !important;
-    font-style: italic !important;
+   color: var(--yes3-information-em-color) !important;
+   font-weight: var(--yes3-font-weight-semibold) !important;
+   font-style: italic !important;
+}
+
+.yes3-information-bold {
+   color: var(--yes3-color) !important;
+   font-weight: var(--yes3-font-weight-bold) !important;
 }
 
 .yes3-information-em-light {
@@ -1030,9 +1035,15 @@ div#yes3-message {
 }
 
 .yes3-error {
-    color: var(--yes3-error-color) !important;
-    /*background-color: transparent !important;*/
-    /*font-weight: 600 !important;*/
+   color: var(--yes3-error-color) !important;
+   /*background-color: transparent !important;*/
+   /*font-weight: 600 !important;*/
+}
+
+.yes3-okay {
+   color: var(--yes3-okay-color) !important;
+   /*background-color: transparent !important;*/
+   font-weight: 800 !important;
 }
 
 /* frowny face for spotlighting errors */
