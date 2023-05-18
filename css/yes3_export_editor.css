@@ -23,6 +23,7 @@ table.yes3-fmapr-editor td {
  }
 
  table.yes3-fmapr-settings td input[type=text],
+ table.yes3-fmapr-settings td textarea,
  table.yes3-fmapr-editor td input[type=text]
  {
      /*font-family: var(--yes3-input-font-family); */
@@ -55,8 +56,24 @@ table.yes3-fmapr-editor td {
 }
 
 table.yes3-fmapr-settings td select,
-table.yes3-fmapr-settings td input[type=text] {
+table.yes3-fmapr-settings td input[type=text]:not(.yes3-fmapr-full-width) {
     width: 200px;
+}
+
+table.yes3-fmapr-settings td input[type=text].yes3-fmapr-full-width {
+    width: 100%;
+    height: 2em;
+}
+
+.yes3-fmapr-full-width {
+
+    width: 100% !important;
+}
+
+table.yes3-fmapr-settings td textarea {
+
+    height: calc( 2*var(--yes3-padding) + 3*var(--yes3-input-font-size) );
+    resize: vertical;
 }
 
 table.yes3-fmapr-editor td select,
@@ -426,6 +443,16 @@ tr#yes3-fmapr-rapidentry-row input[type=button]:hover {
     background-color: var(--yes3-fmapr-control-color) !important;
 }
 
+label.yes3-checkmarkContainer:has(> input[name=removed][value=1]){
+
+    color: red !important;
+}
+
+.yes3-fmapr-removed, .yes3-fmapr-removed * {
+
+    color: var(--yes3-alert-color) !important;
+    font-weight: var(--yes3-font-weight-bold) !important;
+}
 
 /*  
     the first cell of the rapid entry form must have the combined width of the 'number' and 'editor link' cells

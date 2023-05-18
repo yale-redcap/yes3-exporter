@@ -44,6 +44,8 @@
                 <referencedClass name="Parsedown" />
                 <referencedClass name="REDCap" />
                 <referencedClass name="HtmlPage" />
+                <referencedClass name="Project" />
+                <referencedClass name="User" />
             </errorLevel>
         </UndefinedClass>
 

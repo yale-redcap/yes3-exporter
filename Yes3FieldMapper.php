@@ -155,6 +155,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * 
          *      export_uuid
          *      export_name
+         *      export_label
+         *      export_order
          *      export_username
          *      export_layout
          *      export_multiselect
@@ -174,6 +176,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      export_hash_recordid
          *      export_uspec_json
          *      export_items_json
+         *      export_batch
          *      removed
          *      
          */
@@ -198,6 +201,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      export_target = "";
          *      export_target_folder = "";
          *      export_data_dictionary = [];
+         *      ...
          */
         $export = new Yes3Export( $export_specification ); 
     
@@ -440,8 +444,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return [
             'export_uuid' => $export_uuid,
             'export_name' => $export->export_name,
+            'export_label' => $export->export_label,
+            'export_order' => $export->export_order,
             'export_layout' => $export->export_layout,
             'export_multiselect' => $export->export_multiselect,
+            'export_batch' => $export->export_batch,
             'export_selection' => $export->export_selection,
             'export_criterion_field' => $export->export_criterion_field,
             'export_criterion_event' => $export->export_criterion_event,
@@ -930,7 +937,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         }
         else if ( $ddPackage['export_layout']==="v" ){
 
-            $sqlOrderBy = "ORDER BY d.`event_id, d.`instance`";
+            $sqlOrderBy = "ORDER BY d.`event_id`, d.`instance`";
         }
         else {
 
@@ -1247,6 +1254,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         /**
          * Pull out just the basics from the specification items. This structure is a mess...
          */
+        //Yes3::logDebugMessage($this->project_id, "{$export_uuid}:{$filename_zip}", "logExport");
+
 
         if ( $export_specification ){
 
@@ -1498,6 +1507,31 @@ WHERE project_id=? AND log_entry_type=?
     private function ddIsMultiselect( $d ){
 
         return ( strlen($d['redcap_source_option']) ) ? true : false;
+    }
+
+    public function setEmLogParameter( $log_id, $key_name, $key_value ){
+
+        /**
+         * 0 if log param record doesn't exist
+         */
+        $status = Yes3::fetchValue(
+            "SELECT COUNT(*) FROM redcap_external_modules_log_parameters WHERE log_id=? AND `name`=?",
+            [ 
+                $log_id, 
+                $key_name 
+            ]
+        );
+
+        if ( $status==0 ){
+
+            $sql = "INSERT INTO redcap_external_modules_log_parameters (`value`, `log_id`, `name`) VALUES (?,?,?)";
+        }
+        else {
+
+            $sql = "UPDATE redcap_external_modules_log_parameters SET `value`=? WHERE log_id=? AND `name`=?";
+        }
+
+        $this->query( $sql, [$key_value, $log_id, $key_name] );
     }
     
     private function writeExportDataFileRecord( 
@@ -1959,6 +1993,25 @@ WHERE project_id=? AND log_entry_type=?
         return $bytes;
     }
 
+    public function exportBatch(){
+
+        $selected = $this->getExportBatchList();
+
+        if ( !$selected ){
+
+            return("No exports selected for batch processing");
+        }
+
+        $responses = "";
+
+        foreach( $selected as $export_uuid) {
+
+            $responses .= "<p>" . $this->exportData($export_uuid) . "</p>";
+        }
+
+        return $responses;
+    }
+
     public function exportData($export_uuid)
     {
         $t = time();
@@ -2117,9 +2170,9 @@ WHERE project_id=? AND log_entry_type=?
             null,
             null,
             $size,
-            null,
-            null,
-            null
+            $xFileResponse['export_data_items'],
+            $xFileResponse['export_data_rows'],
+            $xFileResponse['export_data_columns']
         );
 
         ob_start();
@@ -2145,18 +2198,100 @@ WHERE project_id=? AND log_entry_type=?
         //exit;
     }
 
-    public function downloadZip($export_uuid)
+    private function yes3TmpFilename(){
+        
+        return tempnam(sys_get_temp_dir(), "ys3");
+    }
+
+    private function getExportBatchList(){
+
+        $y = [];
+
+        $specs = $this->getExportSpecificationList();
+
+        foreach ( $specs as $spec ){
+
+            if ( $spec['export_batch'] ){
+
+                $y[] = $spec['export_uuid'];
+            }
+        }
+
+        return $y;
+    }
+
+    public function downloadBatch(){
+
+        $export_uuid = $this->getExportBatchList();
+
+        if ( $export_uuid ){
+
+            $this->downloadZip($export_uuid);
+        }
+    }
+
+    public function downloadZip($export_uuid){
+
+        if ( !is_array($export_uuid) ){
+
+            $export_uuid = array( 
+                $export_uuid
+            );
+        }
+
+        $zipFilename = $this->yes3TmpFilename();
+
+        $downloadFilename = $this->exportProjectZipFilename( "", "download" );
+
+        $zip = new ZipArchive;
+
+        if ( !$zip->open($zipFilename, ZipArchive::CREATE) ){
+
+            // log it
+
+            return false;
+        }
+
+        $zip->close();
+
+        // log it
+
+        $exports = 0;
+        $errors = 0;
+
+        for ($i=0; $i<count($export_uuid); $i++){
+
+            $e = $this->zipExport($export_uuid[$i], $zipFilename, $downloadFilename);
+
+            if ( !$e ){
+
+                $errors++;
+
+                // log it
+            }
+            else {
+
+                $exports++;
+            }
+        }
+
+        if ( $exports ){
+
+            $this->downloadZipFinish($zipFilename, $downloadFilename);
+        }
+    }
+
+    public function zipExport($export_uuid, $zipFilename, $downloadFilename)
     {
+        //Yes3::logDebugMessage($this->project_id, "{$export_uuid}:{$zipFilename}:{$downloadFilename}", "zipExport");
+        
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
         $bytesWritten = 0;
 
         $xFileResponse = $this->writeExportFiles($ddPackage, "download", $bytesWritten);
-        /*
-        print nl2br(print_r($xFileResponse, true));
 
-        exit;
-        */
+        //Yes3::logDebugMessage($this->project_id, print_r($xFileResponse, true), "zipExport");
 
         if ( !isset( $xFileResponse['export_data_filename']) || !isset( $xFileResponse['export_data_dictionary_filename']) ) {
 
@@ -2165,11 +2300,16 @@ WHERE project_id=? AND log_entry_type=?
 
         $timestamp = Yes3::timeStampString();
 
-        $zipFilename = tempnam(sys_get_temp_dir(), "ys3");
-
         $zip = new ZipArchive;
 
-        $zip->open($zipFilename, ZipArchive::CREATE);
+        $z = $zip->open($zipFilename);
+
+        if ( !$z ){
+
+            // log it
+
+            return 0;
+        }
 
         $zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download", $timestamp));
     
@@ -2179,7 +2319,24 @@ WHERE project_id=? AND log_entry_type=?
 
         $zip->close();
 
-        $filename = $this->exportZipFilename( $ddPackage['export_name'], "download" );
+        $this->logExport(
+            "export zip generated",
+            "download",
+            $export_uuid,
+            $ddPackage['export_name'],
+            $xFileResponse['export_data_filename'],
+            $xFileResponse['export_data_dictionary_filename'],
+            $downloadFilename,
+            $bytesWritten,
+            $xFileResponse['export_data_items'],
+            $xFileResponse['export_data_rows'],
+            $xFileResponse['export_data_columns']
+        );
+
+        return 1;
+    }
+
+    private function downloadZipFinish( $zipFilename, $downloadFilename ){
 
         $chunksize = 1024 * 1024; // 1MB per one chunk of file.
 
@@ -2187,29 +2344,15 @@ WHERE project_id=? AND log_entry_type=?
 
         $h = $this->fopen_r_safe($zipFilename);
 
-        $this->logExport(
-            "export zip downloaded",
-            "download",
-            $export_uuid,
-            $ddPackage['export_name'],
-            null,
-            null,
-            $filename,
-            $size,
-            null,
-            null,
-            null
-        );
-
         ob_start();
 
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
         header("Cache-Control: no-store, no-cache");
         header('Content-Length: '.$size);
-        header('Content-Disposition: attachment;filename=' . basename($filename) );
+        header('Content-Disposition: attachment;filename=' . basename($downloadFilename) );
 
-        while (!feof($h)){
+        while (!feof( $h )){
 
             print(@fread($h, $chunksize));
 
@@ -2217,11 +2360,11 @@ WHERE project_id=? AND log_entry_type=?
             flush();
         }
 
-        fclose($h);
+        fclose( $h );
+
+        unlink( $zipFilename );
 
         ob_end_flush();
-
-        //exit;
     }
 
     private function getEventName($event_id, $event_settings)
@@ -2249,6 +2392,15 @@ WHERE project_id=? AND log_entry_type=?
 
     public function exportZipFilename( $export_name, $target="download")
     {
+        return $this->exportFilename($export_name, "package", "zip", $target);
+    }
+
+    public function exportProjectZipFilename( $export_name="", $target="download")
+    {
+        if ( !$export_name ){
+
+            $export_name = $this->getProject()->getTitle();
+        }
         return $this->exportFilename($export_name, "package", "zip", $target);
     }
 
@@ -2494,6 +2646,8 @@ WHERE project_id=? AND log_entry_type=?
         , removed
         , export_uuid
         , export_name
+        , export_label
+        , export_order
         , export_username
         , export_layout
         , export_multiselect
@@ -2513,7 +2667,7 @@ WHERE project_id=? AND log_entry_type=?
         , export_hash_recordid
         , export_uspec_json
         , export_items_json
-        ";
+        , export_batch";
 
         //Yes3::logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
 
@@ -3011,7 +3165,12 @@ WHERE project_id=? AND log_entry_type=?
              *     since only forms are allowed on repeating layouts.
              * (2) The record ID field is not selectable. Its inclusion is determined at export time.
              */
-            if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
+
+            /**
+             * v1.1.0: all layouts now take fields from repeating instruments
+             */
+            //if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
+            if ( $field['field_name'] !== $this->getRecordIdField() ) {
                 $field_autoselect_source[] = [
                     'value' => $field['field_name'],
                     'label' => "[" . $field['field_name'] . "] " . $field_label
@@ -3283,7 +3442,11 @@ WHERE project_id=? AND log_entry_type=?
 
             foreach ( $forms['form_metadata'] as $form ){
 
-                if ( in_array($form['form_name'], $allowed['forms']) && !$form['form_repeating']) {
+                /**
+                 * v1.1.0: no selection distinction between repeating and nonrepeating forms
+                 */
+                //if ( in_array($form['form_name'], $allowed['forms']) && !$form['form_repeating']) {
+                if ( in_array($form['form_name'], $allowed['forms']) ) {
 
                     $includeForm = ( $redcap_event_id === ALL_OF_THEM || !REDCap::isLongitudinal() );
 
@@ -3762,8 +3925,11 @@ WHERE project_id=? AND log_entry_type=?
                     'log_id' => $s['log_id'],
                     'export_uuid' => $s['export_uuid'],
                     'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                    'export_label' => ( $s['export_label'] ) ? Yes3::escapeHtml($s['export_label']) : "",
+                    'export_order' => $s['export_order'],
                     'export_layout' => $s['export_layout'],
                     'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
+                    'export_batch' => $s['export_batch'],
                     'removed' => $s['removed']
                 ];
             }
