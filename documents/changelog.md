@@ -1,15 +1,7 @@
 
 # YES3 Exporter Change Log
 
-## Version 1.0.3
-
-May 15, 2023
-
-1. Bug fix: form item exports failing for some classic projects
-
 ## Version 1.0.2
-
-August 15, 2022
 
 1. basename() used to sanitize download filename headers
 2. getSafePath() used for file writes

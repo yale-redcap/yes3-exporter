@@ -148,7 +148,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * event_name is REDCap unique event name ("screen_arm_1")
          * 
          */
-        $event_settings = $this->getEventSettings(); /* event abbreviations */
+        $event_settings = $this->getEventSettings(); /* evcen abbreviations */
     
         /**
          * Export specification (assoc array):
@@ -355,17 +355,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_uspec = json_decode( $export_specification['export_uspec_json'], true);
     
         foreach ($export_items as $element){
-
-            /**
-             * The form export spec will not include the event_id for a non-longitudinal project, so set it to the first and only..
-             */
-            if ( !REDCap::isLongitudinal() ){
-
-                $element[VARNAME_EVENT_ID] = Yes3::getFirstREDCapEventId();
-            }
-
-            //Yes3::logDebugMessage($this->project_id, print_r($element, true), "buildExportDataDictionary: ELEMENT");
-
+    
             if ( $element['export_item_origin'] === 'specification' ) {
     
                 $this->addExportItem_Specification( $export, $element, $event_settings, $export_uspec );
@@ -377,8 +367,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
     
             elseif ( $element['redcap_form_name'] ) {
-
-     
+    
                 $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
             }
         }
@@ -1499,17 +1488,10 @@ WHERE project_id=? AND log_entry_type=?
 
         //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
         //Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
-        //Yes3::logDebugMessage($this->getProjectId(), print_r($field_events, true), "writeExportDataFileRecord: FIELD_EVENTS");
-            
 
         foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
-
-        //$xx = Yes3::fetchRecords($sqlSelect, $sqlSelectParams);
+        //$xx = Yes3::fetchRecords($sql, $sqlParams);
         //foreach ( $xx as $x ){
-
-           //Yes3::logDebugMessage($this->getProjectId(), print_r($x, true), "writeExportDataFileRecord: X");
-
-           //continue;
 
             //$K++;
 
@@ -1531,11 +1513,7 @@ WHERE project_id=? AND log_entry_type=?
 
                 $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
             }
-
-            $event_id = $x['event_id'];
-
-            //Yes3::logDebugMessage($this->getProjectId(),$BOR, "writeExportDataFileRecord: BOR");
-
+           
             if ( $BOR ) {
 
                 if ( $y && $exportValues ){
@@ -1586,11 +1564,7 @@ WHERE project_id=? AND log_entry_type=?
                 $exportValues = 0;
 
                 $BOR = false;
-
-                //Yes3::logDebugMessage($this->getProjectId(), print_r($y, true), "writeExportDataFileRecord: Y INITIALIZED");
             }
-
-            //continue;
 
             /**
              * add the value to the record
@@ -1625,20 +1599,13 @@ WHERE project_id=? AND log_entry_type=?
 
             $acceptable = ( $field_index > -1 && $field_name !== $RecordIdField );
 
-            //Yes3::logDebugMessage($this->getProjectId(), $acceptable, "writeExportDataFileRecord: ACCEPTABLE(1)");
-
-            //continue;
-
-            if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name]) && $field_events[$field_name]){
+            if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name])){
 
                 //Yes3::logDebugMessage($this->project_id, $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
                 //Yes3::logDebugMessage($this->project_id, print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
 
                 $acceptable = in_array((int)$event_id, $field_events[$field_name]);
-
             }
-
-            //Yes3::logDebugMessage($this->getProjectId(), $acceptable, "writeExportDataFileRecord: ACCEPTABLE(2)");
 
             if ( $acceptable ){
 
@@ -1670,13 +1637,8 @@ WHERE project_id=? AND log_entry_type=?
 
                 $K++;
 
-                //Yes3::logDebugMessage($this->getProjectId(), print_r($y, true), "writeExportDataFileRecord: ACCEPTABLE FOR Y");
-
-
                 $this->doValidationCalculations($dd[$field_index], $REDCapValue);
             }
-
-            //continue;
 
             if ( $specmap_field_index > -1 ){
 
@@ -2723,8 +2685,6 @@ WHERE project_id=? AND log_entry_type=?
                 'form_repeating' => ( Yes3::isRepeatingInstrument($m['form_name']) ) ? 1 : 0
             ];
 
-            //Yes3::logDebugMessage($this->getProjectId(), print_r($form_metadata, true), "getFormMetadataStructures: form_metadata");
-
             $form_index[$form_name] = $form_index_num;
 
             $form_index_num++;
@@ -3108,22 +3068,17 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( !$export->itemInExport($var_name) ){
 
-                $var_label = $fields['field_metadata'][$field_index]['field_label'];
-                $var_type = $this->REDCapFieldTypeToVarType($field_type, $field_validation);
-                $valueset = $fields['field_metadata'][$field_index]['field_valueset'];
-                $event_name = $this->getEventName($event_id, $event_settings);
-    
                 $export->addExportItem([
                     'var_name' => $var_name,
-                    'var_label' => $var_label,
-                    'var_type' => $var_type,
-                    'valueset' => $valueset,
+                    'var_label' => $fields['field_metadata'][$field_index]['field_label'],
+                    'var_type' => $this->REDCapFieldTypeToVarType($field_type, $field_validation),
+                    'valueset' => $fields['field_metadata'][$field_index]['field_valueset'],
                     'origin' => "redcap",
                     'redcap_field_name' => $redcap_field_name,
                     'redcap_events' => [ (int)$event_id ],
                     'redcap_form_name' => $form_name,
                     VARNAME_EVENT_ID => $event_id,
-                    VARNAME_EVENT_NAME => $event_name
+                    VARNAME_EVENT_NAME => $this->getEventName($event_id, $event_settings)
                 ]);
             }
             else {

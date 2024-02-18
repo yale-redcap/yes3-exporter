@@ -19,9 +19,9 @@
     "versions": [
         {
             "number": "1.0.3",
-            "date": "2023-05-15",
+            "date": "2022-09-15",
             "description": "Security updates",
-            "comments": "bug fixes"
+            "comments": "based on first reactions"
         },
         {
             "number": "1.0.2",
