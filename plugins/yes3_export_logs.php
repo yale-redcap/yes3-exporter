@@ -86,8 +86,6 @@ $module->getCodeFor("yes3_export_logs", true);
             <tr id="yes3-export-filename_data"><td>Export filename</td><td></td></tr>
                 
             <tr id="yes3-export-filename_data_dictionary"><td>Data Dictionary filename</td><td></td></tr>
-
-            <tr id="yes3-export-filename_zip"><td>Zip filename</td><td></td></tr>
                 
             <tr id="yes3-export-exported_bytes"><td>Bytes written</td><td></td></tr>
                 

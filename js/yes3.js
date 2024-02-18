@@ -12,7 +12,6 @@ let YES3 = {
         "yes" : "yes",
         "okay" : "okay",
         "save" : "save",
-        "saveAndClose" : "save and close",
         "done" : "done",
         "no": "no",
         "cancel": "cancel",
@@ -28,7 +27,7 @@ let YES3 = {
     }
 };
 
-const YES3_DEBUG_MESSAGES = false;
+const YES3_DEBUG_MESSAGES = true;
 
 const ALL_OF_THEM = "_all_";
 
@@ -865,7 +864,6 @@ YES3.setCaptions = function()
     $("input[type=button].yes3-button-caption-okay").val(YES3.captions.okay);
     $("input[type=button].yes3-button-caption-restore").val(YES3.captions.restore);
     $("input[type=button].yes3-button-caption-save").val(YES3.captions.save);
-    $("input[type=button].yes3-button-caption-saveAndClose").val(YES3.captions.saveAndClose);
     $("input[type=button].yes3-button-caption-done").val(YES3.captions.done);
     $("input[type=button].yes3-button-caption-no").val(YES3.captions.no);
     $("input[type=button].yes3-button-caption-cancel").val(YES3.captions.cancel);

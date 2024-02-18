@@ -5,8 +5,6 @@ namespace Yale\Yes3FieldMapper;
 class Yes3Export {
 
     public $export_name = "";
-    public $export_label = "";
-    public $export_order = "";
     public $export_uuid = "";
     public $export_layout = "";
     public $export_multiselect = "";
@@ -27,8 +25,6 @@ class Yes3Export {
     public $export_remove_freetext = "";
     public $export_remove_largetext = "";
 
-    public $export_batch = "";
-
     public $export_event_list = [];
 
     //public $export_data_dictionary = [];
@@ -39,8 +35,6 @@ class Yes3Export {
     public function __construct( $exportSettings )
     {
         $this->export_name = $exportSettings['export_name'] ?? "noname";
-        $this->export_label = $exportSettings['export_label'] ?? "";
-        $this->export_order = $exportSettings['export_order'] ?? "0";
         $this->export_uuid = $exportSettings['export_uuid'] ?? "";          
         $this->export_layout = $exportSettings['export_layout'] ?? "";
         $this->export_multiselect = $exportSettings['export_multiselect'] ?? "1";
@@ -60,8 +54,6 @@ class Yes3Export {
         $this->export_remove_dates = $exportSettings['export_remove_dates'] ?? "0";
         $this->export_remove_freetext = $exportSettings['export_remove_freetext'] ?? "0";
         $this->export_remove_largetext = $exportSettings['export_remove_largetext'] ?? "0";
-
-        $this->export_batch = $exportSettings['export_batch'] ?? "0";
         
         //$this->mapping_specification = $exportSettings['mapping_specification'] ?? [];
     }

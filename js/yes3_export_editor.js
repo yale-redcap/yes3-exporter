@@ -179,21 +179,6 @@ FMAPR.NewExport_closePanel = function()
     YES3.closePanel("yes3-fmapr-new-export-form");
 }
 
-FMAPR.exportIsSelectable = function(export_uuid){
-
-    let selectable = false;
-
-    $('select#export_uuid option').each(function(){
-
-        if ( this.value === export_uuid ){
-
-            selectable = true;
-        }
-    })
-
-    return selectable;  
-}
-
 FMAPR.exportNameAlreadyExists = function(export_name)
 {
     let dupes = 0;
@@ -310,203 +295,26 @@ YES3.Functions.uSpecEditor_openForm = function()
 
     YES3.openPanel("yes3-fmapr-uspec-editor");
 }
-
+ 
 YES3.Functions.openDownloadForm = function()
 {
-    FMAPR.openExportDownloadForm(false);
-}
-
-YES3.Functions.exportToHost = function()
-{
-    FMAPR.openExportDownloadForm(true);
-}
-
-FMAPR.openExportDownloadForm = function(filesystem)
-{
-    filesystem = filesystem || false;
-    
     let thePanel = YES3.openPanel("yes3-fmapr-download-panel");
-
-    if ( filesystem ){
-
-        thePanel.find('div.yes3-download-options').hide()
-        thePanel.find('div.yes3-export-filesystem-options').show()
-    }
-    else {
-
-        thePanel.find('div.yes3-download-options').show()
-        thePanel.find('div.yes3-export-filesystem-options').hide()
-    }
 
     if ( FMAPR.project.user_data_downloads_disabled ){
 
         thePanel.find(".yes3-fmapr-data-download-enabled").hide();
-        //thePanel.find(".yes3-fmapr-data-download-disabled").show();
+        thePanel.find(".yes3-fmapr-data-download-disabled").show();
     }
     else {
 
         thePanel.find(".yes3-fmapr-data-download-enabled").show();
-        //thePanel.find(".yes3-fmapr-data-download-disabled").hide();
+        thePanel.find(".yes3-fmapr-data-download-disabled").hide();
     }
 }
 
 FMAPR.closeDownloadForm = function()
 {
     YES3.closePanel('yes3-fmapr-download-panel');
-}
-
-/**
- * EXPORTS MANAGER
- */
-FMAPR.openExportsManager = function(){
-     
-    YES3.requestService( { 
-        "request": "getExportSpecificationList", 
-        "get_removed": 1
-    }, FMAPR.openExportsManagerCallback, true );
-}
-
-FMAPR.openExportsManagerCallback = function( response ){
-
-    console.log('openExportsManagerCallback', response);
-
-    const $tbody = $("tbody#yes3-fmapr-exports-manager-tbody");
-
-    let $row = null;
-
-    let checked_removed = "";
-    let checked_batch = "";
-
-    $tbody.empty();
-
-    for (let i=0; i<response.length; i++){
-
-        $row = $("<tr>", {
-            "id": response[i].export_uuid,
-            "data-export_uuid": response[i].export_uuid,
-            "data-log_id": response[i].log_id,
-            "class": "yes3-fmapr-sortable"
-        });
-
-        checked_batch = ( response[i]['export_batch']=="1" ) ? "checked":"";
-        checked_removed = ( response[i]['removed']=="1" ) ? "checked":"";
-        
-        $row
-        .append( $("<td>", {
-            "class": "yes3-settings-name",
-            "html": response[i].export_name
-        }))
-        .append( $("<td>", {
-            "class": "yes3-settings-biglabel",
-            "html": response[i].export_label,
-        }))
-        .append( $("<td>", {
-            "class": "yes3-halign-center",
-            "html": ` <label class='yes3-checkmarkContainer'><input type='checkbox' ${checked_batch} name='export_batch' data-setting='export_batch' value='1' /><span class='yes3-checkmark'></span></label>`
-        }))
-        .append( $("<td>", {
-            "class": "yes3-halign-center",
-            "html": ` <label class='yes3-checkmarkContainer'><input type='checkbox' ${checked_removed} name='removed' data-setting='removed' value='1' /><span class='yes3-checkmark'></span></label>`
-        }))
-        ;
-
-        $tbody.append($row);
-    }
-
-    YES3.openPanel("yes3-fmapr-exports-manager", false, 0, 0, true);
-
-    $tbody.sortable({
-        items: 'tr.yes3-fmapr-sortable',
-        cursor: 'grab',
-        axis: 'y',
-        dropOnEmpty: false,
-        start: function (e, ui) {
-            ui.item.addClass("yes3-fmapr-row-selected");
-        },
-        stop: function (e, ui) {
-            ui.item.removeClass("yes3-fmapr-row-selected");
-        }
-    });
-
-
-    $("select#yes3-fmapr-exports-filter").val("all").trigger("change");
-}
-
-FMAPR.closeExportsManager = function(save){
-
-    save=save||false;
-
-    if ( save ){
-
-        FMAPR.saveExportsManagerItems();
-    }
-
-    YES3.closePanel("yes3-fmapr-exports-manager");
-}
-
-FMAPR.saveExportsManagerItems = function() {
-
-    const $tbody = $("tbody#yes3-fmapr-exports-manager-tbody");
-
-    const $rows = $tbody.find("tr");
-
-    let exports = [];
-
-    for (let i=0; i<$rows.length; i++){
-
-        exports.push({
-            log_id: $rows.eq(i).attr('data-log_id'),
-            export_uuid: $rows.eq(i).attr('data-export_uuid'),
-            removed: ( $rows.eq(i).find("input[type=checkbox][name=removed]:checked").length ) ? "1":"0",
-            export_batch: ( $rows.eq(i).find("input[type=checkbox][name=export_batch]:checked").length ) ? "1":"0",
-            export_order: String( i )
-        })
-    }
-
-    console.log( exports );
-
-    YES3.requestService(
-        {
-            "request": "saveExportsManagerData",
-            "exports": exports
-        },
-        FMAPR.saveExportsManagerItemsCallback,
-        false
-    );
-}
-
-FMAPR.saveExportsManagerItemsCallback = function(response){
-
-    console.log( 'saveExportsManagerItemsCallback', response );
-
-    if ( !YES3.dirty ){
-
-        FMAPR.loadSpecifications();
-    }
-}
-
-FMAPR.exportsFilterOnChange = function(){
-
-    const filter = $("select#yes3-fmapr-exports-filter").val();
-    const $tbody = $("tbody#yes3-fmapr-exports-manager-tbody");
-
-    $tbody.find("tr.yes3-hide").removeClass("yes3-hide");
-
-    if ( filter==="non-removed" ){
-
-        $tbody.find("tr input[name=removed]:checked").closest("tr").addClass("yes3-hide");
-    }
-    else if ( filter==="removed" ){
-
-        $tbody.find("tr input[name=removed]:not(:checked)").closest("tr").addClass("yes3-hide");
-    }
-    else if ( filter==="batch" ){
-
-        $tbody.find("tr input[name=export_batch]:not(:checked)").closest("tr").addClass("yes3-hide");
-    }
-
-    $tbody.find("tr.yes3-hide").hide();
-    $tbody.find("tr:not(.yes3-hide)").show();
 }
 
 FMAPR.uSpecEditor = function()
@@ -577,7 +385,6 @@ FMAPR.setRepeatLayoutConstraints = function()
         if ( FMAPR.formNameConstraint !== currentConstraint || FMAPR.constrainedAutocompleteSource.length === 0 ){
             
             FMAPR.setConstrainedAutocompleteSource();
-
             //FMAPR.ensureNewFieldRowAtEnd(); // ensure 'add field' item has the right autocomplete source
             FMAPR.displayActionIcons(); // make sure the bulk insertion icon is disabled, if constraint active
             
@@ -597,11 +404,6 @@ FMAPR.setRepeatLayoutConstraints = function()
     return FMAPR.formNameConstraint;
 }
 
-/**
- * field selection source for the repeating form layout
- * 
- * @returns 
- */
 FMAPR.setConstrainedAutocompleteSource = function(){
 
     FMAPR.constrainedAutocompleteSource = [];
@@ -1134,16 +936,7 @@ FMAPR.exportItemRowEventLabel = function(event)
         return "all events";
     }
 
-    let label = '?';
-
-    try {
-        label = FMAPR.project.event_metadata[event].event_label + " event";
-    } catch (error) {
-        console.error(`exportItemRowEventLabel failed for event ${event}`);
-        label = "?";
-    }
-
-    return label;
+    return FMAPR.project.event_metadata[event].event_label + " event";
 }
 
 
@@ -1340,18 +1133,6 @@ FMAPR.downloadExecute = function()
         FMAPR.downloadZip();
     }
 
-    else if ( exportOption==="batch"){
-        FMAPR.downloadBatch();
-    }
-
-    else if ( exportOption==="filesystem"){
-        FMAPR.exportToHost();
-    }
-
-    else if ( exportOption==="filesystem-batch"){
-        FMAPR.exportBatchToHost();
-    }
-
     FMAPR.closeDownloadForm();
 }
 
@@ -1382,26 +1163,18 @@ FMAPR.downloadZip = function()
     });
 }
 
-FMAPR.downloadBatch = function()
-{
-    YES3.postServiceRequest({
-
-        request: "downloadBatch"
-    });
-}
-
 FMAPR.downloadDataDictionaryCallback = function( response )
 {
   //YES3.debugMessage(response);
 }
 
-YES3.Functions.exportBatchToHost = function()
+YES3.Functions.exportToHost = function()
 {
-    YES3.YesNo("This action will replace the data for all batched exports currently stored on the file system. Okay to proceed?",
-    FMAPR.exportBatchToHostGo );
+    YES3.YesNo("This action will replace the data for this export currently stored on the file system. Okay to proceed?",
+    FMAPR.exportToHostGo );
 }
 
-FMAPR.exportToHost = function()
+FMAPR.exportToHostGo = function()
 {     
     YES3.isBusy( YES3.captions.wait_exporting_data );
 
@@ -1411,19 +1184,6 @@ FMAPR.exportToHost = function()
         {
             'request': 'exportData',
             'export_uuid': FMAPR.getExportUUID()
-        }, FMAPR.exportDataCallback
-    );  
-}
-
-FMAPR.exportBatchToHost = function()
-{     
-    YES3.isBusy( YES3.captions.wait_exporting_data );
-
-    FMAPR.postMessage("Export underway...");
-
-    YES3.requestService(
-        {
-            'request': 'exportBatch'
         }, FMAPR.exportDataCallback
     );  
 }
@@ -1589,17 +1349,6 @@ FMAPR.specificationSave = function()
 {
     let timestamp = new Date().ymdhms();
     FMAPR.postMessage("Specification saved at " + timestamp + ".");
-}
-
-FMAPR.highlightRemovedIfSelected = function(){
-
-    $removed = $('input#yes3-export-removed');
-
-    if ( $removed.is(':checked') ) {
-        $removed.parent().addClass('yes3-fmapr-removed');
-    } else {
-        $removed.parent().removeClass('yes3-fmapr-removed');
-    }
 }
 
 FMAPR.dataElementRowId = function(data_element_name)
@@ -2007,17 +1756,13 @@ FMAPR.formApprovedForLayout = function( form_name )
 
             return true;
         }
+        // not repeating layout, only pass non-repeating forms
         else {
 
-            /**
-             * v1.1.0: repeating forms allowed in all layouts
-             */
-            /*
             if ( form.form_repeating ){
 
                 return false;
             }
-            */
 
             return true;
         }
@@ -2039,7 +1784,6 @@ FMAPR.getFormOptionsHtmlForEvent = function( event )
     let accepted = false;
     let j = 0;
     let kount = 0;
-    let formLabel = "";
 
     //YES3.debugMessage("getFormOptionsHtmlForEvent", event);
 
@@ -2074,15 +1818,8 @@ FMAPR.getFormOptionsHtmlForEvent = function( event )
 
         if ( accepted ){
 
-            formLabel = forms[i].form_label;
-
-            if ( forms[i].form_repeating ){
-
-                formLabel += " (RPT)";
-            }
-
             kount++;
-            optionsHtml += `<option value=${forms[i].form_name}>${formLabel}</option>`;    
+            optionsHtml += `<option value=${forms[i].form_name}>${forms[i].form_label}</option>`;    
         }             
     }
 
@@ -2169,7 +1906,6 @@ FMAPR.getFormAutoCompleteSource = function(event, suppressAllForms)
     let j = 0;
     let events = [];
     let acSource = [];
-    let label = "";
 
     for (let form_index=0; form_index<FMAPR.project.form_metadata.length; form_index++){
 
@@ -2210,18 +1946,9 @@ FMAPR.getFormAutoCompleteSource = function(event, suppressAllForms)
 
         if ( accepted ){
 
-            label = `[${FMAPR.project.form_metadata[form_index].form_name}]`;
-
-            if ( FMAPR.project.form_metadata[form_index].form_repeating ){
-
-                label += " (RPT)";
-            }
-
-            label += ' ' + FMAPR.project.form_metadata[form_index].form_label;
-
             acSource.push({
                 "value": FMAPR.project.form_metadata[form_index].form_name,
-                "label": label
+                "label": `[${FMAPR.project.form_metadata[form_index].form_name}] ${FMAPR.project.form_metadata[form_index].form_label}`
             });
         }
     }
@@ -2913,11 +2640,6 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
     /**
      * Add one or more entire forms
      */
-
-    /**
-     * v1.1.0: ALL FORMS now includes repeating forms
-     */
-    /*
     for (j=0; j<FMAPR.project.form_metadata.length; j++){
 
         // form allowed for layout?
@@ -2933,17 +2655,6 @@ FMAPR.addREDcapObjectToSpecification = function(data_element_name, form_name, fi
                     FMAPR.addREDcapItemToSpecification(data_element_name, FMAPR.project.field_metadata[k].form_name, FMAPR.project.field_metadata[k].field_name, event_id_option);
                 }
             }
-        }
-    }
-    */
-
-    // all forms === all fields
-    for (k=0; k<FMAPR.project.field_metadata.length; k++){
-
-        if ( FMAPR.project.field_metadata[k].form_name === FMAPR.project.form_metadata[j].form_name ){
-
-            items++;
-            FMAPR.addREDcapItemToSpecification(data_element_name, FMAPR.project.field_metadata[k].form_name, FMAPR.project.field_metadata[k].field_name, event_id_option);
         }
     }
 
@@ -3172,12 +2883,7 @@ FMAPR.formsAllowedForEvent = function(event_id)
 
             ok4layout = true;
         }
-        // v1.1.0: repeating forms allowed for all layouts
-        //else if ( FMAPR.project.form_metadata[i].form_repeating==0 && !FMAPR.isRepeatedLayout() ) {
-
-        //    ok4layout = true;
-        //}
-        else {
+        else if ( FMAPR.project.form_metadata[i].form_repeating==0 && !FMAPR.isRepeatedLayout() ) {
 
             ok4layout = true;
         }
@@ -3254,10 +2960,9 @@ FMAPR.getFormOptionsHtml = function(event_id)
 
             allowed = false;
         }
-        // v1.1.0: repeating forms allowed for all layouts
-        //else if ( !FMAPR.project.form_metadata[i].form_repeating && FMAPR.export_specification.export_layout === "r" ){
-        //    allowed = false;
-        //}
+        else if ( !FMAPR.project.form_metadata[i].form_repeating && FMAPR.export_specification.export_layout === "r" ){
+            allowed = false;
+        }
         else {
 
             allowed = ( event_id===ALL_OF_THEM );
@@ -4175,9 +3880,7 @@ FMAPR.loadSpecifications = function( get_removed )
 
     //YES3.debugMessage('loadSpecifications');
 
-    //get_removed = get_removed || 0;
-
-    get_removed = ($('input#show_removed_exports').is(':checked')) ? '1':'0';
+    get_removed = get_removed || 0;
     
     YES3.requestService( { 
         "request": "getExportSpecificationList", 
@@ -4187,13 +3890,11 @@ FMAPR.loadSpecifications = function( get_removed )
 
 FMAPR.loadSpecificationsCallback = function( response )
 {
-    YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
+    //YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
 
     let select = FMAPR.getExportUUIDSelect();
 
     let html = "";
-
-    let expLabel = "";
 
     if ( typeof response === 'object' ){
 
@@ -4201,14 +3902,7 @@ FMAPR.loadSpecificationsCallback = function( response )
 
         for (let i=0; i<response.length; i++){
 
-            expLabel = response[i].export_name;
-
-            if ( parseInt(response[i].removed)===1 ){
-
-                expLabel += " (removed)";
-            }
-
-            html += `<option value='${response[i].export_uuid}'>${expLabel}</option>`;
+            html += `<option value='${response[i].export_uuid}'>${response[i].export_name}</option>`;
         }
     }
     else {
@@ -4224,17 +3918,7 @@ FMAPR.loadSpecificationsCallback = function( response )
 
     if ( FMAPR.reloadParms.export_uuid.length ){
 
-        /**
-         * make sure the reloaded item is still in the option list before reloading
-         */
-        if ( FMAPR.exportIsSelectable(FMAPR.reloadParms.export_uuid) ) {
-
-            select.val(FMAPR.reloadParms.export_uuid).trigger("change");
-        }
-        else {
-            
-            FMAPR.clearTheDecks(); // UI suitable for no selected export
-        }
+        select.val(FMAPR.reloadParms.export_uuid).trigger("change");
     }
 
     if ( !YES3.initial_help_offered ) {
@@ -4309,8 +3993,7 @@ FMAPR.loadSpecification = function( log_id )
     YES3.requestService( { 
         "request": "getExportSpecification", 
         "export_uuid": $('select#export_uuid').val(),
-        "log_id": log_id,
-        "show_removed_exports": ($('input#show_removed_exports').is(':checked')) ? '1':'0'
+        "log_id": log_id
     }, FMAPR.loadSpecificationCallback, true );
 }
 
@@ -4350,7 +4033,7 @@ FMAPR.loadSpecificationCallback = function( response )
 }
 
 FMAPR.displayDashboardOption = function( yes3_dashboard_option )
-{ 
+{
     $(`input[name=yes3-dashboard-options][value=${yes3_dashboard_option}]`).trigger('click');
 }
 
@@ -4463,7 +4146,6 @@ FMAPR.populateSpecificationTables = function( specification )
     FMAPR.updateStatus();
     FMAPR.resizeExportItemsTable();
     FMAPR.markAsBuildCompleted();
-    FMAPR.highlightRemovedIfSelected();
 
     if ( errors ) {
 
@@ -4599,23 +4281,6 @@ FMAPR.clearSettingsTables = function()
             }
         }
     })
-}
-
-/**
- * present a blank UI suitable for when no export is selected
- */
-FMAPR.clearTheDecks = function(){
-
-    let $exportSettingsContainer = FMAPR.getExportSettingsContainer();
-    let $footer = $('div#yes3-fmapr-footer');
-    let $header = $('div#yes3-fmapr-dashboard-head');
-
-    FMAPR.clearSettingsTables();
-    FMAPR.emptyExportItemsTable();
-    
-    $exportSettingsContainer.hide();
-    $header.hide();
-    $footer.hide();
 }
 
 FMAPR.populateSettingsTable = function( specification )
@@ -5381,7 +5046,7 @@ FMAPR.setExportSettingsListeners = function()
 {
     let settings = FMAPR.getExportSettingsContainer();
     
-    settings.find('input, select, textarea')
+    settings.find('input, select')
         .off()
         .on('change', function(){
 
