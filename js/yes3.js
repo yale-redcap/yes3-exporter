@@ -27,7 +27,7 @@ let YES3 = {
     }
 };
 
-const YES3_DEBUG_MESSAGES = true;
+const YES3_DEBUG_MESSAGES = false;
 
 const ALL_OF_THEM = "_all_";
 

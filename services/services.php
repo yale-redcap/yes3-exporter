@@ -117,7 +117,6 @@ function addExportSpecification()
         , 'export_name' => $_POST['export_name']
         , 'export_username' => $module->username
         , 'export_layout' => $_POST['export_layout']
-        , 'export_multiselect' => ""
         , 'export_selection' => "1"
         , 'export_criterion_field' => ""
         , 'export_criterion_event' => ""
@@ -154,7 +153,6 @@ function saveExportSpecification()
         , 'export_name' => ""
         , 'export_username' => $module->username
         , 'export_layout' => ""
-        , 'export_multiselect' => ""
         , 'export_selection' => ""
         , 'export_criterion_field' => ""
         , 'export_criterion_event' => ""
@@ -186,8 +184,7 @@ function saveExportSpecification()
         $qParams
     );
 
-    Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
-    
+    //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
     if ( $log_id ){
         return "Success: export parameters saved to EM log record# ".$log_id;
     }

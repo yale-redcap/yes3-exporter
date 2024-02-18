@@ -8,8 +8,6 @@ class Yes3ExportItem {
     public $var_type = "";
     public $var_label = "";
     public $valueset = [];
-    public $multiselect = "0";
-    public $multiselect_option = "";
 
     public $origin = "";
     public $redcap_field_name = "";
