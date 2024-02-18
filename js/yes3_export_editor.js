@@ -402,11 +402,11 @@ FMAPR.openExportsManagerCallback = function( response ){
         }))
         .append( $("<td>", {
             "class": "yes3-halign-center",
-            "html": `&nbsp;<label class='yes3-checkmarkContainer'><input type='checkbox' ${checked_batch} name='export_batch' data-setting='export_batch' value='1' /><span class='yes3-checkmark'></span></label>`
+            "html": ` <label class='yes3-checkmarkContainer'><input type='checkbox' ${checked_batch} name='export_batch' data-setting='export_batch' value='1' /><span class='yes3-checkmark'></span></label>`
         }))
         .append( $("<td>", {
             "class": "yes3-halign-center",
-            "html": `&nbsp;<label class='yes3-checkmarkContainer'><input type='checkbox' ${checked_removed} name='removed' data-setting='removed' value='1' /><span class='yes3-checkmark'></span></label>`
+            "html": ` <label class='yes3-checkmarkContainer'><input type='checkbox' ${checked_removed} name='removed' data-setting='removed' value='1' /><span class='yes3-checkmark'></span></label>`
         }))
         ;
 

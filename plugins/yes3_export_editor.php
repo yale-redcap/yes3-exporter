@@ -817,7 +817,7 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="col-xl-3 yes3-flex-vcenter-hleft" style="padding-left:0">
 
             <div>
-                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Exporter</span>
+                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Exporter&nbsp;Main</span>
             </div>
             
             <!--input type="button" value="new export" class="yes3-display-when-clean" onclick="YES3.Functions.newExportSpecification()" /-->
