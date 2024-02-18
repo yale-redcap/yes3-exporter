@@ -1,3 +1,7 @@
+![codeql workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
+![sonarcloud workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/sonarcloud.yml/badge.svg)
+
+
 # YES3 Exporter README
 
 REDCap External Module  
