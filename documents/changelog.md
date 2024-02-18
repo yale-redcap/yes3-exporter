@@ -1,13 +1,6 @@
 
 # YES3 Exporter Change Log
 
-## Version 1.1.0
-
-June 1, 2023
-
-1. New feature: multiselect fields can be exported either as multiple columns (one per option) for which 1=selected and 0=not selected, or as a single column holding the list of selected options.
-2. New feature: support for repeating events and forms for vertical and horizontal layouts. The 'repeating form' layout is now deprecated as it is equivalent to a vertical layout for a single repeating form.
-
 ## Version 1.0.3
 
 May 15, 2023

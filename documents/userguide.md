@@ -1,7 +1,7 @@
 # YES3 Exporter User Guide
 
 REDCap External Module  
-Version 1.1.0, June 2023
+Version 1.0.0, August 2022
 
 # Introduction
 
@@ -10,8 +10,7 @@ The YES3 Exporter external module compliments REDCap's reports and data export t
 # Features
 
 -   **Flexible output spreadsheet layouts** 
-     -   Horizontal (longitudinal design- one row per record, all events), and vertical
-     -   Support for repeating events and forms
+     -   Horizontal (longitudinal design- one row per record, all events), vertical, and repeating form layouts
 -   **Speed - good performance on large exports![image]**
      -   In testing it took 186 seconds to export 3,272 rows and 3,079 columns to a 33MB export csv file
 -   **Optimized for datamart integrations: payload includes data, data dictionary, data distributions, and project metadata** 
@@ -131,7 +130,7 @@ In this quick start guide, you will (1.) review the prefixes, (2.) create a new 
 
 2.  Enter the export name and select a layout.
 
-<img src="media/new_export_dialog.png" width="50%">
+<img src="media/new_export_dialogue.png"  width="50%">
 
 a.  Please be mindful of the following limitations when creating a new export: 
 - Export names cannot be duplicated. 
@@ -141,8 +140,7 @@ a.  Please be mindful of the following limitations when creating a new export:
 3.  Once completed, click “**Save**”.
 
 4.  The **Export Settings** page will be displayed. Here you can customize your export.
-
-<img src="media/Export_Settings_Display_1.png" width="75%">
+<img src="media/Export_Settings_Display_1.png"  width="75%">
 
 5.  Once you have selected your options, click ![](media/save_icon_unsaved_changes.png) to save your changes.
 
@@ -199,37 +197,25 @@ a.  Please be mindful of the following limitations when creating a new export:
 
 ### Export Layout
 
-There are three export layouts.
+There are three export layouts:
 
 1.  **Horizontal** 
 
-     -  *Longitudinal projects: one row per record (+ instance)*
+     -  *Longitudinal projects: one row per record*
     
-     -   The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event Prefixes**.
-
-     - Repeating events or forms may be exported using this layout. See **Exporting Repeating Events and Forms**, below.
+     -   The Exporter will automatically add prefixes to field names to differentiate data from distinct events. Prefixes can be changed in **YES3 Exporter Event                Prefixes**.
     
 2.  **Vertical** 
 
-     - *One row per record + event (+ instance)*
+     - *One row per record + event*
      
      - The REDCap event id is included in the data export file.
-
-     - Repeating events or forms may be exported using this layout. See **Exporting Repeating Events and Forms**, below.
     
-3.  **Repeating Form (DEPRECATED)** 
+3.  **Repeating Form** 
 
      - *One row per record + event + instance*
 
-     - Only one repeating form can be defined in this export layout.
-
-     - Since this layout is equivalent to a vertical layout with a single repeating form, it is deprecated and will be removed in a future release.
-
-#### Exporting Repeating Events and Forms
-
-It is more efficient to include only a single repeating form in an export specification, rather than combine one or more repeating forms. Otherwise, your export will have as many rows per record (and event, for the vertical layout) as the maximum number of instances among all the repeatable forms - and probably a lot of blank cells. For example, say you are exporting two repeatable forms, one for meds and one for chronic conditions. If a record has 4 meds and 10 chronic conditions, the export will have 10 rows for that record/event, only 4 of which will have data for both forms. Not only is storage space wasted, it can be quite difficult to process the data in the statistical database. It's usually best to treat them as separate data tables.
-
-A similar problem can occur when combining different repeating events in the same export, only potentially worse since more fields might be involved. Best to export repeating events separately.
+     - Only one repeating form can be defined in the export. In this version, you cannot export repeating events.
 
 ### Export Settings View
 

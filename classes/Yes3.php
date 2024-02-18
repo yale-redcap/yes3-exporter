@@ -10,7 +10,7 @@ use ExternalModules\ExternalModules;
  * Table to hold debug log messages. Must be created by dba, see logDebugMessage() below.
  */
 define('DEBUG_LOG_TABLE', "ydcclib_debug_messages");
-//define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
+define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
 
 /**
  * 

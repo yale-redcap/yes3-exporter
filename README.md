@@ -1,7 +1,7 @@
 # YES3 Exporter README
 
 REDCap External Module  
-Version 1.1.0, June 2023
+Version 1.00, August 2022
 
 ## Important note about documentation
 
@@ -93,4 +93,4 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 ## Copyright
 
-Copyright © 2023 by Yale University
+Copyright © 2022 by Yale University

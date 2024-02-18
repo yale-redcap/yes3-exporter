@@ -18,8 +18,7 @@ table.yes3-fmapr-editor td {
     font-weight:  var(--yes3-font-weight) !important;
     border: 0;
     padding-right: 1em;
-    padding-top: 0.5em;
-    /*height: 2.5em;*/
+    height: 2.5em;
  }
 
  table.yes3-fmapr-settings td input[type=text],
