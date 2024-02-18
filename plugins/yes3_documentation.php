@@ -1,4 +1,7 @@
 <?php
+
+namespace Yale\Yes3FieldMapper;
+
 /*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
@@ -10,7 +13,7 @@ error_reporting(E_ALL);
  */
 defined('APP_PATH_WEBROOT_FULL') or define('APP_PATH_WEBROOT_FULL', '');
 
-$module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
+$module = new Yes3FieldMapper();
 
 $githubCssUrl = $module->getUrl("css/github-markdown-v2.css");
 $yes3CssUrl = $module->getUrl("css/yes3_documentation.css");
