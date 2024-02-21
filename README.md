@@ -1,11 +1,7 @@
-![codeql workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/codeql-javascript.yml/badge.svg)
-![sonarcloud workflow](https://github.com/yale-redcap/yes3-exporter/actions/workflows/sonarcloud.yml/badge.svg)
-
-
 # YES3 Exporter README
 
 REDCap External Module  
-Version 1.00, August 2022
+Version 1.1.0, June 2023
 
 ## Important note about documentation
 
@@ -97,4 +93,4 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 ## Copyright
 
-Copyright © 2022 by Yale University
+Copyright © 2023 by Yale University

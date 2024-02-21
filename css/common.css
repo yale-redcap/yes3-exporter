@@ -289,9 +289,7 @@ div.yes3-fmapr-footnote {
     margin-bottom: calc( 4 * var(--yes3-margin) );
 }
 
-
 div#yes3-fmapr-footer {
-    width: 100%;
     border-top: 1px solid var(--yes3-border-color);
     margin-top: 1em;
     padding-top: 1em;

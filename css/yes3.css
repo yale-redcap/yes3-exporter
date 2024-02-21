@@ -313,6 +313,13 @@ p {
    font-style: italic !important;
 }
 
+/* === BOOTSTRAP OVERRIDES === */
+
+#yes3-container .row {
+
+   margin-right: 0 !important;
+}
+
 /* === THEME === */
 
 /* Eyeball toggle */
@@ -410,8 +417,8 @@ i.yes3-action-icon:not(.yes3-action-icon-inline):not(.yes3-dirty){
 }
 
 i.yes3-action-icon-inline {
-    font-size: 1em !important;
-    line-height: 1em !important;
+    font-size: 1.2em !important;
+    line-height: 1.2em !important;
     margin: 0 !important;
 }
 
@@ -496,7 +503,7 @@ div#yes3-red-pointer {
     display: none;
     padding: 0;
     margin: 0;
-}
+}container-ri
 
 .yes3-rowPointer {
     border-bottom: 2px solid var(--yes3-alert-color) !important;
@@ -551,7 +558,7 @@ div#yes3-red-pointer {
     display: flex !important;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: stretch;
     align-content: flex-start; 
     /*border: 1px solid lightgrey;*/
@@ -932,18 +939,36 @@ div#yes3-red-pointer {
     line-height: 0.9em;
     vertical-align: top;
  }
+
+ td.yes3-settings-name {
+   min-width: 200px;
+   max-width: 200px;
+   width: 200px;
+   white-space: nowrap;
+   -ms-text-overflow: ellipsis;
+   text-overflow: ellipsis;
+   overflow: hidden;
  
- td.yes3-settings-label {
-    min-width: 150px;
-    max-width: 150px;
-    width: 150px;
-    color: var(--yes3-table-label-color);
-    white-space: nowrap;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    overflow: hidden;
  }
- 
+
+ td.yes3-settings-label {
+   min-width: 150px;
+   max-width: 150px;
+   width: 150px;
+   color: var(--yes3-table-label-color);
+   white-space: nowrap;
+   -ms-text-overflow: ellipsis;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+td.yes3-settings-biglabel {
+   min-width: 350px;
+   max-width: 350px;
+   width: 350px;
+   color: var(--yes3-table-label-color);
+}
+
  td.yes3-settings-value {
     color: var(--yes3-table-value-color);
  }
@@ -975,9 +1000,14 @@ div.yes3-information p {
 }
 
 .yes3-information-em {
-    color: var(--yes3-information-em-color) !important;
-    font-weight: var(--yes3-font-weight-semibold) !important;
-    font-style: italic !important;
+   color: var(--yes3-information-em-color) !important;
+   font-weight: var(--yes3-font-weight-semibold) !important;
+   font-style: italic !important;
+}
+
+.yes3-information-bold {
+   color: var(--yes3-color) !important;
+   font-weight: var(--yes3-font-weight-bold) !important;
 }
 
 .yes3-information-em-light {
@@ -1030,9 +1060,15 @@ div#yes3-message {
 }
 
 .yes3-error {
-    color: var(--yes3-error-color) !important;
-    /*background-color: transparent !important;*/
-    /*font-weight: 600 !important;*/
+   color: var(--yes3-error-color) !important;
+   /*background-color: transparent !important;*/
+   /*font-weight: 600 !important;*/
+}
+
+.yes3-okay {
+   color: var(--yes3-okay-color) !important;
+   /*background-color: transparent !important;*/
+   font-weight: 800 !important;
 }
 
 /* frowny face for spotlighting errors */
@@ -1321,6 +1357,14 @@ table.yes3-panel-vertical-options td:not(:first-child) {
  .yes3-panel-row-middle {
     text-align: center;
  }
+
+ td.yes3-halign-center, th.yes3-halign-center {
+   text-align: center;
+ }
+
+ td.yes3-halign-center div {
+   margin: 0 auto;
+ }
  
  .yes3-panel-row a {
    /*font-family: var(--yes3-font-family);*/
@@ -1359,7 +1403,10 @@ table.yes3-panel-vertical-options td:not(:first-child) {
     width: 50px;
  }
  
- .yes3-panel form button, .yes3-panel input[type=button], button[type=submit].yes3 {
+.yes3-panel form button, 
+.yes3-panel select,
+.yes3-panel input[type=button], 
+button[type=submit].yes3 {
     height: calc(0.8* var(--yes3-block-height));
     min-width: 120px;
     padding-left: calc(2*var(--yes3-padding));
@@ -1445,16 +1492,41 @@ table.yes3-panel-vertical-options td:not(:first-child) {
     color: var(--yes3-alert-color);
  }
 
+ .yes3-valign-middle {
+    vertical-align: middle;
+}
+
+.yes3-valign-bottom {
+    vertical-align: bottom;
+}
+
+.yes3-valign-top {
+    vertical-align: top;
+}
+
+.yes3-halign-left {
+    text-align: left;
+}   
+
+.yes3-halign-right {
+    text-align: right;
+}
+
+.yes3-halign-center {
+    text-align: center;
+}
+
 
 /* CHECKBOXES */
 
 /* Customize the label (the container) */
 .yes3-checkmarkContainer {
-    display: block;
+    display: inline-block;
     position: relative;
     padding-left: 20px;
     margin-left: 0;
     cursor: pointer;
+    min-height: 1rem;
     /*
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -1479,7 +1551,7 @@ table.yes3-panel-vertical-options td:not(:first-child) {
  /* Create a custom checkbox, same dimensions and color as balloon radios */
  .yes3-checkmark {
     position: absolute;
-    top: 0;
+    top: 2px;
     left: 0;
     height: 15px;
     width: 15px;
@@ -1624,6 +1696,13 @@ div#niayes3-study-info {
    margin-left: var(--yes3-margin);
 }
 
+.yes3-float-left-full-width {
+
+   float: left !important;
+   width: 100% !important;
+   clear: both !important;
+}
+
 .yes3-margin-right {
    margin-right: var(--yes3-margin);
 }
@@ -1667,6 +1746,38 @@ div#niayes3-study-info {
    border-left: 0;
    border-right: 0;
    width: 100%;
+}
+
+div.yes3-scrollable-fixed-head {
+
+   overflow-y: auto;
+   max-height: 500px;
+   width: 100%;
+   border-collapse: collapse;
+   border: 1px solid var(--yes3-th-border-color);
+}
+
+div.yes3-scrollable-fixed-head table {
+   width: 100%;
+}
+
+div.yes3-scrollable-fixed-head thead th {
+   color: var(--yes3-th-color);
+   background-color: var(--yes3-th-background-color);
+   position: sticky;
+   top:0px;
+}
+
+div.yes3-scrollable-fixed-head th,
+ div.yes3-scrollable-fixed-head td {
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 5px;
+   padding-bottom: 5px;
+   border-top: 0;
+   border-bottom: 1px solid var(--yes3-th-border-color);
+   border-left: 0;
+   border-right: 0;
 }
 
 div.yes3-dashboard-head {

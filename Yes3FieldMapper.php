@@ -148,15 +148,18 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * event_name is REDCap unique event name ("screen_arm_1")
          * 
          */
-        $event_settings = $this->getEventSettings(); /* evcen abbreviations */
+        $event_settings = $this->getEventSettings(); /* event abbreviations */
     
         /**
          * Export specification (assoc array):
          * 
          *      export_uuid
          *      export_name
+         *      export_label
+         *      export_order
          *      export_username
          *      export_layout
+         *      export_multiselect
          *      export_selection
          *      export_criterion_field
          *      export_criterion_event
@@ -173,6 +176,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      export_hash_recordid
          *      export_uspec_json
          *      export_items_json
+         *      export_batch
          *      removed
          *      
          */
@@ -197,6 +201,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      export_target = "";
          *      export_target_folder = "";
          *      export_data_dictionary = [];
+         *      ...
          */
         $export = new Yes3Export( $export_specification ); 
     
@@ -308,6 +313,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          *      for computation:
          * 
          *      source_field
+         *      source_option_value
          *      source_form
          *      origin ('specification', 'redcap')
          *      spec_value_map [{spec_value, redcap_value}, ... ] as JSON string
@@ -344,18 +350,33 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $this->addExportItem_otherProperty($export, VARNAME_EVENT_ID,   "REDCap Event Id", "INTEGER");
             $this->addExportItem_otherProperty($export, VARNAME_EVENT_NAME, "REDCap Event Name", "TEXT");
         }
-
+/*
         if ( $export->export_layout === "r" ) {
 
             $this->addExportItem_otherProperty($export, VARNAME_INSTANCE, "REDCap Repeat Instance", "INTEGER");
         }
+*/
+        /**
+         * as of v1.1.0, instance is included on every export
+         */
+        $this->addExportItem_otherProperty($export, VARNAME_INSTANCE, "REDCap Repeat Instance", "INTEGER");
 
         $export_items = json_decode( $export_specification['export_items_json'], true);
 
         $export_uspec = json_decode( $export_specification['export_uspec_json'], true);
     
         foreach ($export_items as $element){
-    
+
+            /**
+             * The form export spec will not include the event_id for a non-longitudinal project, so set it to the first and only..
+             */
+            if ( !REDCap::isLongitudinal() ){
+
+                $element[VARNAME_EVENT_ID] = Yes3::getFirstREDCapEventId();
+            }
+
+            //Yes3::logDebugMessage($this->project_id, print_r($element, true), "buildExportDataDictionary: ELEMENT");
+
             if ( $element['export_item_origin'] === 'specification' ) {
     
                 $this->addExportItem_Specification( $export, $element, $event_settings, $export_uspec );
@@ -367,7 +388,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
     
             elseif ( $element['redcap_form_name'] ) {
-    
+
+     
                 $this->addExportItem_REDCapForm( $export, $element['redcap_form_name'], $element[VARNAME_EVENT_ID], $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
             }
         }
@@ -388,6 +410,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 'valueset' => ( $export_item->valueset ) ? json_encode($export_item->valueset) : "",
                 'origin' => $export_item->origin,
                 'redcap_field_name' => $export_item->redcap_field_name,
+                'redcap_source_option' => $export_item->multiselect_option,
                 'redcap_form_name' => $export_item->redcap_form_name,
                 'redcap_events' => json_encode($export_item->redcap_events),
                 VARNAME_EVENT_ID => $export_item->redcap_event_id,
@@ -421,7 +444,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         return [
             'export_uuid' => $export_uuid,
             'export_name' => $export->export_name,
+            'export_label' => $export->export_label,
+            'export_order' => $export->export_order,
             'export_layout' => $export->export_layout,
+            'export_multiselect' => $export->export_multiselect,
+            'export_batch' => $export->export_batch,
             'export_selection' => $export->export_selection,
             'export_criterion_field' => $export->export_criterion_field,
             'export_criterion_event' => $export->export_criterion_event,
@@ -813,6 +840,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         //$events = [];
         $dd_index = [];
         $dd_specmap_index = [];
+        $dd_multiselect_index = [];
 
         //Yes3::logDebugMessage($this->project_id, print_r($dd, true), "writeExportFiles: dd");
 
@@ -825,6 +853,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                     if ( $dd[$i]['origin'] === "redcap" ){
 
                         $dd_index[$dd[$i]['redcap_field_name']][$dd[$i][VARNAME_EVENT_ID]] = $i;
+
+                        if ( $this->ddIsMultiselect($dd[$i]) ){
+
+                            $dd_multiselect_index[$dd[$i]['redcap_field_name']][$dd[$i][VARNAME_EVENT_ID]][$dd[$i]['redcap_source_option']] = $i;
+                        }
                     }
 
                     elseif ( $dd[$i]['origin'] === "specification" ){
@@ -844,9 +877,15 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                     if ( $dd[$i]['origin'] === "redcap" ){
 
-                        $dd_index[$dd[$i]['redcap_field_name']] = $i;
-                    }
+                        if ( $this->ddIsMultiselect($dd[$i]) ){
 
+                            $dd_multiselect_index[$dd[$i]['redcap_field_name']][$dd[$i]['redcap_source_option']] = $i;
+                        }
+                        else {
+
+                            $dd_index[$dd[$i]['redcap_field_name']] = $i;
+                        }
+                    }
                     elseif ( $dd[$i]['origin'] === "specification" ){
 
                         $dd_specmap_index[$dd[$i]['redcap_field_name']] = $i;
@@ -859,6 +898,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $dd[$i]['valueset'] = json_decode($dd[$i]['valueset'], true);
             }
         }
+
+        //Yes3::logDebugMessage($this->getProjectId(), print_r($dd_multiselect_index, true), "DD_MULTISELECT_INDEX");
 
         /**
          * Assemble the SELECT query and event params to be passed to the record writer
@@ -883,13 +924,24 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $sqlEvent .= ")";
         }
 
+        /**
+         * WITHIN-RECORD SORT ORDER
+         * horizontal layout: breaks instance
+         * vertical layout: breaks on event, instance
+         * repeating layout (DEPRECATED): breaks on event, instance
+         */
+
         if ( $ddPackage['export_layout']==="r" ){
 
             $sqlOrderBy = " ORDER BY d.`event_id`, d.`instance`";
         }
         else if ( $ddPackage['export_layout']==="v" ){
 
-            $sqlOrderBy = "ORDER BY d.`event_id`";
+            $sqlOrderBy = "ORDER BY d.`event_id`, d.`instance`";
+        }
+        else {
+
+            $sqlOrderBy = " ORDER BY d.`instance`, d.`event_id`";
         }
 
         if ( $sqlEvent ){
@@ -1050,9 +1102,17 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          */
         $field_events = [];
 
-        if ( $export_layout !== "h" ){
+        $multiselect_fields = [];
 
-            foreach ( $dd as $d ){
+
+        foreach ( $dd as $d ){
+
+            if ( $this->ddIsMultiselect($d) ){
+
+                $multiselect_fields[] = $d['redcap_field_name'];
+            }
+
+            if ( $export_layout !== "h" ){
 
                 if ( $d['redcap_field_name'] && $d['redcap_events']){
 
@@ -1082,7 +1142,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 $dd, 
                 $dd_index, 
                 $dd_specmap_index,
+                $dd_multiselect_index,
                 $field_events,
+                $multiselect_fields,
                 $dagNameForGroupId, 
                 $h, 
                 $export_layout, 
@@ -1192,6 +1254,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         /**
          * Pull out just the basics from the specification items. This structure is a mess...
          */
+        //Yes3::logDebugMessage($this->project_id, "{$export_uuid}:{$filename_zip}", "logExport");
+
 
         if ( $export_specification ){
 
@@ -1439,6 +1503,47 @@ WHERE project_id=? AND log_entry_type=?
     {
         return in_array( $varType, ['DATE', 'DATETIME']);
     }
+
+    private function ddIsMultiselect( $d ){
+
+        return ( strlen($d['redcap_source_option']) ) ? true : false;
+    }
+
+    public function getEmLogParameter( $log_id, $key_name ){
+
+        return Yes3::fetchValue(
+            "SELECT `value` FROM redcap_external_modules_log_parameters WHERE log_id=? AND `name`=?",
+            [ 
+                $log_id, 
+                $key_name 
+            ]
+        );
+    }
+
+    public function setEmLogParameter( $log_id, $key_name, $key_value ){
+
+        /**
+         * 0 if log param record doesn't exist
+         */
+        $status = Yes3::fetchValue(
+            "SELECT COUNT(*) FROM redcap_external_modules_log_parameters WHERE log_id=? AND `name`=?",
+            [ 
+                $log_id, 
+                $key_name 
+            ]
+        );
+
+        if ( $status==0 ){
+
+            $sql = "INSERT INTO redcap_external_modules_log_parameters (`value`, `log_id`, `name`) VALUES (?,?,?)";
+        }
+        else {
+
+            $sql = "UPDATE redcap_external_modules_log_parameters SET `value`=? WHERE log_id=? AND `name`=?";
+        }
+
+        return $this->query( $sql, [$key_value, $log_id, $key_name] );
+    }
     
     private function writeExportDataFileRecord( 
         $record,
@@ -1448,7 +1553,9 @@ WHERE project_id=? AND log_entry_type=?
         &$dd, 
         $dd_index, 
         $dd_specmap_index, 
+        $dd_multiselect_index,
         $field_events,
+        $multiselect_fields,
         $dagNameForGroupId, 
         $h, 
         $export_layout, 
@@ -1486,16 +1593,26 @@ WHERE project_id=? AND log_entry_type=?
 
         $exportValues = 0;
 
+        //Yes3::logDebugMessage($this->project_id, print_r($multiselect_fields, true), "writeExportDataFileRecord: multiselects");
+
+
         //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
         //Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
+        //Yes3::logDebugMessage($this->getProjectId(), print_r($field_events, true), "writeExportDataFileRecord: FIELD_EVENTS");
+            
 
         foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
-        //$xx = Yes3::fetchRecords($sql, $sqlParams);
+
+        //$xx = Yes3::fetchRecords($sqlSelect, $sqlSelectParams);
         //foreach ( $xx as $x ){
+
+           //Yes3::logDebugMessage($this->getProjectId(), print_r($x, true), "writeExportDataFileRecord: X");
+
+           //continue;
 
             //$K++;
 
-            $x_instance = $x['instance']; if ( !$x_instance ) $x_instance=1;
+            $x_instance = strval($x['instance']); if ( !$x_instance ) $x_instance="1";
 
             /**
              * $BOR: beginning of record
@@ -1503,8 +1620,8 @@ WHERE project_id=? AND log_entry_type=?
              * No break for horiz layouts,
              *   (event_id) for vertical,
              *   (event_id, instance) for repeating
-             */
-
+            */
+            /*
             if ( $export_layout==="v" ) {
 
                 $BOR = ( $x['event_id'] !== $event_id );
@@ -1513,7 +1630,24 @@ WHERE project_id=? AND log_entry_type=?
 
                 $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
             }
-           
+            */
+
+            if ( $export_layout==="h" ) {
+
+                $BOR = ( $x_instance !== $instance );
+            }
+            else {
+
+                $BOR = ( $x['event_id'] !== $event_id || $x_instance !== $instance );
+            }
+
+            //Yes3::logDebugMessage($this->getProjectId(), $BOR, "writeExportDataFileRecord: BOR");
+
+            $event_id = $x['event_id'];
+            $instance = $x_instance;
+
+            //Yes3::logDebugMessage($this->getProjectId(),$BOR, "writeExportDataFileRecord: BOR");
+
             if ( $BOR ) {
 
                 if ( $y && $exportValues ){
@@ -1530,7 +1664,7 @@ WHERE project_id=? AND log_entry_type=?
 
                     if ( !isset($y[$d['var_name']]) ){
 
-                        $y[$d['var_name']] = "";
+                        $y[$d['var_name']] =  ( $this->ddIsMultiselect($d) ) ? "0":"";
                     }
 
                     /**
@@ -1549,11 +1683,13 @@ WHERE project_id=? AND log_entry_type=?
                     $y[VARNAME_EVENT_ID  ] = $x['event_id'];
                     $y[VARNAME_EVENT_NAME] = $eventName[$x['event_id']];
                 }
-
+                /*
                 if ( $export_layout==="r" ) {
     
                     $y[VARNAME_INSTANCE  ] = $x_instance;
                 }
+                */
+                $y[VARNAME_INSTANCE] = $x_instance;
 
                 if ( isset($y[VARNAME_GROUP_ID]) ) {
 
@@ -1564,7 +1700,11 @@ WHERE project_id=? AND log_entry_type=?
                 $exportValues = 0;
 
                 $BOR = false;
+
+                //Yes3::logDebugMessage($this->getProjectId(), print_r($y, true), "writeExportDataFileRecord: Y INITIALIZED");
             }
+
+            //continue;
 
             /**
              * add the value to the record
@@ -1578,6 +1718,8 @@ WHERE project_id=? AND log_entry_type=?
 
             $REDCapValue = $this->conditionREDCapValue( $x['value'], $export_max_text_length, $export_inoffensive_text );
 
+            $is_multiselect = in_array($field_name, $multiselect_fields);
+
             /*
             if ( $field_name === "__GROUPID__" && isset($y[VARNAME_GROUP_ID])) {
 
@@ -1588,24 +1730,45 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( $export_layout==="h" ){
 
-                $field_index = $dd_index[$field_name][$event_id] ?? -1;
+                if ( $is_multiselect ){
+
+                    $field_index = $dd_multiselect_index[$field_name][$event_id][$REDCapValue] ?? -1;
+                } else {
+
+                    $field_index = $dd_index[$field_name][$event_id] ?? -1;
+                }
+
                 $specmap_field_index = $dd_specmap_index[$field_name][$event_id] ?? -1;
             }
             else {
 
-                $field_index = $dd_index[$field_name] ?? -1;
+                if ( $is_multiselect ){
+
+                    $field_index = $dd_multiselect_index[$field_name][$REDCapValue] ?? -1;
+                } else {
+
+                    $field_index = $dd_index[$field_name] ?? -1;
+                }
+
                 $specmap_field_index = $dd_specmap_index[$field_name] ?? -1;
             }
 
             $acceptable = ( $field_index > -1 && $field_name !== $RecordIdField );
 
-            if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name])){
+            //Yes3::logDebugMessage($this->getProjectId(), $acceptable, "writeExportDataFileRecord: ACCEPTABLE(1)");
+
+            //continue;
+
+            if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name]) && $field_events[$field_name]){
 
                 //Yes3::logDebugMessage($this->project_id, $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
                 //Yes3::logDebugMessage($this->project_id, print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
 
                 $acceptable = in_array((int)$event_id, $field_events[$field_name]);
+
             }
+
+            //Yes3::logDebugMessage($this->getProjectId(), $acceptable, "writeExportDataFileRecord: ACCEPTABLE(2)");
 
             if ( $acceptable ){
 
@@ -1623,6 +1786,10 @@ WHERE project_id=? AND log_entry_type=?
 
                     $y[ $dd[ $field_index]['var_name'] ] .= Yes3::normalized_string( $REDCapValue );
                 }
+                elseif ( $is_multiselect ) {
+
+                    $y[ $dd[ $field_index]['var_name'] ] = "1";
+                }
                 else {
 
                     if ( $this->isDateOrTimeType($dd[$field_index]['var_type']) && $days_to_shift > 0 ) {
@@ -1637,8 +1804,12 @@ WHERE project_id=? AND log_entry_type=?
 
                 $K++;
 
-                $this->doValidationCalculations($dd[$field_index], $REDCapValue);
+                //Yes3::logDebugMessage($this->getProjectId(), print_r($y, true), "writeExportDataFileRecord: ACCEPTABLE FOR Y");
+
+                $this->doValidationCalculations($dd[$field_index], $REDCapValue, $is_multiselect);
             }
+
+            //continue;
 
             if ( $specmap_field_index > -1 ){
 
@@ -1687,8 +1858,11 @@ WHERE project_id=? AND log_entry_type=?
                 $this->doValidationCalculations($dd[$specmap_field_index], $specValue);
            }
 
-        }
+        } // foreach record...
 
+        /**
+         * write the last (or only) export for this record
+         */
         if ( $y && $exportValues ){
 
             $bytesWritten += $this->writeExportRecord($h, $y, $R, $C);
@@ -1717,8 +1891,13 @@ WHERE project_id=? AND log_entry_type=?
         return $x;
     }
 
-    private function doValidationCalculations( &$d, $value )
+    private function doValidationCalculations( &$d, $value, $is_multiselect=false )
     {
+        if ( $is_multiselect ){
+
+            $value = "1";
+        }
+        
         $len = strlen($value);
 
         if ( !$len ){
@@ -1782,6 +1961,7 @@ WHERE project_id=? AND log_entry_type=?
                     $d['max_value'] = $v;
 
                     $d['sum_of_values'] = (float) $v;
+
                     $d['sum_of_squared_values'] = (float) $v*$v;
                 }
                 else {
@@ -1822,6 +2002,25 @@ WHERE project_id=? AND log_entry_type=?
         $bytes += fputcsv($h, array_values($y), $delim);
 
         return $bytes;
+    }
+
+    public function exportBatch(){
+
+        $selected = $this->getExportBatchList();
+
+        if ( !$selected ){
+
+            return("No exports selected for batch processing");
+        }
+
+        $responses = "";
+
+        foreach( $selected as $export_uuid) {
+
+            $responses .= "<p>" . $this->exportData($export_uuid) . "</p>";
+        }
+
+        return $responses;
     }
 
     public function exportData($export_uuid)
@@ -1894,6 +2093,42 @@ WHERE project_id=? AND log_entry_type=?
             $msg
 
         );
+    }
+
+    public function getExportDataDictionary($export_uuid, $countOnly=false)
+    {
+        $dd = $this->buildExportDataDictionary($export_uuid)['export_data_dictionary'] ?? [];
+
+        //$this->tidyUpDD($dd, true);
+
+        return ( $countOnly ) ? count($dd) : $dd;
+    }
+
+    /**
+     * returns the column count for the export
+     * @param mixed $specification 
+     * @return int 
+     */
+    public function getExportColumnCount($specification)
+    {
+        $log_id = (int) $specification['log_id'];
+
+        $export_uuid = $specification['export_uuid'];
+
+        if ( !$log_id || !$export_uuid ){
+
+            return 0;
+        }
+
+        $column_count = $this->getEmLogParameter($log_id, "column_count");
+
+        if ( !$column_count ){
+
+            $column_count = $this->getExportDataDictionary($export_uuid, true);
+            $this->setEmLogParameter($log_id, "column_count", $column_count);
+        }
+
+        return $column_count;
     }
 
     public function downloadDataDictionary($export_uuid)
@@ -1982,9 +2217,9 @@ WHERE project_id=? AND log_entry_type=?
             null,
             null,
             $size,
-            null,
-            null,
-            null
+            $xFileResponse['export_data_items'],
+            $xFileResponse['export_data_rows'],
+            $xFileResponse['export_data_columns']
         );
 
         ob_start();
@@ -2010,18 +2245,100 @@ WHERE project_id=? AND log_entry_type=?
         //exit;
     }
 
-    public function downloadZip($export_uuid)
+    private function yes3TmpFilename(){
+        
+        return tempnam(sys_get_temp_dir(), "ys3");
+    }
+
+    private function getExportBatchList(){
+
+        $y = [];
+
+        $specs = $this->getExportSpecificationList();
+
+        foreach ( $specs as $spec ){
+
+            if ( $spec['export_batch'] ){
+
+                $y[] = $spec['export_uuid'];
+            }
+        }
+
+        return $y;
+    }
+
+    public function downloadBatch(){
+
+        $export_uuid = $this->getExportBatchList();
+
+        if ( $export_uuid ){
+
+            $this->downloadZip($export_uuid);
+        }
+    }
+
+    public function downloadZip($export_uuid){
+
+        if ( !is_array($export_uuid) ){
+
+            $export_uuid = array( 
+                $export_uuid
+            );
+        }
+
+        $zipFilename = $this->yes3TmpFilename();
+
+        $downloadFilename = $this->exportProjectZipFilename( "", "download" );
+
+        $zip = new ZipArchive;
+
+        if ( !$zip->open($zipFilename, ZipArchive::CREATE) ){
+
+            // log it
+
+            return false;
+        }
+
+        $zip->close();
+
+        // log it
+
+        $exports = 0;
+        $errors = 0;
+
+        for ($i=0; $i<count($export_uuid); $i++){
+
+            $e = $this->zipExport($export_uuid[$i], $zipFilename, $downloadFilename);
+
+            if ( !$e ){
+
+                $errors++;
+
+                // log it
+            }
+            else {
+
+                $exports++;
+            }
+        }
+
+        if ( $exports ){
+
+            $this->downloadZipFinish($zipFilename, $downloadFilename);
+        }
+    }
+
+    public function zipExport($export_uuid, $zipFilename, $downloadFilename)
     {
+        //Yes3::logDebugMessage($this->project_id, "{$export_uuid}:{$zipFilename}:{$downloadFilename}", "zipExport");
+        
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
 
         $bytesWritten = 0;
 
         $xFileResponse = $this->writeExportFiles($ddPackage, "download", $bytesWritten);
-        /*
-        print nl2br(print_r($xFileResponse, true));
 
-        exit;
-        */
+        //Yes3::logDebugMessage($this->project_id, print_r($xFileResponse, true), "zipExport");
 
         if ( !isset( $xFileResponse['export_data_filename']) || !isset( $xFileResponse['export_data_dictionary_filename']) ) {
 
@@ -2030,11 +2347,16 @@ WHERE project_id=? AND log_entry_type=?
 
         $timestamp = Yes3::timeStampString();
 
-        $zipFilename = tempnam(sys_get_temp_dir(), "ys3");
-
         $zip = new ZipArchive;
 
-        $zip->open($zipFilename, ZipArchive::CREATE);
+        $z = $zip->open($zipFilename);
+
+        if ( !$z ){
+
+            // log it
+
+            return 0;
+        }
 
         $zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download", $timestamp));
     
@@ -2044,7 +2366,24 @@ WHERE project_id=? AND log_entry_type=?
 
         $zip->close();
 
-        $filename = $this->exportZipFilename( $ddPackage['export_name'], "download" );
+        $this->logExport(
+            "export zip generated",
+            "download",
+            $export_uuid,
+            $ddPackage['export_name'],
+            $xFileResponse['export_data_filename'],
+            $xFileResponse['export_data_dictionary_filename'],
+            $downloadFilename,
+            $bytesWritten,
+            $xFileResponse['export_data_items'],
+            $xFileResponse['export_data_rows'],
+            $xFileResponse['export_data_columns']
+        );
+
+        return 1;
+    }
+
+    private function downloadZipFinish( $zipFilename, $downloadFilename ){
 
         $chunksize = 1024 * 1024; // 1MB per one chunk of file.
 
@@ -2052,29 +2391,15 @@ WHERE project_id=? AND log_entry_type=?
 
         $h = $this->fopen_r_safe($zipFilename);
 
-        $this->logExport(
-            "export zip downloaded",
-            "download",
-            $export_uuid,
-            $ddPackage['export_name'],
-            null,
-            null,
-            $filename,
-            $size,
-            null,
-            null,
-            null
-        );
-
         ob_start();
 
         header('Content-Type: application/octet-stream');
         header('Content-Transfer-Encoding: binary');
         header("Cache-Control: no-store, no-cache");
         header('Content-Length: '.$size);
-        header('Content-Disposition: attachment;filename=' . basename($filename) );
+        header('Content-Disposition: attachment;filename=' . basename($downloadFilename) );
 
-        while (!feof($h)){
+        while (!feof( $h )){
 
             print(@fread($h, $chunksize));
 
@@ -2082,11 +2407,11 @@ WHERE project_id=? AND log_entry_type=?
             flush();
         }
 
-        fclose($h);
+        fclose( $h );
+
+        unlink( $zipFilename );
 
         ob_end_flush();
-
-        //exit;
     }
 
     private function getEventName($event_id, $event_settings)
@@ -2114,6 +2439,15 @@ WHERE project_id=? AND log_entry_type=?
 
     public function exportZipFilename( $export_name, $target="download")
     {
+        return $this->exportFilename($export_name, "package", "zip", $target);
+    }
+
+    public function exportProjectZipFilename( $export_name="", $target="download")
+    {
+        if ( !$export_name ){
+
+            $export_name = $this->getProject()->getTitle();
+        }
         return $this->exportFilename($export_name, "package", "zip", $target);
     }
 
@@ -2203,22 +2537,10 @@ WHERE project_id=? AND log_entry_type=?
     {
         $uRights = $this->yes3UserRights();
 
-        //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "confirmSpecificationPermissions: spec");
-
-        /**
-         * specification properties useful here:
-         * 
-         * export_remove_phi
-         * export_remove_freetext
-         * export_remove_largetext
-         * export_remove_dates
-         * 
-         */
-
         // designers and superusers always have permission
         if ( $uRights['isDesigner'] || $uRights['isSuper'] ){
 
-            //return true;
+            return true;
         }
 
         /**
@@ -2359,8 +2681,11 @@ WHERE project_id=? AND log_entry_type=?
         , removed
         , export_uuid
         , export_name
+        , export_label
+        , export_order
         , export_username
         , export_layout
+        , export_multiselect
         , export_selection
         , export_criterion_field
         , export_criterion_event
@@ -2377,7 +2702,7 @@ WHERE project_id=? AND log_entry_type=?
         , export_hash_recordid
         , export_uspec_json
         , export_items_json
-        ";
+        , export_batch";
 
         //Yes3::logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
 
@@ -2685,6 +3010,8 @@ WHERE project_id=? AND log_entry_type=?
                 'form_repeating' => ( Yes3::isRepeatingInstrument($m['form_name']) ) ? 1 : 0
             ];
 
+            //Yes3::logDebugMessage($this->getProjectId(), print_r($form_metadata, true), "getFormMetadataStructures: form_metadata");
+
             $form_index[$form_name] = $form_index_num;
 
             $form_index_num++;
@@ -2873,7 +3200,12 @@ WHERE project_id=? AND log_entry_type=?
              *     since only forms are allowed on repeating layouts.
              * (2) The record ID field is not selectable. Its inclusion is determined at export time.
              */
-            if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
+
+            /**
+             * v1.1.0: all layouts now take fields from repeating instruments
+             */
+            //if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
+            if ( $field['field_name'] !== $this->getRecordIdField() ) {
                 $field_autoselect_source[] = [
                     'value' => $field['field_name'],
                     'label' => "[" . $field['field_name'] . "] " . $field_label
@@ -2969,7 +3301,9 @@ WHERE project_id=? AND log_entry_type=?
      */
     private function addExportItem_REDCapField( $export, $redcap_field_name, $redcap_event_id, $fields, $forms, $event_settings, $allowed, $form_export_permissions )
     {
-                
+        
+        $VAR_TYPE_MULTISELECT = "INTEGER";
+        
         $field_index = $fields['field_index'][$redcap_field_name];
 
         $form_name = $fields['field_metadata'][$field_index]['form_name'];
@@ -3068,18 +3402,47 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( !$export->itemInExport($var_name) ){
 
-                $export->addExportItem([
-                    'var_name' => $var_name,
-                    'var_label' => $fields['field_metadata'][$field_index]['field_label'],
-                    'var_type' => $this->REDCapFieldTypeToVarType($field_type, $field_validation),
-                    'valueset' => $fields['field_metadata'][$field_index]['field_valueset'],
-                    'origin' => "redcap",
-                    'redcap_field_name' => $redcap_field_name,
-                    'redcap_events' => [ (int)$event_id ],
-                    'redcap_form_name' => $form_name,
-                    VARNAME_EVENT_ID => $event_id,
-                    VARNAME_EVENT_NAME => $this->getEventName($event_id, $event_settings)
-                ]);
+                $var_label = $fields['field_metadata'][$field_index]['field_label'];
+                $var_type = $this->REDCapFieldTypeToVarType($field_type, $field_validation);
+                $valueset = $fields['field_metadata'][$field_index]['field_valueset'];
+                $event_name = $this->getEventName($event_id, $event_settings);
+
+                if ( $field_type === "checkbox" && $export->export_multiselect === "1" ) {
+
+                    //Yes3::logDebugMessage( $this->getProjectId(), print_r($valueset, true),"addExportItem_REDCapField:CHECKBOX {$redcap_field_name}" );
+                    
+                    foreach ( $valueset as $option ){
+
+                        $export->addExportItem([
+                            'var_name' =>  Yes3::inoffensiveFieldName($var_name . "___" . $option['value']),
+                            'var_label' =>  Yes3::inoffensiveText($var_label. ": " . $option['label']),
+                            'var_type' => "INTEGER",
+                            'valueset' => [],
+                            'origin' => "redcap",
+                            'redcap_field_name' => $redcap_field_name,
+                            'redcap_events' => [ (int)$event_id ],
+                            'redcap_form_name' => $form_name,
+                            'multiselect' => "1",
+                            'multiselect_option' => strval($option['value']),
+                            VARNAME_EVENT_ID => $event_id,
+                            VARNAME_EVENT_NAME => $event_name
+                        ]);
+                    }
+                }
+                else {
+                    $export->addExportItem([
+                        'var_name' => $var_name,
+                        'var_label' => $var_label,
+                        'var_type' => $var_type,
+                        'valueset' => $valueset,
+                        'origin' => "redcap",
+                        'redcap_field_name' => $redcap_field_name,
+                        'redcap_events' => [ (int)$event_id ],
+                        'redcap_form_name' => $form_name,
+                        VARNAME_EVENT_ID => $event_id,
+                        VARNAME_EVENT_NAME => $event_name
+                    ]);
+                }
             }
             else {
 
@@ -3114,7 +3477,11 @@ WHERE project_id=? AND log_entry_type=?
 
             foreach ( $forms['form_metadata'] as $form ){
 
-                if ( in_array($form['form_name'], $allowed['forms']) && !$form['form_repeating']) {
+                /**
+                 * v1.1.0: no selection distinction between repeating and nonrepeating forms
+                 */
+                //if ( in_array($form['form_name'], $allowed['forms']) && !$form['form_repeating']) {
+                if ( in_array($form['form_name'], $allowed['forms']) ) {
 
                     $includeForm = ( $redcap_event_id === ALL_OF_THEM || !REDCap::isLongitudinal() );
 
@@ -3593,8 +3960,11 @@ WHERE project_id=? AND log_entry_type=?
                     'log_id' => $s['log_id'],
                     'export_uuid' => $s['export_uuid'],
                     'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                    'export_label' => ( $s['export_label'] ) ? Yes3::escapeHtml($s['export_label']) : "",
+                    'export_order' => $s['export_order'],
                     'export_layout' => $s['export_layout'],
                     'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
+                    'export_batch' => $s['export_batch'],
                     'removed' => $s['removed']
                 ];
             }

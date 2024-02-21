@@ -10,7 +10,7 @@ use ExternalModules\ExternalModules;
  * Table to hold debug log messages. Must be created by dba, see logDebugMessage() below.
  */
 define('DEBUG_LOG_TABLE', "ydcclib_debug_messages");
-//define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
+define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
 
 /**
  * 
@@ -717,5 +717,26 @@ WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnu
 
       return $response;
    }
+
+    /**
+     * An object that functions can return, propsed as a standard
+     * 
+     * @param mixed $result 
+     * @param string $message 
+     * @param array $data 
+     * @param bool $json 
+     * @return string|false|array 
+     */
+    static function stdReturnObj( $result, $message="", $data=[], $json=true){
+
+        $retObj = [
+            'result' => $result,
+            'message' => $message,
+            'data' => $data
+        ];
+
+        return ( $json ) ? json_encode( $retObj ) : $retObj;
+    }
+
 
 }

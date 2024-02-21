@@ -66,8 +66,10 @@ function execRequest( $request ){
         , 'downloaddatadictionary'
         , 'downloadexportlog'
         , 'downloadzip'
+        , 'downloadbatch'
         , 'eschtml'
         , 'exportdata'
+        , 'exportbatch'
         , 'get_event_abbreviation_settings'
         , 'get_event_metadata'
         , 'get_event_select_options_html'
@@ -94,6 +96,9 @@ function execRequest( $request ){
         , 'save_field_mappings'
         , 'saveeventsettings'
         , 'saveexportspecification'
+        , 'saveexportsmanagerdata'
+        , 'remove_or_restore_export'
+        , 'update_export_table_settings'
     ];
 
     $fnIndex = array_search( strtolower($request), $function_registry );
@@ -105,6 +110,114 @@ function execRequest( $request ){
 
     exit( call_user_func( __NAMESPACE__ . "\\". $function_registry[ $fnIndex ] ) );
 }
+
+function update_export_table_settings()
+{
+    global $module;
+
+    $updates = $_POST['updates'];
+
+    if ( !is_array($updates) ){
+
+        return Yes3::stdReturnObj( "fail", print_r($_POST, true), [], true );;
+    }
+
+    $result = "success";
+    $message = "Export table settings updated.";
+
+    for($i=0; $i<count($updates); $i++){
+
+        $updates[$i]['result'] = $module->setEmLogParameter( $updates[$i]['log_id'], $updates[$i]['key'], $updates[$i]['value'] );
+
+        if ( $updates[$i]['result'] !== true ){
+
+            $result = "fail";
+            $message = "At least one export table settings update failed. See the 'result' property for details.";
+        }
+    }
+
+    return Yes3::stdReturnObj( $result, $message, $updates, true );
+}
+
+function remove_or_restore_export()
+{
+    global $module;
+
+    $log_id = (int) $_POST['log_id'];
+
+    $removed = (int) $_POST['removed'];
+
+    $module->setEmLogParameter( $log_id, 'removed', $removed );
+
+    $removed_updated = $module->getEmLogParameter( $log_id, 'removed' ); 
+
+    return Yes3::stdReturnObj( 
+        "success" 
+        , "Export log record# {$log_id} removed status set to {$removed}"
+        , [
+            'log_id' => $log_id,
+            'removed' => $removed_updated
+        ]
+        , true
+    );
+}
+
+function saveExportsManagerData()
+{
+    global $module;
+
+    $exports = $_POST['exports'];
+
+    if ( !is_array( $exports ) ){
+
+        return "fail";
+    }
+    else {
+
+        foreach( $exports as $export ){
+
+            if ( $export['log_id'] ) {
+
+                $module->setEmLogParameter( $export['log_id'], 'removed', $export['removed'] );
+                $module->setEmLogParameter( $export['log_id'], 'export_batch', $export['export_batch'] );
+                $module->setEmLogParameter( $export['log_id'], 'export_order', $export['export_order'] );
+            }
+        }
+
+        return "success";
+    }
+}
+
+function orderTheExports( $exports=[] )
+{
+    global $module;
+
+    if ( !$exports ) {
+
+        $exports = getExportSpecificationList2(1);
+    }
+
+    $key_name = "export_order";
+
+    $k = 0;
+    foreach ( $exports as $export ){
+        /*
+        if ( !$export['removed'] ){
+
+            $k++;
+            $order = strval($k);
+        }
+        else {
+
+            $order = "32767";
+        }
+        */
+        $k++;
+        $order = strval($k);
+
+        $module->setEmLogParameter( $export['log_id'], $key_name, $order );
+    }
+}
     
 function addExportSpecification()
 {
@@ -115,8 +228,12 @@ function addExportSpecification()
         , 'log_entry_type' => EMLOG_TYPE_EXPORT_SPECIFICATION
         , 'export_uuid' => $_POST['export_uuid']
         , 'export_name' => $_POST['export_name']
+        , 'export_order' => "32767"
+        , 'export_label' => ""
         , 'export_username' => $module->username
         , 'export_layout' => $_POST['export_layout']
+        , 'export_multiselect' => "1"
+        , 'export_batch' => "0"
         , 'export_selection' => "1"
         , 'export_criterion_field' => ""
         , 'export_criterion_event' => ""
@@ -136,6 +253,7 @@ function addExportSpecification()
 
     //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
     if ( $log_id ){
+        orderTheExports();
         return "Success: new export parameters saved to EM log record# ".$log_id;
     }
 
@@ -151,8 +269,12 @@ function saveExportSpecification()
         , 'log_entry_type' => EMLOG_TYPE_EXPORT_SPECIFICATION
         , 'export_uuid' => ""
         , 'export_name' => ""
+        , 'export_order' => ""
+        , 'export_label' => ""
         , 'export_username' => $module->username
         , 'export_layout' => ""
+        , 'export_multiselect' => ""
+        , 'export_batch' => ""
         , 'export_selection' => ""
         , 'export_criterion_field' => ""
         , 'export_criterion_event' => ""
@@ -185,6 +307,7 @@ function saveExportSpecification()
     );
 
     //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    
     if ( $log_id ){
         return "Success: export parameters saved to EM log record# ".$log_id;
     }
@@ -235,11 +358,16 @@ function getExportSpecification()
     return json_encode( $specification );
 }
 
-function getExportSpecificationList():string
-{
-    global $module;
+function getExportSpecificationList(){
 
     $get_removed = (int) $_POST['get_removed'];
+
+    return json_encode( getExportSpecificationList2( $get_removed ) );
+}
+
+function getExportSpecificationList2( $get_removed=0 )
+{
+    global $module;
 
     /**
      * Distinct export specifications best determined by direct query
@@ -259,25 +387,40 @@ function getExportSpecificationList():string
 
         $s = $module->getExportSpecification($u['export_uuid']);
 
+        // skip if user does not have permission to view this export specification
+        if ( !$module->confirmSpecificationPermissions($s) ){
+
+            continue;
+        }
+
+        // retrieve or calculate the column count
+        $columnCount = $module->getExportColumnCount($s);
+
         if ( $s['removed']==='0' || $get_removed ) {
 
             $data[] = [
                 'timestamp' => $s['timestamp'],
                 'log_id' => $s['log_id'],
                 'export_uuid' => $s['export_uuid'],
-                'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                'export_name' => ( $s['export_name'] ) ? $module->escape($s['export_name']) : "noname-{$s['log_id']}",
                 'export_layout' => $s['export_layout'],
-                'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
-                'removed' => $s['removed']
+                'export_label' => $module->escape($s['export_label']),
+                'export_batch' => $s['export_batch'],
+                'export_order' => ( $s['export_order'] ) ? $s['export_order'] : "0",
+                'export_username' => ( $s['export_username'] ) ? $module->escape($s['export_username']) : "nobody",
+                'removed' => $s['removed'],
+                'column_count' => $module->escape($columnCount)
+                // ,'export_items' => json_decode($s['export_items_json'], true),
             ];
         }
     }
 
     $xnames = array_column($data, 'export_name');
+    $xorder = array_column($data, 'export_order');
 
-    array_multisort($xnames, SORT_STRING | SORT_FLAG_CASE, $data);
+    array_multisort($xorder, SORT_ASC, SORT_NUMERIC, $xnames, SORT_ASC, SORT_STRING | SORT_FLAG_CASE, $data);
 
-    return json_encode($data);
+    return $data ;
 }
 
 function getExportLogRecordSQL( $log_id=0 )
@@ -300,6 +443,7 @@ function getExportLogRecordSQL( $log_id=0 )
     , p3.`value` AS `destination`
     , p4.`value` AS `filename_data`
     , p5.`value` AS `filename_data_dictionary`
+    , pz.`value` AS `filename_zip`
     , p6.`value` AS `exported_bytes`
     , p7.`value` AS `exported_items`
     , p8.`value` AS `exported_rows`
@@ -318,6 +462,7 @@ function getExportLogRecordSQL( $log_id=0 )
     LEFT  JOIN redcap_external_modules_log_parameters p3 ON p3.log_id=x.log_id AND p3.name='destination'
     LEFT  JOIN redcap_external_modules_log_parameters p4 ON p4.log_id=x.log_id AND p4.name='filename_data'
     LEFT  JOIN redcap_external_modules_log_parameters p5 ON p5.log_id=x.log_id AND p5.name='filename_data_dictionary'
+    LEFT  JOIN redcap_external_modules_log_parameters pz ON pz.log_id=x.log_id AND pz.name='filename_zip'
     LEFT  JOIN redcap_external_modules_log_parameters p6 ON p6.log_id=x.log_id AND p6.name='exported_bytes'
     LEFT  JOIN redcap_external_modules_log_parameters p7 ON p7.log_id=x.log_id AND p7.name='exported_items'
     LEFT  JOIN redcap_external_modules_log_parameters p8 ON p8.log_id=x.log_id AND p8.name='exported_rows'
@@ -597,6 +742,15 @@ function downloadData()
     return $module->downloadData($export_uuid);
 }
 
+function downloadBatch()
+{
+    global $module;
+
+    checkDownloadPermission();
+
+    return $module->downloadBatch();
+}
+
 function downloadZip()
 {
     global $module;
@@ -617,6 +771,15 @@ function exportData()
     $export_uuid = $_POST['export_uuid'];
 
     return $module->exportData($export_uuid);
+}
+
+function exportBatch()
+{
+    global $module;
+
+    checkExportPermission();
+
+    return $module->exportBatch();
 }
 
 function getFieldMapRecord($export_uuid)

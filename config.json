@@ -3,9 +3,11 @@
 
     "namespace": "Yale\\Yes3FieldMapper",
 
-    "description": "Specialized data export module for datamart integrations and data sharing",
+    "description": "Adds export functionality for analysis, statistical software, and datamarts.  Fast export speeds with good performance on large exports.  EM features: (1.) two export layouts including a horizontal layout for longitudinal studies (one row per record), (2.) support for repeating events and forms, (3.) event prefix editor for variable naming, (4.) export-specific data dictionaries, (5.) ability to write directly to host filesystem (i.e. mounted institutional file shares), (6.) detailed export audit logs and daily export reports, (7.) payloads for datamart integration that include data, data dictionary, data distributions and metadata.",
 
     "prefix": "yes3_exporter",
+
+    "institution": "Yale University",
 
     "authors": [
         {
@@ -17,6 +19,18 @@
     ],
 
     "versions": [
+        {
+            "number": "1.1.0",
+            "date": "2023-06-01",
+            "description": "Feature update",
+            "comments": "(1) New multi-column layout for multiselect exports, (2) Support for repeating forms and events for all export layouts."
+        },
+        {
+            "number": "1.0.3",
+            "date": "2023-05-15",
+            "description": "bug fix",
+            "comments": "form exports for classic projects could fail"
+        },
         {
             "number": "1.0.2",
             "date": "2022-08-15",
@@ -37,6 +51,11 @@
 
     "links": {
         "project": [
+            {
+                "name": "YES3 Export Manager",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_export_manager.php"
+            },
             {
                 "name": "YES3 Exporter Main",
                 "icon": "fab fa-connectdevelop",
@@ -269,5 +288,5 @@
     "redcap-version-min": "12.0.4"
     },
 
-    "framework-version": 9
+    "framework-version": 12
 }

@@ -15,6 +15,114 @@ $module->getCodeFor("yes3_export_editor", true);
 
 ?>
 
+<!-- EXPORTS MANAGER -->
+
+<div id="yes3-fmapr-exports-manager" class="yes3-panel yes3-panel-medium yes3-draggable" style="display:none">
+
+    <div class="yes3-panel-header-row">
+
+        <div class="yes3-panel-row-left" id="yes3-help-panel-title">
+            EXPORTS MANAGER
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: FMAPR.closeExportsManager()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+        
+    </div>
+
+    <div class="yes3-panel-row yes3-scrollable-fixed-head">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>export name</th>
+                    <th>description</th>
+                    <th class="yes3-halign-center">batch</th>
+                    <th class="yes3-halign-center">removed</th>
+                </tr>
+            </thead>
+
+            <tbody id="yes3-fmapr-exports-manager-tbody">
+                <tr class="yes3-fmapr-sortable"><td>export 1</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 2</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 3</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 4</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 5</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 6</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 7</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 8</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 9</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 10</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 11</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 12</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 13</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 14</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 15</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 16</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 17</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 18</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 19</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 20</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 21</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 22</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 23</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 24</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 25</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 26</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 27</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 28</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+                <tr class="yes3-fmapr-sortable"><td>export 29</td><td>brief description</td><td>[x]</td><td>[x]</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="yes3-panel-row">
+
+        <div class="yes3-flex-container">
+
+            <div class="yes3-flex-vcenter-hleft">
+                <div class="yes3-flex-container-left-aligned">
+
+                    <div class="yes3-flex-vcenter-hleft">
+                        filter
+                    </div>
+
+                    <div class="yes3-flex-vcenter-hleft">
+                        <select id="yes3-fmapr-exports-filter" onchange="FMAPR.exportsFilterOnChange()">
+
+                            <option value="all" selected>all exports</option>
+                            <option value="non-removed">non-removed exports</option>
+                            <option value="removed">removed exports</option>
+                            <option value="batch">exports selected for batch</option>
+
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="yes3-flex-vcenter-hright">
+                <div class="yes3-flex-container-right-aligned">
+
+                    <div class="yes3-flex-vcenter-hright">
+                        <input type="button" onClick="FMAPR.closeExportsManager(0);" class="yes3-panel-button yes3-button-caption-cancel" />
+                    </div>
+
+                    <div class="yes3-flex-vcenter-hright">
+                        <input type="button" onClick="FMAPR.closeExportsManager(1);" class="yes3-panel-button yes3-button-caption-saveAndClose" />
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+   </div>
+
+</div>
+
+
 <!-- NEW EXPORT FORM -->
 
 <div id="yes3-fmapr-new-export-form" class="yes3-panel yes3-panel-medium yes3-draggable" style="display:none">
@@ -57,20 +165,48 @@ $module->getCodeFor("yes3_export_editor", true);
                 <td>
 
                     <input class="balloon yes3-longitudinal-only" type="radio" class="balloon" value="h" name="new_export_layout" id="yes3-fmapr-new-export-layout-h">
-                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record)">Horizontal (longitudinal projects: one row per record)</label>
+                    <label class="yes3-longitudinal-only" for="yes3-fmapr-new-export-layout-h" title="Horizontal layout (longitudinal studies: one row per record per repeat instance)">
+                        Horizontal: one row per record (per repeat instance)
+                    </label>
 
                     <br class="yes3-longitudinal-only">
 
                     <input type="radio" class="balloon" value="v" name="new_export_layout" id="yes3-fmapr-new-export-layout-v">
-                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical layout (one row per record+event)">Vertical (one row per record+event)</label>
+                    <label for="yes3-fmapr-new-export-layout-v" title="Vertical: one row per record per event (per repeat instance)">
+                        Vertical: one row per record per event (per repeat instance)
+                    </label>
 
                     <br class="yes3-has-repeating-forms">
 
                     <input type="radio" class="balloon yes3-has-repeating-forms" value="r" name="new_export_layout" id="yes3-fmapr-new-export-layout-r">
-                    <label class="yes3-has-repeating-forms" for="yes3-fmapr-new-export-layout-r" title="Repeating Form layout (one row per record+event+instance)">Repeating Form (one row per record+event+instance)</label>
+                    <label class="yes3-has-repeating-forms" for="yes3-fmapr-new-export-layout-r" title="Repeating SINGLE Form: one row per record per event (per repeat instance), only one form allowed">
+                        Repeating Form (DEPRECATED): one row per record per event per repeat instance
+                    </label>
 
                 </td>
             </tr>
+
+            <tr><td colspan="2">
+                    
+                <p class="yes3-panel-subtitle yes3-duck">Random thoughts</p>
+
+                <div class="yes3-information">
+
+                    <p class="yes3-information-bold">
+                        As of version 1.1.0 (June 2023), the Horizontal and Vertical layouts can accommodate repeating forms and events.
+                    </p>
+
+                    <p>
+                        We recommend that repeating events or forms be exported in separate export specifications, unless a given repeat instance has the same interpretation across events or forms (this will be rare).
+                    </p>
+
+                    <p>
+                        The Repeating Form layout is equivalent to the Vertical layout for a single repeating form, and is deprecated. 
+                        This layout option will be removed in a future version.
+                    </p>
+
+                </div>
+            </td></tr>
 
         </table>
 
@@ -233,7 +369,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
                 <tr>
                     <td>
-                        <i class="fas fa-question yes3-action-icon yes3-nohandler"></i>
+                        <i class="far fa-question-circle yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Display a Help panel (like this one).
@@ -493,13 +629,13 @@ $module->getCodeFor("yes3_export_editor", true);
 
 </div>
 
-<!-- DOWNLOAD -->
+<!-- DOWNLOAD/EXPORT -->
 
 <div id="yes3-fmapr-download-panel" class="yes3-panel yes3-draggable yes3-panel-small" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left">
-            YES3 Exporter: Download Options
+            YES3 Exporter: Download/Export Options
         </div>
         <div class="yes3-panel-row-right">
             <a href="javascript: FMAPR.closeDownloadForm()"><i class="fas fa-times fa-2x"></i></a>
@@ -510,11 +646,11 @@ $module->getCodeFor("yes3_export_editor", true);
         Please indicate what you would like to do:
     </div>
 
-    <div class="yes3-panel-row yes3-fmapr-data-download-disabled yes3-duck" >
+    <!--div class="yes3-panel-row yes3-fmapr-data-download-disabled yes3-duck" >
         Note: User data downloads are disabled for this project. Only filesystem exports are enabled.
-    </div>
+    </div-->
 
-    <div class="yes3-panel-row">
+    <div class="yes3-panel-row yes3-download-options">
 
         <input type="radio" class="balloon" value="datadictionary" name="yes3-fmapr-export" id="yes3-fmapr-export-datadictionary" checked />
         <label for="yes3-fmapr-export-datadictionary">Download the data dictionary file</label>
@@ -527,7 +663,24 @@ $module->getCodeFor("yes3_export_editor", true);
         <br class="yes3-fmapr-data-download-enabled">
 
         <input type="radio" class="balloon yes3-fmapr-data-download-enabled" value="zip" name="yes3-fmapr-export" id="yes3-fmapr-export-zip" />
-        <label for="yes3-fmapr-export-zip" class="yes3-fmapr-data-download-enabled">Download the full export payload <br><span style="margin-left: 20px">(zip of the data dictionary, data and export information files)</span></label>
+        <label for="yes3-fmapr-export-zip" class="yes3-fmapr-data-download-enabled">Download the full payload for this export<br><span style="margin-left: 20px">(zip of the data dictionary, data and export information files)</span></label>
+
+        <br class="yes3-fmapr-data-download-enabled">
+
+        <input type="radio" class="balloon yes3-fmapr-data-download-enabled yes3-fmapr-batch-enabled" value="batch" name="yes3-fmapr-export" id="yes3-fmapr-export-batch-zip" />
+        <label for="yes3-fmapr-export-batch-zip" class="yes3-fmapr-data-download-enabled yes3-fmapr-batch-enabled">Download the full payloads for all exports selected for batch processing</label>
+
+    </div>
+
+    <div class="yes3-panel-row yes3-export-filesystem-options">
+
+        <input type="radio" class="balloon" value="filesystem" name="yes3-fmapr-export" id="yes3-fmapr-export-filesystem" />
+        <label for="yes3-fmapr-export-filesystem">Export to filesystem</label>
+
+        <br />
+
+        <input type="radio" class="balloon yes3-fmapr-batch-enabled" value="filesystem-batch" name="yes3-fmapr-export" id="yes3-fmapr-export-filesystem-batch" />
+        <label for="yes3-fmapr-export-filesystem-batch" class="yes3-fmapr-batch-enabled">Export batch to filesystem</label>
 
     </div>
 
@@ -664,23 +817,27 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="col-xl-3 yes3-flex-vcenter-hleft" style="padding-left:0">
 
             <div>
-                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Exporter&nbsp;Main</span>
+                <span class="yes3-fmapr-title">YES3</span>&nbsp;<span class="yes3-fmapr-subtitle">Exporter</span>
             </div>
             
             <!--input type="button" value="new export" class="yes3-display-when-clean" onclick="YES3.Functions.newExportSpecification()" /-->
 
         </div>
 
-        <div class="col-xl-5 yes3-flex-vcenter-hleft">
+        <div class="col-xl-4 yes3-flex-vcenter-hleft">
 
-            <select id="export_uuid" class="yes3-fmapr-when-initialized yes3-flex-vcenter-hleft" onchange="FMAPR.exportUUIDOnSelect()">
-            </select>
 
-            <i class="fas fa-list-alt yes3-action-icon yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-display-when-clean yes3-designer-only" action="NewExport_openPanel" title="Add a new export specification."></i>
+                <select id="export_uuid" class="yes3-fmapr-when-initialized yes3-flex-vcenter-hleft" onchange="FMAPR.exportUUIDOnSelect()">
+                </select>
 
-            <div class="yes3-flex-vcenter-hleft">            
-                &nbsp;new&nbsp;export
-            </div>  
+                <i class="fas fa-list-alt yes3-action-icon yes3-flex-vcenter-hleft yes3-action-icon-controlpanel yes3-display-when-clean yes3-designer-only" action="NewExport_openPanel" title="Add a new export specification."></i>
+
+                <div class="yes3-flex-vcenter-hleft">            
+                    &nbsp;new&nbsp;export
+                </div>
+
+
+
 
             <!--div class="yes3-fmapr-when-uninitialized yes3-single-spaced-vcenter">
 
@@ -694,7 +851,24 @@ $module->getCodeFor("yes3_export_editor", true);
 
         </div>
 
-        <div class="col-xl-4" style="padding-right:0">
+        <div class="col-xl-2 yes3-flex-vcenter-hleft">
+
+            <!--label class="yes3-checkmarkContainer yes3-flex-vcenter-hleft">
+                <input type="checkbox" id="show_removed_exports" name="show_removed_exports" value="1" onclick="FMAPR.loadSpecifications()"/>
+                <span class="yes3-checkmark"></span>show removed
+            </label-->
+
+            <input 
+                type="button" 
+                value="manage exports"
+                class="yes3-fmapr-display-when-clean"
+                title="Reorder exports, remove, mark for batch exports"
+                onclick="FMAPR.openExportsManager()"
+            />
+
+        </div>
+
+        <div class="col-xl-3" style="padding-right:0">
 
             <div class="yes3-flex-vcenter-hright">
 
@@ -713,7 +887,7 @@ $module->getCodeFor("yes3_export_editor", true);
             <!--i class="fas fa-angle-double-down yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-collapsed yes3-fmapr-settings-okay" action="expandSettingsPanel"   title="Expand the upper settings panel" style="display:none"></i>    
             <i class="fas fa-angle-double-up   yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-expanded yes3-fmapr-settings-okay"  action="collapseSettingsPanel" title="Collapse the upper settings panel"></i-->
 
-            <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="Get some help"></i>
+            <i class="far fa-question-circle yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="Get some help"></i>
 
             <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
             <i class="fas fa-sun yes3-action-icon yes3-action-icon-controlpanel yes3-dark-theme-only" action="Theme_light" title="Switch to the sunny side"></i>
@@ -754,26 +928,61 @@ $module->getCodeFor("yes3_export_editor", true);
 
         <div class="row yes3-fmapr yes3-editor">
 
-            <div class="col-xl-6">
+            <div class="col-xl-8">
 
-                <table id="yes3-fmapr-settings-1" name="yes3-fmapr-settings" class="yes3-fmapr-settings">
+                <table id="yes3-fmapr-settings-1" name="yes3-fmapr-settings" class="yes3-fmapr-settings yes3-fmapr-full-width">
 
-                <tr>
+                    <tr>
                         <td>Export name:</td>
                         
                         <td>
                             <input type="text"   name="export_name" data-setting="export_name" value="" class="" placeholder="enter an export name">
                             <input type="hidden" name="export_uuid" data-setting="export_uuid" value="" />
                             <input type="hidden" name="export_layout" data-setting="export_layout" value="" />
-                            <input type="hidden" name="removed"     data-setting="removed"     value="0" />
+                            <!--input type="hidden" name="removed"     data-setting="removed"     value="0" /-->
+                            <input type="hidden" name="export_order"  data-setting="export_order"     value="0" />
                         </td>                    
                     </tr>
 
                     <tr>
-                        <td>Export layout:</td>
+                        <td>Description:</td>
+                        <td>
+                            <textarea name="export_label" data-setting="export_label" value="" class="yes3-optional yes3-fmapr-full-width" placeholder="enter a brief description"></textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Layout:</td>
                         
-                        <td class="yes3-fmapr-export-layout-text">
+                        <td>
+                            <div class="yes3-fmapr-export-layout-text"></div>
                         </td>                    
+                    </tr>
+
+                    <tr>
+                        <td>Multi-select values exported as:</td>
+
+                        <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
+
+                            <input type="radio" class="balloon" value="1" name="export_multiselect" data-setting="export_multiselect" id="yes3-fmapr-export_multiselect-1">
+                            <label for="yes3-fmapr-export_multiselect-1" title="Export as multiple columns (one per option, each having 1=selected, 0=not selected values)">Multiple (0,1) columns</label>&nbsp;
+
+                            <input type="radio" class="balloon" value="2" name="export_multiselect" data-setting="export_multiselect" id="yes3-fmapr-export_multiselect-2">
+                            <label for="yes3-fmapr-export_multiselect-2" title="Export as a single column (a list of selected option values)">Single column (list of selected options)</label>&nbsp;
+
+                        </td>               
+                        
+                        <!--td>
+                            <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                                <label 
+                                class="yes3-checkmarkContainer"
+                                title="If checked, every 'check all that apply' field will be exported as multiple columns, one for each option."
+                                >
+                                    <input type="checkbox" name="export_multiselect" data-setting="export_multiselect" value="1" />
+                                    <span class="yes3-checkmark"></span>Multicolumn multiselects
+                                </label>
+                            </div>
+                        </td-->                    
                     </tr>
 
                     <tr class="yes3-fmapr-beta">
@@ -788,16 +997,192 @@ $module->getCodeFor("yes3_export_editor", true);
                     </tr>
 
                 </table>
-            </div>
+
+                <div class="yes3-fmapr-settings-section">
+                    Options for selecting records to export
+                    <i class="far fa-question-circle yes3-action-icon yes3-action-icon-inline" action="Help_criterionValue" title="Guidance for entering the criterion value expression."></i>
+                </div>
+
+                <table class="yes3-fmapr-settings" name="yes3-fmapr-settings">
+
+                    <tr>
+
+                        <td class="yes3-fmapr-export-specification">Include:</td>
+
+                        <td class="yes3-fmapr-export-specification yes3-fmapr-layout-options">
+
+                            <input type="radio" class="balloon" value="1" name="export_selection" data-setting="export_selection" id="yes3-fmapr-export-selection-1">
+                            <label for="yes3-fmapr-export-selection-1" title="Include all records">All records</label>&nbsp;
+
+                            <input type="radio" class="balloon" value="2" name="export_selection" data-setting="export_selection" id="yes3-fmapr-export-selection-2">
+                            <label for="yes3-fmapr-export-selection-2" title="Selected records">Selected records</label>&nbsp;
+
+                        </td>               
+                    </tr>
+
+                    <tr class="yes3-fmapr-if-selected yes3-fmapr-skipped-over">
+
+                        <td class="yes3-fmapr-export-specification">Selection criterion: field</td>
+
+                        <td class="yes3-fmapr-export-specification">
+                            <input type="text" name="export_criterion_field" data-setting="export_criterion_field" id="export_criterion_field" value="" placeholder="start typing...">
+                        </td>                   
+                        </tr>
+
+                        <tr class="yes3-fmapr-if-selected yes3-fmapr-skipped-over yes3-fmapr-select-event">
+
+                        <td class="yes3-fmapr-export-specification">Selection criterion: event</td>
+
+                        <td class="yes3-fmapr-export-specification">
+                            <select name="export_criterion_event" data-setting="export_criterion_event" id="export_criterion_event" class="yes3-fmapr-select-event" placeholder="select an event"></select>
+                        </td>
+                    </tr>
+
+                    <tr class="yes3-fmapr-if-selected yes3-fmapr-skipped-over">
+
+                        <td class="yes3-fmapr-export-specification">Selection criterion: value(s)</td>
+
+                        <td class="yes3-fmapr-export-specification">
+                            <input type="text" name="export_criterion_value" data-setting="export_criterion_value" class="yes3-input-integer" placeholder="value">
+                        </td>
+                    </tr>
+
+                </table>
+                
+                <div class="yes3-fmapr-settings-section">
+                    Options for data compliance (de-identified and coded datasets)
+                </div>
+
+                <div class="yes3-fmapr yes3-flex-container">
+
+                    <div class="yes3-flex-left">
+                            
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_remove_phi" data-setting="export_remove_phi" value="1" />
+                                <span class="yes3-checkmark"></span>Remove tagged identifiers
+                            </label>
+                        </div>
+
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_remove_dates" data-setting="export_remove_dates" value="1" />
+                                <span class="yes3-checkmark"></span>Remove date/time fields
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="yes3-flex-left">
+        
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_remove_freetext" data-setting="export_remove_freetext" value="1" />
+                                <span class="yes3-checkmark"></span>Remove all freetext fields
+                            </label>
+                        </div>
+
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_remove_largetext" data-setting="export_remove_largetext" value="1" />
+                                <span class="yes3-checkmark"></span>Remove note/paragraph fields
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="yes3-flex-left">
+                        
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_shift_dates" data-setting="export_shift_dates" value="1" />
+                                <span class="yes3-checkmark"></span>Coded (shifted) dates
+                            </label>
+                        </div>
+                        
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_hash_recordid" data-setting="export_hash_recordid" value="1" />
+                                <span class="yes3-checkmark"></span>Coded (hashed) record id values
+                            </label>
+                        </div> 
+                                
+                    </div>
+
+                </div>
+
+                <div class="yes3-fmapr-settings-section">
+                    Options for conditioning exported values
+                </div>
+
+                <div class="yes3-fmapr yes3-flex-container">
+
+                    <div class="yes3-flex-left">
+
+                        <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                            <label class="yes3-checkmarkContainer">
+                                <input type="checkbox" name="export_inoffensive_text" data-setting="export_inoffensive_text" value="1" />
+                                <span class="yes3-checkmark"></span>Sanitize exported text values by removing unprintable characters and HTML tags.
+                            </label>
+                        </div>
+                                
+                    </div>
+                </div>
+
+                <table class="yes3-fmapr-settings">
+
+                    <tr>
+
+                        <td class="yes3-fmapr-export-specification">Maximum field label length:</td>
+
+                        <td class="yes3-fmapr-export-specification">
+                            <input type="text" name="export_max_label_length" data-setting="export_max_label_length" value="" class="yes3-input-integer yes3-optional" placeholder="max #characters">
+                        </td>
+                    </tr>
+
+                    <tr>
+
+                        <td class="yes3-fmapr-export-specification">Maximum text value length:</td>
+
+                        <td class="yes3-fmapr-export-specification">
+                            <input type="text" name="export_max_text_length" data-setting="export_max_text_length" value="" class="yes3-input-integer yes3-optional" placeholder="max #characters">
+                        </td>
+                    </tr>
+             
+                </table>
+
+            </div> <!-- left section: settings -->
+
+            <div class="col-xl-4">
+
+                <div class="yes3-fmapr-settings-section">
+                    EXPORT OPTIONS
+                </div>
+
+                <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                    <label class="yes3-checkmarkContainer">
+                        <input type="checkbox" name="export_batch" data-setting="export_batch" value="1" />
+                        <span class="yes3-checkmark"></span>Include in batch exports
+                    </label>
+                </div>
+
+                <div class="yes3-fmapr-filter-option yes3-fmapr-settings-block">
+                    <label class="yes3-checkmarkContainer">
+                        <input type="checkbox" name="removed" data-setting="removed" id="yes3-export-removed" value="1" onclick="FMAPR.highlightRemovedIfSelected()"/>
+                        <span class="yes3-checkmark"></span>REMOVED
+                    </label>
+                </div>
+
+            </div> <!-- right section: export -->
+
+
         </div>
 
         <!-- SELECTION FILTER -->
 
-        <div class="row">
+        <!--div class="row">
             <div class="col-xl-12 yes3-fmapr-settings-section">
                 Options for selecting records to export
-                <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_criterionValue" title="Guidance for entering the criterion value expression."></i>
-        </div>
+                <i class="far fa-question-circle yes3-action-icon yes3-action-icon-inline" action="Help_criterionValue" title="Guidance for entering the criterion value expression."></i>
+            </div>
         </div>
 
         <div class="row">
@@ -850,11 +1235,11 @@ $module->getCodeFor("yes3_export_editor", true);
 
                 </table>
             </div>
-        </div>
+        </div-->
 
         <!-- **** FILTERING FORM **** -->
 
-        <div class="row">
+        <!--div class="row">
             <div class="col-xl-12 yes3-fmapr-settings-section">
                 Options for data compliance (de-identified and coded datasets)
             </div>
@@ -914,11 +1299,11 @@ $module->getCodeFor("yes3_export_editor", true);
                         
             </div>
 
-        </div>
+        </div-->
 
         <!-- CONDITIONING --> 
 
-        <div class="row">
+        <!--div class="row">
             <div class="col-xl-12 yes3-fmapr-settings-section">
                 Options for conditioning exported values
             </div>
@@ -936,9 +1321,9 @@ $module->getCodeFor("yes3_export_editor", true);
                 </div>
                         
             </div>
-        </div>
+        </div-->
 
-        <div class="row">
+        <!--div class="row">
 
             <div class="col-xl-12">
 
@@ -966,7 +1351,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
             </div>
 
-        </div>
+        </div-->
 
 
     </div> <!-- settings container -->
