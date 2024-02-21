@@ -28,7 +28,9 @@ let YES3 = {
     }
 };
 
-const YES3_DEBUG_MESSAGES = false;
+const YES3_DEBUG_MESSAGES = true;
+
+const YES3_USE_ONERROR_HANDLER = false;
 
 const ALL_OF_THEM = "_all_";
 
@@ -877,7 +879,7 @@ YES3.setCaptions = function()
 
 window.onerror = function(message, source, lineno, error)
 { 
-    if ( !YES3_DEBUG_MESSAGES ) return false;
+    if ( !YES3_USE_ONERROR_HANDLER ) return false;
 
     // make sure the damn cursor is not spinning
     YES3.notBusy();

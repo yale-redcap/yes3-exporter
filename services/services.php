@@ -97,6 +97,8 @@ function execRequest( $request ){
         , 'saveeventsettings'
         , 'saveexportspecification'
         , 'saveexportsmanagerdata'
+        , 'remove_or_restore_export'
+        , 'update_export_table_settings'
     ];
 
     $fnIndex = array_search( strtolower($request), $function_registry );
@@ -107,6 +109,57 @@ function execRequest( $request ){
     }
 
     exit( call_user_func( __NAMESPACE__ . "\\". $function_registry[ $fnIndex ] ) );
+}
+
+function update_export_table_settings()
+{
+    global $module;
+
+    $updates = $_POST['updates'];
+
+    if ( !is_array($updates) ){
+
+        return Yes3::stdReturnObj( "fail", print_r($_POST, true), [], true );;
+    }
+
+    $result = "success";
+    $message = "Export table settings updated.";
+
+    for($i=0; $i<count($updates); $i++){
+
+        $updates[$i]['result'] = $module->setEmLogParameter( $updates[$i]['log_id'], $updates[$i]['key'], $updates[$i]['value'] );
+
+        if ( $updates[$i]['result'] !== true ){
+
+            $result = "fail";
+            $message = "At least one export table settings update failed. See the 'result' property for details.";
+        }
+    }
+
+    return Yes3::stdReturnObj( $result, $message, $updates, true );
+}
+
+function remove_or_restore_export()
+{
+    global $module;
+
+    $log_id = (int) $_POST['log_id'];
+
+    $removed = (int) $_POST['removed'];
+
+    $module->setEmLogParameter( $log_id, 'removed', $removed );
+
+    $removed_updated = $module->getEmLogParameter( $log_id, 'removed' ); 
+
+    return Yes3::stdReturnObj( 
+        "success" 
+        , "Export log record# {$log_id} removed status set to {$removed}"
+        , [
+            'log_id' => $log_id,
+            'removed' => $removed_updated
+        ]
+        , true
+    );
 }
 
 function saveExportsManagerData()
@@ -334,19 +387,30 @@ function getExportSpecificationList2( $get_removed=0 )
 
         $s = $module->getExportSpecification($u['export_uuid']);
 
+        // skip if user does not have permission to view this export specification
+        if ( !$module->confirmSpecificationPermissions($s) ){
+
+            continue;
+        }
+
+        // retrieve or calculate the column count
+        $columnCount = $module->getExportColumnCount($s);
+
         if ( $s['removed']==='0' || $get_removed ) {
 
             $data[] = [
                 'timestamp' => $s['timestamp'],
                 'log_id' => $s['log_id'],
                 'export_uuid' => $s['export_uuid'],
-                'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                'export_name' => ( $s['export_name'] ) ? $module->escape($s['export_name']) : "noname-{$s['log_id']}",
                 'export_layout' => $s['export_layout'],
-                'export_label' => $s['export_label'],
+                'export_label' => $module->escape($s['export_label']),
                 'export_batch' => $s['export_batch'],
                 'export_order' => ( $s['export_order'] ) ? $s['export_order'] : "0",
-                'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
-                'removed' => $s['removed']
+                'export_username' => ( $s['export_username'] ) ? $module->escape($s['export_username']) : "nobody",
+                'removed' => $s['removed'],
+                'column_count' => $module->escape($columnCount)
+                // ,'export_items' => json_decode($s['export_items_json'], true),
             ];
         }
     }

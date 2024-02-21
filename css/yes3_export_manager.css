@@ -1,0 +1,50 @@
+table#yes3-fmapr-export-table td i:not(.yes3-selected) {
+    color: var(--yes3-td-color);
+}
+
+table#yes3-fmapr-export-table td i:hover {
+    color: turquoise;
+}
+
+table#yes3-fmapr-export-table {
+    display: none;
+}
+
+table#yes3-fmapr-export-table tbody, table#yes3-fmapr-export-table thead, table#yes3-fmapr-export-table tfoot {
+    display: block;
+}
+
+table#yes3-fmapr-export-table tfoot {
+    border-top: 1px solid var(--yes3-th-border-color);
+    border-left: 0;
+    border-right: 0;
+    width: 100%;
+}
+
+.yes3-controls input[type=date],
+.yes3-controls select{
+    font-size: 0.9rem !important;
+    padding: .5rem !important;
+}
+
+.yes3-controls div {
+    font-size: 0.9rem !important;
+}
+
+.yes3-fmapr-flex-range-container {
+    width: 100%;
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: stretch;
+    align-content: flex-start;
+}
+
+.yes3-fmapr-flex-range-container div {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-left: 1em;    
+}
+

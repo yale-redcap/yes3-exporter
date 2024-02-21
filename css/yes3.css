@@ -1492,6 +1492,30 @@ button[type=submit].yes3 {
     color: var(--yes3-alert-color);
  }
 
+ .yes3-valign-middle {
+    vertical-align: middle;
+}
+
+.yes3-valign-bottom {
+    vertical-align: bottom;
+}
+
+.yes3-valign-top {
+    vertical-align: top;
+}
+
+.yes3-halign-left {
+    text-align: left;
+}   
+
+.yes3-halign-right {
+    text-align: right;
+}
+
+.yes3-halign-center {
+    text-align: center;
+}
+
 
 /* CHECKBOXES */
 

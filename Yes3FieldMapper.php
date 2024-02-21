@@ -1509,6 +1509,17 @@ WHERE project_id=? AND log_entry_type=?
         return ( strlen($d['redcap_source_option']) ) ? true : false;
     }
 
+    public function getEmLogParameter( $log_id, $key_name ){
+
+        return Yes3::fetchValue(
+            "SELECT `value` FROM redcap_external_modules_log_parameters WHERE log_id=? AND `name`=?",
+            [ 
+                $log_id, 
+                $key_name 
+            ]
+        );
+    }
+
     public function setEmLogParameter( $log_id, $key_name, $key_value ){
 
         /**
@@ -1531,7 +1542,7 @@ WHERE project_id=? AND log_entry_type=?
             $sql = "UPDATE redcap_external_modules_log_parameters SET `value`=? WHERE log_id=? AND `name`=?";
         }
 
-        $this->query( $sql, [$key_value, $log_id, $key_name] );
+        return $this->query( $sql, [$key_value, $log_id, $key_name] );
     }
     
     private function writeExportDataFileRecord( 
@@ -2084,6 +2095,42 @@ WHERE project_id=? AND log_entry_type=?
         );
     }
 
+    public function getExportDataDictionary($export_uuid, $countOnly=false)
+    {
+        $dd = $this->buildExportDataDictionary($export_uuid)['export_data_dictionary'] ?? [];
+
+        //$this->tidyUpDD($dd, true);
+
+        return ( $countOnly ) ? count($dd) : $dd;
+    }
+
+    /**
+     * returns the column count for the export
+     * @param mixed $specification 
+     * @return int 
+     */
+    public function getExportColumnCount($specification)
+    {
+        $log_id = (int) $specification['log_id'];
+
+        $export_uuid = $specification['export_uuid'];
+
+        if ( !$log_id || !$export_uuid ){
+
+            return 0;
+        }
+
+        $column_count = $this->getEmLogParameter($log_id, "column_count");
+
+        if ( !$column_count ){
+
+            $column_count = $this->getExportDataDictionary($export_uuid, true);
+            $this->setEmLogParameter($log_id, "column_count", $column_count);
+        }
+
+        return $column_count;
+    }
+
     public function downloadDataDictionary($export_uuid)
     {
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
@@ -2490,22 +2537,10 @@ WHERE project_id=? AND log_entry_type=?
     {
         $uRights = $this->yes3UserRights();
 
-        //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "confirmSpecificationPermissions: spec");
-
-        /**
-         * specification properties useful here:
-         * 
-         * export_remove_phi
-         * export_remove_freetext
-         * export_remove_largetext
-         * export_remove_dates
-         * 
-         */
-
         // designers and superusers always have permission
         if ( $uRights['isDesigner'] || $uRights['isSuper'] ){
 
-            //return true;
+            return true;
         }
 
         /**

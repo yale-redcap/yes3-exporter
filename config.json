@@ -7,6 +7,8 @@
 
     "prefix": "yes3_exporter",
 
+    "institution": "Yale University",
+
     "authors": [
         {
             "name": "Peter Charpentier",
@@ -49,6 +51,11 @@
 
     "links": {
         "project": [
+            {
+                "name": "YES3 Export Manager",
+                "icon": "fab fa-connectdevelop",
+                "url":  "plugins/yes3_export_manager.php"
+            },
             {
                 "name": "YES3 Exporter Main",
                 "icon": "fab fa-connectdevelop",
@@ -281,5 +288,5 @@
     "redcap-version-min": "12.0.4"
     },
 
-    "framework-version": 9
+    "framework-version": 12
 }

@@ -50,6 +50,11 @@ YES3.Functions.Help_formInsertion = function()
     }
 }
 
+/**
+ * Display the help panel for the criterion value.
+ * If a criterion field is selected, the panel will adapt to the field's metadata.
+ * 
+ */
 YES3.Functions.Help_criterionValue = function()
 {
     let thePanel = YES3.openPanel("yes3-fmapr-criterion-value-help-panel", true);
