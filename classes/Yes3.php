@@ -38,7 +38,7 @@ class Yes3 {
      * @param string $project_id 
      * @return mixed 
      */
-    public static function getDataTable( $project_id="" ){
+    public static function getDataTable( $project_id=null ){
 
         if ( method_exists('REDCap', "getDataTable") ) {
 
