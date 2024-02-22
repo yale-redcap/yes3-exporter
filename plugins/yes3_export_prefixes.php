@@ -1,13 +1,16 @@
 <?php
 
+namespace Yale\Yes3FieldMapper;
+
+use HtmlPage;
+
 /*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 */
 
-$module = new Yale\Yes3FieldMapper\Yes3FieldMapper();
-use Yale\Yes3\Yes3;
+$module = new Yes3FieldMapper();
 
 $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();

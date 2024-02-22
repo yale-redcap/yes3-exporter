@@ -1,6 +1,11 @@
 
 # YES3 Exporter Change Log
 
+## Version 1.0.4
+
+1. Modified as required for REDCap v14 compatibility
+2. Framework changed from 9 to 12
+
 ## Version 1.0.2
 
 1. basename() used to sanitize download filename headers

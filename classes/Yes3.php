@@ -27,18 +27,22 @@ class Yes3 {
 
     // we'll use the framework function henceforth
     public static function getREDCapProjectId()
-    {
-        /*
-        if (isset($_GET['pid'])) {
-            return (int) $_GET['pid'];
-        }
-        if (defined('PROJECT_ID')) {
-            return (int) PROJECT_ID;
-        }
-        return 0;
-        */
-		
+    {		
         return ExternalModules::getProjectID();
+    }
+
+    
+    /**
+     * V13, V14+ compatible method for getting the project_id
+     * 
+     * @param string $project_id 
+     * @return mixed 
+     */
+    public static function getDataTable( $project_id="" ){
+
+        if ( method_exists('REDCap', "getDataTable") ) return REDCap::getDataTable( $project_id );
+
+        return "redcap_data";
     }
 
     // the framework getDAG crashes for longitudinal studies
@@ -54,7 +58,9 @@ class Yes3 {
             return null;
         }
 
-        return self::fetchValue('select value from redcap_data where project_id = ? and record = ? and field_name = ? limit 1', [$pid, $recordId, '__GROUPID__']);
+        $redcap_data = self::getDataTable($pid);
+
+        return self::fetchValue("select value from $redcap_data where project_id = ? and record = ? and field_name = ? limit 1", [$pid, $recordId, '__GROUPID__']);
     }
 
    public static function query($sql, $parameters = [])
@@ -223,9 +229,12 @@ class Yes3 {
       if ( !$event_id ) {
          $event_id = self::getREDCapEventIdForField($field_name, $project_id);
       }
+
+      $redcap_data = self::getDataTable($project_id);
+
       $sql = "
 SELECT `value` 
-FROM `redcap_data` 
+FROM $redcap_data 
 WHERE `project_id`=? AND `event_id`=? AND `record`=? AND `field_name`=? AND ifnull(instance, 1)=? LIMIT 1
 ";
       return self::fetchValue($sql, [$project_id, $event_id, $record, $event_id, $instance]);

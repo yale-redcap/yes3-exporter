@@ -207,7 +207,7 @@ trait Yes3Trait {
         return $s;
     }
 
-        /* ==== ERROR LOGGING ==== */
+  /* ==== ERROR LOGGING ==== */
 
         public function logException( string $message, \Exception $e )
         {

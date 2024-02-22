@@ -3,20 +3,28 @@
 
     "namespace": "Yale\\Yes3FieldMapper",
 
-    "description": "Specialized data export module for datamart integrations and data sharing",
+    "description": "Specialized data export module for datamart integrations and data sharing. This release is compatible with REDCap v14.",
 
     "prefix": "yes3_exporter",
+
+    "institution": "Yale University",
 
     "authors": [
         {
             "name": "Peter Charpentier",
             "email": "redcap@yale.edu",
             "role": "developer",
-            "institution": "CRI Web Tools LLC"
+            "institution": "Yale University"
         }
     ],
 
     "versions": [
+        {
+            "number": "1.0.4",
+            "date": "2024-02-21",
+            "description": "Patch release for REDCap v14 compatibility",
+            "comments": "Identical features to v1.0.2 (Aug 2022) but compatible with REDCap v14.0.0 and later"
+        },
         {
             "number": "1.0.3",
             "date": "2024-02-18",
@@ -35,10 +43,6 @@
             "description": "First production release",
             "comments": "See change log for pre-production versions"
         }
-    ],
-
-    "permissions": [
-        "redcap_module_link_check_display"
     ],
 
     "links": {
@@ -272,9 +276,8 @@
 
     "compatibility": {
     "php-version-min": "7.4",
-    "redcap-version-min": "12.0.4",
-    "redcap-version-max": "13.8.4"
+    "redcap-version-min": "12.0.4"
     },
 
-    "framework-version": 9
+    "framework-version": 12
 }

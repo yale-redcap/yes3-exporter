@@ -742,6 +742,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $export_specification = $ddPackage['export_specification'];
 
+        $redcap_data = Yes3::getDataTable();
+
         /*
         if ( !$export_target_folder || $destination==="download" ) {
 
@@ -863,7 +865,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         /**
          * Assemble the SELECT query and event params to be passed to the record writer
          */
-        $sqlSelect = "SELECT d.* FROM redcap_data d WHERE d.`project_id`=? AND d.`record`=?";
+        $sqlSelect = "SELECT d.* FROM $redcap_data d WHERE d.`project_id`=? AND d.`record`=?";
 
         $sqlEvent = "";
         $sqlEventParams = [];
@@ -982,9 +984,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                 $sql = "
                 SELECT DISTINCT d.`record`
-                FROM redcap_data d
+                FROM $redcap_data d
                 WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}
-                AND d.`record` IN(SELECT DISTINCT dg.`record` FROM redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?)
+                AND d.`record` IN(SELECT DISTINCT dg.`record` FROM $redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?)
                 ";
                 $sqlParams = array_merge([ $this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams, [$this->project_id, $export_group_id]);
             }
@@ -992,7 +994,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                 $sql = "
                 SELECT DISTINCT d.`record`
-                FROM redcap_data d
+                FROM $redcap_data d
                 WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}";
 
                 $sqlParams = array_merge([$this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
@@ -1002,13 +1004,13 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             if ( $export_group_id ){
 
-                $sql = "SELECT DISTINCT dg.`record` FROM redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?";
+                $sql = "SELECT DISTINCT dg.`record` FROM $redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?";
 
                 $sqlParams = [ $this->project_id, $export_group_id ];
             }
             else {
 
-                $sql = "SELECT DISTINCT d.`record` FROM redcap_data d WHERE d.`project_id`=?";
+                $sql = "SELECT DISTINCT d.`record` FROM $redcap_data d WHERE d.`project_id`=?";
 
                 $sqlParams = [ $this->project_id ];                
             }
