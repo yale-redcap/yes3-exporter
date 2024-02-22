@@ -38,15 +38,15 @@ class Yes3 {
      * @param string $project_id 
      * @return mixed 
      */
-    public static function getDataTable( $project_id=null ){
+    public static function getDataTable( $project_id=0 ){
 
-        $project_id = $project_id ?? self::getREDCapProjectId();
+        if ( !is_numeric($project_id) || $project_id < 1 ) $project_id = (int) self::getREDCapProjectId();
 
         if ( method_exists('REDCap', "getDataTable") ) {
 
-            self::logDebugMessage($project_id, "using REDCap::getDataTable: project_id={$project_id}, dataTable=".REDCap::getDataTable(), "getDataTable");
+            self::logDebugMessage($project_id, "using REDCap::getDataTable: project_id={$project_id}, dataTable=".REDCap::getDataTable($project_id), "getDataTable");
             
-            return REDCap::getDataTable();
+            return REDCap::getDataTable($project_id);
         }
 
         return "redcap_data";
