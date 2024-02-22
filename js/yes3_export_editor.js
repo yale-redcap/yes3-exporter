@@ -25,6 +25,12 @@ FMAPR.tooltips = {
 FMAPR.rapidEntryFormRowId = "yes3-fmapr-rapidentry-row";
 FMAPR.rapidEntryFormId = "yes3-fmapr-rapidentry-form";
 
+FMAPR.userPermissions = {
+
+    "design": false,
+    "export": false,
+}
+
 /**
  * YES3 FUNCTIONS FOR FMAPR
  * 
@@ -3891,12 +3897,13 @@ FMAPR.loadSpecifications = function( get_removed )
 FMAPR.loadSpecificationsCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
+    console.log('loadSpecificationsCallback', response, typeof response);
 
     let select = FMAPR.getExportUUIDSelect();
 
     let html = "";
 
-    if ( typeof response === 'object' ){
+    if ( typeof response === 'object' && response.length ){
 
         html = "<option disabled selected value=''>select an export</option>";
 
@@ -3907,7 +3914,7 @@ FMAPR.loadSpecificationsCallback = function( response )
     }
     else {
 
-        html = "<option disabled selected value=''>no exports are defined</option>";
+        html = "<option disabled selected value=''>you do not have access to any exports</option>";
     }
 
     select.empty().append(html);
@@ -3941,7 +3948,7 @@ FMAPR.displayInitializationElements = function()
     let select = FMAPR.getExportUUIDSelect();
 
     // there is always at least one option element
-    if ( select.find('option').length > 1 ){
+    if ( select.find('option').length > 0 ){
 
         $(".yes3-fmapr-when-initialized").show();
         $(".yes3-fmapr-when-uninitialized").hide(); 
@@ -3983,6 +3990,10 @@ FMAPR.loadSpecification = function( log_id )
 {  
     log_id = log_id || 0;
 
+    // set permissions to false
+    FMAPR.userPermissions.design = false;
+    FMAPR.userPermissions.export = false;
+
     if ( FMAPR.reloadParms.export_uuid.length ) {
 
         FMAPR.reloadParms.export_uuid = "";
@@ -4000,6 +4011,7 @@ FMAPR.loadSpecification = function( log_id )
 FMAPR.loadSpecificationCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationCallback', response, typeof response);
+    console.log('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 
@@ -4016,6 +4028,10 @@ FMAPR.loadSpecificationCallback = function( response )
             YES3.hello("PERMISSION DENIED: You do not have permission to export at least one form or field that is included in this export specification.");
             return false;
         }
+
+        // set permissions
+        FMAPR.userPermissions.design = response.permission_design;
+        FMAPR.userPermissions.export = response.permission_export;
 
         FMAPR.showDashboardHead();
 
@@ -4155,7 +4171,7 @@ FMAPR.populateSpecificationTables = function( specification )
     }
     else {
 
-        FMAPR.postMessage("Export specification loaded.");
+        FMAPR.postMessage(`Export specification loaded with permissions: export=${FMAPR.userPermissions.export}, design=${FMAPR.userPermissions.design}.`);
 
         if ( FMAPR.reloadParms.wayback ){
 
@@ -4208,21 +4224,28 @@ FMAPR.displayActionIcons = function()
         $('i.yes3-designer-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
-    // disable based on view
+    // disable based on global EM setting
+    if ( !FMAPR.project.host_filesystem_exports_enabled ){
+
+        $('i[action=exportToHost]:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
+    }
+
+    // disable based on which tab is open
     if ( yes3_dashboard_option!=="items" ){
 
         $('i.yes3-fmapr-item-view').addClass('yes3-action-disabled');
     }
 
+    // disable based on v12-style export permissions
     if ( !YES3.userRights.exporter ){
 
         $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
-    // export to host file system
-    if ( !FMAPR.project.host_filesystem_exports_enabled ){
+    // disable based on specific export permissions
+    if ( !FMAPR.userPermissions.export ){
 
-        $('i.yes3-export-to-host-filesystem-enabled:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
+        $('i.yes3-exporter-only:not(.yes3-action-disabled)').addClass('yes3-action-disabled');
     }
 
     // squelch any controls not allowed when all items already selected

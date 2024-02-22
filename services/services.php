@@ -195,8 +195,8 @@ function saveExportSpecification()
 /**
  * Returns the requested export specification, json-encoded.
  * 
- * Adds a 'permission' property that will be 'allowed' or 'denied'. 
- * If denied, this will be the ONLY property returned.
+ * Adds 'permission' properties for overall access, design and export. 
+ * If all denied, these will be the ONLY properties returned.
  * 
  * function: getExportSpecification
  * 
@@ -221,15 +221,26 @@ function getExportSpecification()
 
     $specification = $module->getExportSpecification( $export_uuid, $log_id );
 
-    if ( !$module->confirmSpecificationPermissions($specification)){
+    // designers always have permission for editing, not necessarily for exporting
+    $permission_design = ( $module->getUser()->hasDesignRights() ) ? true:false;
+
+    // export permission based on user form export permissions
+    $permission_export = $module->confirmSpecificationPermissions($specification);
+
+    // if no permissions at all, return a truncated specification
+    if ( !$permission_export && !$permission_design ){
 
         $specification = [
-            'permission'=>"denied"
+            'permission'=>"denied",
+            'permission_design'=>0,
+            'permission_export'=>0
         ];
     }
     else {
 
         $specification['permission'] = "allowed";
+        $specification['permission_design'] = $permission_design;
+        $specification['permission_export'] = $permission_export;
     }
 
     return json_encode( $specification );
@@ -258,19 +269,30 @@ function getExportSpecificationList():string
     foreach($UUIDs as $u){
 
         $s = $module->getExportSpecification($u['export_uuid']);
+                
+        // designers always have permission for editing, not necessarily for exporting
+        $s['permission_design'] = ( $module->getUser()->hasDesignRights() ) ? true:false;
 
-        if ( $s['removed']==='0' || $get_removed ) {
+        // export permission based on user form export permissions
+        $s['permission_export'] = $module->confirmSpecificationPermissions($s);
 
-            $data[] = [
-                'timestamp' => $s['timestamp'],
-                'log_id' => $s['log_id'],
-                'export_uuid' => $s['export_uuid'],
-                'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
-                'export_layout' => $s['export_layout'],
-                'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
-                'removed' => $s['removed']
-            ];
-        }
+        // skip if no permissions at all
+        if ( !$s['permission_export'] && !$s['permission_design'] ) continue;
+
+        // skip if removed and get_removed not requested
+        if ( $s['removed']==='1' && !$get_removed ) continue;
+
+        $data[] = [
+            'timestamp' => $s['timestamp'],
+            'log_id' => $s['log_id'],
+            'export_uuid' => $s['export_uuid'],
+            'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+            'export_layout' => $s['export_layout'],
+            'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
+            'permission_design' => $s['permission_design'],
+            'permission_export' => $s['permission_export'],
+            'removed' => $s['removed']
+        ];
     }
 
     $xnames = array_column($data, 'export_name');

@@ -47,13 +47,22 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         parent::__construct(); // call parent (AbstractExternalModule) constructor
 
-        $projId = $this->getProjectId();
+        try {
 
-        if ( $projId ){
+            $projId = $this->getProjectId();
+            $username = $this->getUser()->getUsername();
+        } 
+        catch(Exception $e) {
+
+            $projId = 0;
+            $username = "";
+        }
+
+        if ( $projId && $username ){
 
             $this->project_id = $projId;
 
-            $this->username = $this->getUser()->getUsername();
+            $this->username = $username;
             $this->serviceUrl = $this->getUrl('services/services.php');
             $this->documentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=README');
             $this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Fchangelog');
@@ -2216,12 +2225,6 @@ WHERE project_id=? AND log_entry_type=?
          * export_remove_dates
          * 
          */
-
-        // designers and superusers always have permission
-        if ( $uRights['isDesigner'] || $uRights['isSuper'] ){
-
-            //return true;
-        }
 
         /**
          * The structures returned by getFormMetadataStructures() will include
