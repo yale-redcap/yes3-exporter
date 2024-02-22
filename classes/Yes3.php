@@ -42,7 +42,7 @@ class Yes3 {
 
         if ( method_exists('REDCap', "getDataTable") ) {
 
-            self::logDebugMessage($project_id, "using REDCap::getDataTable: ".REDCap::getDataTable( $project_id ), "getDataTable");
+            self::logDebugMessage($project_id, "using REDCap::getDataTable: project_id={$project_id}, dataTable=".REDCap::getDataTable( $project_id ), "getDataTable");
             
             return REDCap::getDataTable( $project_id );
         }
