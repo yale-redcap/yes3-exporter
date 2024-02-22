@@ -10,7 +10,7 @@ use ExternalModules\ExternalModules;
  * Table to hold debug log messages. Must be created by dba, see logDebugMessage() below.
  */
 define('DEBUG_LOG_TABLE', "ydcclib_debug_messages");
-define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
+//define('LOG_DEBUG_MESSAGES', 1); // un-comment to enable logging to table
 
 /**
  * 
@@ -31,7 +31,6 @@ class Yes3 {
         return ExternalModules::getProjectID();
     }
 
-    
     /**
      * V13, V14+ compatible method for getting the project_id
      * 
@@ -44,7 +43,7 @@ class Yes3 {
 
         if ( method_exists('REDCap', "getDataTable") ) {
 
-            self::logDebugMessage($project_id, "using REDCap::getDataTable: project_id={$project_id}, dataTable=".REDCap::getDataTable($project_id), "getDataTable");
+            //self::logDebugMessage($project_id, "using REDCap::getDataTable: project_id={$project_id}, dataTable=".REDCap::getDataTable($project_id), "getDataTable");
             
             return REDCap::getDataTable($project_id);
         }

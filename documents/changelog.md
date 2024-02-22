@@ -5,6 +5,9 @@
 
 1. Modified as required for REDCap v14 compatibility
 2. Framework changed from 9 to 12
+3. Permission model changed, to distioguish between 'exporter' and 'designer' roles. Export 'design' permission is granted only to project designers. Export permission is granted to only users having export permissions on all forms involved in the export specification, regardless of designer or superuser status.
+4. The UI will filter out exports based on the user's permissions, so that a user cannot select an export to which they do not have 'design' or 'export' access; and the user cannot download or export data for an export specification for which they do not have 'export' access.
+5. Once an export specification is selected and loaded, a message will be posted indicating the user's 'design' and 'export' permissions for that specification.
 
 ## Version 1.0.2
 

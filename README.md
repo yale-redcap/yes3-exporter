@@ -7,6 +7,8 @@
 REDCap External Module  
 Version 1.0.4, February 2024
 
+**See Change Log for details on updates and bug fixes.**
+
 ## Important note about documentation
 
 The external module includes a User Guide, Technical Guide and EM Changelog. These are all available through the _YES3 Exporter Documentation_ link. You may also view them on GitHub by clicking the links provided below.

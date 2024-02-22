@@ -3897,7 +3897,6 @@ FMAPR.loadSpecifications = function( get_removed )
 FMAPR.loadSpecificationsCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
-    console.log('loadSpecificationsCallback', response, typeof response);
 
     let select = FMAPR.getExportUUIDSelect();
 
@@ -4011,7 +4010,6 @@ FMAPR.loadSpecification = function( log_id )
 FMAPR.loadSpecificationCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationCallback', response, typeof response);
-    console.log('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 
