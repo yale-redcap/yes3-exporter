@@ -18,6 +18,12 @@
 
     "versions": [
         {
+            "number": "1.0.3",
+            "date": "2024-02-18",
+            "description": "Maximum REDCap version set to 13",
+            "comments": "Holding the fort until the v14-compatible feature release is ready"
+        },
+        {
             "number": "1.0.2",
             "date": "2022-08-15",
             "description": "Security updates",
@@ -266,7 +272,8 @@
 
     "compatibility": {
     "php-version-min": "7.4",
-    "redcap-version-min": "12.0.4"
+    "redcap-version-min": "12.0.4",
+    "redcap-version-max": "13.8.4"
     },
 
     "framework-version": 9
