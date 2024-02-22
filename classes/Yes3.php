@@ -40,6 +40,8 @@ class Yes3 {
      */
     public static function getDataTable( $project_id=null ){
 
+        $project_id = $project_id ?? self::getREDCapProjectId();
+
         if ( method_exists('REDCap', "getDataTable") ) {
 
             self::logDebugMessage($project_id, "using REDCap::getDataTable: project_id={$project_id}, dataTable=".REDCap::getDataTable(), "getDataTable");
