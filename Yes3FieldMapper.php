@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 */
 
 /**
- * defines and enums
+ * defines and enums, should be a static class?
  */
 require "defines/yes3_defines.php";
 
@@ -34,6 +34,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $changelogUrl = "";
     public $technicalDocumentationUrl = "";
     public $form_export_permissions = [];
+    public $copyright = "";
+    public $docPageUrl = "";
+    public $version = "";
     private $token = "";
     private $salt = "";
     private $project_salt = "";
@@ -46,6 +49,10 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         global $salt;
 
         parent::__construct(); // call parent (AbstractExternalModule) constructor
+
+        $this->version = $this->getConfig()['versions'][0]['version'];
+        $this->copyright = $this->getCopyRight(); // combines the REDCap and YES3 copy right strings
+        $this->docPageUrl = $this->getConfig()['documentation']; // the github pages site for exporter documentation
 
         try {
 
@@ -92,6 +99,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             //Yes3::logDebugMessage($this->project_id, "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
         }
+    }
+
+    public function getCopyRight(){
+
+        return REDCap::getCopyright() . "<br />YES3 Exporter {$this->version} - &copy; 2024 REDCap@Yale";
     }
 
     /**

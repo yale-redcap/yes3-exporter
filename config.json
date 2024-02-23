@@ -5,6 +5,8 @@
 
     "description": "Specialized data export module for datamart integrations and data sharing. This release is compatible with REDCap v14.",
 
+    "documentation": "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/",
+
     "prefix": "yes3_exporter",
 
     "institution": "Yale University",
@@ -20,25 +22,25 @@
 
     "versions": [
         {
-            "number": "1.0.4",
+            "version": "1.0.4",
             "date": "2024-02-21",
             "description": "Patch release for REDCap v14 compatibility",
-            "comments": "Identical features to v1.0.2 (Aug 2022) but compatible with REDCap v14.0.0 and later"
+            "comments": "Identical features to v1.0.2 (Aug 2022) but compatible with REDCap v14.0.0 and later, plus some UI tweaks."
         },
         {
-            "number": "1.0.3",
+            "version": "1.0.3",
             "date": "2024-02-18",
             "description": "Maximum REDCap version set to 13",
             "comments": "Holding the fort until the v14-compatible feature release is ready"
         },
         {
-            "number": "1.0.2",
+            "version": "1.0.2",
             "date": "2022-08-15",
             "description": "Security updates",
             "comments": "per VUMC taint analysis"
         },
         {
-            "number": "1.0.1",
+            "version": "1.0.1",
             "date": "2022-08-15",
             "description": "First production release",
             "comments": "See change log for pre-production versions"
@@ -61,12 +63,6 @@
                 "name": "YES3 Exporter Logs",
                 "icon": "fab fa-connectdevelop",
                 "url":  "plugins/yes3_export_logs.php"
-            },
-            {
-                "name": "YES3 Exporter Documentation",
-                "icon": "fab fa-connectdevelop",
-                "url":  "plugins/yes3_documentation.php",
-                "target": "blank"
             }
         ]
     },

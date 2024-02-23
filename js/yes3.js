@@ -131,6 +131,16 @@ String.prototype.isValidFilename = function()
             ].join(':')
     ;
 };
+
+YES3.Functions.Open_docPage = function(){
+
+    // open the documentation page in a new window
+    
+    const newWindow = window.open(YES3.moduleProperties.docPageUrl, "Yes3DocPage", "top=20, left=20");
+
+
+    //YES3.openPopupWindow(YES3.moduleProperties.docPageUrl);
+}
  
  /*
   * replaces REDCap's escapeHtml which crashes (in this context anyway)
