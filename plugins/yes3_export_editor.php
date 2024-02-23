@@ -243,6 +243,15 @@ $module->getCodeFor("yes3_export_editor", true);
                         Display a Help panel (like this one).
                     </td>
                 </tr>
+
+                <tr>
+                    <td>
+                        <i class="fas fa-book-reader yes3-action-icon yes3-nohandler"></i>
+                    </td>
+                    <td>
+                        Open the YES3 Exporter online documentation.
+                    </td>
+                </tr>
                             
                 <tr class="yes3-light-theme-only--xxx">
                     <td>
