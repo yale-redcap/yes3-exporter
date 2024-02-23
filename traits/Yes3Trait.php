@@ -46,7 +46,7 @@ trait Yes3Trait {
         return $json;
     }
 
-    public function yes3UserRights()
+    public function yes3UserRights( $designerHasExportRights=false )
     {
         $isDesigner = ( $this->getUser()->hasDesignRights() ) ? 1:0;
 
@@ -83,11 +83,11 @@ trait Yes3Trait {
 
         $formExportPermissions = [];
 
-        $exporter = $isDesigner;
+        $exporter = ( $designerHasExportRights ) ? $isDesigner : 0;
 
-        if ( $isDesigner ){
+        if ( $isDesigner && $designerHasExportRights ){
 
-            $export_tool = 1;
+            $export_tool = 1; // pre-v12 property
         }
         else {
 

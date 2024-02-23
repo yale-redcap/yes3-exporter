@@ -2222,7 +2222,7 @@ WHERE project_id=? AND log_entry_type=?
      * @return bool
      * @throws Exception
      */
-    public function confirmSpecificationPermissions( $specification )
+    public function confirmSpecificationPermissions_legacy( $specification )
     {
         $uRights = $this->yes3UserRights();
 
@@ -2245,6 +2245,8 @@ WHERE project_id=? AND log_entry_type=?
          * We will use form_index, which is keyed by form_name
          */
         $allowed_forms = array_keys( $this->getFormMetadataStructures()['form_index'] );
+
+        $hasFieldExclusions = $this->specificationHasFieldExclusions( $specification );
 
         if ( !$allowed_forms ) {
 
@@ -2277,8 +2279,6 @@ WHERE project_id=? AND log_entry_type=?
                     return false;
                 }
 
-                // now we have to check the fields
-
                 $fields = $this->getFormDataEntryFieldMetadata( $export_item['redcap_form_name'] );
 
                 foreach($fields as $field){
@@ -2306,6 +2306,90 @@ WHERE project_id=? AND log_entry_type=?
                 }
             }
         }
+
+        return true;
+    }
+
+    public function confirmSpecificationPermissions( $specification )
+    {
+        /**
+         * the forms and fields to be exported are recorded in spec.export_items
+         */
+        $export_items = json_decode( $specification['export_items_json'], true );
+
+        $specification_forms = [];
+
+        // accumulate the list of all forms involved in the export specification
+        foreach($export_items as $export_item){
+
+            if ( isset($export_item['redcap_form_name']) && $export_item['redcap_form_name'] ) {
+
+                if ( $export_item['redcap_form_name'] === ALL_OF_THEM) {
+
+                    // determine all forms, given the provided event setting
+
+                    if ($export_item['redcap_event_id'] === ALL_OF_THEM  || !REDCap::isLongitudinal() ) {
+
+                        // all forms for all events
+                        $specification_forms = array_keys( $this->form_export_permissions );
+
+                        break;
+                    }
+                    else {
+
+                        $all_forms = array_keys( $this->form_export_permissions );
+
+                        foreach($all_forms as $form_name){
+
+                            if ( in_array($export_item['redcap_event_id'], Yes3::getREDcapEventsForForm($form_name)) ){
+  
+                                if ( !in_array( $form_name, $specification_forms ) ){
+
+                                    $specification_forms[] = $form_name;
+                                }
+                            }
+                        }
+                    }
+                }
+            
+                else {
+                    if ( !in_array( $export_item['redcap_form_name'], $specification_forms ) ){
+
+                        $specification_forms[] = $export_item['redcap_form_name'];
+                    }
+                }
+            }
+            else {
+
+                if ( isset($export_item['redcap_field_name']) && $export_item['redcap_field_name'] ){
+
+                    $field_name = $export_item['redcap_field_name'];
+
+                    $form_name = Yes3::getREDCapEventIdForField( $field_name );
+
+                    if ( !in_array( $form_name, $specification_forms ) ){
+
+                        $specification_forms[] = $form_name;
+                    }
+                }
+            }
+        }
+
+        foreach ($specification_forms as $form_name){
+
+            if ( !isset($this->form_export_permissions[$form_name]) ){
+
+                return false;
+            }
+
+            if ( !$this->form_export_permissions[$form_name] ){
+
+                return false;
+            }
+        }
+
+        //Yes3::logDebugMessage($this->project_id, print_r($export_items, true), $specification['export_name'] . ":export_items");
+        //Yes3::logDebugMessage($this->project_id, print_r($specification_forms, true), $specification['export_name'] . ":specification_forms");
 
         return true;
     }
@@ -2358,6 +2442,11 @@ WHERE project_id=? AND log_entry_type=?
         }
 
         return false;
+    }
+
+    function specificationHasFieldExclusions( $specification )
+    {
+        return ( $specification['export_remove_phi'] || $specification['export_remove_dates'] || $specification['export_remove_largetext'] || $specification['export_remove_freetext'] );
     }
 
     /**

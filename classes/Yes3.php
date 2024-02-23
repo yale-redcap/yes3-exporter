@@ -203,6 +203,24 @@ class Yes3 {
        return self::getFirstREDCapEventId($project_id);
    }
 
+   public static function getREDcapEventsForForm($form_name, $project_id=null)
+   {
+      if ( !$project_id ){
+         $project_id = self::getREDCapProjectId();
+      }
+
+      if ( !REDCap::isLongitudinal() ) return self::getFirstREDCapEventId($project_id);
+
+      $sql = "SELECT e.event_id
+      FROM redcap_events_metadata e
+        INNER JOIN redcap_events_arms a ON a.arm_id=e.arm_id
+        INNER JOIN redcap_events_forms ef ON ef.form_name=? AND ef.event_id=e.event_id
+      WHERE a.project_id=?
+      ORDER BY e.day_offset, e.event_id";
+
+      return self::fetchRecords($sql, [$form_name, $project_id]);
+   }
+
    public static function getEventIdForDescription( int $project_id, string $descrip)
    {
       return (int) self::fetchValue(

@@ -252,6 +252,37 @@ function getExportSpecificationList():string
 
     $get_removed = (int) $_POST['get_removed'];
 
+    Yes3::logDebugMessage($module->project_id, print_r($module->form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
+
+    // handle some easy permission cases
+
+    $permission_design = ( $module->getUser()->hasDesignRights() ) ? true:false;
+
+    $permission_export_all_forms = true;
+    $permission_export_some_forms = false;
+
+    foreach( $module->form_export_permissions as $form=>$perm ){
+
+        if ( $perm===0 ){
+
+            $permission_export_all_forms = false;
+        }
+        else {
+
+            $permission_export_some_forms = true;
+        }
+    }
+
+    // if no permissions at all, return an empty array
+    if ( !$permission_design && !$permission_export_some_forms ){
+
+        return json_encode([]);
+    }
+
+    // fetch the form metadata
+    $formMetadata = $module->getFormMetadataStructures();
+
+    
     /**
      * Distinct export specifications best determined by direct query
      */
@@ -271,10 +302,14 @@ function getExportSpecificationList():string
         $s = $module->getExportSpecification($u['export_uuid']);
                 
         // designers always have permission for editing, not necessarily for exporting
-        $s['permission_design'] = ( $module->getUser()->hasDesignRights() ) ? true:false;
+        $s['permission_design'] = $permission_design;
 
-        // export permission based on user form export permissions
-        $s['permission_export'] = $module->confirmSpecificationPermissions($s);
+        $s['permission_export'] = $permission_export_all_forms;
+
+        if ( !$s['permission_export'] ) {
+
+            $s['permission_export'] = $module->confirmSpecificationPermissions($s, $formMetadata);
+        }
 
         // skip if no permissions at all
         if ( !$s['permission_export'] && !$s['permission_design'] ) continue;
