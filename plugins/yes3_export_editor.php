@@ -1023,6 +1023,8 @@ $module->getCodeFor("yes3_export_editor", true);
 
     </div>
 
+    <div id="yes3-fmapr-copyright">foo</div>
+
 </div> <!-- container -->
 
 <script>

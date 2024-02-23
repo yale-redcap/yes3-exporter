@@ -3932,6 +3932,8 @@ FMAPR.loadSpecificationsCallback = function( response )
         YES3.Functions.Help_openPanel( true ); // open HELP popup 'only if hasn't got it'
         YES3.initial_help_offered = true;
     }
+
+    FMAPR.displayCopyright();
 }
 
 FMAPR.getExportUUIDSelect = function()
@@ -5655,6 +5657,11 @@ $(document).on('yes3-fmapr.settings', function(){
      */
      FMAPR.loadEventSettings();
 })
+
+FMAPR.displayCopyright = function(){
+
+    $('div#yes3-fmapr-copyright').html(YES3.moduleProperties.copyright);
+}
 
 /**
  * -------------------------------------------

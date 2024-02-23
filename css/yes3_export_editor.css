@@ -437,4 +437,19 @@ tr#yes3-fmapr-rapidentry-row td:first-child {
     padding: var(--yes3-padding);
 }
 
+div#yes3-fmapr-copyright {
+
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    color: var(--yes3-nonessential-information-color);
+    width: 100%;
+}
+
+/* modify the yes3 container to not center the form */
+div#yes3-container {
+    margin: 0;
+    padding-bottom: 20px;
+}
+
  
