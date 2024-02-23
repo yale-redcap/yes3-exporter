@@ -130,16 +130,17 @@ String.prototype.isValidFilename = function()
                 this.getSeconds()
             ].join(':')
     ;
-};
+};  
 
 YES3.Functions.Open_docPage = function(){
 
-    // open the documentation page in a new window
-    
-    const newWindow = window.open(YES3.moduleProperties.docPageUrl, "Yes3DocPage", "top=20, left=20");
+    // attempt to open the documentation page in a new window 
+    const newWindow = window.open(YES3.moduleProperties.docPageUrl, "Yes3DocPage", "height=800, width=800, left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=yes,location=no,directories=no,status=yes");
 
-
-    //YES3.openPopupWindow(YES3.moduleProperties.docPageUrl);
+    // if blocked, open in a new tab
+    if (!newWindow) {
+        window.open(YES3.moduleProperties.docPageUrl, "_blank");
+    }
 }
  
  /*
