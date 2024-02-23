@@ -11,13 +11,14 @@ Major features include flexible layouts (horizontal, vertical, repeating events/
 
 ## Important note about documentation
 
-YES3 Exporter is available online at [https://yale-redcap.github.io/yes3-exporter/](https://yale-redcap.github.io/yes3-exporter/). 
+Comprehensive YES3 Exporter documentation is available online at [https://yale-redcap.github.io/yes3-exporter/](https://yale-redcap.github.io/yes3-exporter/). 
 
-This documentation includes:
+The following documents are available:
 
-- A User Guide
-- A Technical Guide
-- The Change Log
+- Overview
+- User Guide
+- Technical Guide
+- Change Log
 
 ## Contact
 
