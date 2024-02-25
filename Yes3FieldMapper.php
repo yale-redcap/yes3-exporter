@@ -1,11 +1,11 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-/*
+
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-*/
+
 
 /**
  * defines and enums, should be a static class?
@@ -23,37 +23,38 @@ use Project;
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
-    public $project_id = 0;
-    public $RecordIdField = "";
-    public $isLongitudinal = "";
-    public $username = "";
-    public $serviceUrl = "";
-    public $imageUrl = [];
-    public $documentationUrl = "";
-    public $changelogUrl = "";
-    public $technicalDocumentationUrl = "";
-    public $form_export_permissions = [];
-    public $copyright = "";
-    public $docPageUrl = "";
-    public $version = "";
+    //public $project_id = 0; // now lazy-loaded if at all
     public $sysmsg = "";
     public $errmsg = "";
-    private $token = "";
-    private $salt = "";
-    private $project_salt = "";
-    private $date_shift_max = "";
+    //public $RecordIdField = "";
+    //public $isLongitudinal = "";
+    //public $username = "";
+    //public $serviceUrl = "";
+    //public $imageUrl = [];
+    //public $documentationUrl = "";
+    //public $changelogUrl = "";
+    //public $technicalDocumentationUrl = "";
+    //public $form_export_permissions = [];
+    //public $copyright = "";
+    //public $docPageUrl = "";
+    //public $version = "";
+    //private $token = "";
+    //private $salt = "";
+    //private $project_salt = "";
+    //private $date_shift_max = "";
 
     use Yes3Trait;
 
+    /*
     public function __construct() {
 
         global $salt;
 
         parent::__construct(); // call parent (AbstractExternalModule) constructor
 
-        $this->version = $this->getConfig()['versions'][0]['version'];
-        $this->copyright = $this->getCopyRight(); // combines the REDCap and YES3 copy right strings
-        $this->docPageUrl = $this->getConfig()['documentation']; // the github pages site for exporter documentation
+        //$this->version = $this->getConfig()['versions'][0]['version'];
+        //$this->copyright = $this->getCopyRight(); // combines the REDCap and YES3 copy right strings
+        //$this->docPageUrl = $this->getConfig()['documentation']; // the github pages site for exporter documentation
 
         try {
 
@@ -68,13 +69,14 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         if ( $projId && $username ){
 
-            $this->project_id = $projId;
+            //$this->project_id = $projId;
 
-            $this->username = $username;
-            $this->serviceUrl = $this->getUrl('services/services.php');
-            $this->documentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=README');
-            $this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Fchangelog');
-            $this->technicalDocumentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Ftechnical');
+            //$this->username = $username;
+            //$this->serviceUrl = $this->getUrl('services/services.php');
+            //$this->documentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=README');
+            //$this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Fchangelog');
+            //$this->technicalDocumentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Ftechnical');
+            
             $this->imageUrl = [
                 'dark' => [
                     'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
@@ -85,26 +87,30 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                     'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_White.png')
                 ]
             ];
-            $this->RecordIdField = $this->getRecordIdField();
-            $this->isLongitudinal = REDCap::isLongitudinal();
+            
+            //$this->RecordIdField = $this->getRecordIdField();
+            //$this->isLongitudinal = REDCap::isLongitudinal();
 
-            $this->token = "this-should-be-private";
+            //$this->token = "this-should-be-private";
 
-            $Proj = new Project();
+            //$Proj = new Project();
 
-            $this->salt = $salt;
-            $this->project_salt = $Proj->project['__SALT__'];
-            $this->date_shift_max = (int)$Proj->project['date_shift_max'];
+            //$this->salt = $salt;
+            //$this->project_salt = $Proj->project['__SALT__'];
+            //$this->date_shift_max = (int)$Proj->project['date_shift_max'];
 
-            $this->form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
+            //$this->form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
 
-            //$this->logDebugMessage($this->project_id, "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
+            //$this->logDebugMessage($this->getProjectId(), "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
         }
     }
+    */
 
     public function getCopyRight(){
 
-        return REDCap::getCopyright() . "<br />YES3 Exporter {$this->version} - &copy; 2024 REDCap@Yale";
+        $version = $this->getVersion();
+
+        return REDCap::getCopyright() . "<br />YES3 Exporter {$version} - &copy; 2024 REDCap@Yale";
     }
 
     private function addSysmsg($msg)
@@ -115,6 +121,57 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     private function addErrmsg($msg)
     {
         $this->errmsg .= $msg . "\n";
+    }
+
+    // lazy loading constructor adventure
+
+    public function getFormExportPermissions(){
+
+        return $this->yes3UserRights()['form_export_permissions'];
+    }
+
+    public function getImageUrl(){
+
+        return [
+            'dark' => [
+                'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
+                'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_Black.png')
+            ],
+            'light' => [
+                'logo_square' => $this->getUrl('images/YES3_Logo_Square_White.png'),
+                'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_White.png')
+            ]
+        ];
+    }
+
+    public function getVersion(){
+
+        return $this->getConfig()['versions'][0]['version'];
+    }
+
+    public function getServiceUrl(){
+
+        return $this->getUrl('services/services.php');
+    }
+
+    public function getDocumentationUrl(){
+
+        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/";
+    }
+
+    public function getChangelogUrl(){
+
+        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/changelog.html";
+    }
+
+    public function getTechnicalDocumentationUrl(){
+
+        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/technical.html";
+    }
+
+    public function getOverviewDocumentationUrl(){
+
+        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/introduction.html";
     }
 
     /**
@@ -133,7 +190,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
      */
     private function hash_record($record)
     {
-        return md5($this->salt . $record . $this->project_salt);
+        global $salt;
+        $Proj = new Project();
+        $project_salt = $Proj->project['__SALT__'];
+
+        return md5($salt . $record . $project_salt);
     }
   
 	/**
@@ -141,9 +202,17 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 	 */
 	private function get_shift_days($idnumber)
 	{
-		$dec = hexdec(substr(md5($this->salt . $idnumber . $this->project_salt), 10, 8));
+		global $salt;
+
+        $Proj = new Project();
+
+        $project_salt = $Proj->project['__SALT__'];
+
+        $date_shift_max = (int)$Proj->project['date_shift_max'];
+
+        $dec = hexdec(substr(md5($salt . $idnumber . $project_salt), 10, 8));
 		// Set as integer between 0 and $date_shift_max
-		$days_to_shift = round($dec / pow(10,strlen($dec)) * $this->date_shift_max);
+		$days_to_shift = round($dec / pow(10,strlen($dec)) * $date_shift_max);
 		return $days_to_shift;
 	}
 
@@ -214,7 +283,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_specification['export_target_folder'] = $this->get_export_target_folder();
 
 
-        //$this->logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
+        //$this->logDebugMessage($this->getProjectId(), print_r($export_specification, true), "buildExportDataDictionary");
 
         /**
          * export object:
@@ -322,9 +391,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $allowed['group_id'] = $uRights['group_id'];
         }
 /*
-        //$this->logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary: export_specification");
-        //$this->logDebugMessage($this->project_id, print_r($export, true), "buildExportDataDictionary: export");
-        //$this->logDebugMessage($this->project_id, print_r($allowed, true), "buildExportDataDictionary: allowed");
+        //$this->logDebugMessage($this->getProjectId(), print_r($export_specification, true), "buildExportDataDictionary: export_specification");
+        //$this->logDebugMessage($this->getProjectId(), print_r($export, true), "buildExportDataDictionary: export");
+        //$this->logDebugMessage($this->getProjectId(), print_r($allowed, true), "buildExportDataDictionary: allowed");
         throw new Exception("Have a nice day");
 */   
         /**
@@ -408,8 +477,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $fields_rejected = 0;
 
-        //$this->logDebugMessage($this->project_id, print_r($uRights['form_permissions'], true), "buildExportDataDictionary:fp");
-        //$this->logDebugMessage($this->project_id, print_r($export->export_items, true), "buildExportDataDictionary:fp");
+        //$this->logDebugMessage($this->getProjectId(), print_r($uRights['form_permissions'], true), "buildExportDataDictionary:fp");
+        //$this->logDebugMessage($this->getProjectId(), print_r($export->export_items, true), "buildExportDataDictionary:fp");
 
         foreach( $export->export_items as $export_item ){
 
@@ -848,7 +917,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $dd_index = [];
         $dd_specmap_index = [];
 
-        //$this->logDebugMessage($this->project_id, print_r($dd, true), "writeExportFiles: dd");
+        //$this->logDebugMessage($this->getProjectId(), print_r($dd, true), "writeExportFiles: dd");
 
         for ($i=0; $i<count($dd); $i++){
 
@@ -940,7 +1009,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          * Assemble the list of records to include
          */
 
-        $sqlParams = [$this->project_id];
+        $sqlParams = [$this->getProjectId()];
 
         if ( $ddPackage['export_selection']=='2' ) {
 
@@ -1020,7 +1089,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}
                 AND d.`record` IN(SELECT DISTINCT dg.`record` FROM $redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?)
                 ";
-                $sqlParams = array_merge([ $this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams, [$this->project_id, $export_group_id]);
+                $sqlParams = array_merge([ $this->getProjectId(), $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams, [$this->getProjectId(), $export_group_id]);
             }
             else {
 
@@ -1029,7 +1098,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
                 FROM $redcap_data d
                 WHERE d.`project_id`=? AND d.`event_id`=? AND d.`field_name`=? AND d.`value` IS NOT NULL AND d.`value` {$critXQ}";
 
-                $sqlParams = array_merge([$this->project_id, $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
+                $sqlParams = array_merge([$this->getProjectId(), $ddPackage['export_criterion_event'], $ddPackage['export_criterion_field'] ], $sqlCritXParams);
             }
         }
         else if ( $ddPackage['export_selection']=='1' ) {
@@ -1038,13 +1107,13 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
                 $sql = "SELECT DISTINCT dg.`record` FROM $redcap_data dg WHERE dg.`project_id`=? AND dg.field_name='__GROUPID__' AND dg.`value`=?";
 
-                $sqlParams = [ $this->project_id, $export_group_id ];
+                $sqlParams = [ $this->getProjectId(), $export_group_id ];
             }
             else {
 
                 $sql = "SELECT DISTINCT d.`record` FROM $redcap_data d WHERE d.`project_id`=?";
 
-                $sqlParams = [ $this->project_id ];                
+                $sqlParams = [ $this->getProjectId() ];                
             }
         }
         else {
@@ -1095,9 +1164,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
         }
 
-        //$this->logDebugMessage($this->project_id, print_r($field_events, true), 'writeX:field_events');
-        //$this->logDebugMessage($this->project_id, $sqlSelect, 'writeX:sqlSelect');
-        //$this->logDebugMessage($this->project_id, print_r($sqlEventParams, true), 'writeX:sqlEventParams');
+        //$this->logDebugMessage($this->getProjectId(), print_r($field_events, true), 'writeX:field_events');
+        //$this->logDebugMessage($this->getProjectId(), $sqlSelect, 'writeX:sqlSelect');
+        //$this->logDebugMessage($this->getProjectId(), print_r($sqlEventParams, true), 'writeX:sqlEventParams');
 
         $K = 0; // datum count
         $R = 0; // export row count
@@ -1106,7 +1175,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         foreach ( $records as $record ){
 
-            $sqlSelectParams = array_merge([$this->project_id, $record], $sqlEventParams);
+            $sqlSelectParams = array_merge([$this->getProjectId(), $record], $sqlEventParams);
 
             $bytesWritten += $this->writeExportDataFileRecord(
                 $record, 
@@ -1520,8 +1589,8 @@ WHERE project_id=? AND log_entry_type=?
 
         $exportValues = 0;
 
-        //$this->logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
-        //$this->logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
+        //$this->logDebugMessage($this->getProjectId(), $sqlSelect, "writeExportDataFileRecord: sqlSelect");
+        //$this->logDebugMessage($this->getProjectId(), print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
 
         foreach ( $this->recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
         //$xx = $this->fetchRecords($sql, $sqlParams);
@@ -1635,8 +1704,8 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name])){
 
-                //$this->logDebugMessage($this->project_id, $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
-                //$this->logDebugMessage($this->project_id, print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
+                //$this->logDebugMessage($this->getProjectId(), $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
+                //$this->logDebugMessage($this->getProjectId(), print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
 
                 $acceptable = in_array((int)$event_id, $field_events[$field_name]);
             }
@@ -2199,7 +2268,7 @@ WHERE project_id=? AND log_entry_type=?
         // as of v1.1.0 this will be changed to use the 'log_entry_type parameter' instead of 'setting'
         $pSql = "SELECT {$fields} WHERE project_id=? AND setting='export-events' ORDER BY timestamp DESC LIMIT 1";
 
-        if ( $x = $this->queryLogs($pSql, [$this->project_id])->fetch_assoc() ){
+        if ( $x = $this->queryLogs($pSql, [$this->getProjectId()])->fetch_assoc() ){
 
             if ( $export_events_settings = json_decode($x['export_events_json'], true) ){
 
@@ -2233,7 +2302,9 @@ WHERE project_id=? AND log_entry_type=?
 
         $sysmsg_prefix = $specification['export_name'] . ": ";
 
-        $all_forms = array_keys( $this->form_export_permissions );
+        $form_export_permissions = $this->getFormExportPermissions();
+
+        $all_forms = array_keys( $form_export_permissions );
 
         if ( $isLongitudinal ) $all_event_ids = array_keys( REDCap::getEventNames(true) );
         else $all_event_ids = [ $this->getEventId() ];
@@ -2241,8 +2312,8 @@ WHERE project_id=? AND log_entry_type=?
         $errors = 0;
         $permission_denied = 0;
 
-        //$this->logDebugMessage($this->project_id, print_r($export_items, true), $specification['export_name'] . ":export_items");
-        //$this->logDebugMessage($this->project_id, print_r($all_forms, true), $specification['export_name'] . ":all_forms");
+        //$this->logDebugMessage($this->getProjectId(), print_r($export_items, true), $specification['export_name'] . ":export_items");
+        //$this->logDebugMessage($this->getProjectId(), print_r($all_forms, true), $specification['export_name'] . ":all_forms");
 
         //throw new Exception("confirmSpecificationPermissions() is not yet implemented.");
 
@@ -2327,7 +2398,7 @@ WHERE project_id=? AND log_entry_type=?
             }
         }
 
-        //$this->logDebugMessage($this->project_id, print_r($specification_forms, true), $specification['export_name'] . ":specification_forms");
+        //$this->logDebugMessage($this->getProjectId(), print_r($specification_forms, true), $specification['export_name'] . ":specification_forms");
 
         // deny export permission if no forms are involved, e.g. export design error or other mischief
         if ( !$specification_forms ){
@@ -2347,7 +2418,7 @@ WHERE project_id=? AND log_entry_type=?
 
         foreach ($specification_forms as $form_name){
 
-            if ( !isset($this->form_export_permissions[$form_name]) || !$this->form_export_permissions[$form_name] ){
+            if ( !isset($form_export_permissions[$form_name]) || !$form_export_permissions[$form_name] ){
 
                 $this->addSysmsg( $sysmsg_prefix. "Export permission was denied for form [" . $form_name . "].");
 
@@ -2355,7 +2426,7 @@ WHERE project_id=? AND log_entry_type=?
             }
         }
         
-        //$this->logDebugMessage($this->project_id, "export permission approved" . $form_name, $specification['export_name'] . ":approval");
+        //$this->logDebugMessage($this->getProjectId(), "export permission approved" . $form_name, $specification['export_name'] . ":approval");
 
         return ( $permission_denied === 0 ) ? true : false;
     }
@@ -2451,7 +2522,7 @@ WHERE project_id=? AND log_entry_type=?
         , export_items_json
         ";
 
-        //$this->logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
+        //$this->logDebugMessage($this->getProjectId(), $export_uuid, "getExportSpecification");
 
         if ( $log_id ){
 
@@ -2469,8 +2540,8 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( $history ){
 
-            //$this->logDebugMessage($this->project_id, $this->getQueryLogsSql($pSql), 'getExportSpecification');
-            //$this->logDebugMessage($this->project_id, print_r($params, true), 'getExportSpecification');
+            //$this->logDebugMessage($this->getProjectId(), $this->getQueryLogsSql($pSql), 'getExportSpecification');
+            //$this->logDebugMessage($this->getProjectId(), print_r($params, true), 'getExportSpecification');
 
             $qResult = $this->queryLogs($pSql, $params);
 
@@ -2521,7 +2592,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $pSql = "SELECT DISTINCT export_uuid WHERE export_uuid IS NOT NULL AND setting='export-specification' AND project_id=?";
 
-        $uuid_result = $this->queryLogs($pSql, [$this->project_id]);
+        $uuid_result = $this->queryLogs($pSql, [$this->getProjectId()]);
         $uuids = [];
         while ( $row = $uuid_result->fetch_assoc() ){
             $uuids[] = $row['export_uuid'];
@@ -2540,7 +2611,7 @@ WHERE project_id=? AND log_entry_type=?
                 WHERE project_id=? AND setting='export-specification' AND export_uuid=?
                 ORDER BY timestamp DESC LIMIT 1
             ";
-            $params = [$this->project_id, $uuids[$i]];
+            $params = [$this->getProjectId(), $uuids[$i]];
 
             if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
 
@@ -2549,7 +2620,7 @@ WHERE project_id=? AND log_entry_type=?
                     
                     $specification = json_decode($specification_settings['export_specification_json']);
 
-                    //$this->logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecifications:object");
+                    //$this->logDebugMessage($this->getProjectId(), print_r($specification, true), "getExportSpecifications:object");
 
                     if ( is_object($specification) ){
 
@@ -2636,7 +2707,7 @@ WHERE project_id=? AND log_entry_type=?
             WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
             ORDER BY timestamp DESC LIMIT 1
         ";
-        $params = [$this->project_id, $export_uuid];
+        $params = [$this->getProjectId(), $export_uuid];
 
         if ( !$map_record = $this->queryLogs($pSql, $params)->fetch_assoc() ){
             return [];
@@ -2689,10 +2760,10 @@ WHERE project_id=? AND log_entry_type=?
 
         }
 
-        $mm = $this->fetchRecords($sql, [$this->project_id]);
+        $mm = $this->fetchRecords($sql, [$this->getProjectId()]);
 
-        //$this->logDebugMessage($this->project_id, print_r($form_export_permissions, true), "form_export_permissions");
-        //$this->logDebugMessage($this->project_id, print_r($mm, true), "form metadata");
+        //$this->logDebugMessage($this->getProjectId(), print_r($form_export_permissions, true), "form_export_permissions");
+        //$this->logDebugMessage($this->getProjectId(), print_r($mm, true), "form metadata");
 
         $form_metadata = [];
 
@@ -2718,7 +2789,7 @@ WHERE project_id=? AND log_entry_type=?
                 ORDER BY em.day_offset, ef.event_id
                 ";
 
-                $ee = $this->fetchRecords($sqlE, [$this->project_id, $m['form_name']]);
+                $ee = $this->fetchRecords($sqlE, [$this->getProjectId(), $m['form_name']]);
 
                 $events = [];
 
@@ -2742,7 +2813,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $form_fields = [];
 
-            $fields = $this->fetchRecords($sqlF, [$this->project_id, $m['form_name']]);
+            $fields = $this->fetchRecords($sqlF, [$this->getProjectId(), $m['form_name']]);
             foreach ( $fields as $field ){
                 $form_fields[] = $field['field_name'];
             }
@@ -2789,7 +2860,7 @@ WHERE project_id=? AND log_entry_type=?
         WHERE m.project_id=?
         AND m.element_type NOT IN('descriptive')";
 
-        $params = [$this->project_id];
+        $params = [$this->getProjectId()];
 
         if ( $form_name === ALL_OF_THEM ){
 
@@ -2802,7 +2873,7 @@ WHERE project_id=? AND log_entry_type=?
                 ." INNER JOIN redcap_events_arms ea ON ea.arm_id=em.arm_id"
                 ." WHERE ea.project_id=?"
                 .")";
-                $params[] = $this->project_id;
+                $params[] = $this->getProjectId();
             }
         }
         else {
@@ -2813,7 +2884,7 @@ WHERE project_id=? AND log_entry_type=?
 
         $sql .= " ORDER BY m.field_order";
 
-        //$this->logDebugMessage($this->project_id, $sql, "getFormDataEntryFieldMetadata:" . $form_name);
+        //$this->logDebugMessage($this->getProjectId(), $sql, "getFormDataEntryFieldMetadata:" . $form_name);
 
         return $this->fetchRecords($sql, $params);
     }
@@ -2826,7 +2897,7 @@ WHERE project_id=? AND log_entry_type=?
         WHERE m.project_id=? AND m.field_name=?
         ";
 
-        return $this->fetchRecords($sql, [$this->project_id, $field_name]);
+        return $this->fetchRecords($sql, [$this->getProjectId(), $field_name]);
     }
 
     public function getFieldMetadataStructures(): array
@@ -2857,7 +2928,7 @@ WHERE project_id=? AND log_entry_type=?
             ";
         }
 
-        $fields = $this->fetchRecords($sql, [$this->project_id]);
+        $fields = $this->fetchRecords($sql, [$this->getProjectId()]);
 
         $field_metadata = [];
 
@@ -3084,7 +3155,7 @@ WHERE project_id=? AND log_entry_type=?
         .", field_date={$field_date}."
         ."\nallowed: phi={$allowed['phi']} largetext={$allowed['largetext']} smalltext={$allowed['smalltext']} dates={$allowed['dates']}."
         ;
-        //$this->logDebugMessage($this->project_id, $msg, "addExportItem_REDCapField");
+        //$this->logDebugMessage($this->getProjectId(), $msg, "addExportItem_REDCapField");
         */
 
         /**
@@ -3349,7 +3420,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $projCronLog = "Starting the \"{$cronInfo['cron_description']}\" cron job at " . strftime("%F %T") . " for project #{$localProjectId}";
 
-            $this->project_id = $localProjectId;
+            //$this->project_id = $localProjectId;
 
             //$this->logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
 

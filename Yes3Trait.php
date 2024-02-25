@@ -206,6 +206,30 @@ trait Yes3Trait {
 
         $js .= "\n" . $this->initializeJavascriptModuleObject() . ";";
 
+        $js .= "\nYES3.version = '" . $this->getVersion() . "';";
+
+        $js .= "\nYES3.copyright = '" . $this->getCopyRight() . "';";
+
+        $js .= "\nYES3.username = '" . $this->getUser()->getUsername() . "';";
+
+        $js .= "\nYES3.isLongitudinal = " . REDCap::isLongitudinal() . ";";
+
+        $js .= "\nYES3.RecordIdField = '" . $this->getRecordIdField() . "';";
+
+        $js .= "\nYES3.imageUrl = " . json_encode($this->getImageUrl()) . ";";
+
+        $js .= "\nYES3.form_export_permissions = " . json_encode($this->getImageUrl()) . ";";
+
+        $js .= "\nYES3.serviceUrl = '" . $this->getServiceUrl() . "';";
+
+        $js .= "\nYES3.documentationUrl = '" . $this->getDocumentationUrl() . "';";
+
+        $js .= "\nYES3.changelogUrl = '" . $this->getChangelogUrl() . "';";
+
+        $js .= "\nYES3.technicalDocumentationUrl = '" . $this->getTechnicalDocumentationUrl() . "';";
+
+        $js .= "\nYES3.overviewDocumentationUrl = '" . $this->getOverviewDocumentationUrl() . "';";
+
         $js .= "\nYES3.moduleObject = " . $this->getJavascriptModuleObjectName() . ";";
 
         $js .= "\nYES3.moduleObjectName = '" . $this->getJavascriptModuleObjectName() . "';";
