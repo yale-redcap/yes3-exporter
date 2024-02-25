@@ -3,7 +3,7 @@
 
 # YES3 Exporter README
 
-Version 1.0.4, February 2024
+Version 1.0.6, February 2024
 
 The YES3 Exporter complements REDCap's reports and data export tool by adding functionality to support integration with statistical software and datamarts, including host file system exports.
 
@@ -16,6 +16,7 @@ Comprehensive YES3 Exporter documentation is available online at [https://yale-r
 The following documents are available:
 
 - Overview
+- What's New
 - User Guide
 - Technical Guide
 - Change Log
@@ -40,10 +41,10 @@ Our vision for the Yale Study Support Suite (YES3) is to provide an ‘off-the-s
 
 **REDCap@Yale Team:**
 -   Katy Araujo, Yale University
--   Venugopal Bhatia, Yale University
 -   Brian Funaro, Yale University
 -   Mary Geda, Yale University
--   Janet Miceli, Yale University
+-   Baylah Tessier-Sherman, Yale University
+-   Janet Truebig, Yale University
 -   Sui Tsang, Yale University
 
 ## Funding

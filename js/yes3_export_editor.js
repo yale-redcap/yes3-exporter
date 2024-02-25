@@ -6,11 +6,9 @@ FMAPR.rowCount = 0;
 
 FMAPR.dashboard_option = "settings";
 
-FMAPR.system_message = {
-    "level": 0,
-    "summary": "",
-    "details": ""
-}
+FMAPR.warning_message = "";
+
+FMAPR.error_message = "";
 
 FMAPR.reloadParms = {
     "export_uuid": "",
@@ -108,39 +106,50 @@ YES3.Functions.Help_criterionValue = function()
 
 FMAPR.clearSystemMessage = function()
 {
-    FMAPR.postSystemMessage();
+    FMAPR.postSystemMessages();
 
     $("div#yes3-fmapr-system-message").html('').parent().hide();
 }
 
-FMAPR.postSystemMessage = function( summary, details, level )
+FMAPR.postSystemMessages = function( warnings, errors )
 {
-    summary = summary || "";
-    details = details || "";
-    level = level || 1;
-    
-    FMAPR.system_message = {
-        "level": level,
-        "summary": summary,
-        "details": details
-    }
+    warnings = warnings || "";
+    errors = errors || "";
 
-    if ( level == 2 ) console.warn(summary + " details:\n" + details);
-    else if ( level == 3 ) console.error(summary + " details:\n" + details);
+    // assume that the first line of each message is a summary
+    const instructions = "Warnings and/or errors were reported. Press Ctrl+Shift+J to open the browser console for details:";
+    const sysmsg_summary = ( warnings.length ) ? warnings.split("\n")[0] : "";
+    const errmsg_summary = ( errors.length ) ? errors.split("\n")[0] : "";
+
+    FMAPR.warning_message = warnings;
+    FMAPR.error_message = errors;
 
     const $msgContainer = $("div#yes3-fmapr-system-message");
 
+    let msg = "";
+
+    if ( warnings.length ) {
+
+        msg += "<span class='yes3-fmapr-system-message-2'> " + sysmsg_summary + "</span>";
+
+        console.warn(warnings);
+    }
+
+    if ( errors.length ) {
+
+        if ( msg.length ) msg += "<br>";
+
+        msg += "<span class='yes3-fmapr-system-message-3'> " + errmsg_summary + "</span>";
+
+        console.error(errors)
+    };
+
     // if there is a summary container, update it
-    if ( $msgContainer.length ){
+    if ( $msgContainer.length && msg.length ){
 
-        $msgContainer.addClass("yes3-fmapr-system-message-" + level);
+        msg = "<span class='yes3-fmapr-system-message-0'>" + instructions + "</span><br>" + msg;
 
-        if ( level > 1 ){
-
-            summary += " See the browser console for details (Ctrl+shift+J).";
-        }
-
-        $("div#yes3-fmapr-system-message").html(summary).parent().show();
+        $msgContainer.html(msg).parent().show();
     }
 }   
 
@@ -3698,13 +3707,26 @@ FMAPR.loadSpecifications = function( get_removed )
 FMAPR.loadSpecificationsCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
-    //console.log('loadSpecificationsCallback', response, typeof response);
 
-    // if export permission was denied on any of the exports, post a system message and generate a console warning
+    let sysmsg = response.sysmsg || "";
+    let errmsg = response.errmsg || "";
+
+    let sysmsg_summary = "";
+    let errmsg_summary = "One or more export specification failed the validation checks, resulting in Download/Export permissions being denied.";
+
     if ( response.exports_denied ){
 
-        FMAPR.postSystemMessage(`Download/export permission was denied for ${response.exports_denied} export(s).`, response.sysmsg, 2);
+        sysmsg_summary = `Download/export permission was denied for ${response.exports_denied} export specification(s).`;
+
+        sysmsg = `${sysmsg_summary}\n${sysmsg}`;
     }
+
+    if ( errmsg.length ){
+
+        errmsg = `${errmsg_summary}\n${errmsg}`;
+    }
+
+    FMAPR.postSystemMessages( sysmsg, errmsg );
 
     let select = FMAPR.getExportUUIDSelect();
 

@@ -343,7 +343,8 @@ function getExportSpecificationList():string
     if ( $enhanced_response ){
 
         return json_encode( [
-            'sysmsg' => $module->sysmsg,
+            'sysmsg' => $module->escape( $module->sysmsg ),
+            'errmsg' => $module->escape( $module->errmsg ),
             'exports_approved' => $exports_approved,
             'exports_denied' => $exports_denied,
             'data' => $data
