@@ -280,9 +280,8 @@ function getExportSpecificationList():string
     }
 
     // fetch the form metadata
-    $formMetadata = $module->getFormMetadataStructures();
+    //$formMetadata = $module->getFormMetadataStructures();
 
-    
     /**
      * Distinct export specifications best determined by direct query
      */
@@ -307,12 +306,7 @@ function getExportSpecificationList():string
         // designers always have permission for editing, not necessarily for exporting
         $s['permission_design'] = $permission_design;
 
-        $s['permission_export'] = $permission_export_all_forms;
-
-        //if ( !$s['permission_export'] ) {
-
-            $s['permission_export'] = $module->confirmSpecificationPermissions($s, $formMetadata);
-        //}
+        $s['permission_export'] = $module->confirmSpecificationPermissions($s);
 
         if ( $s['permission_export'] ){
 
