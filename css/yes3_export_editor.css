@@ -55,7 +55,7 @@ table.yes3-fmapr-editor td {
 
 table.yes3-fmapr-settings td select,
 table.yes3-fmapr-settings td input[type=text] {
-    width: 200px;
+    width: 300px;
 }
 
 table.yes3-fmapr-editor td select,
@@ -437,13 +437,36 @@ tr#yes3-fmapr-rapidentry-row td:first-child {
     padding: var(--yes3-padding);
 }
 
-div#yes3-fmapr-copyright {
-
+div#yes3-fmapr-page-footer {
     position: absolute;
-    left: 20px;
-    bottom: 20px;
+    bottom: var(--bs-gutter-x);
+    left: var(--bs-gutter-x);
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+div#yes3-fmapr-system-message {
+    width: 100%;
+    padding-bottom: 0;
+    padding-top: 20px;
+}
+
+div#yes3-fmapr-copyright {
     color: var(--yes3-nonessential-information-color);
     width: 100%;
+}
+
+.yes3-fmapr-system-message-1 {
+    color: var(--yes3-nonessential-information-color);
+}
+
+.yes3-fmapr-system-message-2 {
+    color: var(--yes3-nonessential-information-color);
+}
+
+.yes3-fmapr-system-message-3 {
+    color: var(--yes3-error-color);
 }
 
 /* modify the yes3 container to not center the form */

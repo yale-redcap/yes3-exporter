@@ -6,6 +6,12 @@ FMAPR.rowCount = 0;
 
 FMAPR.dashboard_option = "settings";
 
+FMAPR.system_message = {
+    "level": 0,
+    "summary": "",
+    "details": ""
+}
+
 FMAPR.reloadParms = {
     "export_uuid": "",
     "wayback": false
@@ -99,6 +105,44 @@ YES3.Functions.Help_criterionValue = function()
         }
     }
 }
+
+FMAPR.clearSystemMessage = function()
+{
+    FMAPR.postSystemMessage();
+
+    $("div#yes3-fmapr-system-message").html('').parent().hide();
+}
+
+FMAPR.postSystemMessage = function( summary, details, level )
+{
+    summary = summary || "";
+    details = details || "";
+    level = level || 1;
+    
+    FMAPR.system_message = {
+        "level": level,
+        "summary": summary,
+        "details": details
+    }
+
+    if ( level == 2 ) console.warn(summary + " details:\n" + details);
+    else if ( level == 3 ) console.error(summary + " details:\n" + details);
+
+    const $msgContainer = $("div#yes3-fmapr-system-message");
+
+    // if there is a summary container, update it
+    if ( $msgContainer.length ){
+
+        $msgContainer.addClass("yes3-fmapr-system-message-" + level);
+
+        if ( level > 1 ){
+
+            summary += " See the browser console for details (Ctrl+shift+J).";
+        }
+
+        $("div#yes3-fmapr-system-message").html(summary).parent().show();
+    }
+}   
 
 FMAPR.closeHelpCriterionValueForm = function()
 {
@@ -1519,6 +1563,8 @@ FMAPR.resizeExportItemsTable = function()
 
     let windowHeight = $(window).innerHeight();
 
+    const pageFooterHeight = $('div#yes3-fmapr-page-footer').outerHeight()+20;
+
     /**
      * The REDCap section div (#center) is programmatically forced to have vertical padding,
      * so we need to take that into account in the table height calculation.
@@ -1528,8 +1574,11 @@ FMAPR.resizeExportItemsTable = function()
         - fmaprTable.offset().top 
         - scrollbarWidth 
         - fmaprFooter.outerHeight()
-        - (parentSection.outerHeight() - parentSection.height())
+        - pageFooterHeight
+        //- (parentSection.outerHeight() - parentSection.height())
     ;
+
+    //console.log('windowHeight, tableHeight', windowHeight, tableHeight);
 
     // position() returns offset relative to parent object (the table)
     let bodyHeight = tableHeight - fmaprTableBody.position().top;
@@ -3890,25 +3939,33 @@ FMAPR.loadSpecifications = function( get_removed )
     
     YES3.requestService( { 
         "request": "getExportSpecificationList", 
-        "get_removed": get_removed
+        "get_removed": get_removed,
+        "enhanced_response": 1
     }, FMAPR.loadSpecificationsCallback, true );
 }
 
 FMAPR.loadSpecificationsCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
+    console.log('loadSpecificationsCallback', response, typeof response);
+
+    // if export permission was denied on any of the exports, post a system message and generate a console warning
+    if ( response.exports_denied ){
+
+        FMAPR.postSystemMessage(`Download/export permission was denied for ${response.exports_denied} export(s).`, response.sysmsg, 2);
+    }
 
     let select = FMAPR.getExportUUIDSelect();
 
     let html = "";
 
-    if ( typeof response === 'object' && response.length ){
+    if ( typeof response.data === 'object' && response.data.length ){
 
         html = "<option disabled selected value=''>select an export</option>";
 
-        for (let i=0; i<response.length; i++){
+        for (let i=0; i<response.data.length; i++){
 
-            html += `<option value='${response[i].export_uuid}'>${response[i].export_name}</option>`;
+            html += `<option value='${response.data[i].export_uuid}'>${response.data[i].export_name}</option>`;
         }
     }
     else {
@@ -4001,6 +4058,8 @@ FMAPR.loadSpecification = function( log_id )
     }
 
     YES3.isBusy( YES3.captions.wait_loading_specification );
+
+    FMAPR.clearSystemMessage();
     
     YES3.requestService( { 
         "request": "getExportSpecification", 
@@ -4012,6 +4071,7 @@ FMAPR.loadSpecification = function( log_id )
 FMAPR.loadSpecificationCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationCallback', response, typeof response);
+    console.log('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 

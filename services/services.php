@@ -4,8 +4,6 @@ namespace Yale\Yes3FieldMapper;
 
 use Exception;
 
-use function Yale\Yes3FieldMapper\toesUp as Yes3FieldMapperToesUp;
-
 /*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
@@ -134,7 +132,7 @@ function addExportSpecification()
         $qParams
     );
 
-    //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    //$module->logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
     if ( $log_id ){
         return "Success: new export parameters saved to EM log record# ".$log_id;
     }
@@ -184,7 +182,7 @@ function saveExportSpecification()
         $qParams
     );
 
-    //Yes3::logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    //$module->logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
     if ( $log_id ){
         return "Success: export parameters saved to EM log record# ".$log_id;
     }
@@ -252,7 +250,9 @@ function getExportSpecificationList():string
 
     $get_removed = (int) $_POST['get_removed'];
 
-    Yes3::logDebugMessage($module->project_id, print_r($module->form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
+    $enhanced_response = (int) $_POST['enhanced_response'] ?? 0;
+
+    $module->logDebugMessage($module->project_id, print_r($module->form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
 
     // handle some easy permission cases
 
@@ -293,9 +293,12 @@ function getExportSpecificationList():string
     WHERE x.project_id=? and x.message=?
     ";
 
-    $UUIDs = Yes3::fetchRecords($sqlUUID, [$module->project_id, EMLOG_MSG_EXPORT_SPECIFICATION]);
+    $UUIDs = $module->fetchRecords($sqlUUID, [$module->project_id, EMLOG_MSG_EXPORT_SPECIFICATION]);
 
     $data = [];
+
+    $exports_approved = 0;
+    $exports_denied = 0;
 
     foreach($UUIDs as $u){
 
@@ -306,9 +309,18 @@ function getExportSpecificationList():string
 
         $s['permission_export'] = $permission_export_all_forms;
 
-        if ( !$s['permission_export'] ) {
+        //if ( !$s['permission_export'] ) {
 
             $s['permission_export'] = $module->confirmSpecificationPermissions($s, $formMetadata);
+        //}
+
+        if ( $s['permission_export'] ){
+
+            $exports_approved++;
+        }
+        else {
+
+            $exports_denied++;
         }
 
         // skip if no permissions at all
@@ -321,7 +333,7 @@ function getExportSpecificationList():string
             'timestamp' => $s['timestamp'],
             'log_id' => $s['log_id'],
             'export_uuid' => $s['export_uuid'],
-            'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+            'export_name' => ( $s['export_name'] ) ? $module->escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
             'export_layout' => $s['export_layout'],
             'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
             'permission_design' => $s['permission_design'],
@@ -333,6 +345,16 @@ function getExportSpecificationList():string
     $xnames = array_column($data, 'export_name');
 
     array_multisort($xnames, SORT_STRING | SORT_FLAG_CASE, $data);
+
+    if ( $enhanced_response ){
+
+        return json_encode( [
+            'sysmsg' => $module->sysmsg,
+            'exports_approved' => $exports_approved,
+            'exports_denied' => $exports_denied,
+            'data' => $data
+        ]);
+    }
 
     return json_encode($data);
 }
@@ -401,7 +423,7 @@ function getExportLogRecord()
     global $module;
     $log_id = $_POST['log_id'];
 
-    return json_encode( Yes3::fetchRecord( getExportLogRecordSQL($log_id), [ $log_id ] ) );
+    return json_encode( $module->fetchRecord( getExportLogRecordSQL($log_id), [ $log_id ] ) );
 }
 
 function downloadExportLog()
@@ -428,7 +450,7 @@ function downloadExportLog()
 
     //exit("downloadExportLog: {$export_uuid}, {$export_name}, {$path}, {$bytes}, {$sql}");
 
-    foreach ( Yes3::recordGenerator($sql, [ $module->project_id, EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ]) as $x ){
+    foreach ( $module->recordGenerator($sql, [ $module->project_id, EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ]) as $x ){
 
         if ( !$bytes ) {
 
@@ -527,7 +549,7 @@ WHERE x.project_id=? AND p1.`value`=? AND p2.`value`=?
 
     //exit( json_encode( ['sql'=>$sql] ) );
 
-    $data = Yes3::fetchRecords($sql, $params);
+    $data = $module->fetchRecords($sql, $params);
 
     $observed_usernames = [];
     $observed_date0 = "";
@@ -720,13 +742,13 @@ function sanitizeUploadSpec( $uSpec )
         return null;
     }
       
-    //Yes3::logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:pre");
+    //$module->logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:pre");
 
     for($i=0; $i<count($uSpec['elements']); $i++){
 
         if ( isset($uSpec['elements'][$i]['name']) ){
 
-            $uSpec['elements'][$i]['name'] = Yes3::inoffensiveFieldName($uSpec['elements'][$i]['name']);
+            $uSpec['elements'][$i]['name'] = $module->inoffensiveFieldName($uSpec['elements'][$i]['name']);
         }
         else {
 
@@ -735,7 +757,7 @@ function sanitizeUploadSpec( $uSpec )
 
         if ( isset($uSpec['elements'][$i]['type']) ){
 
-            $uSpec['elements'][$i]['type'] = Yes3::normalized_string($uSpec['elements'][$i]['type']);
+            $uSpec['elements'][$i]['type'] = $module->normalized_string($uSpec['elements'][$i]['type']);
         }
         else {
 
@@ -744,7 +766,7 @@ function sanitizeUploadSpec( $uSpec )
 
         if ( isset($uSpec['elements'][$i]['label']) ){
 
-            $uSpec['elements'][$i]['label'] = Yes3::inoffensiveText($uSpec['elements'][$i]['label']);
+            $uSpec['elements'][$i]['label'] = $module->inoffensiveText($uSpec['elements'][$i]['label']);
         }
         else {
 
@@ -761,7 +783,7 @@ function sanitizeUploadSpec( $uSpec )
 
                     if ( isset($uSpec['elements'][$i]['valueset'][$j]['value']) ){
 
-                        $uSpec['elements'][$i]['valueset'][$j]['value'] = Yes3::inoffensiveText($uSpec['elements'][$i]['valueset'][$j]['value']);
+                        $uSpec['elements'][$i]['valueset'][$j]['value'] = $module->inoffensiveText($uSpec['elements'][$i]['valueset'][$j]['value']);
                     }
                     else {
 
@@ -770,7 +792,7 @@ function sanitizeUploadSpec( $uSpec )
 
                     if ( isset($uSpec['elements'][$i]['valueset'][$j]['label']) ){
 
-                        $uSpec['elements'][$i]['valueset'][$j]['label'] = Yes3::inoffensiveText($uSpec['elements'][$i]['valueset'][$j]['label']);
+                        $uSpec['elements'][$i]['valueset'][$j]['label'] = $module->inoffensiveText($uSpec['elements'][$i]['valueset'][$j]['label']);
                     }
                     else {
 
@@ -781,7 +803,7 @@ function sanitizeUploadSpec( $uSpec )
         }
     }
   
-    //Yes3::logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:post");
+    //$module->logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:post");
 
     return $uSpec;
 }
@@ -857,7 +879,7 @@ function get_wayback_html()
 
         $elements = countExportItems($x['export_items_json']);
 
-        $user = Yes3::escapeHtml($x['export_username']);
+        $user = $module->escapeHtml($x['export_username']);
 
         $time = date("D m/d/Y g:i a",  strtotime($x['timestamp']) );
 
@@ -915,7 +937,7 @@ function save_field_mappings()
 
     if ( $logId ){
 
-        return "Success: YES3 Exporter Field Mappings for " . Yes3::escapeHtml($export_uuid) . " saved.";
+        return "Success: YES3 Exporter Field Mappings for " . $module->escapeHtml($export_uuid) . " saved.";
     }
 
     return "Fiddlesticks: Mappings NOT saved due to some unknowable error.";
@@ -949,8 +971,8 @@ function get_field_mappings()
     $map_record = $module->queryLogs($pSql, $params)->fetch_assoc();
 
     //$msg = "log_id=" . $map_record['log_id'] . ", bytes=" . strlen($map_record['field_mappings']);
-    //Yes3::logDebugMessage($module->project_id, $pSql, "get_field_mappings:pSql");
-    //Yes3::logDebugMessage($module->project_id, $msg, "get_field_mappings:result");
+    //$module->logDebugMessage($module->project_id, $pSql, "get_field_mappings:pSql");
+    //$module->logDebugMessage($module->project_id, $msg, "get_field_mappings:result");
 
     if ( !$map_record ){
 
@@ -975,7 +997,7 @@ function get_field_mappings()
                         'yes3_fmapr_data_element_name' => "redcap_element_1",
                         'element_origin' => "redcap",
                         'redcap_field_name' => \REDCap::getRecordIdField(),
-                        'redcap_event_id' => Yes3::getFirstREDCapEventId(),
+                        'redcap_event_id' => $module->getFirstREDCapEventId(),
                         'redcap_object_type' => "field",
                         'redcap_form_name' => "",
                         'values' => []
@@ -991,12 +1013,13 @@ function get_field_mappings()
         $map_record['formatted_time'] = date("D m/d/Y g:i a",  strtotime($map_record['timestamp']) );
     }
 
-    return Yes3::json_encode_pretty( $map_record );
+    return $module->json_encode_pretty( $map_record );
 }
 
 function escHtml( $s )
 {
-    return Yes3::escapeHtml( $s );
+    global $module;
+    return $module->escapeHtml( $s );
 }
 
 function get_project_settings():string 
@@ -1042,13 +1065,13 @@ function get_project_settings():string
         }
     }
 
-    return Yes3::json_encode_pretty( [
+    return $module->json_encode_pretty( [
         'project_id' => $module->project_id,
         'is_longitudinal' => \REDCap::isLongitudinal(),
         'repeating_forms' => $repeating_forms,
         'field_index' => $field_metadata_structures['field_index'],
         'field_metadata' => $field_metadata_structures['field_metadata'],
-        'field_count' => Yes3::fetchValue($sqlCount, [$module->project_id, \REDCap::getRecordIdField()]),
+        'field_count' => $module->fetchValue($sqlCount, [$module->project_id, \REDCap::getRecordIdField()]),
         'field_autoselect_source' => $field_metadata_structures['field_autoselect_source'],
         'form_index' => $form_metadata_structures['form_index'],
         'form_metadata' => $form_metadata_structures['form_metadata'],
@@ -1077,9 +1100,9 @@ function get_specification_settings()
 
     for ( $i=0; $i<count($specification_keys); $i++ ){
         $x[] = [
-            'specification_key' => Yes3::escapeHtml($specification_keys[$i]),
-            'specification_name' => Yes3::escapeHtml($specification_names[$i]),
-            'specification_description' => Yes3::escapeHtml($specification_descriptions[$i])
+            'specification_key' => $module->escapeHtml($specification_keys[$i]),
+            'specification_name' => $module->escapeHtml($specification_names[$i]),
+            'specification_description' => $module->escapeHtml($specification_descriptions[$i])
         ];
     }
     
@@ -1097,8 +1120,8 @@ function get_event_abbreviation_settings()
 
     for ( $i=0; $i<count($event_ids); $i++ ){
         $x[] = [
-            'event_id' => Yes3::escapeHtml($event_ids[$i]),
-            'event_abbreviation' => Yes3::escapeHtml($event_abbreviations[$i])
+            'event_id' => $module->escapeHtml($event_ids[$i]),
+            'event_abbreviation' => $module->escapeHtml($event_abbreviations[$i])
         ];
     }
     
@@ -1109,7 +1132,7 @@ function get_fields():array
 {
    global $module;
 
-   $fields = Yes3::fetchRecords("
+   $fields = $module->fetchRecords("
 SELECT m.`field_name`, m.`element_label`, m.`element_type`, m.`element_enum`
 FROM redcap_metadata m
 WHERE m.`project_id`={$module->project_id}
@@ -1125,13 +1148,13 @@ ORDER BY m.`field_order`
          foreach ( $vv as $value => $label) {
             $choices[] = [
                'value' => $value,
-               'label' => Yes3::truncate(Yes3::printableEscHtmlString($label), MAX_LABEL_LEN)
+               'label' => $module->truncate($module->printableEscHtmlString($label), MAX_LABEL_LEN)
             ];
          }
       }
       $xx[] = [
          'field_name' => $field['field_name'],
-         'field_label' => Yes3::truncate(Yes3::printableEscHtmlString($field['element_label']), MAX_LABEL_LEN),
+         'field_label' => $module->truncate($module->printableEscHtmlString($field['element_label']), MAX_LABEL_LEN),
          'field_type' => $field['element_type'],
          'field_choices' => $choices
       ];
@@ -1169,7 +1192,7 @@ WHERE a.project_id=?
 ORDER BY e.day_offset
     ";
 
-    $ee = Yes3::fetchRecords($sql, [$module->project_id]);
+    $ee = $module->fetchRecords($sql, [$module->project_id]);
 
     $event_metadata = [];
 
@@ -1183,8 +1206,8 @@ ORDER BY e.day_offset
         }
 
         $event_metadata[(string)$e['event_id']] = [
-            'event_label' => Yes3::escapeHtml($e['descrip']),
-            'event_name' => Yes3::escapeHtml($event_name)
+            'event_label' => $module->escapeHtml($e['descrip']),
+            'event_name' => $module->escapeHtml($event_name)
         ];
     }
 
@@ -1203,14 +1226,14 @@ WHERE a.project_id=?
 ORDER BY e.day_offset
     ";
 
-    $ee = Yes3::fetchRecords($sql, [$module->project_id]);
+    $ee = $module->fetchRecords($sql, [$module->project_id]);
 
     $project_event_metadata = [];
 
     foreach ($ee as $e){
         $project_event_metadata[] = [
             'event_id' => (string) $e['event_id'],
-            'event_label' => Yes3::escapeHtml($e['event_label'])
+            'event_label' => $module->escapeHtml($e['event_label'])
         ];
     }
 
@@ -1245,7 +1268,7 @@ function get_first_event_id()
    ORDER BY e.day_offset, e.event_id
    LIMIT 1";
 
-   return Yes3::fetchValue($sql, [$module->project_id]);
+   return $module->fetchValue($sql, [$module->project_id]);
 }
 
 function get_event_select_options_html()
@@ -1258,7 +1281,7 @@ function get_event_select_options_html()
     WHERE a.project_id=?
     ORDER BY e.day_offset, e.event_id";
 
-    $events = Yes3::fetchRecords($sql, [$module->project_id]);
+    $events = $module->fetchRecords($sql, [$module->project_id]);
 
     $eventSelectOptionsHtml = "<option value=''></option>";
     foreach ($events as $event){
@@ -1284,7 +1307,7 @@ function listNamespaceFunctions()
         }
     }
 
-    //Yes3::logDebugMessage( 0, $registry_list, 'yes3 exporter service functions' );
+    //$module->logDebugMessage( 0, $registry_list, 'yes3 exporter service functions' );
 
     return $registry_list;
 }

@@ -22,10 +22,10 @@
 
     "versions": [
         {
-            "version": "1.0.4",
-            "date": "2024-02-21",
+            "version": "1.0.5",
+            "date": "2024-02-24",
             "description": "Patch release for REDCap v14 compatibility",
-            "comments": "Identical features to v1.0.2 (Aug 2022) but compatible with REDCap v14.0.0 and later, plus some UI tweaks."
+            "comments": "Identical features to v1.0.2 (Aug 2022) but compatible with REDCap v14.0.0 and later, plus some stability and UI tweaks."
         },
         {
             "version": "1.0.3",

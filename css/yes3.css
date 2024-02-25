@@ -753,7 +753,7 @@ div#yes3-red-pointer {
     position: relative;
     top: -2px;
     margin-right: 2px;
-    *overflow: hidden;
+    /* *overflow: hidden;*/
  }
  
  .yes3-config-table-item-value label {
@@ -1297,6 +1297,7 @@ table.yes3-panel-vertical-options td:not(:first-child) {
     color: var(--yes3-panel-message-color);
     margin-top: calc( 3 * var(--yes3-margin) );
     margin-bottom: var(--yes3-margin);
+    padding-bottom: var(--yes3-margin);
  }
  
  div.yes3-panel-row-left {
