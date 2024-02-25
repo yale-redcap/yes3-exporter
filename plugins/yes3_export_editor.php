@@ -762,6 +762,12 @@ $module->getCodeFor("yes3_export_editor", true);
 
     </div>
 
+    <!-- MESSAGE CONTAINER -->
+
+    <div id='yes3-fmapr-system-message-container' class='row' style="display:none">
+        <div class="col-xl-12 yes3-fmapr-system-message" id="yes3-fmapr-system-message" style="padding-left: 0";></div>
+    </div>
+
     <!-- **** SETTINGS FORM **** -->
 
     <div id="yes3-fmapr-settings" class="yes3-expanded" style="display:none">
@@ -1023,7 +1029,28 @@ $module->getCodeFor("yes3_export_editor", true);
 
     </div>
 
-    <div id="yes3-fmapr-copyright">foo</div>
+    <!--div class="row" id="yes3-fmapr-page-footer">
+
+        <div class="col-xl-4" style="padding-left: 0">
+
+            <div id="yes3-fmapr-copyright"></div>
+
+        </div>
+
+        <div class="col-xl-8" style="padding-left: 0">
+
+            <div id="yes3-fmapr-system-message"></div>
+
+        </div>
+
+    </div-->
+
+    <div id='yes3-fmapr-page-footer'>
+    
+            <!--div id="yes3-fmapr-system-message"></div-->
+            
+            <div id="yes3-fmapr-copyright"></div>
+    </div>
 
 </div> <!-- container -->
 

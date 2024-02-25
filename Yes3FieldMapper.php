@@ -12,10 +12,9 @@ error_reporting(E_ALL);
  */
 require "defines/yes3_defines.php";
 
-/**
- * an autoloader for Yes3 classes and traits
- */
-require "autoload.php";
+require "Yes3Trait.php";
+require "Yes3Export.php";
+require "Yes3ExportItem.php";
 
 use Exception;
 use REDCap;
@@ -37,6 +36,8 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $copyright = "";
     public $docPageUrl = "";
     public $version = "";
+    public $sysmsg = "";
+    public $errmsg = "ERROR";
     private $token = "";
     private $salt = "";
     private $project_salt = "";
@@ -97,13 +98,18 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             $this->form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
 
-            //Yes3::logDebugMessage($this->project_id, "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
+            //$this->logDebugMessage($this->project_id, "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
         }
     }
 
     public function getCopyRight(){
 
         return REDCap::getCopyright() . "<br />YES3 Exporter {$this->version} - &copy; 2024 REDCap@Yale";
+    }
+
+    private function addSysmsg($msg)
+    {
+        $this->sysmsg .= $msg . "\n";
     }
 
     /**
@@ -203,7 +209,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_specification['export_target_folder'] = $this->get_export_target_folder();
 
 
-        //Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
+        //$this->logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary");
 
         /**
          * export object:
@@ -311,9 +317,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             $allowed['group_id'] = $uRights['group_id'];
         }
 /*
-        Yes3::logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary: export_specification");
-        Yes3::logDebugMessage($this->project_id, print_r($export, true), "buildExportDataDictionary: export");
-        Yes3::logDebugMessage($this->project_id, print_r($allowed, true), "buildExportDataDictionary: allowed");
+        //$this->logDebugMessage($this->project_id, print_r($export_specification, true), "buildExportDataDictionary: export_specification");
+        //$this->logDebugMessage($this->project_id, print_r($export, true), "buildExportDataDictionary: export");
+        //$this->logDebugMessage($this->project_id, print_r($allowed, true), "buildExportDataDictionary: allowed");
         throw new Exception("Have a nice day");
 */   
         /**
@@ -352,7 +358,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
          */
         $field_name = $this->getRecordIdField();
 
-        $this->addExportItem_REDCapField( $export, $field_name, Yes3::getREDCapEventIdForField($field_name), $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
+        $this->addExportItem_REDCapField( $export, $field_name, $this->getREDCapEventIdForField($field_name), $fields, $forms, $event_settings, $allowed, $uRights['form_export_permissions'] );
 
         if ( REDCap::getGroupNames() ) {
 
@@ -397,14 +403,14 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $fields_rejected = 0;
 
-        //Yes3::logDebugMessage($this->project_id, print_r($uRights['form_permissions'], true), "buildExportDataDictionary:fp");
-        //Yes3::logDebugMessage($this->project_id, print_r($export->export_items, true), "buildExportDataDictionary:fp");
+        //$this->logDebugMessage($this->project_id, print_r($uRights['form_permissions'], true), "buildExportDataDictionary:fp");
+        //$this->logDebugMessage($this->project_id, print_r($export->export_items, true), "buildExportDataDictionary:fp");
 
         foreach( $export->export_items as $export_item ){
 
             $dd[] = [
                 'var_name' => $export_item->var_name,
-                'var_label' => Yes3::truncate( $export_item->var_label, $export->export_max_label_length ),
+                'var_label' => $this->truncate( $export_item->var_label, $export->export_max_label_length ),
                 'var_type' => $export_item->var_type,
                 'valueset' => ( $export_item->valueset ) ? json_encode($export_item->valueset) : "",
                 'origin' => $export_item->origin,
@@ -603,7 +609,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             "username" => $this->username
         ];
 
-        $json = Yes3::json_encode_pretty($info);
+        $json = $this->json_encode_pretty($info);
 
         $bytesWritten = fwrite($h, $json);
 
@@ -763,7 +769,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         $export_specification = $ddPackage['export_specification'];
 
-        $redcap_data = Yes3::getDataTable();
+        $redcap_data = $this->getDataTable();
 
         /*
         if ( !$export_target_folder || $destination==="download" ) {
@@ -837,7 +843,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $dd_index = [];
         $dd_specmap_index = [];
 
-        //Yes3::logDebugMessage($this->project_id, print_r($dd, true), "writeExportFiles: dd");
+        //$this->logDebugMessage($this->project_id, print_r($dd, true), "writeExportFiles: dd");
 
         for ($i=0; $i<count($dd); $i++){
 
@@ -1043,12 +1049,12 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
         //$sql .= " LIMIT 10";
 
-        //Yes3::logDebugMessage($this->getProjectId(), $sql, "writeExportFiles: CritX SQL");
-        //Yes3::logDebugMessage($this->getProjectId(), implode(",", $sqlParams), "writeExportFiles: CritX Params");
+        //$this->logDebugMessage($this->getProjectId(), $sql, "writeExportFiles: CritX SQL");
+        //$this->logDebugMessage($this->getProjectId(), implode(",", $sqlParams), "writeExportFiles: CritX Params");
 
         $records = [];
         $all_numeric = true;
-        foreach ( Yes3::recordGenerator($sql, $sqlParams) as $x ){
+        foreach ( $this->recordGenerator($sql, $sqlParams) as $x ){
 
             $records[] = $x['record'];
 
@@ -1084,9 +1090,9 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             }
         }
 
-        //Yes3::logDebugMessage($this->project_id, print_r($field_events, true), 'writeX:field_events');
-        //Yes3::logDebugMessage($this->project_id, $sqlSelect, 'writeX:sqlSelect');
-        //Yes3::logDebugMessage($this->project_id, print_r($sqlEventParams, true), 'writeX:sqlEventParams');
+        //$this->logDebugMessage($this->project_id, print_r($field_events, true), 'writeX:field_events');
+        //$this->logDebugMessage($this->project_id, $sqlSelect, 'writeX:sqlSelect');
+        //$this->logDebugMessage($this->project_id, print_r($sqlEventParams, true), 'writeX:sqlEventParams');
 
         $K = 0; // datum count
         $R = 0; // export row count
@@ -1228,7 +1234,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
             if ( isset($export_specification['export_items_json']) ){
 
-                if ( Yes3::is_json_decodable($export_specification['export_items_json']) ){
+                if ( $this->is_json_decodable($export_specification['export_items_json']) ){
 
                     $export_spec_items = json_decode( $export_specification['export_items_json'], true );
 
@@ -1432,7 +1438,7 @@ WHERE project_id=? AND log_entry_type=?
 
                 array_multisort($arVal, SORT_ASC, SORT_NATURAL, $frqTbl);
 
-                //$dd[$i]['frequency_table'] = Yes3::json_encode_pretty($dd[$i]['frequency_table']);
+                //$dd[$i]['frequency_table'] = $this->json_encode_pretty($dd[$i]['frequency_table']);
                 $dd[$i]['frequency_table'] = json_encode($frqTbl);
             }
 
@@ -1509,11 +1515,11 @@ WHERE project_id=? AND log_entry_type=?
 
         $exportValues = 0;
 
-        //Yes3::logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
-        //Yes3::logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
+        //$this->logDebugMessage($this->project_id, $sqlSelect, "writeExportDataFileRecord: sqlSelect");
+        //$this->logDebugMessage($this->project_id, print_r($sqlSelectParams, true), "writeExportDataFileRecord: sqlSelectParams");
 
-        foreach ( Yes3::recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
-        //$xx = Yes3::fetchRecords($sql, $sqlParams);
+        foreach ( $this->recordGenerator($sqlSelect, $sqlSelectParams) as $x ){
+        //$xx = $this->fetchRecords($sql, $sqlParams);
         //foreach ( $xx as $x ){
 
             //$K++;
@@ -1580,7 +1586,7 @@ WHERE project_id=? AND log_entry_type=?
 
                 if ( isset($y[VARNAME_GROUP_ID]) ) {
 
-                    $y[VARNAME_GROUP_ID  ] = Yes3::getGroupIdForRecord($record);
+                    $y[VARNAME_GROUP_ID  ] = $this->getGroupIdForRecord($record);
                     $y[VARNAME_GROUP_NAME] = $dagNameForGroupId[ $y[VARNAME_GROUP_ID  ] ];
                 }
 
@@ -1624,8 +1630,8 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( $acceptable && $export_layout!=="h" && isset($field_events[$field_name])){
 
-                //Yes3::logDebugMessage($this->project_id, $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
-                //Yes3::logDebugMessage($this->project_id, print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
+                //$this->logDebugMessage($this->project_id, $field_name . ", event_id=" . $event_id, 'WriteXRecord: field_name');
+                //$this->logDebugMessage($this->project_id, print_r( $field_events[$field_name], true ), 'WriteXRecord: field_events');
 
                 $acceptable = in_array((int)$event_id, $field_events[$field_name]);
             }
@@ -1644,7 +1650,7 @@ WHERE project_id=? AND log_entry_type=?
                         $y[ $dd[ $field_index]['var_name'] ] .= ",";
                     }
 
-                    $y[ $dd[ $field_index]['var_name'] ] .= Yes3::normalized_string( $REDCapValue );
+                    $y[ $dd[ $field_index]['var_name'] ] .= $this->normalized_string( $REDCapValue );
                 }
                 else {
 
@@ -1729,7 +1735,7 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( $export_inoffensive_text ){
 
-            $x = Yes3::inoffensiveText( $x );
+            $x = $this->inoffensiveText( $x );
         }
 
         if ( $export_max_text_length > 0 && strlen($x) > $export_max_text_length ){
@@ -2051,7 +2057,7 @@ WHERE project_id=? AND log_entry_type=?
             throw new Exception("Fail: download export file(s) not written");
         }
 
-        $timestamp = Yes3::timeStampString();
+        $timestamp = $this->timeStampString();
 
         $zipFilename = tempnam(sys_get_temp_dir(), "ys3");
 
@@ -2156,13 +2162,13 @@ WHERE project_id=? AND log_entry_type=?
 
             if ( !$timestamp ){
 
-                $timestamp = Yes3::timeStampString();
+                $timestamp = $this->timeStampString();
             }
 
-            return Yes3::normalized_string($export_name, 80) . "_". $type . "_" . $timestamp . "." . $extension;
+            return $this->normalized_string($export_name, 80) . "_". $type . "_" . $timestamp . "." . $extension;
         }
 
-        return Yes3::normalized_string($export_name, 80) . "_". $type . "." . $extension;
+        return $this->normalized_string($export_name, 80) . "_". $type . "." . $extension;
     }
 
     public function getEventSettings()
@@ -2171,7 +2177,7 @@ WHERE project_id=? AND log_entry_type=?
 
             return [
                 [
-                    'event_id' => (string) Yes3::getFirstREDCapEventId(),
+                    'event_id' => (string) $this->getFirstREDCapEventId(),
                     'event_name' => "Event_1_arm_1",
                     'event_prefix' => ""
                 ]
@@ -2209,103 +2215,122 @@ WHERE project_id=? AND log_entry_type=?
         return $event_settings;
     }
 
-    /**
-     * Confirms that the user has permission to access an export specification
-     * 
-     * Relies on getFormMetadataStructures() and getFieldMetadataStructures()
-     * which return form and field metadata as allowed by user export permissions
-     * 
-     * function: confirmSpecificationPermissions
-     * 
-     * @param mixed $specification
-     * 
-     * @return bool
-     * @throws Exception
-     */
     public function confirmSpecificationPermissions( $specification )
     {
-        $uRights = $this->yes3UserRights();
-
-        //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "confirmSpecificationPermissions: spec");
-
-        /**
-         * specification properties useful here:
-         * 
-         * export_remove_phi
-         * export_remove_freetext
-         * export_remove_largetext
-         * export_remove_dates
-         * 
-         */
-
-        /**
-         * The structures returned by getFormMetadataStructures() will include
-         * only the forms for which the user has export permission.
-         * 
-         * We will use form_index, which is keyed by form_name
-         */
-        $allowed_forms = array_keys( $this->getFormMetadataStructures()['form_index'] );
-
-        if ( !$allowed_forms ) {
-
-            //Yes3::logDebugMessage($this->project_id, "no form access", "confirmSpecificationPermissions: denied");
-
-            return false; // user has no form access
-        }
-
-        /**
-         * similarly, the list of allowed fields is field_index returned by getFieldMetadataStructures()
-         */
-        $allowed_fields = array_keys( $this->getFieldMetadataStructures()['field_index'] );
-
-        //Yes3::logDebugMessage($this->project_id, print_r($allowed_fields, true), "confirmSpecificationPermissions: allowed_fields");
- 
         /**
          * the forms and fields to be exported are recorded in spec.export_items
          */
         $export_items = json_decode( $specification['export_items_json'], true );
 
+        $specification_forms = [];
+
+        $sysmsg_prefix = $specification['export_name'] . ": ";
+
+        $all_forms = array_keys( $this->form_export_permissions );
+
+        $errors = 0;
+
+        //$this->logDebugMessage($this->project_id, print_r($export_items, true), $specification['export_name'] . ":export_items");
+        //$this->logDebugMessage($this->project_id, print_r($all_forms, true), $specification['export_name'] . ":all_forms");
+
+        //throw new Exception("confirmSpecificationPermissions() is not yet implemented.");
+
+        // accumulate the list of all forms involved in the export specification
         foreach($export_items as $export_item){
 
             if ( isset($export_item['redcap_form_name']) && $export_item['redcap_form_name'] ) {
 
-                // form is not exportable by user
-                if ( $export_item['redcap_form_name'] !== ALL_OF_THEM && !in_array($export_item['redcap_form_name'], $allowed_forms) ){
+                if ( $export_item['redcap_form_name'] === ALL_OF_THEM) {
 
-                    //Yes3::logDebugMessage($this->project_id, $export_item['redcap_form_name'], "confirmSpecificationPermissions: disallowed item form");
+                    // special case if all events are selected
+                    if ( !REDCap::isLongitudinal() || $export_item['redcap_event_id'] === ALL_OF_THEM ) {
 
-                    return false;
-                }
+                        $specification_forms = $all_forms;
 
-                // now we have to check the fields
+                        break;
+                    }
+                    // otherwise we have to make sure the forms are on the event grid
+                    else {
 
-                $fields = $this->getFormDataEntryFieldMetadata( $export_item['redcap_form_name'] );
+                        $redcap_event_id = $export_item['redcap_event_id'];
 
-                foreach($fields as $field){
+                        foreach($all_forms as $form_name){
 
-                    if ( !$this->fieldExcludedByExportOptions( $specification, $field ) && !in_array($field['field_name'], $allowed_fields) ){
+                            $form_events = $this->getREDcapEventsForForm($form_name);
 
-                        //Yes3::logDebugMessage($this->project_id, $field['field_name'], "confirmSpecificationPermissions: disallowed form field");
+                            if  ( $form_events && in_array($redcap_event_id, $form_events) ){
+  
+                                if ( !in_array( $form_name, $specification_forms ) ){
 
-                        return false;
+                                    $specification_forms[] = $form_name;
+                                }
+                            }
+                        }
                     }
                 }
+                // single form, no need to check event because the UI pre-filters fields after event is selected
+                else {
+
+                    if ( !in_array( $export_item['redcap_form_name'], $all_forms ) ){
+
+                        $errors++;
+
+                        $this->addSysmsg( $sysmsg_prefix . "ERROR: The form [" . $export_item['redcap_form_name'] . "] is in the export specification but it is not assigned to any events.");
+
+                        //return false;
+                    }
+
+                    if ( !in_array( $export_item['redcap_form_name'], $specification_forms ) ){
+
+                        $specification_forms[] = $export_item['redcap_form_name'];
+                    }
+                }
+
+                continue;
             }
 
-            if ( isset($export_item['redcap_field_name']) && $export_item['redcap_field_name'] && !$this->isConstantExpression($export_item['redcap_field_name']) ){
+            // export item is a single field (there is no 'all fields' option in the UI)
+            // theoretically no need to check for event_id because the UI pre-filters fields after event is selected
+            if ( isset($export_item['redcap_field_name']) && $export_item['redcap_field_name'] ){
 
-                $field_name = $export_item['redcap_field_name'];
+                $form_name = $this->getREDCapFormForField( $export_item['redcap_field_name'] );
 
-                $field = $this->getFieldMetadata($field_name);
+                if ( !in_array( $form_name, $specification_forms ) ){
 
-                if ( !$this->fieldExcludedByExportOptions( $specification, $field ) && !in_array($field_name, $allowed_fields) ){
-
-                    //Yes3::logDebugMessage($this->project_id, $export_item['redcap_field_name'], "confirmSpecificationPermissions: disallowed item field");
-                    
-                    return false;
+                    $specification_forms[] = $form_name;
                 }
             }
         }
+
+        //$this->logDebugMessage($this->project_id, print_r($specification_forms, true), $specification['export_name'] . ":specification_forms");
+
+        // deny export permission if no forms are involved, e.g. export design error or other mischief
+        if ( !$specification_forms ){
+
+            $errors++;
+
+            $this->addSysmsg( $sysmsg_prefix . "ERROR: no forms are specified for this export." );
+        }
+
+        // errors in the export specification
+        if ( $errors ){
+
+            $this->addSysmsg( $sysmsg_prefix. "Export permission was denied because of errors detected in the specification.");
+
+            return false;
+        }   
+
+        foreach ($specification_forms as $form_name){
+
+            if ( !isset($this->form_export_permissions[$form_name]) || !$this->form_export_permissions[$form_name] ){
+
+                $this->addSysmsg( $sysmsg_prefix. "Export permission was denied for form [" . $form_name . "].");
+
+                return false;
+            }
+        }
+        
+        //$this->logDebugMessage($this->project_id, "export permission approved" . $form_name, $specification['export_name'] . ":approval");
 
         return true;
     }
@@ -2360,6 +2385,11 @@ WHERE project_id=? AND log_entry_type=?
         return false;
     }
 
+    function specificationHasFieldExclusions( $specification )
+    {
+        return ( $specification['export_remove_phi'] || $specification['export_remove_dates'] || $specification['export_remove_largetext'] || $specification['export_remove_freetext'] );
+    }
+
     /**
      * 
      * 
@@ -2396,7 +2426,7 @@ WHERE project_id=? AND log_entry_type=?
         , export_items_json
         ";
 
-        //Yes3::logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
+        //$this->logDebugMessage($this->project_id, $export_uuid, "getExportSpecification");
 
         if ( $log_id ){
 
@@ -2414,8 +2444,8 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( $history ){
 
-            //Yes3::logDebugMessage($this->project_id, $this->getQueryLogsSql($pSql), 'getExportSpecification');
-            //Yes3::logDebugMessage($this->project_id, print_r($params, true), 'getExportSpecification');
+            //$this->logDebugMessage($this->project_id, $this->getQueryLogsSql($pSql), 'getExportSpecification');
+            //$this->logDebugMessage($this->project_id, print_r($params, true), 'getExportSpecification');
 
             $qResult = $this->queryLogs($pSql, $params);
 
@@ -2490,11 +2520,11 @@ WHERE project_id=? AND log_entry_type=?
             if ( $specification_settings = $this->queryLogs($pSql, $params)->fetch_assoc() ){
 
  
-                if ( Yes3::is_json_decodable($specification_settings['export_specification_json'])) {
+                if ( $this->is_json_decodable($specification_settings['export_specification_json'])) {
                     
                     $specification = json_decode($specification_settings['export_specification_json']);
 
-                    //Yes3::logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecifications:object");
+                    //$this->logDebugMessage($this->project_id, print_r($specification, true), "getExportSpecifications:object");
 
                     if ( is_object($specification) ){
 
@@ -2621,7 +2651,7 @@ WHERE project_id=? AND log_entry_type=?
         } else {
 
             $events = [[ 
-                'event_id' => Yes3::getFirstREDCapEventId(),
+                'event_id' => $this->getFirstREDCapEventId(),
                 'descrip' => "Event 1",
                 'event_label' => "Event_1"
             ]];
@@ -2634,10 +2664,10 @@ WHERE project_id=? AND log_entry_type=?
 
         }
 
-        $mm = Yes3::fetchRecords($sql, [$this->project_id]);
+        $mm = $this->fetchRecords($sql, [$this->project_id]);
 
-        //Yes3::logDebugMessage($this->project_id, print_r($form_export_permissions, true), "form_export_permissions");
-        //Yes3::logDebugMessage($this->project_id, print_r($mm, true), "form metadata");
+        //$this->logDebugMessage($this->project_id, print_r($form_export_permissions, true), "form_export_permissions");
+        //$this->logDebugMessage($this->project_id, print_r($mm, true), "form metadata");
 
         $form_metadata = [];
 
@@ -2663,7 +2693,7 @@ WHERE project_id=? AND log_entry_type=?
                 ORDER BY em.day_offset, ef.event_id
                 ";
 
-                $ee = Yes3::fetchRecords($sqlE, [$this->project_id, $m['form_name']]);
+                $ee = $this->fetchRecords($sqlE, [$this->project_id, $m['form_name']]);
 
                 $events = [];
 
@@ -2671,8 +2701,8 @@ WHERE project_id=? AND log_entry_type=?
 
                     $events[] = [ 
                         'event_id' => (string)$e['event_id'],
-                        'event_label' => Yes3::inoffensiveText($e['descrip']),
-                        'descrip' => Yes3::inoffensiveText($e['descrip'])
+                        'event_label' => $this->inoffensiveText($e['descrip']),
+                        'descrip' => $this->inoffensiveText($e['descrip'])
                     ];      
                 }
             }
@@ -2687,19 +2717,19 @@ WHERE project_id=? AND log_entry_type=?
 
             $form_fields = [];
 
-            $fields = Yes3::fetchRecords($sqlF, [$this->project_id, $m['form_name']]);
+            $fields = $this->fetchRecords($sqlF, [$this->project_id, $m['form_name']]);
             foreach ( $fields as $field ){
                 $form_fields[] = $field['field_name'];
             }
     
-            $form_name = Yes3::inoffensiveText($m['form_name']);
+            $form_name = $this->inoffensiveText($m['form_name']);
 
             $form_metadata[] = [
                 'form_name' => $form_name,
-                'form_label' => Yes3::inoffensiveText($m['form_menu_description']),
+                'form_label' => $this->inoffensiveText($m['form_menu_description']),
                 'form_events' => $events,
                 'form_fields' => $form_fields,
-                'form_repeating' => ( Yes3::isRepeatingInstrument($m['form_name']) ) ? 1 : 0
+                'form_repeating' => ( $this->isRepeatingInstrument($m['form_name']) ) ? 1 : 0
             ];
 
             $form_index[$form_name] = $form_index_num;
@@ -2758,9 +2788,9 @@ WHERE project_id=? AND log_entry_type=?
 
         $sql .= " ORDER BY m.field_order";
 
-        //Yes3::logDebugMessage($this->project_id, $sql, "getFormDataEntryFieldMetadata:" . $form_name);
+        //$this->logDebugMessage($this->project_id, $sql, "getFormDataEntryFieldMetadata:" . $form_name);
 
-        return Yes3::fetchRecords($sql, $params);
+        return $this->fetchRecords($sql, $params);
     }
 
     private function getFieldMetadata($field_name)
@@ -2771,7 +2801,7 @@ WHERE project_id=? AND log_entry_type=?
         WHERE m.project_id=? AND m.field_name=?
         ";
 
-        return Yes3::fetchRecords($sql, [$this->project_id, $field_name]);
+        return $this->fetchRecords($sql, [$this->project_id, $field_name]);
     }
 
     public function getFieldMetadataStructures(): array
@@ -2802,7 +2832,7 @@ WHERE project_id=? AND log_entry_type=?
             ";
         }
 
-        $fields = Yes3::fetchRecords($sql, [$this->project_id]);
+        $fields = $this->fetchRecords($sql, [$this->project_id]);
 
         $field_metadata = [];
 
@@ -2850,7 +2880,7 @@ WHERE project_id=? AND log_entry_type=?
                 foreach ( $vv as $value => $label) {
                     $valueset[] = [
                         'value' => (string)$value,
-                        'label' => Yes3::inoffensiveText($label, MAX_LABEL_LEN)
+                        'label' => $this->inoffensiveText($label, MAX_LABEL_LEN)
                     ];
                 }
             }
@@ -2871,12 +2901,12 @@ WHERE project_id=? AND log_entry_type=?
                 ];
             }
 
-            $field_label = Yes3::inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
+            $field_label = $this->inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
 
             $field_metadata[] = [
 
                 'field_name'        => $field['field_name'],
-                'form_name'         => Yes3::inoffensiveText($field['form_name']),
+                'form_name'         => $this->inoffensiveText($field['form_name']),
                 'field_type'        => $field['element_type'],
                 'field_validation'  => $field['element_validation_type'],
                 'field_phi'         => $field['field_phi'],
@@ -2890,7 +2920,7 @@ WHERE project_id=? AND log_entry_type=?
              *     since only forms are allowed on repeating layouts.
              * (2) The record ID field is not selectable. Its inclusion is determined at export time.
              */
-            if ( !Yes3::isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
+            if ( !$this->isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
                 $field_autoselect_source[] = [
                     'value' => $field['field_name'],
                     'label' => "[" . $field['field_name'] . "] " . $field_label
@@ -2952,7 +2982,7 @@ WHERE project_id=? AND log_entry_type=?
                     'valueset' => $valueset,
                     'origin' => "specification",
                     'redcap_field_name' => $element['redcap_field_name'],
-                    'redcap_form_name'  => Yes3::getREDCapFormForField($element['redcap_field_name']),
+                    'redcap_form_name'  => $this->getREDCapFormForField($element['redcap_field_name']),
                     VARNAME_EVENT_ID    => $element[VARNAME_EVENT_ID],
                     VARNAME_EVENT_NAME  => $this->getEventName($element[VARNAME_EVENT_ID], $event_settings)
                 ]);
@@ -3029,7 +3059,7 @@ WHERE project_id=? AND log_entry_type=?
         .", field_date={$field_date}."
         ."\nallowed: phi={$allowed['phi']} largetext={$allowed['largetext']} smalltext={$allowed['smalltext']} dates={$allowed['dates']}."
         ;
-        Yes3::logDebugMessage($this->project_id, $msg, "addExportItem_REDCapField");
+        //$this->logDebugMessage($this->project_id, $msg, "addExportItem_REDCapField");
         */
 
         /**
@@ -3269,7 +3299,7 @@ WHERE project_id=? AND log_entry_type=?
 
     public function yes3_exporter_cron( $cronInfo=['cron_description'=>"noname"] )
     {
-        //Yes3::logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
+        //$this->logDebugMessage(0, "YES3 Exporter cron job started", "yes3_exporter_cron");
 
         //return;
 
@@ -3296,7 +3326,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $this->project_id = $localProjectId;
 
-            //Yes3::logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
+            //$this->logDebugMessage($localProjectId, "project {$localProjectId} has YES3 Exporter module enabled", "yes3_exporter_cron");
 
             // DAILY EMAIL
 
@@ -3516,7 +3546,7 @@ WHERE project_id=? AND log_entry_type=?
         WHERE c1.field_name = 'project_contact_email'
         ";
 
-        return Yes3::fetchRecord( $sql );
+        return $this->fetchRecord( $sql );
     }
 
     private function emailTableCell( $TdOrTh, $content ){
@@ -3538,7 +3568,7 @@ WHERE project_id=? AND log_entry_type=?
 
         if ( !count($exports) ) return "hk_generations: Nothing to do since project has no export backups saved.";
 
-        //Yes3::logDebugMessage($this->getProjectId(), print_r($exports, true), "hk_generations");
+        //$this->logDebugMessage($this->getProjectId(), print_r($exports, true), "hk_generations");
 
         foreach($exports as $export){
 
@@ -3595,7 +3625,7 @@ WHERE project_id=? AND log_entry_type=?
         WHERE x.project_id=? and x.message=?
         ";
 
-        $UUIDs = Yes3::fetchRecords($sqlUUID, [$this->getProjectId(), EMLOG_MSG_EXPORT_SPECIFICATION]);
+        $UUIDs = $this->fetchRecords($sqlUUID, [$this->getProjectId(), EMLOG_MSG_EXPORT_SPECIFICATION]);
 
         $data = [];
 
@@ -3609,7 +3639,7 @@ WHERE project_id=? AND log_entry_type=?
                     'timestamp' => $s['timestamp'],
                     'log_id' => $s['log_id'],
                     'export_uuid' => $s['export_uuid'],
-                    'export_name' => ( $s['export_name'] ) ? Yes3::escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
+                    'export_name' => ( $s['export_name'] ) ? $this->escapeHtml($s['export_name']) : "noname-{$s['log_id']}",
                     'export_layout' => $s['export_layout'],
                     'export_username' => ( $s['export_username'] ) ? $s['export_username'] : "nobody",
                     'removed' => $s['removed']
@@ -3637,7 +3667,6 @@ WHERE project_id=? AND log_entry_type=?
         return (string) count( $elements );
     }
 
-   
     /* ==== HOOKS ==== */
 
     public function redcap_module_link_check_display( $project_id, $link )
