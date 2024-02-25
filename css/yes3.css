@@ -1298,6 +1298,7 @@ table.yes3-panel-vertical-options td:not(:first-child) {
     margin-top: calc( 3 * var(--yes3-margin) );
     margin-bottom: var(--yes3-margin);
     padding-bottom: var(--yes3-margin);
+    overflow-wrap: anywhere;
  }
  
  div.yes3-panel-row-left {
