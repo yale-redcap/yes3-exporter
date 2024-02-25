@@ -37,7 +37,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     public $docPageUrl = "";
     public $version = "";
     public $sysmsg = "";
-    public $errmsg = "ERROR";
+    public $errmsg = "";
     private $token = "";
     private $salt = "";
     private $project_salt = "";
@@ -110,6 +110,11 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     private function addSysmsg($msg)
     {
         $this->sysmsg .= $msg . "\n";
+    }
+
+    private function addErrmsg($msg)
+    {
+        $this->errmsg .= $msg . "\n";
     }
 
     /**
@@ -2222,13 +2227,19 @@ WHERE project_id=? AND log_entry_type=?
          */
         $export_items = json_decode( $specification['export_items_json'], true );
 
+        $isLongitudinal = REDCap::isLongitudinal();
+
         $specification_forms = [];
 
         $sysmsg_prefix = $specification['export_name'] . ": ";
 
         $all_forms = array_keys( $this->form_export_permissions );
 
+        if ( $isLongitudinal ) $all_event_ids = array_keys( REDCap::getEventNames(true) );
+        else $all_event_ids = [ $this->getEventId() ];
+
         $errors = 0;
+        $permission_denied = 0;
 
         //$this->logDebugMessage($this->project_id, print_r($export_items, true), $specification['export_name'] . ":export_items");
         //$this->logDebugMessage($this->project_id, print_r($all_forms, true), $specification['export_name'] . ":all_forms");
@@ -2238,21 +2249,32 @@ WHERE project_id=? AND log_entry_type=?
         // accumulate the list of all forms involved in the export specification
         foreach($export_items as $export_item){
 
-            if ( isset($export_item['redcap_form_name']) && $export_item['redcap_form_name'] ) {
+            // an event may be associated with a form or a field, so the validation check must be up top
 
-                if ( $export_item['redcap_form_name'] === ALL_OF_THEM) {
+            $redcap_event_id = (string) $export_item['redcap_event_id'] ?? "";
+            $redcap_form_name = (string) $export_item['redcap_form_name'] ?? "";
+            $redcap_field_name = (string) $export_item['redcap_field_name'] ?? "";
+
+            if ( $redcap_event_id && $redcap_event_id !== ALL_OF_THEM && !in_array( $redcap_event_id, $all_event_ids ) ){
+
+                $errors++;
+
+                $this->addErrmsg( $sysmsg_prefix . "The event_id [" . $redcap_event_id . "] is in the export specification but it no longer exists.");
+            }
+
+            if ( $redcap_form_name ) {
+
+                if ($redcap_form_name === ALL_OF_THEM) {
 
                     // special case if all events are selected
-                    if ( !REDCap::isLongitudinal() || $export_item['redcap_event_id'] === ALL_OF_THEM ) {
+                    if ( !REDCap::isLongitudinal() || $redcap_event_id === ALL_OF_THEM ) {
 
                         $specification_forms = $all_forms;
 
                         break;
                     }
-                    // otherwise we have to make sure the forms are on the event grid
+                    // otherwise we have to select all forms for the specified event
                     else {
-
-                        $redcap_event_id = $export_item['redcap_event_id'];
 
                         foreach($all_forms as $form_name){
 
@@ -2271,18 +2293,15 @@ WHERE project_id=? AND log_entry_type=?
                 // single form, no need to check event because the UI pre-filters fields after event is selected
                 else {
 
-                    if ( !in_array( $export_item['redcap_form_name'], $all_forms ) ){
+                    if ( !in_array($redcap_form_name, $all_forms ) ){
 
                         $errors++;
 
-                        $this->addSysmsg( $sysmsg_prefix . "ERROR: The form [" . $export_item['redcap_form_name'] . "] is in the export specification but it is not assigned to any events.");
-
-                        //return false;
+                        $this->addErrmsg( $sysmsg_prefix . "The form [" . $redcap_form_name . "] is in the export specification but either it no longer exists, or it is not assigned to any events.");
                     }
+                    else if ( !in_array( $redcap_form_name, $specification_forms ) ){
 
-                    if ( !in_array( $export_item['redcap_form_name'], $specification_forms ) ){
-
-                        $specification_forms[] = $export_item['redcap_form_name'];
+                        $specification_forms[] = $redcap_form_name;
                     }
                 }
 
@@ -2291,11 +2310,17 @@ WHERE project_id=? AND log_entry_type=?
 
             // export item is a single field (there is no 'all fields' option in the UI)
             // theoretically no need to check for event_id because the UI pre-filters fields after event is selected
-            if ( isset($export_item['redcap_field_name']) && $export_item['redcap_field_name'] ){
+            if ( $redcap_field_name ){
 
-                $form_name = $this->getREDCapFormForField( $export_item['redcap_field_name'] );
+                $form_name = $this->getREDCapFormForField( $redcap_field_name );
 
-                if ( !in_array( $form_name, $specification_forms ) ){
+                if ( !$form_name ){
+
+                    $errors++;
+
+                    $this->addErrmsg( $sysmsg_prefix . "The field [" . $redcap_field_name . "] is in the export specification but it no longer exists.");
+                }
+                else if ( !in_array( $form_name, $specification_forms ) ){
 
                     $specification_forms[] = $form_name;
                 }
@@ -2309,7 +2334,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $errors++;
 
-            $this->addSysmsg( $sysmsg_prefix . "ERROR: no forms are specified for this export." );
+            $this->addErrmsg( $sysmsg_prefix . "No forms are specified for this export." );
         }
 
         // errors in the export specification
@@ -2317,7 +2342,7 @@ WHERE project_id=? AND log_entry_type=?
 
             $this->addSysmsg( $sysmsg_prefix. "Export permission was denied because of errors detected in the specification.");
 
-            return false;
+            $permission_denied++;
         }   
 
         foreach ($specification_forms as $form_name){
@@ -2326,13 +2351,13 @@ WHERE project_id=? AND log_entry_type=?
 
                 $this->addSysmsg( $sysmsg_prefix. "Export permission was denied for form [" . $form_name . "].");
 
-                return false;
+                $permission_denied++;
             }
         }
         
         //$this->logDebugMessage($this->project_id, "export permission approved" . $form_name, $specification['export_name'] . ":approval");
 
-        return true;
+        return ( $permission_denied === 0 ) ? true : false;
     }
 
     private function isConstantExpression($s){

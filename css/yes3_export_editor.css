@@ -457,6 +457,11 @@ div#yes3-fmapr-copyright {
     width: 100%;
 }
 
+.yes3-fmapr-system-message-0 {
+    font-style: italic;
+    color: var(--yes3-color);
+}
+
 .yes3-fmapr-system-message-1 {
     color: var(--yes3-nonessential-information-color);
 }
