@@ -23,88 +23,10 @@ use Project;
 
 class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 {
-    //public $project_id = 0; // now lazy-loaded if at all
     public $sysmsg = "";
     public $errmsg = "";
-    //public $RecordIdField = "";
-    //public $isLongitudinal = "";
-    //public $username = "";
-    //public $serviceUrl = "";
-    //public $imageUrl = [];
-    //public $documentationUrl = "";
-    //public $changelogUrl = "";
-    //public $technicalDocumentationUrl = "";
-    //public $form_export_permissions = [];
-    //public $copyright = "";
-    //public $docPageUrl = "";
-    //public $version = "";
-    //private $token = "";
-    //private $salt = "";
-    //private $project_salt = "";
-    //private $date_shift_max = "";
 
     use Yes3Trait;
-
-    /*
-    public function __construct() {
-
-        global $salt;
-
-        parent::__construct(); // call parent (AbstractExternalModule) constructor
-
-        //$this->version = $this->getConfig()['versions'][0]['version'];
-        //$this->copyright = $this->getCopyRight(); // combines the REDCap and YES3 copy right strings
-        //$this->docPageUrl = $this->getConfig()['documentation']; // the github pages site for exporter documentation
-
-        try {
-
-            $projId = $this->getProjectId();
-            $username = $this->getUser()->getUsername();
-        } 
-        catch(Exception $e) {
-
-            $projId = 0;
-            $username = "";
-        }
-
-        if ( $projId && $username ){
-
-            //$this->project_id = $projId;
-
-            //$this->username = $username;
-            //$this->serviceUrl = $this->getUrl('services/services.php');
-            //$this->documentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=README');
-            //$this->changelogUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Fchangelog');
-            //$this->technicalDocumentationUrl = $this->getUrl('plugins/yes3_documentation.php?doc=documents%2Ftechnical');
-            
-            $this->imageUrl = [
-                'dark' => [
-                    'logo_square' => $this->getUrl('images/YES3_Logo_Square_Black.png'),
-                    'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_Black.png')
-                ],
-                'light' => [
-                    'logo_square' => $this->getUrl('images/YES3_Logo_Square_White.png'),
-                    'logo_horizontal' => $this->getUrl('images/YES3_Logo_Horizontal_White.png')
-                ]
-            ];
-            
-            //$this->RecordIdField = $this->getRecordIdField();
-            //$this->isLongitudinal = REDCap::isLongitudinal();
-
-            //$this->token = "this-should-be-private";
-
-            //$Proj = new Project();
-
-            //$this->salt = $salt;
-            //$this->project_salt = $Proj->project['__SALT__'];
-            //$this->date_shift_max = (int)$Proj->project['date_shift_max'];
-
-            //$this->form_export_permissions = $this->yes3UserRights()['form_export_permissions'];
-
-            //$this->logDebugMessage($this->getProjectId(), "salt={$this->salt}, project_salt={$this->project_salt}, date_shift_max={$this->date_shift_max}", "Yes3FieldMapper");
-        }
-    }
-    */
 
     public function getCopyRight(){
 
@@ -122,8 +44,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
     {
         $this->errmsg .= $msg . "\n";
     }
-
-    // lazy loading constructor adventure
 
     public function getFormExportPermissions(){
 

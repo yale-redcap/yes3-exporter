@@ -212,13 +212,13 @@ trait Yes3Trait {
 
         $js .= "\nYES3.username = '" . $this->getUser()->getUsername() . "';";
 
-        $js .= "\nYES3.isLongitudinal = " . REDCap::isLongitudinal() . ";";
+        $js .= "\nYES3.userRights = " . json_encode( $this->yes3UserRights() ) . ";\n";
+
+        $js .= "\nYES3.isLongitudinal = " . (( REDCap::isLongitudinal() ) ? "1":"0") . ";";
 
         $js .= "\nYES3.RecordIdField = '" . $this->getRecordIdField() . "';";
 
         $js .= "\nYES3.imageUrl = " . json_encode($this->getImageUrl()) . ";";
-
-        $js .= "\nYES3.form_export_permissions = " . json_encode($this->getImageUrl()) . ";";
 
         $js .= "\nYES3.serviceUrl = '" . $this->getServiceUrl() . "';";
 
@@ -235,10 +235,6 @@ trait Yes3Trait {
         $js .= "\nYES3.moduleObjectName = '" . $this->getJavascriptModuleObjectName() . "';";
 
         $js .= "\nYES3.moduleProperties = " . $this->objectProperties() . ";\n";
-
-        //$js .= "\nYES3.REDCapUserRights = " . json_encode( $this->getUser()->getRights() ) . ";\n";
-
-        $js .= "\nYES3.userRights = " . json_encode( $this->yes3UserRights() ) . ";\n";
 
         $css .= file_get_contents( $this->getModulePath()."css/yes3.css" );
         $css .= file_get_contents( $this->getModulePath()."css/common.css" );
