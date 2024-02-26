@@ -3712,11 +3712,11 @@ FMAPR.loadSpecificationsCallback = function( response )
     let errmsg = response.errmsg || "";
 
     let sysmsg_summary = "";
-    let errmsg_summary = "One or more export specification failed the validation checks, resulting in Download/Export permissions being denied.";
+    let errmsg_summary = "One or more export specifications failed the validation checks, resulting in Download/Export permissions being denied.";
 
     if ( response.exports_denied ){
 
-        sysmsg_summary = `Download/export permission was denied for ${response.exports_denied} export specification(s).`;
+        sysmsg_summary = `Download/export permission for user ${YES3.username} was denied for ${response.exports_denied} export specification(s).`;
 
         sysmsg = `${sysmsg_summary}\n${sysmsg}`;
     }
