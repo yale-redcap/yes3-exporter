@@ -6,6 +6,7 @@ let YES3 = {
     dirty: false,
     initial_help_offered: false,
     busy: false,
+    version: "1.0.6",
     yes3Url: "https://portal.redcap.yale.edu/resources/yes3",
 
     captions: {
@@ -135,11 +136,11 @@ String.prototype.isValidFilename = function()
 YES3.Functions.Open_docPage = function(){
 
     // attempt to open the documentation page in a new window 
-    const newWindow = window.open(YES3.moduleProperties.docPageUrl, "Yes3DocPage", "height=800, width=800, left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=yes,location=no,directories=no,status=yes");
+    const newWindow = window.open(YES3.documentationUrl, "Yes3DocPage", "height=800, width=800, left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=yes,location=no,directories=no,status=yes");
 
     // if blocked, open in a new tab
     if (!newWindow) {
-        window.open(YES3.moduleProperties.docPageUrl, "_blank");
+        window.open(YES3.documentationUrl, "_blank");
     }
 }
  
@@ -626,12 +627,12 @@ YES3.Help_hasGotIt = function()
  
 YES3.Help_openReadMe = function()
 {
-    YES3.openPopupWindow( YES3.moduleProperties.documentationUrl ); 
+    YES3.openPopupWindow( YES3.documentationUrl ); 
 } 
  
 YES3.Help_openChangeLog = function()
 {
-    YES3.openPopupWindow( YES3.moduleProperties.changelogUrl ); 
+    YES3.openPopupWindow( YES3.changelogUrl ); 
 } 
 
 /*
@@ -701,9 +702,9 @@ YES3.setThemeObjects = function(theme)
 
     theme = localStorage.getItem('theme');
 
-    $("img.yes3-square-logo").attr('src', YES3.moduleProperties.imageUrl[theme].logo_square);
+    $("img.yes3-square-logo").attr('src', YES3.imageUrl[theme].logo_square);
 
-    $("img.yes3-horizontal-logo").attr('src', YES3.moduleProperties.imageUrl[theme].logo_horizontal);
+    $("img.yes3-horizontal-logo").attr('src', YES3.imageUrl[theme].logo_horizontal);
 
     $("img.yes3-logo").off().on("click", function(){
 
@@ -783,7 +784,7 @@ YES3.postServiceRequest = function( params ){
     const form = document.createElement('form');
 
     form.method = 'post';
-    form.action = YES3.moduleProperties.serviceUrl;
+    form.action = YES3.serviceUrl;
 
     document.body.appendChild(form);
 
@@ -817,7 +818,7 @@ YES3.requestService = function( params, doneFn, json )
 
    $.ajax(
     {
-      url: YES3.moduleProperties.serviceUrl,
+      url: YES3.serviceUrl,
       type: "POST",
       dataType: ( json ) ? "json":"html",
       data: params

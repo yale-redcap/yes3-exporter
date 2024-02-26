@@ -108,7 +108,7 @@ FMAPR.getExportSettingsCallback = function(response)
 FMAPR.populateAllSettings = function()
 {
 
-    if ( YES3.moduleProperties.isLongitudinal ){
+    if ( YES3.isLongitudinal ){
 
         $('.yes3-fmapr-longitudinal-only').show();
 
@@ -278,7 +278,7 @@ $( function () {
      * 
      * (0) yes3_fieldmapper_setup.php (plugin main page): The getCodeFor() EM method outputs JS, CSS and HTML
      *      appropriate for the plugin. This includes the YES3 JS object YES3.moduleProperties,
-     *      which includes all the non-private properties of the instantiated EM class.
+     *      which includes all the non-private properties of the EM class.
      * 
      * (1) FMAPR.getProjectSettings (located in FMAPR.yes3_fieldmapper_common.js)
      *      - issues service (ajax) request for REDCap project metadata

@@ -3534,7 +3534,7 @@ FMAPR.setExportItemFieldAutoselectInputs = function() {
 
  FMAPR.rawRawREDCapElementName = function( field_name, event_id )
  {
-    if ( field_name === YES3.moduleProperties.RecordIdField || !FMAPR.project.is_longitudinal ){
+    if ( field_name === YES3.RecordIdField || !FMAPR.project.is_longitudinal ){
 
         return field_name;
     }
@@ -3712,11 +3712,11 @@ FMAPR.loadSpecificationsCallback = function( response )
     let errmsg = response.errmsg || "";
 
     let sysmsg_summary = "";
-    let errmsg_summary = "One or more export specification failed the validation checks, resulting in Download/Export permissions being denied.";
+    let errmsg_summary = "One or more export specifications failed the validation checks, resulting in Download/Export permissions being denied.";
 
     if ( response.exports_denied ){
 
-        sysmsg_summary = `Download/export permission was denied for ${response.exports_denied} export specification(s).`;
+        sysmsg_summary = `Download/export permission for user ${YES3.username} was denied for ${response.exports_denied} export specification(s).`;
 
         sysmsg = `${sysmsg_summary}\n${sysmsg}`;
     }
@@ -5188,7 +5188,7 @@ $(document).on('yes3-fmapr.settings', function(){
 
 FMAPR.displayCopyright = function(){
 
-    $('div#yes3-fmapr-copyright').html(YES3.moduleProperties.copyright);
+    $('div#yes3-fmapr-copyright').html(YES3.copyright);
 }
 
 /**

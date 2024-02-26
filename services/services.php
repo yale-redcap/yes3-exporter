@@ -4,11 +4,11 @@ namespace Yale\Yes3FieldMapper;
 
 use Exception;
 
-/*
+
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-*/
+
 
 $request = "";
   
@@ -132,7 +132,7 @@ function addExportSpecification()
         $qParams
     );
 
-    //$module->logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    //$module->logDebugMessage($module->getProjectId(), print_r($qParams, true), 'saveExportSpecification' );
     if ( $log_id ){
         return "Success: new export parameters saved to EM log record# ".$log_id;
     }
@@ -182,7 +182,7 @@ function saveExportSpecification()
         $qParams
     );
 
-    //$module->logDebugMessage($module->project_id, print_r($qParams, true), 'saveExportSpecification' );
+    //$module->logDebugMessage($module->getProjectId(), print_r($qParams, true), 'saveExportSpecification' );
     if ( $log_id ){
         return "Success: export parameters saved to EM log record# ".$log_id;
     }
@@ -252,7 +252,9 @@ function getExportSpecificationList():string
 
     $enhanced_response = (int) $_POST['enhanced_response'] ?? 0;
 
-    $module->logDebugMessage($module->project_id, print_r($module->form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
+    $form_export_permissions = $module->getFormExportPermissions();
+
+    $module->logDebugMessage($module->getProjectId(), print_r($form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
 
     // handle some easy permission cases
 
@@ -261,7 +263,7 @@ function getExportSpecificationList():string
     $permission_export_all_forms = true;
     $permission_export_some_forms = false;
 
-    foreach( $module->form_export_permissions as $form=>$perm ){
+    foreach( $form_export_permissions as $form=>$perm ){
 
         if ( $perm===0 ){
 
@@ -292,7 +294,7 @@ function getExportSpecificationList():string
     WHERE x.project_id=? and x.message=?
     ";
 
-    $UUIDs = $module->fetchRecords($sqlUUID, [$module->project_id, EMLOG_MSG_EXPORT_SPECIFICATION]);
+    $UUIDs = $module->fetchRecords($sqlUUID, [$module->getProjectId(), EMLOG_MSG_EXPORT_SPECIFICATION]);
 
     $data = [];
 
@@ -445,7 +447,7 @@ function downloadExportLog()
 
     //exit("downloadExportLog: {$export_uuid}, {$export_name}, {$path}, {$bytes}, {$sql}");
 
-    foreach ( $module->recordGenerator($sql, [ $module->project_id, EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ]) as $x ){
+    foreach ( $module->recordGenerator($sql, [ $module->getProjectId(), EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ]) as $x ){
 
         if ( !$bytes ) {
 
@@ -515,7 +517,7 @@ FROM redcap_external_modules_log x
 WHERE x.project_id=? AND p1.`value`=? AND p2.`value`=?
     ";
 
-    $params = [ $module->project_id, EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ];
+    $params = [ $module->getProjectId(), EMLOG_TYPE_EXPORT_LOG_ENTRY, $export_uuid ];
 
     if ( $username ){
 
@@ -704,7 +706,7 @@ function getFieldMapRecord($export_uuid)
         WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
         ORDER BY timestamp DESC LIMIT 1
     ";
-    $params = [$module->project_id, $export_uuid];
+    $params = [$module->getProjectId(), $export_uuid];
 
     return $module->queryLogs($pSql, $params)->fetch_assoc();
 }
@@ -737,7 +739,7 @@ function sanitizeUploadSpec( $uSpec )
         return null;
     }
       
-    //$module->logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:pre");
+    //$module->logDebugMessage($module->getProjectId(), print_r($uSpec, true), "sanitizeUploadSpec:pre");
 
     for($i=0; $i<count($uSpec['elements']); $i++){
 
@@ -798,7 +800,7 @@ function sanitizeUploadSpec( $uSpec )
         }
     }
   
-    //$module->logDebugMessage($module->project_id, print_r($uSpec, true), "sanitizeUploadSpec:post");
+    //$module->logDebugMessage($module->getProjectId(), print_r($uSpec, true), "sanitizeUploadSpec:post");
 
     return $uSpec;
 }
@@ -960,14 +962,14 @@ function get_field_mappings()
             WHERE project_id=? AND setting='yes3-exporter-field-map' AND export_uuid=?
             ORDER BY timestamp DESC LIMIT 1
         ";
-        $params = [$module->project_id, $export_uuid];
+        $params = [$module->getProjectId(), $export_uuid];
     }
 
     $map_record = $module->queryLogs($pSql, $params)->fetch_assoc();
 
     //$msg = "log_id=" . $map_record['log_id'] . ", bytes=" . strlen($map_record['field_mappings']);
-    //$module->logDebugMessage($module->project_id, $pSql, "get_field_mappings:pSql");
-    //$module->logDebugMessage($module->project_id, $msg, "get_field_mappings:result");
+    //$module->logDebugMessage($module->getProjectId(), $pSql, "get_field_mappings:pSql");
+    //$module->logDebugMessage($module->getProjectId(), $msg, "get_field_mappings:result");
 
     if ( !$map_record ){
 
@@ -1061,12 +1063,12 @@ function get_project_settings():string
     }
 
     return $module->json_encode_pretty( [
-        'project_id' => $module->project_id,
+        'project_id' => $module->getProjectId(),
         'is_longitudinal' => \REDCap::isLongitudinal(),
         'repeating_forms' => $repeating_forms,
         'field_index' => $field_metadata_structures['field_index'],
         'field_metadata' => $field_metadata_structures['field_metadata'],
-        'field_count' => $module->fetchValue($sqlCount, [$module->project_id, \REDCap::getRecordIdField()]),
+        'field_count' => $module->fetchValue($sqlCount, [$module->getProjectId(), \REDCap::getRecordIdField()]),
         'field_autoselect_source' => $field_metadata_structures['field_autoselect_source'],
         'form_index' => $form_metadata_structures['form_index'],
         'form_metadata' => $form_metadata_structures['form_metadata'],
@@ -1130,7 +1132,7 @@ function get_fields():array
    $fields = $module->fetchRecords("
 SELECT m.`field_name`, m.`element_label`, m.`element_type`, m.`element_enum`
 FROM redcap_metadata m
-WHERE m.`project_id`={$module->project_id}
+WHERE m.`project_id`={$module->getProjectId()}
   AND m.`element_type` NOT IN('descriptive')
 ORDER BY m.`field_order`
    ");
@@ -1187,7 +1189,7 @@ WHERE a.project_id=?
 ORDER BY e.day_offset
     ";
 
-    $ee = $module->fetchRecords($sql, [$module->project_id]);
+    $ee = $module->fetchRecords($sql, [$module->getProjectId()]);
 
     $event_metadata = [];
 
@@ -1221,7 +1223,7 @@ WHERE a.project_id=?
 ORDER BY e.day_offset
     ";
 
-    $ee = $module->fetchRecords($sql, [$module->project_id]);
+    $ee = $module->fetchRecords($sql, [$module->getProjectId()]);
 
     $project_event_metadata = [];
 
@@ -1263,7 +1265,7 @@ function get_first_event_id()
    ORDER BY e.day_offset, e.event_id
    LIMIT 1";
 
-   return $module->fetchValue($sql, [$module->project_id]);
+   return $module->fetchValue($sql, [$module->getProjectId()]);
 }
 
 function get_event_select_options_html()
@@ -1276,7 +1278,7 @@ function get_event_select_options_html()
     WHERE a.project_id=?
     ORDER BY e.day_offset, e.event_id";
 
-    $events = $module->fetchRecords($sql, [$module->project_id]);
+    $events = $module->fetchRecords($sql, [$module->getProjectId()]);
 
     $eventSelectOptionsHtml = "<option value=''></option>";
     foreach ($events as $event){
