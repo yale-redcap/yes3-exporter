@@ -22,6 +22,12 @@
 
     "versions": [
         {
+            "version": "1.0.7",
+            "date": "2024-03-12",
+            "description": "Minor change to README",
+            "comments": "Identical features to v1.0.6 (Feb 2024) but important change to README (documentation URL)."
+        },
+        {
             "version": "1.0.6",
             "date": "2024-02-25",
             "description": "REDCap v14 compatibility",

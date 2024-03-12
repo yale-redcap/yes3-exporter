@@ -3,7 +3,7 @@
 
 # YES3 Exporter README
 
-Version 1.0.6, February 2024
+Version 1.0.7, March 2024
 
 The YES3 Exporter complements REDCap's reports and data export tool by adding functionality to support integration with statistical software and datamarts, including host file system exports.
 
@@ -11,15 +11,15 @@ Major features include flexible layouts (horizontal, vertical, repeating events/
 
 ## Important note about documentation
 
-Comprehensive YES3 Exporter documentation is available online at [https://yale-redcap.github.io/yes3-exporter/](https://yale-redcap.github.io/yes3-exporter/). 
+Comprehensive YES3 Exporter documentation is available online at [https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/](https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/). 
 
 The following documents are available:
 
-- Overview
-- What's New
-- User Guide
-- Technical Guide
-- Change Log
+- [What's New](https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/whats_new.html)
+- [Overview](https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/introduction.html)
+- [User Guide](https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/userguide.html)
+- [Technical Guide](https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/technical.html)
+- [Change Log](https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/changelog.html)
 
 ## Contact
 
