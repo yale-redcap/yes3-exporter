@@ -4,11 +4,11 @@ namespace Yale\Yes3FieldMapper;
 
 use Exception;
 
-
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-
+*/
 
 $request = "";
   
@@ -254,7 +254,7 @@ function getExportSpecificationList():string
 
     $form_export_permissions = $module->getFormExportPermissions();
 
-    $module->logDebugMessage($module->getProjectId(), print_r($form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
+    //$module->logDebugMessage($module->getProjectId(), print_r($form_export_permissions, true), "getExportSpecificationList:form_export_permissions");
 
     // handle some easy permission cases
 
@@ -1024,9 +1024,8 @@ function get_project_settings():string
     global $module;
 
     $field_metadata_structures = get_field_metadata_structures();
-    $form_metadata_structures  = get_form_metadata_structures();
 
-    // note: field_metadata_structures is properly html-escaped
+    $form_metadata_structures  = get_form_metadata_structures();
 
     /**
      * Count fields on the event grid if longitudinal.
@@ -1062,7 +1061,7 @@ function get_project_settings():string
         }
     }
 
-    return $module->json_encode_pretty( [
+    $project_settings = [
         'project_id' => $module->getProjectId(),
         'is_longitudinal' => \REDCap::isLongitudinal(),
         'repeating_forms' => $repeating_forms,
@@ -1075,14 +1074,26 @@ function get_project_settings():string
         'event_metadata' => get_event_metadata(),
         'project_event_metadata' => get_project_event_metadata(),
         'default_event_id' => get_first_event_id(),
-        //'beta' => ( $module->getProjectSetting('beta')==="Y" ) ? 1 : 0,
         'beta' => 0,
         'user_data_downloads_disabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" && $module->getProjectSetting('enable-user-data-downloads')!=="Y" ) ? 1 : 0,
         'host_filesystem_exports_enabled' => ( $module->getProjectSetting('enable-host-filesystem-exports')==="Y" ) ? 1 : 0,
         'host_filesystem_target' => $module->getProjectSetting('export-target-folder')
-        //, 'specification_settings' => get_specification_settings()
-        //, 'event_abbreviations_settings' => get_event_abbreviation_settings()
-    ] );
+    ];
+
+    // convert to json and log any errors
+    $json = json_encode($project_settings);
+
+    // if failed determine the error
+    if ( $json===false ){
+
+        //$module->logDebugMessage($module->getProjectId(), "json_encode failed: " . json_last_error_msg(), 'get_project_settings' );
+
+        return json_encode([
+            'error' => json_last_error_msg()
+        ]);
+    }
+
+    return json_encode($project_settings);
 }
 
 function get_specification_settings()

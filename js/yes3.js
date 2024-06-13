@@ -814,7 +814,7 @@ YES3.requestService = function( params, doneFn, json )
 
    params.redcap_csrf_token = redcap_csrf_token;
 
-   //YES3.debugMessage('requestService', params);
+   console.log('requestService', params);
 
    $.ajax(
     {
@@ -829,7 +829,7 @@ YES3.requestService = function( params, doneFn, json )
    .fail(function(jqXHR, textStatus, errorThrown) 
    {
       console.error(jqXHR);
-      alert('AJAX error: ' + jqXHR.responseText);
+      alert(`AJAX error processing request '${params.request}': ` + errorThrown);
    });
 }
 

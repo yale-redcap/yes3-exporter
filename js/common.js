@@ -91,14 +91,14 @@ FMAPR.postMessage(response);
 
 FMAPR.getProjectSettings = function() 
 {
-    //YES3.debugMessage( 'getProjectSettings' );
+    console.log( 'getProjectSettings' );
 
     YES3.requestService({'request':'get_project_settings'}, FMAPR.getProjectSettingsCallback, true);
 }
 
 FMAPR.getProjectSettingsCallback = function(response) 
 {
-    //YES3.debugMessage( 'getProjectSettingsCallback', response );
+    console.log( 'getProjectSettingsCallback', response );
 
     FMAPR.project = response;
 
