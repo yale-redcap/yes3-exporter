@@ -25,5 +25,5 @@ define('VARNAME_INSTANCE',   'redcap_repeat_instance');
 
 define('DEBUG_LOG_TABLE', 'ydcclib_debug_messages');
 
-define('LOG_DEBUG_MESSAGES', 0); // 0 for no logging, 1 for logging
+define('LOG_DEBUG_MESSAGES', 1); // 0 for no logging, 1 for logging
 

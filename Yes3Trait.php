@@ -575,10 +575,10 @@ trait Yes3Trait {
             return "";
         }
 
-    /**
+        /**
         * @psalm-suppress InvalidReturnStatement
         */
-    return preg_replace("/[^a-z0-9_]+/", "", strtolower(str_replace([' ', '-', '.'], '_', $s)));
+        return preg_replace("/[^a-z0-9_]+/", "", strtolower(str_replace([' ', '-', '.'], '_', $s)));   
     }
 
     /**
@@ -646,12 +646,12 @@ trait Yes3Trait {
 
     /**
      * Tries to guarantee inoffensive text, suitable for labels or SAS text fields
-     * Should be UTF-8 compatible
      * 
      * - trimmed
      * - stripped of HTML tags
      * - control chars (0-31, 127) converted to spaces
      * - all flavors of quotes converted to straight quote (apostrophe)
+     * - converted to UTF-8 encoding
      * 
      * regexp from: https://stackoverflow.com/questions/1176904/how-to-remove-all-non-printable-characters-in-a-string
      * 
@@ -676,9 +676,9 @@ trait Yes3Trait {
         
         $s = preg_replace('/[\x00-\x1F\x7F]/u', ' ', $this->straightQuoter( strip_tags($s)) ); 
 
-        if ( $maxLen ) return $this->truncate($s, $maxLen);
+        if ( $maxLen ) $s = $this->truncate($s, $maxLen);
 
-        return $s;       
+        return mb_convert_encoding($s, 'UTF-8');     
     }
 
     /**
@@ -730,9 +730,9 @@ trait Yes3Trait {
 
         $s = preg_replace('/[\x00-\x1F\x7F]/u', '', strip_tags($s));
 
-        if ( $maxLen ) return $this->truncate($s, $maxLen);
+        if ( $maxLen ) $s = $this->truncate($s, $maxLen);
 
-        return $s;       
+        return trim($s);
     }
 
     public function escapeHtml( $s )
@@ -781,10 +781,11 @@ trait Yes3Trait {
             return "";
         }
 
-        $s = trim($s);
         if ( $len > 0 && strlen($s) > $len) {
+
             return substr($s, 0, $len);
         }
+
         return $s;
     }
 
@@ -868,7 +869,7 @@ trait Yes3Trait {
 
     public function logDebugMessage($project_id, $msg, $msgcat="") 
     {   
-        if ( LOG_DEBUG_MESSAGES || !$this->tableExists(DEBUG_LOG_TABLE) ) return false;
+        if ( !LOG_DEBUG_MESSAGES || !$this->tableExists(DEBUG_LOG_TABLE) ) return false;
 
         $sql = "INSERT INTO `".DEBUG_LOG_TABLE."` (project_id, debug_message, debug_message_category) VALUES (?,?,?)";
 

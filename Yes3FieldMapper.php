@@ -2246,7 +2246,7 @@ WHERE project_id=? AND log_entry_type=?
             $redcap_form_name = (string) $export_item['redcap_form_name'] ?? "";
             $redcap_field_name = (string) $export_item['redcap_field_name'] ?? "";
 
-            if ( $redcap_event_id && $redcap_event_id !== ALL_OF_THEM && !in_array( $redcap_event_id, $all_event_ids ) ){
+            if ( REDCap::isLongitudinal() && $redcap_event_id && $redcap_event_id !== ALL_OF_THEM && !in_array( $redcap_event_id, $all_event_ids ) ){
 
                 $errors++;
 
@@ -2860,7 +2860,16 @@ WHERE project_id=? AND log_entry_type=?
 
         foreach ($fields as $field){
 
-            $form_export_permission = (int)$form_export_permissions[$field['form_name']];
+            $field_name = $this->inoffensiveText($field['field_name']);
+            $field_label = $this->inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
+            $form_name = $this->inoffensiveText($field['form_name']);
+
+            //if ( $field_name === 'wpai2') continue;
+
+            $field_type = $field['element_type'];
+            $field_validation = $field['element_validation_type'];
+
+            $form_export_permission = (int)$form_export_permissions[$form_name];
 
             if ( !$form_export_permission ) {
 
@@ -2872,9 +2881,6 @@ WHERE project_id=? AND log_entry_type=?
 
                 continue;
             }
-
-            $field_type = $field['element_type'];
-            $field_validation = $field['element_validation_type'];
 
             // large text, small text, dates not allowed for de-identified access
             // note: for now we are 
@@ -2892,10 +2898,10 @@ WHERE project_id=? AND log_entry_type=?
             $valueset = [];
 
             if ( $field['element_type']==="radio" || $field['element_type']==="select" || $field['element_type']==="checkbox"){
-                $vv = $this->getChoiceLabels($field['field_name']);
+                $vv = $this->getChoiceLabels($field_name);
                 foreach ( $vv as $value => $label) {
                     $valueset[] = [
-                        'value' => (string)$value,
+                        'value' => $this->inoffensiveText((string)$value),
                         'label' => $this->inoffensiveText($label, MAX_LABEL_LEN)
                     ];
                 }
@@ -2917,16 +2923,14 @@ WHERE project_id=? AND log_entry_type=?
                 ];
             }
 
-            $field_label = $this->inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
-
             $field_metadata[] = [
 
-                'field_name'        => $field['field_name'],
-                'form_name'         => $this->inoffensiveText($field['form_name']),
+                'field_name'        => $field_name,
+                'form_name'         => $form_name,
+                'field_label'       => $field_label,
                 'field_type'        => $field['element_type'],
                 'field_validation'  => $field['element_validation_type'],
                 'field_phi'         => $field['field_phi'],
-                'field_label'       => $field_label,
                 'field_valueset'    => $valueset
 
             ];
@@ -2936,17 +2940,21 @@ WHERE project_id=? AND log_entry_type=?
              *     since only forms are allowed on repeating layouts.
              * (2) The record ID field is not selectable. Its inclusion is determined at export time.
              */
-            if ( !$this->isRepeatingInstrument($field['form_name']) && $field['field_name'] !== $this->getRecordIdField() ) {
+            if ( !$this->isRepeatingInstrument($form_name) && $field_name !== $this->getRecordIdField() ) {
                 $field_autoselect_source[] = [
-                    'value' => $field['field_name'],
-                    'label' => "[" . $field['field_name'] . "] " . $field_label
+                    'value' => $field_name,
+                    'label' => "[" . $field_name . "] " . $field_label
                 ];
             }
 
-            $field_index[$field['field_name']] = $field_index_num;
+            $field_index[$field_name] = $field_index_num;
 
             $field_index_num++;
         }
+
+        //$field_index = [];
+        //$field_metadata = [];
+        //$field_autoselect_source = [];
 
         return [
             'field_index'=>$field_index, 
