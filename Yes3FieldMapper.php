@@ -1,11 +1,11 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-
+*/
 
 /**
  * defines and enums, should be a static class?
@@ -2864,10 +2864,10 @@ WHERE project_id=? AND log_entry_type=?
             $field_label = $this->inoffensiveText( $field['element_label'], MAX_LABEL_LEN );
             $form_name = $this->inoffensiveText($field['form_name']);
 
-            //if ( $field_name === 'wpai2') continue;
-
             $field_type = $field['element_type'];
             $field_validation = $field['element_validation_type'];
+
+            // form_export_permission: 1=Full dataset, 2=Deidentified, 3=No PHI, 0=No access
 
             $form_export_permission = (int)$form_export_permissions[$form_name];
 

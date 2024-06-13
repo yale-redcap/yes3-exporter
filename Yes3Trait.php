@@ -277,8 +277,6 @@ trait Yes3Trait {
         return $log_id;
     }
 
-    /* ==== STATIC METHODS ==== */
-
     /**
      * V13, V14+ compatible method for getting the project_id
      * 
