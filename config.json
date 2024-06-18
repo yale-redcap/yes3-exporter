@@ -22,6 +22,12 @@
 
     "versions": [
         {
+            "version": "1.0.9",
+            "date": "2024-06-18",
+            "description": "Fixes the 'download data only' bug",
+            "comments": "Invalid characters in project metadata were causing json_encode to fail. This release fixes the issue."
+        },
+        {
             "version": "1.0.8",
             "date": "2024-06-12",
             "description": "Fixes json_encode 'malformed UTF-8' issue for project metedata ",

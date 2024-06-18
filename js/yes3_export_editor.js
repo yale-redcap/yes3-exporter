@@ -1141,6 +1141,7 @@ FMAPR.downloadExecute = function()
     }
 
     else if ( exportOption==="data"){
+        console.log('downloadData will be called.');
         FMAPR.downloadData();
     }
 
@@ -1162,6 +1163,8 @@ FMAPR.downloadDataDictionary = function()
 
 FMAPR.downloadData = function()
 {
+    console.log('downloadData called.');
+    
     YES3.postServiceRequest({
 
         request: "downloadData",
