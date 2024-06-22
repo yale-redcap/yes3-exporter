@@ -2251,6 +2251,7 @@ WHERE project_id=? AND log_entry_type=?
         else $all_event_ids = [ $this->getEventId() ];
 
         $errors = 0;
+        $warnings = 0;
         $permission_denied = 0;
 
         //$this->logDebugMessage($this->getProjectId(), print_r($export_items, true), $specification['export_name'] . ":export_items");
@@ -2351,9 +2352,9 @@ WHERE project_id=? AND log_entry_type=?
         // deny export permission if no forms are involved, e.g. export design error or other mischief
         if ( !$specification_forms ){
 
-            $errors++;
+            $warnings++;
 
-            $this->addErrmsg( $sysmsg_prefix . "No forms are specified for this export." );
+            $this->addSysmsg( $sysmsg_prefix . "No items are as yet specified for this export. Click 'Export Items' to add forms and fields to this export." );
         }
         else {
             foreach ($specification_forms as $form_name){
