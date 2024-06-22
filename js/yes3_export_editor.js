@@ -188,11 +188,26 @@ FMAPR.handleExportErrorMessages = function( errorMessages, userIsEditor )
     if ( $msgContainer.length ){
 
         const instructions = "Errors were reported for this export specification."
-            + (( userIsEditor ) ? " You may edit this export, but you will not be able to download data." : " You will not be able to download data.")
+            + (( userIsEditor ) ? " You may edit this export, but the download/export features are disabled." : " The download/export features are disabled.")
             + " Click <a href='JavaScript:FMAPR.ErrReport_OpenPanel()'>here</a> for details."
         ;
         
         const msg = "<span class='yes3-fmapr-system-message-0'>" + instructions + "</span>";
+
+        $msgContainer.html(msg).parent().show();
+    }
+} 
+
+FMAPR.postExportMessage = function( message )
+{
+    const $msgContainer = $("div#yes3-fmapr-system-message");
+
+    console.warn(message); // always log message
+
+    // if there is a summary container, update it
+    if ( $msgContainer.length ){
+        
+        const msg = "<span class='yes3-fmapr-system-message-1'>" + message + "</span>";
 
         $msgContainer.html(msg).parent().show();
     }
@@ -257,24 +272,29 @@ YES3.Functions.NewExport_openPanel = function()
 {
     YES3.openPanel("yes3-fmapr-new-export-form");
 
+    const $tbl = $("table#yes3-fmapr-new-export");
+
+    $tbl.find('input[type=text]').val("");
+    $tbl.find('input[type=radio]').prop('checked', false);
+
     if ( FMAPR.project.is_longitudinal ){
 
         //$("input#yes3-fmapr-new-export-layout-h").prop("checked", true);
-        $("table#yes3-fmapr-new-export .yes3-longitudinal-only").show();
+       $tbl.find(".yes3-longitudinal-only").show();
     }
     else {
 
-        $("table#yes3-fmapr-new-export .yes3-longitudinal-only").hide();
+        $tbl.find(".yes3-longitudinal-only").hide();
         //$("input#yes3-fmapr-new-export-layout-v").prop("checked", true);
     }
 
     if ( FMAPR.project.repeating_forms ){
 
-        $("table#yes3-fmapr-new-export .yes3-has-repeating-forms").show();
+        $tbl.find(".yes3-has-repeating-forms").show();
     }
     else {
 
-        $("table#yes3-fmapr-new-export .yes3-has-repeating-forms").hide();
+        $tbl.find(".yes3-has-repeating-forms").hide();
     }
 }
 
@@ -3919,6 +3939,13 @@ FMAPR.loadSpecificationCallback = function( response )
 
             YES3.hello("PERMISSION DENIED: You do not have permission to export at least one form or field that is included in this export specification.");
             return false;
+        }
+
+        // if no items then...
+        if ( !response.export_items_json ){
+
+            response.permission_export = false;
+            FMAPR.postExportMessage("This export specification has as yet no export items defined, so the download/export features are disabled.");
         }
 
         // set permissions

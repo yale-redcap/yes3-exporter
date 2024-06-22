@@ -258,7 +258,7 @@ $module->getCodeFor("yes3_export_editor", true);
 
                 <tr>
                     <td>
-                        <i class="fas fa-question yes3-action-icon yes3-nohandler"></i>
+                        <i class="far fa-question-circle yes3-action-icon yes3-nohandler"></i>
                     </td>
                     <td>
                         Display a Help panel (like this one).
@@ -747,7 +747,7 @@ $module->getCodeFor("yes3_export_editor", true);
             <!--i class="fas fa-angle-double-down yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-collapsed yes3-fmapr-settings-okay" action="expandSettingsPanel"   title="Expand the upper settings panel" style="display:none"></i>    
             <i class="fas fa-angle-double-up   yes3-action-icon yes3-action-icon-controlpanel yes3-loaded yes3-expanded yes3-fmapr-settings-okay"  action="collapseSettingsPanel" title="Collapse the upper settings panel"></i-->
 
-            <i class="fas fa-question yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="Get some help"></i>
+            <i class="far fa-question-circle yes3-action-icon yes3-action-icon-controlpanel" action="Help_openPanel" title="Get some help"></i>
             <i class="fas fa-book-reader yes3-action-icon yes3-action-icon-controlpanel" action="Open_docPage" title="Open the YES3 Exporter documentation page"></i>
 
             <i class="fas fa-moon yes3-action-icon yes3-action-icon-controlpanel yes3-light-theme-only" action="Theme_dark" title="Switch to the dark side"></i>
@@ -837,7 +837,7 @@ $module->getCodeFor("yes3_export_editor", true);
         <div class="row">
             <div class="col-xl-12 yes3-fmapr-settings-section">
                 Options for selecting records to export
-                <i class="fas fa-question yes3-action-icon yes3-action-icon-inline" action="Help_criterionValue" title="Guidance for entering the criterion value expression."></i>
+                <i class="far fa-question-circle yes3-action-icon yes3-action-icon-inline" action="Help_criterionValue" title="Guidance for entering the criterion value expression."></i>
         </div>
         </div>
 
