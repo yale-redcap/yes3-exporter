@@ -1029,10 +1029,22 @@ div#yes3-message {
     opacity: 0.5;
 }
 
+.yes3-warning {
+   color: var(--yes3-warning-color) !important;
+   /*background-color: transparent !important;*/
+   /*font-weight: 600 !important;*/
+}
+
 .yes3-error {
-    color: var(--yes3-error-color) !important;
-    /*background-color: transparent !important;*/
-    /*font-weight: 600 !important;*/
+   color: var(--yes3-error-color) !important;
+   /*background-color: transparent !important;*/
+   /*font-weight: 600 !important;*/
+}
+
+.yes3-nonessential {
+   color: var(--yes3-nonessential-information-color) !important;
+   /*background-color: transparent !important;*/
+   /*font-weight: 600 !important;*/
 }
 
 /* frowny face for spotlighting errors */

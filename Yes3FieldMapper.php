@@ -1,11 +1,10 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-/*
+
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-*/
 
 /**
  * defines and enums, should be a static class?
@@ -37,12 +36,24 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
     private function addSysmsg($msg)
     {
-        $this->sysmsg .= $msg . "\n";
+        // add the message to the system message log only if it is not already there
+        if ( strpos($this->sysmsg, $msg)===false ){
+
+            if ( strlen($this->sysmsg) > 0 ) $this->sysmsg .= "\n";
+
+            $this->sysmsg .= $msg;
+        }
     }
 
     private function addErrmsg($msg)
     {
-        $this->errmsg .= $msg . "\n";
+        // add the message to the system message log only if it is not already there
+        if ( strpos($this->errmsg, $msg)===false ){
+
+            if ( strlen($this->errmsg) > 0 ) $this->errmsg .= "\n";
+
+            $this->errmsg .= $msg;
+        }
     }
 
     public function getFormExportPermissions(){
@@ -600,7 +611,7 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
             "rows" => $R,
             "destination" => $destination,
             "notification_email" => $this->getProjectSetting("notification-email"),
-            "username" => $this->username
+            "username" => $this->getUsername()
         ];
 
         $json = $this->json_encode_pretty($info);
@@ -1952,13 +1963,10 @@ WHERE project_id=? AND log_entry_type=?
             throw new Exception("Fail: could not open PHP output stream.");
         }
 
-        $path = "";
-
-        ob_start();
-
         header("Content-type: text/csv");
-        header("Cache-Control: no-store, no-cache");
         header('Content-Disposition: attachment; filename=' . basename($filename) );
+        header('Pragma: no-cache');
+        header('Expires: 0');
      
         foreach ( $xx as $x ) {
 
@@ -1966,15 +1974,13 @@ WHERE project_id=? AND log_entry_type=?
         }
      
         fclose($h);
-
-        ob_end_flush();
-
-        //exit;
     }
 
     public function downloadData($export_uuid)
     {
         $ddPackage = $this->buildExportDataDictionary($export_uuid);
+
+        $filename = $this->exportDataFilename( $ddPackage['export_name'], "download" );
 
         $xFileResponse = $this->writeExportFiles($ddPackage, "download");     
 
@@ -1983,18 +1989,18 @@ WHERE project_id=? AND log_entry_type=?
             throw new Exception("Fail: download export file not written");
         }
 
-        $h = $this->fopen_r_safe( $xFileResponse['export_data_filename'] );
+        $filePath = $xFileResponse['export_data_filename'];
 
-        if ( $h === false ) {
+        $size = filesize($filePath);
+
+        $file = $this->fopen_r_safe( $filePath );
+
+        if ( $file === false ) {
 
             throw new Exception("Fail: download export file could not be opened");
         }
-
-        $filename = $this->exportDataFilename( $ddPackage['export_name'], "download" );
     
-        $chunksize = 1024 * 1024; // 1MB per one chunk of file.
-
-        $size = intval(sprintf("%u", $xFileResponse['export_data_file_size']));
+        $chunkSize = 256 * 1024; // 256k per one chunk of file.
 
         $this->logExport(
             "export data downloaded",
@@ -2009,26 +2015,26 @@ WHERE project_id=? AND log_entry_type=?
             null,
             null
         );
-
-        ob_start();
-
+        
+        header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Transfer-Encoding: binary');
-        header("Cache-Control: no-store, no-cache");
-        header('Content-Length: '.$size);
-        header('Content-Disposition: attachment;filename=' . basename($filename) );
-
-        while (!feof($h)){
-
-            print(@fread($h, $chunksize));
-
-            ob_flush();
-            flush();
+        header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($filePath));
+    
+        // Flush system output buffer
+        flush();
+    
+        // Read and output the file in chunks
+        while (!feof($file)) {
+            echo fread($file, $chunkSize);
+            flush(); // Flush system output buffer to the client
         }
-
-        fclose($h);
-
-        ob_end_flush();
+    
+        // Close the file
+        fclose($file);
 
         //exit;
     }
@@ -2057,23 +2063,39 @@ WHERE project_id=? AND log_entry_type=?
 
         $zip = new ZipArchive;
 
-        $zip->open($zipFilename, ZipArchive::CREATE);
+        if ( !$zip->open($zipFilename, ZipArchive::CREATE) ) {
 
-        $zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download", $timestamp));
+            throw new Exception("Fail: could not open zip file for writing");
+        }
+
+        if ( !$zip->addFile($xFileResponse['export_data_dictionary_filename'], $this->exportDataDictionaryFilename($ddPackage['export_name'], "download", $timestamp)) ) {
+
+            throw new Exception("Fail: could not add data dictionary file to zip");
+        }
     
-        $zip->addFile($xFileResponse['export_data_filename'], $this->exportDataFilename($ddPackage['export_name'], "download", $timestamp));
+        if ( !$zip->addFile($xFileResponse['export_data_filename'], $this->exportDataFilename($ddPackage['export_name'], "download", $timestamp)) ) {
 
-        $zip->addFile($xFileResponse['export_info_filename'], $this->exportInfoFilename($ddPackage['export_name'], "download", $timestamp));
+            throw new Exception("Fail: could not add data file to zip");
+        }
+
+        if ( !$zip->addFile($xFileResponse['export_info_filename'], $this->exportInfoFilename($ddPackage['export_name'], "download", $timestamp))) {
+
+            throw new Exception("Fail: could not add info file to zip");
+        }
 
         $zip->close();
 
         $filename = $this->exportZipFilename( $ddPackage['export_name'], "download" );
 
-        $chunksize = 1024 * 1024; // 1MB per one chunk of file.
+        $chunkSize = 256 * 1024; // 256k per one chunk of file.
 
-        $size = intval(sprintf("%u", filesize($zipFilename)));
+        $size = filesize($zipFilename);
 
-        $h = $this->fopen_r_safe($zipFilename);
+        $file = $this->fopen_r_safe($zipFilename);
+        if ( $file === false ) {
+
+            throw new Exception("Fail: download zip file could not be opened for download");
+        }
 
         $this->logExport(
             "export zip downloaded",
@@ -2089,27 +2111,26 @@ WHERE project_id=? AND log_entry_type=?
             null
         );
 
-        ob_start();
-
+        // Set headers for the binary file download
+        header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Transfer-Encoding: binary');
-        header("Cache-Control: no-store, no-cache");
-        header('Content-Length: '.$size);
-        header('Content-Disposition: attachment;filename=' . basename($filename) );
+        header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . $size);
 
-        while (!feof($h)){
+        // Flush system output buffer
+        flush();
 
-            print(@fread($h, $chunksize));
-
-            ob_flush();
-            flush();
+        // Read and output the file in chunks
+        while (!feof($file)) {
+            echo fread($file, $chunkSize);
+            flush(); // Flush system output buffer to the client
         }
 
-        fclose($h);
-
-        ob_end_flush();
-
-        //exit;
+        // Close the file
+        fclose($file);
     }
 
     private function getEventName($event_id, $event_settings)
@@ -2240,6 +2261,8 @@ WHERE project_id=? AND log_entry_type=?
         // accumulate the list of all forms involved in the export specification
         foreach($export_items as $export_item){
 
+            $item_errors = 0;
+
             // an event may be associated with a form or a field, so the validation check must be up top
 
             $redcap_event_id = (string) $export_item['redcap_event_id'] ?? "";
@@ -2251,6 +2274,8 @@ WHERE project_id=? AND log_entry_type=?
                 $errors++;
 
                 $this->addErrmsg( $sysmsg_prefix . "The event_id [" . $redcap_event_id . "] is in the export specification but it no longer exists.");
+
+                $item_errors++;
             }
 
             if ( $redcap_form_name ) {
@@ -2276,19 +2301,21 @@ WHERE project_id=? AND log_entry_type=?
                                 if ( !in_array( $form_name, $specification_forms ) ){
 
                                     $specification_forms[] = $form_name;
+
+                                    continue;
                                 }
                             }
                         }
                     }
                 }
-                // single form, no need to check event because the UI pre-filters fields after event is selected
+                // single form
                 else {
 
                     if ( !in_array($redcap_form_name, $all_forms ) ){
 
-                        $errors++;
-
                         $this->addErrmsg( $sysmsg_prefix . "The form [" . $redcap_form_name . "] is in the export specification but either it no longer exists, or it is not assigned to any events.");
+
+                        $item_errors++;
                     }
                     else if ( !in_array( $redcap_form_name, $specification_forms ) ){
 
@@ -2296,20 +2323,19 @@ WHERE project_id=? AND log_entry_type=?
                     }
                 }
 
-                continue;
+                //??continue;
             }
 
             // export item is a single field (there is no 'all fields' option in the UI)
-            // theoretically no need to check for event_id because the UI pre-filters fields after event is selected
             if ( $redcap_field_name ){
 
                 $form_name = $this->getREDCapFormForField( $redcap_field_name );
 
                 if ( !$form_name ){
 
-                    $errors++;
-
                     $this->addErrmsg( $sysmsg_prefix . "The field [" . $redcap_field_name . "] is in the export specification but it no longer exists.");
+
+                    $item_errors++;
                 }
                 else if ( !in_array( $form_name, $specification_forms ) ){
 
@@ -2317,6 +2343,8 @@ WHERE project_id=? AND log_entry_type=?
                 }
             }
         }
+
+        $errors += $item_errors;
 
         //$this->logDebugMessage($this->getProjectId(), print_r($specification_forms, true), $specification['export_name'] . ":specification_forms");
 
@@ -2327,6 +2355,17 @@ WHERE project_id=? AND log_entry_type=?
 
             $this->addErrmsg( $sysmsg_prefix . "No forms are specified for this export." );
         }
+        else {
+            foreach ($specification_forms as $form_name){
+
+                if ( !isset($form_export_permissions[$form_name]) || !$form_export_permissions[$form_name] ){
+    
+                    $this->addSysmsg( $sysmsg_prefix. "Export permission was denied for form [" . $form_name . "].");
+    
+                    $permission_denied++;
+                }
+            }    
+        }
 
         // errors in the export specification
         if ( $errors ){
@@ -2335,16 +2374,6 @@ WHERE project_id=? AND log_entry_type=?
 
             $permission_denied++;
         }   
-
-        foreach ($specification_forms as $form_name){
-
-            if ( !isset($form_export_permissions[$form_name]) || !$form_export_permissions[$form_name] ){
-
-                $this->addSysmsg( $sysmsg_prefix. "Export permission was denied for form [" . $form_name . "].");
-
-                $permission_denied++;
-            }
-        }
         
         //$this->logDebugMessage($this->getProjectId(), "export permission approved" . $form_name, $specification['export_name'] . ":approval");
 

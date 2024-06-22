@@ -449,7 +449,7 @@ div#yes3-fmapr-page-footer {
 div#yes3-fmapr-system-message {
     width: 100%;
     padding-bottom: 0;
-    padding-top: 20px;
+    padding-top: 10px;
 }
 
 div#yes3-fmapr-copyright {
@@ -459,7 +459,12 @@ div#yes3-fmapr-copyright {
 
 .yes3-fmapr-system-message-0 {
     font-style: italic;
-    color: var(--yes3-color);
+    color: var(--yes3-error-color) !important;
+}
+
+.yes3-fmapr-system-message-0 a {
+    color: inherit !important;
+    text-decoration: underline !important;
 }
 
 .yes3-fmapr-system-message-1 {
@@ -471,6 +476,58 @@ div#yes3-fmapr-copyright {
 }
 
 .yes3-fmapr-system-message-3 {
+    color: var(--yes3-error-color);
+}
+
+#yes3-fmapr-error-report div {
+    margin-top: 0 !important;
+}
+
+.yes3-fmapr-list {
+    /*
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    */
+}
+
+ol.yes3-fmapr-list {
+    /* list-style-type: circle !important; */
+    /*list-style-position: inside !important;*/
+    padding-left: 20px !important; /* must match the parent's left padding */
+    margin-left: 0;
+}
+
+ol.yes3-fmapr-list li {
+    padding-top: 0 !important;
+    padding-left: 2px;
+    padding-bottom: 4px !important;
+}
+
+ol.yes3-fmapr-list li:not(:first-child) {
+    margin-top: 0 !important;
+}
+
+div#yes3-fmapr-error-report-title {
+    font-weight: bold;
+    color: var(--yes3-error-color);
+    width: 100%;
+    padding-bottom: 0.5rem !important;
+}
+
+div#yes3-fmapr-error-report-note {
+    font-weight: normal;
+    font-style: italic;
+    color: var(--yes3-information-color);
+    width: 100%;
+    padding-bottom: 0.5rem !important;
+}
+
+div#yes3-fmapr-error-report-content {
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
     color: var(--yes3-error-color);
 }
 

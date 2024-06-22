@@ -22,6 +22,12 @@
 
     "versions": [
         {
+            "version": "1.0.9",
+            "date": "2024-06-18",
+            "description": "Fixes the 'download data only' bug",
+            "comments": "Fixes the 'download data only' bug. Exposes error report for loaded specification. getUsername() method replaces 'user_name' property. Minor UI tweaks."
+        },
+        {
             "version": "1.0.8",
             "date": "2024-06-12",
             "description": "Fixes json_encode 'malformed UTF-8' issue for project metedata ",

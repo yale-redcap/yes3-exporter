@@ -4,11 +4,9 @@ namespace Yale\Yes3FieldMapper;
 
 use Exception;
 
-/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-*/
 
 $request = "";
   
@@ -60,7 +58,7 @@ function execRequest( $request ){
         , 'checkdownloadpermission'
         , 'checkexportpermission'
         , 'countexportitems'
-        , 'downloaddata'
+        , 'downloaddatarecords'
         , 'downloaddatadictionary'
         , 'downloadexportlog'
         , 'downloadzip'
@@ -113,7 +111,7 @@ function addExportSpecification()
         , 'log_entry_type' => EMLOG_TYPE_EXPORT_SPECIFICATION
         , 'export_uuid' => $_POST['export_uuid']
         , 'export_name' => $_POST['export_name']
-        , 'export_username' => $module->username
+        , 'export_username' => $module->getUsername()
         , 'export_layout' => $_POST['export_layout']
         , 'export_selection' => "1"
         , 'export_criterion_field' => ""
@@ -149,7 +147,7 @@ function saveExportSpecification()
         , 'log_entry_type' => EMLOG_TYPE_EXPORT_SPECIFICATION
         , 'export_uuid' => ""
         , 'export_name' => ""
-        , 'export_username' => $module->username
+        , 'export_username' => $module->getUsername()
         , 'export_layout' => ""
         , 'export_selection' => ""
         , 'export_criterion_field' => ""
@@ -240,6 +238,9 @@ function getExportSpecification()
         $specification['permission_design'] = $permission_design;
         $specification['permission_export'] = $permission_export;
     }
+
+    $specification['sysmsg'] = $module->sysmsg;
+    $specification['errmsg'] = $module->errmsg;
 
     return json_encode( $specification );
 }
@@ -662,7 +663,7 @@ function downloadDataDictionary()
     return $module->downloadDataDictionary($export_uuid);
 }
 
-function downloadData()
+function downloadDataRecords()
 {
     global $module;
 
@@ -827,7 +828,7 @@ function saveEventSettings()
     $logId = $module->log(
         EMLOG_MSG_EXPORT_EVENTS,
         [
-            "user" => $module->username,
+            "user" => $module->getUsername(),
             "log_entry_type" => EMLOG_TYPE_EXPORT_EVENTS,
             "setting" => "export-events",
             "export_events_json" => json_encode($events)
@@ -926,7 +927,7 @@ function save_field_mappings()
         $logMsg,
         [
             "export_uuid" => $export_uuid,
-            "user" => $module->username,
+            "user" => $module->getUsername(),
             "setting" => "yes3-exporter-field-map",
             "field_mappings" => $field_mappings_json
         ]
