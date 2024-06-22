@@ -248,12 +248,16 @@ YES3.deleteCookie = function( cookieName )
 
 // === PANEL FUNCTIONS ==================================================================================
 
-YES3.hello = function(msg, fn, nonmodal) {
+YES3.hello = function(msg, fn, nonmodal, title) {
     if ( fn ) {
-    YES3.helloFunction = fn;
-} else {
-    YES3.helloFunction = null;
-}
+        YES3.helloFunction = fn;
+    } else {
+        YES3.helloFunction = null;
+    }
+        
+    title = title || "AND NOW THIS";
+    $('#yes3-hello-panel-title').html(title);
+ 
     $('#yes3-hello-message').html(msg);
     YES3.openPanel('yes3-hello-panel', nonmodal);
 };
@@ -798,6 +802,9 @@ YES3.postServiceRequest = function( params ){
         form.appendChild(formField);
     }
 
+    console.log('postServiceRequest', params);
+    console.log('form', form);
+
     form.submit();
 
     form.remove();
@@ -915,7 +922,10 @@ YES3.debugMessage = function()
     console.log.apply(null, arguments);
 }
 
-/*** ONLOAD ***/
+// set jQ props
+YES3.setJQueryStuff = function(){
+    $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});
+}
 
 
 /*
@@ -936,5 +946,6 @@ $( function () {
         jqXHR.setRequestHeader('X-CSRF-Token', redcap_csrf_token);
     });
 
-    $(".yes3-draggable").draggable({"handle": ".yes3-panel-header-row, .yes3-panel-handle, .yes3-drag-handle"});
+    YES3.setJQueryStuff();
+
 })

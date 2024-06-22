@@ -106,48 +106,93 @@ YES3.Functions.Help_criterionValue = function()
 
 FMAPR.clearSystemMessage = function()
 {
-    FMAPR.postSystemMessages();
+    FMAPR.error_message = "";
+    FMAPR.warning_message = "";
 
     $("div#yes3-fmapr-system-message").html('').parent().hide();
 }
 
-FMAPR.postSystemMessages = function( warnings, errors )
+/**
+ * function to convert a string into an unordered list
+ */
+FMAPR.arrayToListHtml = function( a )
 {
-    warnings = warnings || "";
-    errors = errors || "";
+    let html = "";
 
-    // assume that the first line of each message is a summary
-    const instructions = "Warnings and/or errors were reported. Press Ctrl+Shift+J to open the browser console for details:";
-    const sysmsg_summary = ( warnings.length ) ? warnings.split("\n")[0] : "";
-    const errmsg_summary = ( errors.length ) ? errors.split("\n")[0] : "";
+    html += "<ol class='yes3-fmapr-list'>";
 
-    FMAPR.warning_message = warnings;
-    FMAPR.error_message = errors;
+    for (let i=0; i<a.length; i++){
+
+        if ( !a[i].length ) continue;
+        html += "<li>" + a[i] + "</li>";
+    }
+
+    html += "</ol>";
+
+    return html;
+}
+
+FMAPR.nl2br = function( s )
+{
+    return s.replace(/\n/g, "<br>");
+}
+
+FMAPR.ErrReport_OpenPanel = function()
+{
+    if ( !FMAPR.error_message.length ) return;
+    
+    const reportContainerId = "yes3-fmapr-error-report";
+    const $titleContainer   = $("div#yes3-fmapr-error-report-title");
+    const $noteContainer    = $("div#yes3-fmapr-error-report-note");
+    const $errorsContainer  = $("div#yes3-fmapr-error-report-content");
+
+    const errList = FMAPR.error_message.split("\n");
+
+    $titleContainer.html("The following errors were reported for this export specification:");
+
+    if (FMAPR.userPermissions.design ){
+
+        $noteContainer.html(
+            "Note that any deleted forms and/or fields have already been excluded from this editing session. To make these exclusions permanent, simply save the export."
+        );
+    }
+    else {
+
+        $noteContainer.html("");
+    }
+
+    $errorsContainer.html(FMAPR.arrayToListHtml(errList));
+
+    YES3.openPanel(reportContainerId, true);
+}
+
+FMAPR.ErrReport_closePanel = function()
+{
+    YES3.closePanel("yes3-fmapr-error-report");
+}
+
+FMAPR.handleExportErrorMessages = function( errorMessages, userIsEditor )
+{
+    errorMessages = errorMessages || "";
+    userIsEditor = userIsEditor || false;
+
+    if ( !errorMessages.length ) return;
+
+    FMAPR.error_message = errorMessages;
 
     const $msgContainer = $("div#yes3-fmapr-system-message");
 
-    let msg = "";
-
-    if ( warnings.length ) {
-
-        msg += "<span class='yes3-fmapr-system-message-2'> " + sysmsg_summary + "</span>";
-
-        console.warn(warnings);
-    }
-
-    if ( errors.length ) {
-
-        if ( msg.length ) msg += "<br>";
-
-        msg += "<span class='yes3-fmapr-system-message-3'> " + errmsg_summary + "</span>";
-
-        console.error(errors)
-    };
+    console.error(errorMessages); // always log errors
 
     // if there is a summary container, update it
-    if ( $msgContainer.length && msg.length ){
+    if ( $msgContainer.length ){
 
-        msg = "<span class='yes3-fmapr-system-message-0'>" + instructions + "</span><br>" + msg;
+        const instructions = "Errors were reported for this export specification."
+            + (( userIsEditor ) ? " You may edit this export, but you will not be able to download data." : " You will not be able to download data.")
+            + " Click <a href='JavaScript:FMAPR.ErrReport_OpenPanel()'>here</a> for details."
+        ;
+        
+        const msg = "<span class='yes3-fmapr-system-message-0'>" + instructions + "</span>";
 
         $msgContainer.html(msg).parent().show();
     }
@@ -954,6 +999,12 @@ FMAPR.exportItemRowEventLabel = function(event)
         return "all events";
     }
 
+    // event may have been deleted
+    if ( !FMAPR.project.event_metadata[event] ){
+
+        return `event missing!`;
+    }
+
     return FMAPR.project.event_metadata[event].event_label + " event";
 }
 
@@ -1141,7 +1192,7 @@ FMAPR.downloadExecute = function()
     }
 
     else if ( exportOption==="data"){
-        console.log('downloadData will be called.');
+        //console.log('downloadData will be called.');
         FMAPR.downloadData();
     }
 
@@ -1163,11 +1214,11 @@ FMAPR.downloadDataDictionary = function()
 
 FMAPR.downloadData = function()
 {
-    console.log('downloadData called.');
+    //console.log('downloadData called.');
     
     YES3.postServiceRequest({
 
-        request: "downloadData",
+        request: "downloadDataRecords",
         export_uuid: FMAPR.getExportUUID()
     });
 }
@@ -3711,11 +3762,13 @@ FMAPR.loadSpecificationsCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationsCallback', response, typeof response);
 
+    // prepare a detailed permissions/error report to be displayed on the console
+    
     let sysmsg = response.sysmsg || "";
     let errmsg = response.errmsg || "";
 
     let sysmsg_summary = "";
-    let errmsg_summary = "One or more export specifications failed the validation checks, resulting in Download/Export permissions being denied.";
+    let errmsg_summary = "One or more export specifications failed the validation checks, resulting in Download/Export permissions being denied:";
 
     if ( response.exports_denied ){
 
@@ -3729,8 +3782,9 @@ FMAPR.loadSpecificationsCallback = function( response )
         errmsg = `${errmsg_summary}\n${errmsg}`;
     }
 
-    FMAPR.postSystemMessages( sysmsg, errmsg );
-
+    if ( sysmsg.length ) console.warn(sysmsg);
+    if ( errmsg.length ) console.error(errmsg);
+    
     let select = FMAPR.getExportUUIDSelect();
 
     let html = "";
@@ -3836,6 +3890,8 @@ FMAPR.loadSpecification = function( log_id )
     YES3.isBusy( YES3.captions.wait_loading_specification );
 
     FMAPR.clearSystemMessage();
+
+    FMAPR.ErrReport_closePanel();
     
     YES3.requestService( { 
         "request": "getExportSpecification", 
@@ -3847,7 +3903,7 @@ FMAPR.loadSpecification = function( log_id )
 FMAPR.loadSpecificationCallback = function( response )
 {
     //YES3.debugMessage('loadSpecificationCallback', response, typeof response);
-    //console.log('loadSpecificationCallback', response, typeof response);
+    console.log('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 
@@ -3871,14 +3927,11 @@ FMAPR.loadSpecificationCallback = function( response )
 
         FMAPR.showDashboardHead();
 
-        //if ( FMAPR.countExportItemsFromSpecification(response) ){
-
-        //    yes3_dashboard_option = 'items';
-        //}
-
         FMAPR.displayDashboardOption(FMAPR.dashboard_option);
 
         FMAPR.populateSpecificationTables( response );
+
+        FMAPR.handleExportErrorMessages(response.errmsg, response.permission_design);
     }
 
     return true;

@@ -44,6 +44,13 @@ trait Yes3Trait {
         return $json;
     }
 
+    public function getUsername(){
+
+        if ( !isset($_GET['pid']) ) return "noname";
+
+        return $this->getUser()->getUsername();
+    }
+
     public function yes3UserRights( $designerHasExportRights=false )
     {
         $isDesigner = ( $this->getUser()->hasDesignRights() ) ? 1:0;
@@ -264,7 +271,7 @@ trait Yes3Trait {
         ;
 
         $params = [
-            'username' => $this->username,
+            'username' => $this->getUsername(),
             'log_entry_type' => EMLOG_TYPE_ERROR_REPORT,
             'exception_report' => $exceptionReport,
         ];

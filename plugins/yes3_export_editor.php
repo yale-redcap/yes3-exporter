@@ -114,9 +114,30 @@ $module->getCodeFor("yes3_export_editor", true);
 
 </div>
 
+<!-- WARNINGS/ERROR REPORT -->
+ 
+<div id="yes3-fmapr-error-report" class="yes3-panel yes3-help-panel yes3-draggable" style="display:none">
+
+    <div class="yes3-panel-header-row">
+        <div class="yes3-panel-row-left" id="yes3-help-panel-title">
+            Export specification errors
+        </div>
+        <div class="yes3-panel-row-right">
+            <a href="javascript: FMAPR.ErrReport_closePanel()"><i class="fas fa-times fa-2x"></i></a>
+        </div>
+    </div>
+
+    <div class='yes3-panel-row'>
+        <div id='yes3-fmapr-error-report-title'></div>
+        <div id="yes3-fmapr-error-report-content"></div>
+        <div id="yes3-fmapr-error-report-note"></div>
+    </div>
+
+</div>
+
 <!-- HELP -->
 
-<div id="yes3-help-panel" class="yes3-panel yes3-help-panel" style="display:none">
+<div id="yes3-help-panel" class="yes3-panel yes3-help-panel yes3-draggable" style="display:none">
 
     <div class="yes3-panel-header-row">
         <div class="yes3-panel-row-left" id="yes3-help-panel-title">
