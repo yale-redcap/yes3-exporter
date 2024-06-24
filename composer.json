@@ -1,8 +1,0 @@
-{
-    "require-dev": {
-        "vimeo/psalm" : "^4.19"
-    },
-    "require": {
-        "php": "^7.3||^8.0"
-    }
-}
