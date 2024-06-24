@@ -802,9 +802,6 @@ YES3.postServiceRequest = function( params ){
         form.appendChild(formField);
     }
 
-    console.log('postServiceRequest', params);
-    console.log('form', form);
-
     form.submit();
 
     form.remove();
@@ -820,8 +817,6 @@ YES3.requestService = function( params, doneFn, json )
    doneFn = doneFn || YES3.noop;
 
    params.redcap_csrf_token = redcap_csrf_token;
-
-   console.log('requestService', params);
 
    $.ajax(
     {
