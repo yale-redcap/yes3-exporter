@@ -682,6 +682,19 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         ];
     }
 
+    /**
+     * file handle for downloading or exporting data
+     * If $destination is "download", the file is created in the PHP temp dir and later downloaded.
+     * Otherwise, the file is created in the export_target_folder (an automounted folder on the REDCap server).
+     * 
+     * @param mixed $path 
+     * @param mixed $destination 
+     * @param mixed $export_target_folder 
+     * @param string $filename 
+     * @param bool $utf8 
+     * @return resource 
+     * @throws Exception 
+     */
     private function export_file_handle( &$path, &$destination, $export_target_folder, $filename="", $utf8 = true)
     {
         if ( !$export_target_folder || $destination==="download" ) {
@@ -3541,7 +3554,7 @@ WHERE project_id=? AND log_entry_type=?
         $msg .= $this->emailTableCell("th", "timestamp");
         $msg .= $this->emailTableCell("th", "user");
         $msg .= $this->emailTableCell("th", "log_message");
-        $msg .= $this->emailTableCell("th", "destination");
+        //$msg .= $this->emailTableCell("th", "destination");
 
         $msg .= '</tr>';
 
@@ -3553,7 +3566,7 @@ WHERE project_id=? AND log_entry_type=?
             $msg .= $this->emailTableCell("td", $log['timestamp']);
             $msg .= $this->emailTableCell("td", $log['username']);
             $msg .= $this->emailTableCell("td", $log['message']);
-            $msg .= $this->emailTableCell("td", $log['destination']);
+            //$msg .= $this->emailTableCell("td", $log['destination']);
 
             $msg .= '</tr>';
         }

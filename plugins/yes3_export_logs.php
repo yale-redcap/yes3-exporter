@@ -297,7 +297,7 @@ $module->getCodeFor("yes3_export_logs", true);
                     <th class="yes3-header yes3-cw15">timestamp</th>
                     <th class="yes3-header yes3-cw15">user</th>
                     <th class="yes3-header yes3-cw35">message</th>
-                    <th class="yes3-header yes3-cw20">destination</th>
+                    <!--th class="yes3-header yes3-cw20">destination</th-->
                 </tr>
             </thead>
 

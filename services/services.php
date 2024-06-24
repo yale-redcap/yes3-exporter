@@ -434,8 +434,10 @@ function downloadExportLog()
 
     $path = tempnam(sys_get_temp_dir(), "ys3");
 
-    //$h = fopen( $path, "w+" );
-    $h = $module->fopen_w_utf8( $path, "w+" );
+    $root = sys_get_temp_dir();
+    $path = tempnam($root, "ys3");
+
+    $h = $module->fopen_w_safe( $path, "w+", $root );
 
     if ( $h===false ){
 
