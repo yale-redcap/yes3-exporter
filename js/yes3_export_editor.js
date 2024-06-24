@@ -3922,8 +3922,7 @@ FMAPR.loadSpecification = function( log_id )
 
 FMAPR.loadSpecificationCallback = function( response )
 {
-    //YES3.debugMessage('loadSpecificationCallback', response, typeof response);
-    console.log('loadSpecificationCallback', response, typeof response);
+    //console.log('loadSpecificationCallback', response, typeof response);
 
     YES3.notBusy();
 
@@ -5330,23 +5329,13 @@ FMAPR.displayCopyright = function(){
  */
 $( function () {
 
-    console.log("yes3_export_editor: 0");
-
     YES3.RegisterApplicationNameSpace('FMAPR');
-
-    console.log("yes3_export_editor: 1");
 
     YES3.hideContextMenuOnClickOutside();
 
-    console.log("yes3_export_editor: 2");
-
     FMAPR.makeSortable( FMAPR.getExportItemsTableBody() );
 
-    console.log("yes3_export_editor: 3");
-
     FMAPR.setSpecialKeyListeners();
-
-    console.log("yes3_export_editor: 4");
 
     YES3.contentLoaded = false;
 
@@ -5357,8 +5346,6 @@ $( function () {
      * (3) Triggers 'yes3-fmapr.settings' event
      */
     FMAPR.getProjectSettings(); 
-
-    console.log("yes3_export_editor: 5");
 })
  
 

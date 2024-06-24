@@ -3,7 +3,7 @@
 
     "namespace": "Yale\\Yes3FieldMapper",
 
-    "description": "Specialized data export module for datamart integrations. This release is compatible with REDCap v14. See the change log at https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/changelog.html for important release notes.",
+    "description": "Specialized data export module for datamart integrations. Key features include a 'horizontal' layout for longitudinal projects, having one column per event per field. Supports exports to the host file system, intended for bind mounts mapped to external fileshares. This release requires REDCap version 14.0.2 or above. See the change log at https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/changelog.html for important release notes.",
 
     "documentation": "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/",
 

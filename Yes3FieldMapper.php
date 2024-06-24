@@ -1,11 +1,11 @@
 <?php
 
 namespace Yale\Yes3FieldMapper;
-
+/*
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-
+*/
 /**
  * defines and enums, should be a static class?
  */
@@ -788,34 +788,6 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
         $export_specification = $ddPackage['export_specification'];
 
         $redcap_data = $this->getDataTable();
-
-        /*
-        if ( !$export_target_folder || $destination==="download" ) {
-
-            $path = tempnam(sys_get_temp_dir(), "ys3");
-
-            $destination = "download";
-        }
-        else {
-
-            if ( substr($export_target_folder, -1) !== DIRECTORY_SEPARATOR ){
-
-                $export_target_folder .= DIRECTORY_SEPARATOR;
-            }
-
-            $path = $export_target_folder . $this->exportDataFilename($export_name, "filesystem");          
-
-            $destination = "filesystem";
-        }
-
-        //$h = fopen( $path, "w+" );
-        $h = $this->fopen_w_utf8( $path );
-
-        if ( $h===false ){
-
-            throw new Exception("Fail: could not create export file {$path}");
-        }
-        */
 
         $path = "";
 
