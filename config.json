@@ -24,7 +24,7 @@
         {
             "version": "1.1.0",
             "date": "2024-25-18",
-            "description": "Initial release of v1.1",
+            "description": "Initial dev release of v1.1",
             "comments": "New multi-column option for multiselects."
         },
         {
