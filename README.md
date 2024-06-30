@@ -3,11 +3,11 @@
 
 # YES3 Exporter README
 
-Version 1.0.7, March 2024
+Version 1.0.9, June 2024
 
 The YES3 Exporter complements REDCap's reports and data export tool by adding functionality to support integration with statistical software and datamarts, including host file system exports.
 
-Major features include flexible layouts (horizontal, vertical, repeating events/forms), good performance on very large exports, and export-specific data dictionaries that can be packaged with data exports.  Other helpful built-in features include detailed audit reports, metadata and data distributions within the data dictionary, and the ability to roll back export specifications.
+Major features include flexible layouts (horizontal, vertical, repeating forms), good performance on very large exports, and export-specific data dictionaries that can be packaged with data exports.  Other helpful built-in features include detailed audit reports, metadata and data distributions within the data dictionary, and the ability to roll back export specifications.
 
 ## Important note about documentation
 
