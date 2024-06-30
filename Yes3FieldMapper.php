@@ -87,22 +87,22 @@ class Yes3FieldMapper extends \ExternalModules\AbstractExternalModule
 
     public function getDocumentationUrl(){
 
-        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/";
+        return "https://yale-redcap.github.io/yes3-exporter-1.0-docs/";
     }
 
     public function getChangelogUrl(){
 
-        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/changelog.html";
+        return "https://yale-redcap.github.io/yes3-exporter-1.0-docs/changelog.html";
     }
 
     public function getTechnicalDocumentationUrl(){
 
-        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/technical.html";
+        return "https://yale-redcap.github.io/yes3-exporter-1.0-docs/technical.html";
     }
 
     public function getOverviewDocumentationUrl(){
 
-        return "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/introduction.html";
+        return "https://yale-redcap.github.io/yes3-exporter-1.0-docs/about.html";
     }
 
     /**
