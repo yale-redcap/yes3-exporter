@@ -5,7 +5,7 @@
 
     "description": "Specialized data export module for datamart integrations. Key features include a 'horizontal' layout for longitudinal projects, having one column per event per field. Supports exports to the host file system, intended for bind mounts mapped to external fileshares. This release requires REDCap version 14.0.2 or above. See the change log at https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/changelog.html for important release notes.",
 
-    "documentation": "https://yale-redcap.github.io/yes3-exporter-documentation/v1.0/",
+    "documentation": "https://yale-redcap.github.io/yes3-exporter-1.0-docs/",
 
     "prefix": "yes3_exporter",
 
@@ -30,7 +30,7 @@
         {
             "version": "1.0.8",
             "date": "2024-06-12",
-            "description": "Fixes json_encode 'malformed UTF-8' issue for project metedata ",
+            "description": "Fixes json_encode 'malformed UTF-8' issue for project metadata ",
             "comments": "Invalid characters in project metadata were causing json_encode to fail. This release fixes the issue."
         },
         {
